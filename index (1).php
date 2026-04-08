@@ -999,6 +999,7 @@ textarea{resize:vertical;min-height:70px}select option{background:var(--sf)}
           <div class="fgi"><label>Max Issue Days</label><input id="s-days" value="14" type="number" min="1"></div>
           <div class="fgi"><label>AC Seat Extra (₹)</label><input id="s-acfee" value="200" type="number" min="0"></div>
           <div class="fgi"><label>WhatsApp Number</label><input id="s-wa" value="919709900158"></div>
+          <div class="fgi"><label>UPI ID for Payments</label><input id="s-upi" placeholder="e.g. 7282071620@okaxis"></div>
         </div>
         <div style="margin-top:14px;display:flex;gap:8px">
           <button class="btn bp" onclick="saveSettings()"><span class="mi sm">save</span>Save Settings</button>
@@ -1013,6 +1014,55 @@ textarea{resize:vertical;min-height:70px}select option{background:var(--sf)}
   </div><!-- /content -->
 </div><!-- /main -->
 <!-- MODALS -->
+<!-- UPI PAYMENT LINK MODAL -->
+<div class="mo" id="mUpiLink"><div class="md wide">
+  <div class="mh"><div class="mt"><span class="mi sm" style="vertical-align:middle;margin-right:6px">payments</span>Send UPI Payment Link</div><button class="mc" onclick="closeM('mUpiLink')"><span class="mi sm">close</span></button></div>
+  <div class="mb">
+    <!-- Student info strip -->
+    <div style="display:flex;align-items:center;gap:12px;padding:14px;background:#f5f8ff;border:1.5px solid #dde5f7;border-radius:var(--r2);margin-bottom:14px">
+      <div id="upiStuAv" style="width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#fff;flex-shrink:0;background:#3d6ff0"></div>
+      <div style="flex:1">
+        <div id="upiStuName" style="font-weight:700;font-size:13px;color:var(--tx)"></div>
+        <div id="upiStuMeta" style="font-size:11px;color:var(--tx3);font-family:var(--fm)"></div>
+      </div>
+      <div style="text-align:right">
+        <div style="font-size:10px;color:var(--tx3)">Amount</div>
+        <div id="upiAmt" style="font-size:20px;font-weight:800;color:var(--ac);font-family:var(--fm)"></div>
+      </div>
+    </div>
+    <!-- UPI ID row -->
+    <div style="padding:12px 14px;background:#f0fdf4;border:1.5px solid #bbf7d0;border-radius:var(--r2);margin-bottom:14px;display:flex;align-items:center;gap:10px">
+      <span style="font-size:18px">💳</span>
+      <div>
+        <div style="font-size:10px;color:var(--tx3);font-weight:600;text-transform:uppercase;letter-spacing:.5px">Paying to UPI ID</div>
+        <div id="upiIdShow" style="font-size:14px;font-weight:700;color:#166534;font-family:var(--fm)"></div>
+      </div>
+    </div>
+    <!-- Generated link box -->
+    <div id="upiLinkBox" style="display:none;margin-bottom:14px">
+      <div style="font-size:11px;font-weight:600;color:var(--tx2);margin-bottom:6px">Payment Link</div>
+      <div style="display:flex;gap:8px">
+        <input id="upiLinkVal" readonly style="flex:1;font-size:11px;font-family:var(--fm);background:var(--sf2);color:var(--tx)" onclick="this.select()">
+        <button class="btn bg" style="font-size:11px;flex-shrink:0" onclick="copyUpiLink()"><span class="mi sm">content_copy</span></button>
+      </div>
+    </div>
+    <!-- Action buttons -->
+    <div id="upiActions" style="display:none">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <button class="btn bwa" style="font-size:12px;padding:12px" onclick="upiSendWA()">💬 Send via WhatsApp</button>
+        <button class="btn bg" style="font-size:12px;padding:12px" onclick="copyUpiLink()"><span class="mi sm">content_copy</span> Copy Link</button>
+      </div>
+      <div style="margin-top:10px;padding:10px 14px;background:rgba(61,111,240,.06);border-radius:var(--r2);border:1px solid rgba(61,111,240,.12);font-size:11px;color:var(--tx3)">
+        💡 Student opens the link and pays via GPay, PhonePe, Paytm or any UPI app. They can also scan a QR code on the payment page.
+      </div>
+    </div>
+    <!-- Loading state -->
+    <div id="upiLoading" style="text-align:center;padding:20px;color:var(--tx3);font-size:13px">
+      <span class="mi" style="font-size:24px;color:var(--ac)">hourglass_top</span><br>Generating link…
+    </div>
+  </div>
+  <div class="mf"><button class="btn bg" onclick="closeM('mUpiLink')">Close</button></div>
+</div></div>
 
 <!-- Student QR Code Modal -->
 <div class="mo" id="mStudentQR"><div class="md" style="max-width:400px">
@@ -1321,6 +1371,7 @@ textarea{resize:vertical;min-height:70px}select option{background:var(--sf)}
     <div style="display:flex;gap:8px;flex-wrap:wrap">
       <button class="btn bp" style="font-size:11px" id="spCollectBtn" onclick="closeM('mStudentProfile')"><span class="mi sm">payments</span>Collect Fee</button>
       <button class="btn bwa" style="font-size:11px" id="spWaBtn">💬 Send WhatsApp</button>
+      <button class="btn bg" style="font-size:11px;color:#3d6ff0;border-color:#3d6ff0" id="spUpiBtn">📱 Send UPI Link</button>
       <button class="btn bg" style="font-size:11px" onclick="openAllocFromProfile()"><span class="mi sm">event_seat</span>Change Seat</button>
       <button class="btn bd" style="font-size:11px" id="spDelBtn">🗑 Remove</button>
     </div>
@@ -1574,7 +1625,8 @@ async function initData() {
       days:  +(s.loan_days    || 14),
       acFee: +(s.ac_fee || s.ac_extra || 200),
       waNumber: s.wa_number || '',
-      logoUrl: s.logo_url || ''
+      logoUrl: s.logo_url || '',
+      upiId: s.upi_id || '7282071620@okaxis'
     };
     // Apply logo and library name to sidebar immediately on load
     if (DB.settings.logoUrl) applyLogo(DB.settings.logoUrl);
@@ -1981,6 +2033,7 @@ function renderStudents(){
         <button class="btn bg" style="font-size:10px;padding:3px 7px" onclick="openStudentProfile('${x.id}')">👤</button>
         <button class="btn bg" style="font-size:10px;padding:3px 7px" onclick="showStudentQR('${x.id}')" title="Student QR Code"><span class="mi sm">qr_code</span></button>
         <button class="btn bwa" style="font-size:10px;padding:3px 7px" onclick="waQuick('${x.id}','${x.feeStatus==='paid'?'fee_receipt':x.feeStatus==='partial'?'partial_payment':x.feeStatus==='overdue'?'fee_overdue':'fee_due'}')">💬</button>
+        ${x.feeStatus!=='paid'?`<button class="btn bg" style="font-size:10px;padding:3px 7px;color:#3d6ff0;border-color:#3d6ff0" onclick="sendUpiLink('${x.id}')">📱 UPI</button>`:''}
         <button class="btn bd" style="font-size:10px;padding:3px 6px" onclick="delStu('${x.id}')"><span class="mi sm">close</span></button>
       </div></td>
     </tr>`;
@@ -2045,6 +2098,8 @@ function openStudentProfile(id) {
   // Quick action buttons
   document.getElementById('spCollectBtn').onclick = () => { closeM('mStudentProfile'); qCollect(id); };
   document.getElementById('spWaBtn').onclick = () => { closeM('mStudentProfile'); setTimeout(() => waQuick(id, s.feeStatus === 'paid' ? 'fee_receipt' : s.feeStatus === 'overdue' ? 'fee_overdue' : 'fee_due'), 200); };
+  const upiBtn = document.getElementById('spUpiBtn');
+  if (upiBtn) { upiBtn.style.display = s.feeStatus !== 'paid' ? '' : 'none'; upiBtn.onclick = () => { closeM('mStudentProfile'); setTimeout(() => sendUpiLink(id), 200); }; }
   document.getElementById('spDelBtn').onclick = () => { closeM('mStudentProfile'); delStu(id); };
 
   // Edit toggle reset
@@ -2546,6 +2601,7 @@ function renderFees(){
       <td><div style="display:flex;gap:4px">
         ${x.feeStatus!=='paid'?`<button class="btn bp" style="font-size:10px;padding:3px 7px" onclick="qCollect('${x.id}')">Collect</button>`:'<span style="color:var(--em);font-size:11px">✓</span>'}
         <button class="btn bwa" style="font-size:10px;padding:3px 7px" onclick="waQuick('${x.id}','${x.feeStatus==='paid'?'fee_receipt':x.feeStatus==='partial'?'partial_payment':x.feeStatus==='overdue'?'fee_overdue':'fee_due'}')">💬</button>
+        ${x.feeStatus!=='paid'?`<button class="btn bg" style="font-size:10px;padding:3px 7px;color:#3d6ff0;border-color:#3d6ff0" onclick="sendUpiLink('${x.id}')">📱 UPI</button>`:''}
       </div></td>
     </tr>${renewRow}`;
   }).join('')||'<tr><td colspan="11"><div class="empty"><div class="ei">💰</div><div class="et">No records</div></div></td></tr>';
@@ -3239,7 +3295,8 @@ async function saveSettings() {
       fine:      +gv('s-fine'),
       days:      +gv('s-days'),
       wa_number: gv('s-wa'),
-      ac_fee:    +gv('s-acfee')
+      ac_fee:    +gv('s-acfee'),
+      upi_id:    gv('s-upi') || '7282071620@okaxis'
     };
     const res = await apiPost('save_settings', payload);
     if (res && res.error) return toast('❌ ' + res.error, 'er');
@@ -3252,6 +3309,7 @@ async function saveSettings() {
     DB.settings.days  = payload.days;
     DB.settings.waNumber = payload.wa_number;
     DB.settings.acFee = payload.ac_fee;
+    DB.settings.upiId = payload.upi_id;
     toast('✅ Settings saved to database!', 'ok');
   } catch(e) {
     toast('❌ Save failed: ' + e.message, 'er');
@@ -3295,7 +3353,8 @@ function renderSettings() {
     's-fine':  s.fine  ?? 5,
     's-days':  s.days  ?? 14,
     's-acfee': s.acFee ?? 200,
-    's-wa':    s.waNumber ?? ''
+    's-wa':    s.waNumber ?? '',
+    's-upi':   s.upiId ?? '7282071620@okaxis'
   };
   Object.entries(map).forEach(([id, val]) => {
     const el = document.getElementById(id);
@@ -4133,6 +4192,89 @@ function fmtTime(t) {
   const [h, m] = t.split(':');
   const hr = +h;
   return (hr > 12 ? hr - 12 : (hr || 12)) + ':' + m + ' ' + (hr >= 12 ? 'PM' : 'AM');
+}
+
+// ══════════════════════════════════════════════════════════════
+// ═══ UPI PAYMENT LINK ════════════════════════════════════════
+// ══════════════════════════════════════════════════════════════
+let _upiCurrentLink = '';
+let _upiCurrentStudent = null;
+
+async function sendUpiLink(stuId) {
+  const s = DB.students.find(x => x.id === stuId);
+  if (!s) return toast('Student not found', 'er');
+
+  const bal = s.netFee - s.paidAmt;
+  if (bal <= 0) return toast('No balance due for this student', 'wn');
+
+  // Populate modal header
+  const av = document.getElementById('upiStuAv');
+  av.textContent = (s.fname[0] + (s.lname[0] || '')).toUpperCase();
+  av.style.background = s.color || '#3d6ff0';
+  document.getElementById('upiStuName').textContent = s.fname + ' ' + s.lname;
+  const b = DB.batches.find(x => x.id === s.batchId);
+  document.getElementById('upiStuMeta').textContent = '#' + s.id + (b ? ' · ' + b.name : '');
+  document.getElementById('upiAmt').textContent = '₹' + bal.toLocaleString('en-IN');
+  document.getElementById('upiIdShow').textContent = DB.settings.upiId || '7282071620@okaxis';
+
+  // Reset state
+  document.getElementById('upiLinkBox').style.display = 'none';
+  document.getElementById('upiActions').style.display = 'none';
+  document.getElementById('upiLoading').style.display = 'block';
+  _upiCurrentStudent = s;
+  openM('mUpiLink');
+
+  // Call API
+  try {
+    const res = await apiPost('generate_upi_link', {
+      student_id: stuId,
+      amount: bal,
+      note: 'Monthly Fee'
+    });
+    if (res.error) { toast('❌ ' + res.error, 'er'); closeM('mUpiLink'); return; }
+    _upiCurrentLink = res.url;
+    document.getElementById('upiLinkVal').value = res.url;
+    document.getElementById('upiLoading').style.display = 'none';
+    document.getElementById('upiLinkBox').style.display = 'block';
+    document.getElementById('upiActions').style.display = 'block';
+    auditLog('fee', 'UPI payment link sent to ' + s.fname + ' ' + s.lname + ' — ₹' + bal);
+  } catch(e) {
+    toast('❌ Failed: ' + e.message, 'er');
+    closeM('mUpiLink');
+  }
+}
+
+function copyUpiLink() {
+  if (!_upiCurrentLink) return;
+  navigator.clipboard?.writeText(_upiCurrentLink)
+    .then(() => toast('✅ Link copied!', 'ok'))
+    .catch(() => { document.getElementById('upiLinkVal').select(); document.execCommand('copy'); toast('Copied!', 'ok'); });
+}
+
+function upiSendWA() {
+  if (!_upiCurrentLink || !_upiCurrentStudent) return;
+  const s = _upiCurrentStudent;
+  const bal = s.netFee - s.paidAmt;
+  const upiId = DB.settings.upiId || '7282071620@okaxis';
+  const libName = DB.settings.name || 'Library';
+  const msg = `💳 *Fee Payment Request*
+
+Dear *${s.fname} ${s.lname}*,
+
+Your monthly fee of *₹${bal.toLocaleString('en-IN')}* is due.
+
+🔗 *Pay securely via UPI:*
+${_upiCurrentLink}
+
+Tap the link to pay using GPay, PhonePe, Paytm or any UPI app. A QR code is also available on the page.
+
+💳 UPI: ${upiId}
+📞 ${DB.settings.phone}
+🏫 ${libName}`;
+  openWALink(s.phone, msg);
+  DB.waSendLog.unshift({ time: new Date().toLocaleTimeString(), to: s.fname + ' ' + s.lname, preview: 'UPI payment link sent', type: 'upi' });
+  toast('WhatsApp opened!', 'wa');
+  closeM('mUpiLink');
 }
 
 // ═══ BOOT ═══
