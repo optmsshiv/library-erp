@@ -2,17 +2,6 @@
 // ── Bootstrap ────────────────────────────────────────────────────────────────
 session_start();
 
-ini_set('display_errors', 0); // keep off in production
-error_reporting(E_ALL);
-set_exception_handler(function(Throwable $e) {
-    http_response_code(500);
-    header('Content-Type: application/json');
-    echo json_encode(['error' => $e->getMessage(), 'file' => basename($e->getFile()), 'line' => $e->getLine()]);
-    exit;
-});
-
-
-
 require_once __DIR__ . '/../core/tenant.php';
 
 // CORS — allow same-site subdomain requests (e.g. chhaya.optms.co.in)
