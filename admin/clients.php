@@ -20,7 +20,7 @@ if (isset($_GET['logout'])) {
 }
 
 // Database connection
-require_once __DIR__ . '/../config/db.php';
+require_once __DIR__ . '/../library-erp/config/db.php';
 
 try {
     $dsn = "mysql:host=" . CONFIG_DB_HOST . ";dbname=" . CONFIG_DB_NAME . ";charset=utf8mb4";
