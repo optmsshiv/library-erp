@@ -1,0 +1,5 @@
+---
+deployment:
+  tasks:
+    - export DEPLOYPATH=/home1/edrppymy/public_html/library-erp
+    - /bin/cp -R $REPOSITORY_ROOT/. $DEPLOYPATH
