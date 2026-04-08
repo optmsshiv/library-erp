@@ -1,6 +1,18 @@
 <?php
 // ── Bootstrap ────────────────────────────────────────────────────────────────
 session_start();
+
+ini_set('display_errors', 0); // keep off in production
+error_reporting(E_ALL);
+set_exception_handler(function(Throwable $e) {
+    http_response_code(500);
+    header('Content-Type: application/json');
+    echo json_encode(['error' => $e->getMessage(), 'file' => basename($e->getFile()), 'line' => $e->getLine()]);
+    exit;
+});
+
+
+
 require_once __DIR__ . '/../core/tenant.php';
 
 // CORS — allow same-site subdomain requests (e.g. chhaya.optms.co.in)
@@ -831,7 +843,7 @@ switch ($action) {
     // ══════════════════════════════════
     case 'generate_upi_link':
         if ($method !== 'POST') jsonError('Method not allowed', 405);
-        $d = getInput();
+        $d         = getInput();
         $studentId = trim($d['student_id'] ?? '');
         $amount    = (int)($d['amount'] ?? 0);
         $note      = trim($d['note'] ?? 'Monthly Fee');
@@ -843,45 +855,51 @@ switch ($action) {
         $stu = $stuStmt->fetch();
         if (!$stu) jsonError('Student not found');
 
-        // Get UPI ID from settings
+        // Get UPI ID from settings (safe — column may not exist yet)
         try { $db->exec("ALTER TABLE settings ADD COLUMN IF NOT EXISTS upi_id VARCHAR(128) DEFAULT '7282071620@okaxis'"); } catch(Exception $e) {}
-        $sett  = $db->query("SELECT upi_id FROM settings WHERE id=1")->fetch();
-        $upiId = ($sett && !empty($sett['upi_id'])) ? $sett['upi_id'] : '7282071620@okaxis';
+        try {
+            $sett  = $db->query("SELECT upi_id FROM settings WHERE id=1")->fetch();
+            $upiId = ($sett && !empty($sett['upi_id'])) ? $sett['upi_id'] : '7282071620@okaxis';
+        } catch (Exception $e) {
+            $upiId = '7282071620@okaxis';
+        }
 
-        // Auto-create payment_links table
+        // Auto-create payment_links table (indexes separate to avoid syntax errors on some hosts)
         $db->exec("CREATE TABLE IF NOT EXISTS payment_links (
-            id         INT AUTO_INCREMENT PRIMARY KEY,
-            token      VARCHAR(64)  NOT NULL UNIQUE,
-            student_id VARCHAR(32)  NOT NULL,
-            amount     INT          NOT NULL,
-            upi_id     VARCHAR(128) NOT NULL,
-            note       VARCHAR(255) DEFAULT '',
-            status     VARCHAR(16)  NOT NULL DEFAULT 'pending',
-            created_at TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
-            paid_at    TIMESTAMP    NULL,
-            INDEX idx_token (token),
-            INDEX idx_student (student_id)
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+        id         INT AUTO_INCREMENT PRIMARY KEY,
+        token      VARCHAR(64)  NOT NULL UNIQUE,
+        student_id VARCHAR(32)  NOT NULL,
+        amount     INT          NOT NULL,
+        upi_id     VARCHAR(128) NOT NULL,
+        note       VARCHAR(255) DEFAULT '',
+        status     VARCHAR(16)  NOT NULL DEFAULT 'pending',
+        created_at TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        paid_at    TIMESTAMP    NULL
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+        try { $db->exec("CREATE INDEX idx_pl_token   ON payment_links (token)"); }    catch(Exception $e) {}
+        try { $db->exec("CREATE INDEX idx_pl_student ON payment_links (student_id)"); } catch(Exception $e) {}
 
         // Generate unique token
         $token = bin2hex(random_bytes(16));
 
         // Expire old pending links for this student
         $db->prepare("UPDATE payment_links SET status='expired' WHERE student_id=? AND status='pending'")
-           ->execute([$studentId]);
+            ->execute([$studentId]);
 
         // Insert new link
         $db->prepare("INSERT INTO payment_links (token, student_id, amount, upi_id, note) VALUES (?,?,?,?,?)")
-           ->execute([$token, $studentId, $amount, $upiId, $note]);
+            ->execute([$token, $studentId, $amount, $upiId, $note]);
 
         // Build full URL to pay.php
-        $scheme  = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') ? 'https' : 'http';
-        $host    = $_SERVER['HTTP_HOST'];
-        $dir     = rtrim(dirname(dirname($_SERVER['SCRIPT_NAME'])), '/');
-        $payUrl  = $scheme . '://' . $host . $dir . '/pay.php?token=' . $token;
+        $scheme = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') ? 'https' : 'http';
+        $host   = $_SERVER['HTTP_HOST'];
+        $dir    = rtrim(dirname(dirname($_SERVER['SCRIPT_NAME'])), '/');
+        $payUrl = $scheme . '://' . $host . $dir . '/pay.php?token=' . $token;
 
-        addActivity($db, '💳', 'rgba(79,142,247,.14)',
-            "UPI payment link for <strong>{$stu['fname']} {$stu['lname']}</strong> — ₹{$amount}");
+        try {
+            addActivity($db, '💳', 'rgba(79,142,247,.14)',
+                "UPI payment link for <strong>{$stu['fname']} {$stu['lname']}</strong> — ₹{$amount}");
+        } catch (Exception $e) {}
 
         jsonResponse([
             'ok'      => true,
