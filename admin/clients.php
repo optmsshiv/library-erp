@@ -1,4 +1,8 @@
 <?php
+
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
+
 // Simple admin protection - change this password
 define('ADMIN_PASS', 'Admin@123');
 
@@ -20,7 +24,7 @@ if (isset($_GET['logout'])) {
 }
 
 // Database connection
-require_once __DIR__ . '/../library-erp/config/db.php';
+require_once '/home1/edrppymy/public_html/library-erp/config/db.php';
 
 try {
     $dsn = "mysql:host=" . CONFIG_DB_HOST . ";dbname=" . CONFIG_DB_NAME . ";charset=utf8mb4";
