@@ -6,23 +6,12 @@
 error_reporting(0);
 @ini_set('display_errors', '0');
 
-require_once __DIR__ . '/includes/db.php';
-$db = getDB();
 
-// ── Auto-create payment_links table if missing ──
-$db->exec("CREATE TABLE IF NOT EXISTS payment_links (
-    id          INT AUTO_INCREMENT PRIMARY KEY,
-    token       VARCHAR(64)  NOT NULL UNIQUE,
-    student_id  VARCHAR(32)  NOT NULL,
-    amount      INT          NOT NULL,
-    upi_id      VARCHAR(128) NOT NULL,
-    note        VARCHAR(255) DEFAULT '',
-    status      VARCHAR(16)  NOT NULL DEFAULT 'pending',
-    created_at  TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    paid_at     TIMESTAMP    NULL,
-    INDEX idx_token (token),
-    INDEX idx_student (student_id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+require_once __DIR__ . '/core/tenant.php';
+
+// This one line resolves the subdomain and connects to the right DB
+$db = Tenant::db(); // outputs: library name
+$info = Tenant::info(); // outputs: plan type
 
 // ── Get token from URL ──
 $token = trim($_GET['token'] ?? '');
