@@ -1,7 +1,7 @@
 <?php
 // ── Bootstrap ────────────────────────────────────────────────────────────────
 session_start();
-require_once __DIR__ . '/../core/tenant.php';
+require_once __DIR__ . '/core/tenant.php';
 
 // CORS — allow same-site subdomain requests (e.g. chhaya.optms.co.in)
 $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
