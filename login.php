@@ -1,5 +1,12 @@
 <?php
 session_start();
+require_once __DIR__ . '/core/tenant.php';
+
+// This one line resolves the subdomain and connects to the right DB
+$db = Tenant::db(); // outputs: library name
+$info = Tenant::info(); // outputs: plan type
+
+
 // Already logged in? Go to dashboard
 if (!empty($_SESSION['staff_id'])) {
     header('Location: index');
@@ -22,24 +29,41 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($username === '' || $password === '') {
         $error = 'Please enter username and password.';
     } else {
-        $db = getDB();
-        $stmt = $db->prepare("SELECT id, name, role, password_hash, status FROM staff WHERE username = ? LIMIT 1");
+       // $db = getDB();
+        $stmt = $db->prepare(
+                "SELECT id, name, role, password_hash, status 
+                        FROM staff 
+                        WHERE username = ? 
+                        LIMIT 1"
+        );
         $stmt->execute([$username]);
         $staff = $stmt->fetch();
 
         if ($staff && $staff['status'] === 'active' && password_verify($password, $staff['password_hash'])) {
+
+            // Regenerate session ID to prevent fixation attacks
+            session_regenerate_id(true);
+
             $_SESSION['staff_id']   = $staff['id'];
             $_SESSION['staff_name'] = $staff['name'];
             $_SESSION['staff_role'] = $staff['role'];
 
+
+            $cookie_options = [
+                'path'     => '/',
+                'httponly' => true,
+                'secure'   => true,          // only send over HTTPS
+                'samesite' => 'Strict',
+            ];
+
             // Handle Remember Me cookie (30 days)
             if ($remember_me) {
-                setcookie('optms_remember', $username, [
+                setcookie('optms_remember', $username, array_merge($cookie_options, [
                     'expires'  => time() + (30 * 24 * 60 * 60),
                     'path'     => '/',
                     'httponly' => true,
                     'samesite' => 'Strict',
-                ]);
+                ]));
             } else {
                 // Clear cookie if user unchecked it
                 setcookie('optms_remember', '', ['expires' => time() - 3600, 'path' => '/']);
