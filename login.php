@@ -21,7 +21,6 @@ if (!empty($_COOKIE['optms_remember'])) {
 
 $error = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    require_once __DIR__ . '/includes/db.php';
     $username    = trim($_POST['username'] ?? '');
     $password    = $_POST['password'] ?? '';
     $remember_me = !empty($_POST['remember_me']);
@@ -29,7 +28,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($username === '' || $password === '') {
         $error = 'Please enter username and password.';
     } else {
-       // $db = getDB();
+       // // Use tenant DB (already resolved above — no second getDB() call)
         $stmt = $db->prepare(
                 "SELECT id, name, role, password_hash, status 
                         FROM staff 
