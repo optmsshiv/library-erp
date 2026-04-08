@@ -1,10 +1,50 @@
 <?php
+// ── Bootstrap ────────────────────────────────────────────────────────────────
 session_start();
-require_once __DIR__ . '/../includes/db.php';
+require_once __DIR__ . '/../core/tenant.php';
 
+// CORS — allow same-site subdomain requests (e.g. chhaya.optms.co.in)
+$origin = $_SERVER['HTTP_ORIGIN'] ?? '';
+if (preg_match('/^https?:\/\/[a-z0-9\-]+\.optms\.co\.in$/', $origin)) {
+    header("Access-Control-Allow-Origin: $origin");
+    header("Access-Control-Allow-Credentials: true");
+    header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
+    header("Access-Control-Allow-Headers: Content-Type");
+}
+// Handle preflight
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(204);
+    exit;
+}
+
+header('Content-Type: application/json; charset=utf-8');
+
+// ── Helper functions ─────────────────────────────────────────────────────────
+function jsonResponse(mixed $data, int $code = 200): never {
+    http_response_code($code);
+    echo json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+    exit;
+}
+
+function jsonError(string $msg, int $code = 400): never {
+    http_response_code($code);
+    echo json_encode(['error' => $msg], JSON_UNESCAPED_UNICODE);
+    exit;
+}
+
+function getInput(): array {
+    $raw = file_get_contents('php://input');
+    if ($raw) {
+        $decoded = json_decode($raw, true);
+        if (is_array($decoded)) return $decoded;
+    }
+    return $_POST;
+}
+
+// ── Tenant DB (resolves subdomain automatically) ─────────────────────────────
+$db     = Tenant::db();
 $method = $_SERVER['REQUEST_METHOD'];
 $action = $_GET['action'] ?? '';
-$db = getDB();
 
 switch ($action) {
 

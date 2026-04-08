@@ -1,5 +1,10 @@
 <?php
 session_start();
+require_once __DIR__ . '/core/tenant.php';
+
+// This one line resolves the subdomain and connects to the right DB
+$db = Tenant::db();
+$info = Tenant::info();
 
 if (empty($_SESSION['staff_id'])) {
     header('Location: login');
