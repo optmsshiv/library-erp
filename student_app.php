@@ -1324,8 +1324,9 @@ function openWA(number) {
   let clean = number.replace(/\D/g,'');
   // Add India country code if not present
   if (clean.length === 10) clean = '91' + clean;
-  const msg = encodeURIComponent(`Hello, I am a student at ${studentData?.settings?.name||'Nayi Udaan Library'}. My ID is ${studentData?.student?.id||''}. I need assistance.`);
-  window.open(`https://wa.me/${clean}?text=${msg}`, '_blank');
+ // const msg = encodeURIComponent(`Hello, I am a student at ${studentData?.settings?.name||'Nayi Udaan Library'}. My ID is ${studentData?.student?.id||''}. I need assistance.`);
+    const msg = encodeURIComponent(`Hello, I am a student at ${studentData?.settings?.name||'Library'}. My ID is ${studentData?.student?.id||''}. I need assistance.`);
+    window.open(`https://wa.me/${clean}?text=${msg}`, '_blank');
 }
 
 // ── TAB SWITCHING ──
