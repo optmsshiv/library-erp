@@ -721,7 +721,7 @@ body::before{
   <div class="login-brand">
     <div class="login-icon" id="loginIcon">📚</div>
     <div class="login-title">Student Portal</div>
-    <div class="login-sub">Nayi Udaan Library</div>
+    <div class="login-sub">Library ERP</div>
   </div>
   <div class="login-card">
     <div class="field">
