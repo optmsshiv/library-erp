@@ -3,7 +3,7 @@ header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Headers: Content-Type');
 
-require_once '/home1/edrppymy/public_html/library-erp/core/tenant.php';
+require_once '/../core/tenant.php';
 
 $db = Tenant::db();
 
