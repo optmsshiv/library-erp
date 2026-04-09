@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="theme-color" content="#f5f7ff">
-<title>Student App — NAYI UDAAN LIBRARY</title>
+<title>Student App</title>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
@@ -1304,7 +1304,7 @@ function renderProfile(stu, batch, color) {
 function renderContact(settings) {
   // Try to get settings from studentData if available
   const waNumber = studentData?.settings?.wa_number || '';
-  const libName  = studentData?.settings?.name || 'Nayi Udaan Library';
+  const libName  = studentData?.settings?.name || '';
   const libPhone = studentData?.settings?.phone || '';
   const libAddr  = studentData?.settings?.addr || '';
 
