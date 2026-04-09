@@ -1562,7 +1562,7 @@ switch ($action) {
         // Public endpoint — no auth needed
         $s = $db->query("SELECT name, logo_url FROM settings WHERE id=1")->fetch();
         jsonResponse([
-            'name'     => $s['name'] ?? 'Nayi Udaan Library',
+            'name'     => $s['name'] ?? 'Library ERP',
             'logo_url' => $s['logo_url'] ?? ''
         ]);
         break;
