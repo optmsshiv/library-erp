@@ -2,7 +2,7 @@
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
 
-require_once '/home1/edrppymy/public_html/library-erp/config/db.php';
+require_once '/../config/db.php';
 
 $code = strtoupper(trim($_GET['code'] ?? ''));
 
