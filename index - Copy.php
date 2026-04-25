@@ -164,29 +164,21 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         .sec-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px}
         .sec-t{font-family:var(--fd);font-size:16px;color:var(--tx)}.sec-s{font-size:11px;color:var(--tx3);margin-top:2px}
 
-        .sbar{height:10px;background:var(--sf2);border-radius:20px;overflow:hidden;margin-bottom:5px;border:1px solid var(--br)}
-        .sfill{height:100%;border-radius:20px;transition:width 1s ease}
+        .sbar{height:5px;background:var(--sf2);border-radius:3px;overflow:hidden;margin-bottom:7px;border:1px solid var(--br)}
+        .sfill{height:100%;border-radius:3px;transition:width 1s ease}
         .sf-g{background:linear-gradient(90deg,var(--em),#4ade80)}.sf-y{background:linear-gradient(90deg,var(--gd),var(--gd2))}.sf-r{background:linear-gradient(90deg,var(--ro),#f87171)}
         .bst{font-size:9px;font-weight:700;padding:3px 8px;border-radius:20px;font-family:var(--fm)}
         .bst-o{background:var(--c-green);color:#166534}.bst-f{background:var(--c-rose);color:#9f1239}.bst-n{background:var(--c-amber);color:#92400e}
 
-        .seat-visual{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
-        .seat-cell{width:52px;height:38px;border-radius:10px;border:1.5px solid;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:all .15s;font-weight:700;position:relative;gap:1px}
-        .seat-cell:hover{transform:scale(1.08);z-index:5;box-shadow:0 4px 14px rgba(0,0,0,.13)}
-        .seat-num{font-size:11px;font-family:var(--fm);font-weight:700;line-height:1}
-        .seat-init{font-size:9px;font-weight:800;opacity:.8;line-height:1}
-        .seat-occ{background:#dbeafe;border-color:#93c5fd;color:#1d4ed8}
+        .seat-visual{display:flex;flex-wrap:wrap;gap:3px;margin-top:10px}
+        .seat-cell{width:34px;height:23px;border-radius:5px;border:1px solid;display:flex;align-items:center;justify-content:center;font-size:7.5px;font-family:var(--fm);cursor:pointer;transition:all .15s;font-weight:600;position:relative}
+        .seat-cell:hover{transform:scale(1.1);z-index:5}
+        .seat-occ{background:var(--c-rose);border-color:var(--cr);color:#9f1239}
         .seat-vac{background:var(--c-green);border-color:var(--cg);color:#166534}
         .seat-due{background:var(--c-amber);border-color:var(--ca2);color:#92400e;animation:pulseDue 2s infinite}
         .seat-overdue{background:var(--c-rose);border-color:var(--cr);color:#9f1239;animation:pulseDue 1s infinite}
-        .seat-tooltip{display:none;position:absolute;bottom:calc(100%+7px);left:50%;transform:translateX(-50%);background:var(--tx);color:#fff;font-size:10px;padding:6px 11px;border-radius:8px;white-space:nowrap;z-index:20;pointer-events:none;line-height:1.5;text-align:center}
+        .seat-tooltip{display:none;position:absolute;bottom:calc(100%+5px);left:50%;transform:translateX(-50%);background:var(--tx);color:#fff;font-size:9px;padding:3px 8px;border-radius:5px;white-space:nowrap;z-index:20;pointer-events:none}
         .seat-cell:hover .seat-tooltip{display:block}
-        .seat-summary{display:flex;gap:7px;flex-wrap:wrap;margin-top:12px;padding-top:12px;border-top:1px solid var(--br)}
-        .ss-chip{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;padding:5px 11px;border-radius:8px;border:1.5px solid;font-family:var(--fm)}
-        .ss-vac{background:var(--c-green);border-color:var(--cg);color:#166534}
-        .ss-occ{background:#dbeafe;border-color:#93c5fd;color:#1d4ed8}
-        .ss-due{background:var(--c-amber);border-color:var(--ca2);color:#854d0e}
-        .ss-od{background:var(--c-rose);border-color:var(--cr);color:#9f1239}
         @keyframes pulseDue{0%,100%{opacity:1}50%{opacity:.55}}
 
         /* ── SEAT LEGEND ── */
@@ -646,7 +638,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
             <div style="margin-bottom:10px">
                 <div class="seat-legend">
                     <div class="sl-item"><div class="sl-dot seat-vac"></div>Vacant</div>
-                    <div class="sl-item"><div class="sl-dot seat-occ"></div>Paid &amp; Occupied</div>
+                    <div class="sl-item"><div class="sl-dot seat-occ"></div>Occupied (Fee Paid)</div>
                     <div class="sl-item"><div class="sl-dot seat-due"></div>Fee Pending / Partial</div>
                     <div class="sl-item"><div class="sl-dot seat-overdue"></div>Fee Overdue</div>
                 </div>
@@ -2295,71 +2287,40 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
             const pct=Math.round(b.occupied/b.total*100);
             const fc=pct>=100?'sf-r':pct>=70?'sf-y':'sf-g';
             const sc=pct>=100?'bst-f':pct>=70?'bst-n':'bst-o';
-            const scLbl=pct>=100?'Full':pct>=70?'Filling':'Open';
             const bStudents=DB.students.filter(x=>x.batchId===b.id);
             const seatStudentMap={};bStudents.forEach(st=>{if(st.seat)seatStudentMap[st.seat]=st;});
-            // Improvement 6: count per status for summary chips
-            let cntVac=0,cntPaid=0,cntDue=0,cntOD=0;
             let cells='';
             for(let s=1;s<=b.total;s++){
-                const sn=seatLbl(b.name,s);
-                const stu=seatStudentMap[sn];
-                // Improvement 2: student initials; Improvement 3: color fix
-                let cls='seat-vac',ttText='Vacant — click to assign',initials='+';
+                const sn=seatLbl(b.name,s);const stu=seatStudentMap[sn];
+                let cls='seat-vac',ttText='Vacant: '+sn;
                 if(stu){
-                    initials=(stu.fname[0]+(stu.lname?stu.lname[0]:'')).toUpperCase();
-                    if(stu.feeStatus==='overdue'){
-                        cls='seat-overdue';cntOD++;
-                        ttText=`🚨 ${stu.fname} ${stu.lname||''} · Overdue ₹${stu.netFee-stu.paidAmt}`;
-                    } else if(stu.feeStatus==='pending'){
-                        cls='seat-due';cntDue++;
-                        ttText=`⏳ ${stu.fname} ${stu.lname||''} · Pending ₹${stu.netFee}`;
-                    } else if(stu.feeStatus==='partial'){
-                        cls='seat-due';cntDue++;
-                        ttText=`🟠 ${stu.fname} ${stu.lname||''} · Partial ₹${stu.netFee-stu.paidAmt} due`;
-                    } else {
-                        cls='seat-occ';cntPaid++;
-                        ttText=`✓ ${stu.fname} ${stu.lname||''} · Paid · Click to view`;
-                    }
-                } else { cntVac++; }
+                    if(stu.feeStatus==='overdue'){cls='seat-overdue';ttText=`🚨 ${stu.fname} — OVERDUE ₹${stu.netFee-stu.paidAmt}`;}
+                    else if(stu.feeStatus==='pending'){cls='seat-due';ttText=`⏳ ${stu.fname} — Pending ₹${stu.netFee}`;}
+                    else if(stu.feeStatus==='partial'){cls='seat-due';ttText=`🟠 ${stu.fname} — Partial, Due ₹${stu.netFee-stu.paidAmt}`;}
+                    else{cls='seat-occ';ttText=`✓ ${stu.fname} — Paid · Click to view`;}
+                }
                 const clickFn=stu?`openStudentProfile('${stu.id}')`:`openAllocSeatPrefilled('${b.id}','${sn}')`;
-                // Improvement 1: bigger cell with seat-num + seat-init divs
-                cells+=`<div class="seat-cell ${cls}" onclick="${clickFn}"><div class="seat-tooltip">${ttText}</div><div class="seat-num">${sn}</div><div class="seat-init">${initials}</div></div>`;
+                cells+=`<div class="seat-cell ${cls}" onclick="${clickFn}"><div class="seat-tooltip">${ttText}</div>${sn}</div>`;
             }
-            // Improvement 6: summary chips
-            const chips=[
-                cntVac>0  ?`<span class="ss-chip ss-vac">🟢 ${cntVac} Vacant</span>`:'',
-                cntPaid>0 ?`<span class="ss-chip ss-occ">🔵 ${cntPaid} Paid</span>`:'',
-                cntDue>0  ?`<span class="ss-chip ss-due">🟡 ${cntDue} Pending</span>`:'',
-                cntOD>0   ?`<span class="ss-chip ss-od">🔴 ${cntOD} Overdue</span>`:'',
-            ].filter(Boolean).join('');
-            const vacCount=b.total-b.occupied;
-            // Improvement 5: better batch header with icon card
+            const bDue=bStudents.filter(x=>x.feeStatus!=='paid').length;
+            const bOD=bStudents.filter(x=>x.feeStatus==='overdue').length;
             return `<div class="panel"><div class="ph">
-      <div style="display:flex;align-items:center;gap:12px">
-        <div style="width:42px;height:42px;background:var(--c-green);border:1.5px solid var(--cg);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">${batchEmoji(b.name)}</div>
-        <div>
-          <div style="font-weight:800;font-size:14px;color:var(--tx)">${b.name}</div>
-          <div style="font-size:11px;color:var(--tx3);font-family:var(--fm);margin-top:2px">${fmtT(b.startTime)}–${fmtT(b.endTime)} · ₹${b.baseFee}/mo · AC +₹${b.acExtra}</div>
-        </div>
-      </div>
+      <div><div style="font-weight:600;font-size:13px">${batchEmoji(b.name)} ${b.name}</div>
+      <div style="font-size:10px;color:var(--tx3);font-family:var(--fm)">${fmtT(b.startTime)}–${fmtT(b.endTime)} · Base ₹${b.baseFee} · AC +₹${b.acExtra}</div></div>
       <div style="display:flex;gap:7px;align-items:center">
-        <div class="bst ${sc}">${scLbl}</div>
-        ${cntOD>0?`<span style="font-size:10px;background:var(--c-rose);border:1.5px solid var(--cr);color:#9f1239;padding:4px 9px;border-radius:8px;font-weight:700;animation:pulseDue 1s infinite">🚨 ${cntOD} Overdue</span>`:''}
-        ${cntDue>0?`<span style="font-size:10px;background:var(--c-amber);border:1.5px solid var(--ca2);color:#92400e;padding:4px 9px;border-radius:8px;font-weight:700">⏳ ${cntDue} Due</span>`:''}
-        <button class="btn bg" style="font-size:11px;padding:5px 10px" onclick="editBatch(${i})">✏ Edit</button>
-        <button class="btn bd" style="font-size:11px;padding:5px 8px" onclick="delBatch(${i})"><span class="mi sm">close</span></button>
+        <div class="bst ${sc}">${pct>=100?'Full':pct>=70?'Filling':'Open'}</div>
+        ${bOD>0?`<span style="font-size:9px;background:rgba(192,68,79,.15);color:var(--ro);padding:2px 6px;border-radius:3px;font-weight:700;animation:pulseDue 1s infinite">🚨${bOD} overdue</span>`:''}
+        ${bDue>bOD?`<span style="font-size:9px;background:rgba(230,126,34,.15);color:var(--or);padding:2px 6px;border-radius:3px;font-weight:700">🟠${bDue-bOD} due</span>`:''}
+        <button class="btn bg" style="font-size:10px;padding:3px 7px" onclick="editBatch(${i})">✏ Edit</button>
+        <button class="btn bd" style="font-size:10px;padding:3px 6px" onclick="delBatch(${i})"><span class="mi sm">close</span></button>
       </div>
     </div>
     <div class="pb">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
-        <span style="font-size:12px;font-weight:700;color:var(--em)">${vacCount} Vacant</span>
-        <span style="font-size:12px;font-weight:700;color:var(--ac)">${b.occupied} Occupied</span>
-        <span style="font-size:12px;font-weight:700;color:var(--tx3)">${b.total} Total</span>
-      </div>
       <div class="sbar"><div class="sfill ${fc}" style="width:${pct}%"></div></div>
+      <div style="display:flex;justify-content:space-between;font-size:10px;font-family:var(--fm);color:var(--tx3);margin-bottom:12px">
+        <span>Total:<b>${b.total}</b></span><span style="color:var(--ro)">Occupied:<b>${b.occupied}</b></span><span style="color:var(--em)">Vacant:<b>${b.total-b.occupied}</b></span>
+      </div>
       <div class="seat-visual">${cells}</div>
-      ${chips?`<div class="seat-summary">${chips}</div>`:''}
     </div></div>`;
         }).join('');
     }

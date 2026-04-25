@@ -3,3 +3,10 @@ config/db.php
 *.log
 .DS_Store
 Thumbs.db
+.idea/library-erp.iml
+.idea/modules.xml
+.idea/misc.xml
+.idea/php.xml
+.idea/vcs.xml
+api/login.php
+api/resolve.php

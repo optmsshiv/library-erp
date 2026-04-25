@@ -4,8 +4,9 @@ header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Headers: Content-Type');
 
 // require_once '/../core/tenant.php';
-require_once '/home1/edrppymy/public_html/library-erp/core/tenant.php';
+require_once __DIR__ . '/core/tenant.php';
 
+// This one line resolves the subdomain and connects to the right DB
 $db = Tenant::db();
 
 $input      = json_decode(file_get_contents('php://input'), true);
