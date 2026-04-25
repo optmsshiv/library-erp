@@ -228,12 +228,11 @@ switch ($action) {
         // $db->prepare("DELETE FROM students WHERE id=?")->execute([$id]);
         // jsonResponse(['success' => true]);
 
-        // Store student name + batch_id before deleting
-        $stuRow = $db->prepare("SELECT fname, lname, batch_id FROM students WHERE id=? LIMIT 1");
+        // Store student name before deleting for invoice history
+        $stuRow = $db->prepare("SELECT fname, lname FROM students WHERE id=? LIMIT 1");
         $stuRow->execute([$id]);
         $stuData = $stuRow->fetch();
         $deletedName = $stuData ? trim($stuData['fname'].' '.$stuData['lname']) : 'Deleted Student';
-        $batchId = $stuData['batch_id'] ?? null;
 
         // Keep student_id in invoices intact — just mark with deleted name
         // Remove foreign key risk by nullifying only non-critical references
@@ -241,15 +240,6 @@ switch ($action) {
 
         // Delete student
         $db->prepare("DELETE FROM students WHERE id=?")->execute([$id]);
-
-        // ✅ FIX: recalculate occupied_seats from real data after deletion
-        if ($batchId) {
-            $newOcc = (int)$db->prepare("SELECT COUNT(*) FROM students WHERE batch_id=? AND seat IS NOT NULL AND seat != ''")->execute([$batchId]) ? 0 : 0;
-            $cntStmt = $db->prepare("SELECT COUNT(*) as cnt FROM students WHERE batch_id=? AND seat IS NOT NULL AND seat != ''");
-            $cntStmt->execute([$batchId]);
-            $newOcc = (int)($cntStmt->fetch()['cnt'] ?? 0);
-            $db->prepare("UPDATE batches SET occupied_seats=? WHERE id=?")->execute([$newOcc, $batchId]);
-        }
 
         jsonResponse(['success' => true]);
 
