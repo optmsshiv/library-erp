@@ -181,12 +181,20 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         .seat-overdue{background:var(--c-rose);border-color:var(--cr);color:#9f1239;animation:pulseDue 1s infinite}
         .seat-tooltip{display:none;position:absolute;bottom:calc(100%+7px);left:50%;transform:translateX(-50%);background:var(--tx);color:#fff;font-size:10px;padding:6px 11px;border-radius:8px;white-space:nowrap;z-index:20;pointer-events:none;line-height:1.5;text-align:center}
         .seat-cell:hover .seat-tooltip{display:block}
-        .seat-summary{display:flex;gap:7px;flex-wrap:wrap;margin-top:12px;padding-top:12px;border-top:1px solid var(--br)}
-        .ss-chip{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;padding:5px 11px;border-radius:8px;border:1.5px solid;font-family:var(--fm)}
-        .ss-vac{background:var(--c-green);border-color:var(--cg);color:#166534}
-        .ss-occ{background:#dbeafe;border-color:#93c5fd;color:#1d4ed8}
-        .ss-due{background:var(--c-amber);border-color:var(--ca2);color:#854d0e}
+        .seat-summary{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;padding-top:14px;border-top:1px solid var(--br)}
+        .ss-chip{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:700;padding:6px 13px 6px 9px;border-radius:20px;border:1.5px solid;font-family:var(--fm);box-shadow:0 1px 3px rgba(0,0,0,.07);letter-spacing:.2px;transition:transform .15s}
+        .ss-chip:hover{transform:translateY(-1px)}
+        .ss-chip .ss-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+        .ss-chip .ss-ic{font-family:'Material Icons Round';font-style:normal;font-size:14px;line-height:1;display:inline-flex;align-items:center}
+        .ss-chip .ss-cnt{font-size:13px;font-weight:800}
+        .ss-vac{background:var(--c-green);border-color:var(--cg);color:#15803d}
+        .ss-vac .ss-dot{background:#16a34a;box-shadow:0 0 0 2px rgba(22,163,74,.2)}
+        .ss-occ{background:#eff6ff;border-color:#93c5fd;color:#1d4ed8}
+        .ss-occ .ss-dot{background:#3b82f6;box-shadow:0 0 0 2px rgba(59,130,246,.2)}
+        .ss-due{background:var(--c-amber);border-color:var(--ca2);color:#92400e}
+        .ss-due .ss-dot{background:#d97706;box-shadow:0 0 0 2px rgba(217,119,6,.2)}
         .ss-od{background:var(--c-rose);border-color:var(--cr);color:#9f1239}
+        .ss-od .ss-dot{background:#e11d48;box-shadow:0 0 0 2px rgba(225,29,72,.2);animation:pulseDue 1s infinite}
         @keyframes pulseDue{0%,100%{opacity:1}50%{opacity:.55}}
 
         /* ── SEAT LEGEND ── */
@@ -2326,12 +2334,12 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
                 // Improvement 1: bigger cell with seat-num + seat-init divs
                 cells+=`<div class="seat-cell ${cls}" onclick="${clickFn}"><div class="seat-tooltip">${ttText}</div><div class="seat-num">${sn}</div><div class="seat-init">${initials}</div></div>`;
             }
-            // Improvement 6: summary chips
+            // Improvement 6: summary chips — modern pill style
             const chips=[
-                cntVac>0  ?`<span class="ss-chip ss-vac">🟢 ${cntVac} Vacant</span>`:'',
-                cntPaid>0 ?`<span class="ss-chip ss-occ">🔵 ${cntPaid} Paid</span>`:'',
-                cntDue>0  ?`<span class="ss-chip ss-due">🟡 ${cntDue} Pending</span>`:'',
-                cntOD>0   ?`<span class="ss-chip ss-od">🔴 ${cntOD} Overdue</span>`:'',
+                cntVac>0  ?`<span class="ss-chip ss-vac"><span class="ss-dot"></span><span class="ss-ic">event_seat</span><span class="ss-cnt">${cntVac}</span> Vacant</span>`:'',
+                cntPaid>0 ?`<span class="ss-chip ss-occ"><span class="ss-dot"></span><span class="ss-ic">check_circle</span><span class="ss-cnt">${cntPaid}</span> Paid</span>`:'',
+                cntDue>0  ?`<span class="ss-chip ss-due"><span class="ss-dot"></span><span class="ss-ic">schedule</span><span class="ss-cnt">${cntDue}</span> Pending</span>`:'',
+                cntOD>0   ?`<span class="ss-chip ss-od"><span class="ss-dot"></span><span class="ss-ic">warning</span><span class="ss-cnt">${cntOD}</span> Overdue</span>`:'',
             ].filter(Boolean).join('');
             const vacCount=b.total-b.occupied;
             // Improvement 5: better batch header with icon card
