@@ -181,20 +181,12 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         .seat-overdue{background:var(--c-rose);border-color:var(--cr);color:#9f1239;animation:pulseDue 1s infinite}
         .seat-tooltip{display:none;position:absolute;bottom:calc(100%+7px);left:50%;transform:translateX(-50%);background:var(--tx);color:#fff;font-size:10px;padding:6px 11px;border-radius:8px;white-space:nowrap;z-index:20;pointer-events:none;line-height:1.5;text-align:center}
         .seat-cell:hover .seat-tooltip{display:block}
-        .seat-summary{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;padding-top:14px;border-top:1px solid var(--br)}
-        .ss-chip{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:700;padding:6px 13px 6px 9px;border-radius:20px;border:1.5px solid;font-family:var(--fm);box-shadow:0 1px 3px rgba(0,0,0,.07);letter-spacing:.2px;transition:transform .15s}
-        .ss-chip:hover{transform:translateY(-1px)}
-        .ss-chip .ss-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
-        .ss-chip .ss-ic{font-family:'Material Icons Round';font-style:normal;font-size:14px;line-height:1;display:inline-flex;align-items:center}
-        .ss-chip .ss-cnt{font-size:13px;font-weight:800}
-        .ss-vac{background:var(--c-green);border-color:var(--cg);color:#15803d}
-        .ss-vac .ss-dot{background:#16a34a;box-shadow:0 0 0 2px rgba(22,163,74,.2)}
-        .ss-occ{background:#eff6ff;border-color:#93c5fd;color:#1d4ed8}
-        .ss-occ .ss-dot{background:#3b82f6;box-shadow:0 0 0 2px rgba(59,130,246,.2)}
-        .ss-due{background:var(--c-amber);border-color:var(--ca2);color:#92400e}
-        .ss-due .ss-dot{background:#d97706;box-shadow:0 0 0 2px rgba(217,119,6,.2)}
+        .seat-summary{display:flex;gap:7px;flex-wrap:wrap;margin-top:12px;padding-top:12px;border-top:1px solid var(--br)}
+        .ss-chip{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;padding:5px 11px;border-radius:8px;border:1.5px solid;font-family:var(--fm)}
+        .ss-vac{background:var(--c-green);border-color:var(--cg);color:#166534}
+        .ss-occ{background:#dbeafe;border-color:#93c5fd;color:#1d4ed8}
+        .ss-due{background:var(--c-amber);border-color:var(--ca2);color:#854d0e}
         .ss-od{background:var(--c-rose);border-color:var(--cr);color:#9f1239}
-        .ss-od .ss-dot{background:#e11d48;box-shadow:0 0 0 2px rgba(225,29,72,.2);animation:pulseDue 1s infinite}
         @keyframes pulseDue{0%,100%{opacity:1}50%{opacity:.55}}
 
         /* ── SEAT LEGEND ── */
@@ -769,7 +761,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         <!-- INVOICES -->
         <div class="page" id="page-invoices">
             <div class="sec-hd"><div><div class="sec-t">Invoices</div><div class="sec-s" id="invCount"></div></div><button class="btn bp" onclick="openM('mGenInv')">+ Generate</button></div>
-            <div class="panel"><div class="tw"><table>
+            <div class="panel"><div id="invRevSummary"></div><div class="tw"><table>
                         <thead><tr><th>Invoice #</th><th>Student</th><th>Type</th><th>Total Fee</th><th>Discount</th><th>Paid</th><th>Balance</th><th>Date</th><th>Mode</th><th>Status</th><th>Action</th></tr></thead>
                         <tbody id="invTable"></tbody>
                     </table></div></div>
@@ -1762,6 +1754,10 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         const pending=s.filter(x=>x.feeStatus==='pending');
         const overdue=s.filter(x=>x.feeStatus==='overdue');
         const totalRev=DB.invoices.reduce((a,i)=>a+i.paidAmt,0);
+        const revFromPaid=DB.invoices.filter(i=>i.status==='paid').reduce((a,i)=>a+i.paidAmt,0);
+        const revFromPartial=DB.invoices.filter(i=>i.status==='partial').reduce((a,i)=>a+i.paidAmt,0);
+        const revFromDeleted=DB.invoices.filter(i=>!DB.students.find(x=>x.id===i.studentId)).reduce((a,i)=>a+i.paidAmt,0);
+        const activeStudentRev=totalRev-revFromDeleted;
         const totalExp=DB.expenses.reduce((a,e)=>a+e.amount,0);
         const issTx=DB.transactions.filter(t=>t.status!=='returned');
         const odTx=DB.transactions.filter(t=>t.status==='overdue');
@@ -1779,7 +1775,11 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         document.getElementById('dashStats').innerHTML=`
     <div class="sc" style="--ca:var(--ac)"><div class="s-ic" style="background:var(--c-blue)"><span class="mi" style="color:var(--ac)">school</span></div><div class="s-lb">Total Students</div><div class="s-vl">${s.length}</div><div class="s-mt"><span class="bup">↑ 12%</span></div></div>
     <div class="sc" style="--ca:var(--em)"><div class="s-ic" style="background:var(--c-green)"><span class="mi" style="color:var(--em)">event_seat</span></div><div class="s-lb">Seats Available</div><div class="s-vl">${totalSeats-occSeats}</div><div class="s-mt">${occSeats}/${totalSeats} occupied</div></div>
-    <div class="sc" style="--ca:var(--gd)"><div class="s-ic" style="background:var(--c-amber)"><span class="mi" style="color:var(--gd)">payments</span></div><div class="s-lb">Revenue Collected</div><div class="s-vl">${fmt(totalRev)}</div><div class="s-mt"><span class="bup">incl. partial</span></div></div>
+    <div class="sc" style="--ca:var(--gd)"><div class="s-ic" style="background:var(--c-amber)"><span class="mi" style="color:var(--gd)">payments</span></div><div class="s-lb">Revenue Collected</div><div class="s-vl">${fmt(totalRev)}</div><div class="s-mt" style="display:flex;flex-direction:column;gap:3px;margin-top:6px">
+      <span style="display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:600;color:#166534"><span style="width:6px;height:6px;border-radius:50%;background:#16a34a;flex-shrink:0"></span>₹${revFromPaid.toLocaleString('en-IN')} fully paid</span>
+      ${revFromPartial>0?`<span style="display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:600;color:#92400e"><span style="width:6px;height:6px;border-radius:50%;background:#d97706;flex-shrink:0"></span>₹${revFromPartial.toLocaleString('en-IN')} partial</span>`:''}
+      ${revFromDeleted>0?`<span style="display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:600;color:#9f1239"><span style="width:6px;height:6px;border-radius:50%;background:#e11d48;flex-shrink:0"></span>₹${revFromDeleted.toLocaleString('en-IN')} from deleted</span>`:''}
+    </div></div>
     <div class="sc" style="--ca:var(--ro)"><div class="s-ic" style="background:var(--c-rose)"><span class="mi" style="color:var(--ro)">pending</span></div><div class="s-lb">Total Due</div><div class="s-vl">${fmt(allDue)}</div><div class="s-mt" style="color:var(--ro)">${[...pending,...overdue,...partial].length} students</div></div>
     <div class="sc" style="--ca:var(--or)"><div class="s-ic" style="background:var(--c-orange)"><span class="mi" style="color:var(--or)">redeem</span></div><div class="s-lb">Discounts Given</div><div class="s-vl">${fmt(totalDiscount)}</div><div class="s-mt">${s.filter(x=>x.baseFee>x.netFee).length} students</div></div>
     <div class="sc" style="--ca:var(--vi)"><div class="s-ic" style="background:var(--c-purple)"><span class="mi" style="color:var(--vi)">menu_book</span></div><div class="s-lb">Books Issued</div><div class="s-vl">${issTx.length}</div><div class="s-mt" style="color:var(--ro)">${odTx.length} overdue</div></div>
@@ -2334,12 +2334,12 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
                 // Improvement 1: bigger cell with seat-num + seat-init divs
                 cells+=`<div class="seat-cell ${cls}" onclick="${clickFn}"><div class="seat-tooltip">${ttText}</div><div class="seat-num">${sn}</div><div class="seat-init">${initials}</div></div>`;
             }
-            // Improvement 6: summary chips — modern pill style
+            // Improvement 6: summary chips
             const chips=[
-                cntVac>0  ?`<span class="ss-chip ss-vac"><span class="ss-dot"></span><span class="ss-ic">event_seat</span><span class="ss-cnt">${cntVac}</span> Vacant</span>`:'',
-                cntPaid>0 ?`<span class="ss-chip ss-occ"><span class="ss-dot"></span><span class="ss-ic">check_circle</span><span class="ss-cnt">${cntPaid}</span> Paid</span>`:'',
-                cntDue>0  ?`<span class="ss-chip ss-due"><span class="ss-dot"></span><span class="ss-ic">schedule</span><span class="ss-cnt">${cntDue}</span> Pending</span>`:'',
-                cntOD>0   ?`<span class="ss-chip ss-od"><span class="ss-dot"></span><span class="ss-ic">warning</span><span class="ss-cnt">${cntOD}</span> Overdue</span>`:'',
+                cntVac>0  ?`<span class="ss-chip ss-vac">🟢 ${cntVac} Vacant</span>`:'',
+                cntPaid>0 ?`<span class="ss-chip ss-occ">🔵 ${cntPaid} Paid</span>`:'',
+                cntDue>0  ?`<span class="ss-chip ss-due">🟡 ${cntDue} Pending</span>`:'',
+                cntOD>0   ?`<span class="ss-chip ss-od">🔴 ${cntOD} Overdue</span>`:'',
             ].filter(Boolean).join('');
             const vacCount=b.total-b.occupied;
             // Improvement 5: better batch header with icon card
@@ -2707,6 +2707,36 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
     function renderInv(){
         document.getElementById('invCount').textContent=`${DB.invoices.length} invoice(s)`;
         document.getElementById('gi-stu').innerHTML='<option value="">-- Select --</option>'+DB.students.map(s=>`<option value="${s.id}">${s.fname} ${s.lname}</option>`).join('');
+        // ── Invoice revenue summary bar ──
+        const _total=DB.invoices.reduce((a,i)=>a+i.paidAmt,0);
+        const _fullyPaid=DB.invoices.filter(i=>i.status==='paid').reduce((a,i)=>a+i.paidAmt,0);
+        const _partial=DB.invoices.filter(i=>i.status==='partial').reduce((a,i)=>a+i.paidAmt,0);
+        const _partialBal=DB.invoices.filter(i=>i.status==='partial').reduce((a,i)=>a+i.balance,0);
+        const _deletedRev=DB.invoices.filter(i=>!DB.students.find(x=>x.id===i.studentId)).reduce((a,i)=>a+i.paidAmt,0);
+        const _deletedCount=DB.invoices.filter(i=>!DB.students.find(x=>x.id===i.studentId)).length;
+        const _activeRev=_total-_deletedRev;
+        const _summaryEl=document.getElementById('invRevSummary');
+        if(_summaryEl) _summaryEl.innerHTML=`
+        <div style="display:flex;flex-wrap:wrap;gap:10px;padding:12px 18px;background:var(--sf2);border-bottom:1px solid var(--br);align-items:center">
+          <div style="display:flex;align-items:center;gap:7px;padding:7px 13px;background:#fff;border:1.5px solid var(--cg);border-radius:20px;box-shadow:0 1px 3px rgba(0,0,0,.06)">
+            <span style="width:8px;height:8px;border-radius:50%;background:#16a34a;box-shadow:0 0 0 2px rgba(22,163,74,.2)"></span>
+            <span style="font-size:11px;font-weight:700;color:#15803d;font-family:var(--fm)">₹${_fullyPaid.toLocaleString('en-IN')}</span>
+            <span style="font-size:10px;color:var(--tx3)">Fully Paid</span>
+          </div>
+          ${_partial>0?`<div style="display:flex;align-items:center;gap:7px;padding:7px 13px;background:#fff;border:1.5px solid var(--ca2);border-radius:20px;box-shadow:0 1px 3px rgba(0,0,0,.06)">
+            <span style="width:8px;height:8px;border-radius:50%;background:#d97706;box-shadow:0 0 0 2px rgba(217,119,6,.2)"></span>
+            <span style="font-size:11px;font-weight:700;color:#92400e;font-family:var(--fm)">₹${_partial.toLocaleString('en-IN')}</span>
+            <span style="font-size:10px;color:var(--tx3)">Partial · <span style="color:var(--ro)">₹${_partialBal.toLocaleString('en-IN')} still due</span></span>
+          </div>`:''}
+          ${_deletedRev>0?`<div style="display:flex;align-items:center;gap:7px;padding:7px 13px;background:#fff;border:1.5px dashed rgba(192,68,79,.4);border-radius:20px;box-shadow:0 1px 3px rgba(0,0,0,.06)">
+            <span class="mi sm" style="color:#c0444f">person_remove</span>
+            <span style="font-size:11px;font-weight:700;color:#9f1239;font-family:var(--fm)">₹${_deletedRev.toLocaleString('en-IN')}</span>
+            <span style="font-size:10px;color:var(--tx3)">${_deletedCount} deleted student invoice${_deletedCount>1?'s':''}</span>
+          </div>`:''}
+          <div style="margin-left:auto;display:flex;align-items:center;gap:6px;font-size:11px;color:var(--tx3)">
+            <span class="mi sm">info</span>Active students: <strong style="color:var(--tx);font-family:var(--fm)">₹${_activeRev.toLocaleString('en-IN')}</strong>
+          </div>
+        </div>`;
         document.getElementById('invTable').innerHTML=DB.invoices.length?DB.invoices.map(inv=>{
             const s=DB.students.find(x=>x.id===inv.studentId);
             const deleted=!s;
