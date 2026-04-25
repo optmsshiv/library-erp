@@ -2710,34 +2710,54 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         document.getElementById('invCount').textContent=`${DB.invoices.length} invoice(s)`;
         document.getElementById('gi-stu').innerHTML='<option value="">-- Select --</option>'+DB.students.map(s=>`<option value="${s.id}">${s.fname} ${s.lname}</option>`).join('');
         // ── Invoice revenue summary bar ──
-        const _total=DB.invoices.reduce((a,i)=>a+i.paidAmt,0);
-        const _fullyPaid=DB.invoices.filter(i=>i.status==='paid').reduce((a,i)=>a+i.paidAmt,0);
-        const _partial=DB.invoices.filter(i=>i.status==='partial').reduce((a,i)=>a+i.paidAmt,0);
-        const _partialBal=DB.invoices.filter(i=>i.status==='partial').reduce((a,i)=>a+i.balance,0);
-        const _deletedRev=DB.invoices.filter(i=>!DB.students.find(x=>x.id===i.studentId)).reduce((a,i)=>a+i.paidAmt,0);
-        const _deletedCount=DB.invoices.filter(i=>!DB.students.find(x=>x.id===i.studentId)).length;
-        const _activeRev=_total-_deletedRev;
+        const _liveInvs = DB.invoices.filter(i=> !!DB.students.find(x=>x.id===i.studentId));
+        const _deadInvs = DB.invoices.filter(i=> !DB.students.find(x=>x.id===i.studentId));
+        const _livePaid        = _liveInvs.filter(i=>i.status==='paid').reduce((a,i)=>a+i.paidAmt,0);
+        const _livePartial     = _liveInvs.filter(i=>i.status==='partial').reduce((a,i)=>a+i.paidAmt,0);
+        const _livePartialBal  = _liveInvs.filter(i=>i.status==='partial').reduce((a,i)=>a+i.balance,0);
+        const _livePaidCnt     = _liveInvs.filter(i=>i.status==='paid').length;
+        const _livePartialCnt  = _liveInvs.filter(i=>i.status==='partial').length;
+        const _liveTotal = _livePaid + _livePartial;
+        const _deletedRev   = _deadInvs.reduce((a,i)=>a+i.paidAmt,0);
+        const _deletedCount = _deadInvs.length;
         const _summaryEl=document.getElementById('invRevSummary');
         if(_summaryEl) _summaryEl.innerHTML=`
-        <div style="display:flex;flex-wrap:wrap;gap:10px;padding:12px 18px;background:var(--sf2);border-bottom:1px solid var(--br);align-items:center">
+        <div style="display:flex;flex-wrap:wrap;gap:10px;padding:13px 18px;background:var(--sf2);border-bottom:1px solid var(--br);align-items:center">
+
+          <div style="display:flex;align-items:center;gap:9px;padding:8px 16px;background:linear-gradient(135deg,#f0fdf4,#dcfce7);border:2px solid #86efac;border-radius:22px;box-shadow:0 2px 8px rgba(22,163,74,.15)">
+            <span class="mi sm" style="color:#15803d">person</span>
+            <div>
+              <div style="font-size:9px;font-family:var(--fm);font-weight:700;color:#15803d;letter-spacing:.8px;text-transform:uppercase;line-height:1">Live Students</div>
+              <div style="font-size:15px;font-weight:800;color:#14532d;font-family:var(--fm);line-height:1.3">₹${_liveTotal.toLocaleString('en-IN')}</div>
+            </div>
+          </div>
+
+          <div style="width:1px;height:32px;background:var(--br);flex-shrink:0"></div>
+
           <div style="display:flex;align-items:center;gap:7px;padding:7px 13px;background:#fff;border:1.5px solid var(--cg);border-radius:20px;box-shadow:0 1px 3px rgba(0,0,0,.06)">
-            <span style="width:8px;height:8px;border-radius:50%;background:#16a34a;box-shadow:0 0 0 2px rgba(22,163,74,.2)"></span>
-            <span style="font-size:11px;font-weight:700;color:#15803d;font-family:var(--fm)">₹${_fullyPaid.toLocaleString('en-IN')}</span>
-            <span style="font-size:10px;color:var(--tx3)">Fully Paid</span>
+            <span style="width:8px;height:8px;border-radius:50%;background:#16a34a;box-shadow:0 0 0 2px rgba(22,163,74,.2);flex-shrink:0"></span>
+            <div>
+              <div style="font-size:11.5px;font-weight:800;color:#15803d;font-family:var(--fm);line-height:1">₹${_livePaid.toLocaleString('en-IN')}</div>
+              <div style="font-size:9px;color:var(--tx3);line-height:1.4">Fully Paid · ${_livePaidCnt} invoice${_livePaidCnt!==1?'s':''}</div>
+            </div>
           </div>
-          ${_partial>0?`<div style="display:flex;align-items:center;gap:7px;padding:7px 13px;background:#fff;border:1.5px solid var(--ca2);border-radius:20px;box-shadow:0 1px 3px rgba(0,0,0,.06)">
-            <span style="width:8px;height:8px;border-radius:50%;background:#d97706;box-shadow:0 0 0 2px rgba(217,119,6,.2)"></span>
-            <span style="font-size:11px;font-weight:700;color:#92400e;font-family:var(--fm)">₹${_partial.toLocaleString('en-IN')}</span>
-            <span style="font-size:10px;color:var(--tx3)">Partial · <span style="color:var(--ro)">₹${_partialBal.toLocaleString('en-IN')} still due</span></span>
+
+          ${_livePartial>0?`<div style="display:flex;align-items:center;gap:7px;padding:7px 13px;background:#fff;border:1.5px solid var(--ca2);border-radius:20px;box-shadow:0 1px 3px rgba(0,0,0,.06)">
+            <span style="width:8px;height:8px;border-radius:50%;background:#d97706;box-shadow:0 0 0 2px rgba(217,119,6,.2);flex-shrink:0"></span>
+            <div>
+              <div style="font-size:11.5px;font-weight:800;color:#92400e;font-family:var(--fm);line-height:1">₹${_livePartial.toLocaleString('en-IN')}</div>
+              <div style="font-size:9px;color:var(--tx3);line-height:1.4">Partial · ${_livePartialCnt} invoice${_livePartialCnt!==1?'s':''} · <span style="color:var(--ro);font-weight:600">₹${_livePartialBal.toLocaleString('en-IN')} still due</span></div>
+            </div>
           </div>`:''}
-          ${_deletedRev>0?`<div style="display:flex;align-items:center;gap:7px;padding:7px 13px;background:#fff;border:1.5px dashed rgba(192,68,79,.4);border-radius:20px;box-shadow:0 1px 3px rgba(0,0,0,.06)">
+
+          ${_deletedRev>0?`<div style="display:flex;align-items:center;gap:7px;padding:7px 13px;background:#fff8f8;border:1.5px dashed rgba(192,68,79,.45);border-radius:20px;box-shadow:0 1px 3px rgba(0,0,0,.05);opacity:.85">
             <span class="mi sm" style="color:#c0444f">person_remove</span>
-            <span style="font-size:11px;font-weight:700;color:#9f1239;font-family:var(--fm)">₹${_deletedRev.toLocaleString('en-IN')}</span>
-            <span style="font-size:10px;color:var(--tx3)">${_deletedCount} deleted student invoice${_deletedCount>1?'s':''}</span>
+            <div>
+              <div style="font-size:11.5px;font-weight:800;color:#9f1239;font-family:var(--fm);line-height:1">₹${_deletedRev.toLocaleString('en-IN')}</div>
+              <div style="font-size:9px;color:var(--tx3);line-height:1.4">${_deletedCount} deleted student invoice${_deletedCount!==1?'s':''}</div>
+            </div>
           </div>`:''}
-          <div style="margin-left:auto;display:flex;align-items:center;gap:6px;font-size:11px;color:var(--tx3)">
-            <span class="mi sm">info</span>Active students: <strong style="color:var(--tx);font-family:var(--fm)">₹${_activeRev.toLocaleString('en-IN')}</strong>
-          </div>
+
         </div>`;
         document.getElementById('invTable').innerHTML=DB.invoices.length?DB.invoices.map(inv=>{
             const s=DB.students.find(x=>x.id===inv.studentId);
