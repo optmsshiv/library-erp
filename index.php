@@ -1754,10 +1754,12 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         const pending=s.filter(x=>x.feeStatus==='pending');
         const overdue=s.filter(x=>x.feeStatus==='overdue');
         const totalRev=DB.invoices.reduce((a,i)=>a+i.paidAmt,0);
-        const revFromPaid=DB.invoices.filter(i=>i.status==='paid').reduce((a,i)=>a+i.paidAmt,0);
-        const revFromPartial=DB.invoices.filter(i=>i.status==='partial').reduce((a,i)=>a+i.paidAmt,0);
-        const revFromDeleted=DB.invoices.filter(i=>!DB.students.find(x=>x.id===i.studentId)).reduce((a,i)=>a+i.paidAmt,0);
-        const activeStudentRev=totalRev-revFromDeleted;
+        const liveInvs=DB.invoices.filter(i=>!!DB.students.find(x=>x.id===i.studentId));
+        const deadInvs=DB.invoices.filter(i=>!DB.students.find(x=>x.id===i.studentId));
+        const revLivePaid=liveInvs.filter(i=>i.status==='paid').reduce((a,i)=>a+i.paidAmt,0);
+        const revLivePartial=liveInvs.filter(i=>i.status==='partial').reduce((a,i)=>a+i.paidAmt,0);
+        const revFromDeleted=deadInvs.reduce((a,i)=>a+i.paidAmt,0);
+        const activeStudentRev=revLivePaid+revLivePartial;
         const totalExp=DB.expenses.reduce((a,e)=>a+e.amount,0);
         const issTx=DB.transactions.filter(t=>t.status!=='returned');
         const odTx=DB.transactions.filter(t=>t.status==='overdue');
@@ -1775,10 +1777,10 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         document.getElementById('dashStats').innerHTML=`
     <div class="sc" style="--ca:var(--ac)"><div class="s-ic" style="background:var(--c-blue)"><span class="mi" style="color:var(--ac)">school</span></div><div class="s-lb">Total Students</div><div class="s-vl">${s.length}</div><div class="s-mt"><span class="bup">↑ 12%</span></div></div>
     <div class="sc" style="--ca:var(--em)"><div class="s-ic" style="background:var(--c-green)"><span class="mi" style="color:var(--em)">event_seat</span></div><div class="s-lb">Seats Available</div><div class="s-vl">${totalSeats-occSeats}</div><div class="s-mt">${occSeats}/${totalSeats} occupied</div></div>
-    <div class="sc" style="--ca:var(--gd)"><div class="s-ic" style="background:var(--c-amber)"><span class="mi" style="color:var(--gd)">payments</span></div><div class="s-lb">Revenue Collected</div><div class="s-vl">${fmt(totalRev)}</div><div class="s-mt" style="display:flex;flex-direction:column;gap:3px;margin-top:6px">
-      <span style="display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:600;color:#166534"><span style="width:6px;height:6px;border-radius:50%;background:#16a34a;flex-shrink:0"></span>₹${revFromPaid.toLocaleString('en-IN')} fully paid</span>
-      ${revFromPartial>0?`<span style="display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:600;color:#92400e"><span style="width:6px;height:6px;border-radius:50%;background:#d97706;flex-shrink:0"></span>₹${revFromPartial.toLocaleString('en-IN')} partial</span>`:''}
-      ${revFromDeleted>0?`<span style="display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:600;color:#9f1239"><span style="width:6px;height:6px;border-radius:50%;background:#e11d48;flex-shrink:0"></span>₹${revFromDeleted.toLocaleString('en-IN')} from deleted</span>`:''}
+    <div class="sc" style="--ca:var(--gd)"><div class="s-ic" style="background:var(--c-amber)"><span class="mi" style="color:var(--gd)">payments</span></div><div class="s-lb">Revenue Collected</div><div class="s-vl">${fmt(activeStudentRev)}</div><div class="s-mt" style="display:flex;flex-direction:column;gap:3px;margin-top:6px">
+      <span style="display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:600;color:#166534"><span style="width:6px;height:6px;border-radius:50%;background:#16a34a;flex-shrink:0"></span>₹${revLivePaid.toLocaleString('en-IN')} live · fully paid</span>
+      ${revLivePartial>0?`<span style="display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:600;color:#92400e"><span style="width:6px;height:6px;border-radius:50%;background:#d97706;flex-shrink:0"></span>₹${revLivePartial.toLocaleString('en-IN')} live · partial</span>`:''}
+      ${revFromDeleted>0?`<span style="display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:600;color:#9f1239;opacity:.75"><span style="width:6px;height:6px;border-radius:50%;background:#e11d48;flex-shrink:0"></span>₹${revFromDeleted.toLocaleString('en-IN')} deleted students</span>`:''}
     </div></div>
     <div class="sc" style="--ca:var(--ro)"><div class="s-ic" style="background:var(--c-rose)"><span class="mi" style="color:var(--ro)">pending</span></div><div class="s-lb">Total Due</div><div class="s-vl">${fmt(allDue)}</div><div class="s-mt" style="color:var(--ro)">${[...pending,...overdue,...partial].length} students</div></div>
     <div class="sc" style="--ca:var(--or)"><div class="s-ic" style="background:var(--c-orange)"><span class="mi" style="color:var(--or)">redeem</span></div><div class="s-lb">Discounts Given</div><div class="s-vl">${fmt(totalDiscount)}</div><div class="s-mt">${s.filter(x=>x.baseFee>x.netFee).length} students</div></div>
