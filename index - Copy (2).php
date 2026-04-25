@@ -286,7 +286,6 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         .fee-due-row{background:rgba(220,38,38,.02)}.fee-partial-row{background:rgba(217,119,6,.02)}
 
         .perm-row{display:flex;align-items:center;justify-content:space-between;padding:9px 13px;border:1px solid var(--br);border-radius:var(--r2);margin-bottom:7px;background:var(--sf2)}
-        .perm-card-lbl:hover{border-color:rgba(61,111,240,.4)!important;box-shadow:0 2px 8px rgba(61,111,240,.08)}
         .toggle-wrap{position:relative;display:inline-block;width:36px;height:20px}
         .toggle-inp{opacity:0;width:0;height:0;position:absolute}
         .toggle-sl{position:absolute;inset:0;background:var(--br2);border-radius:20px;cursor:pointer;transition:.2s}
@@ -2976,69 +2975,18 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
     function renderWASendLog(){const el=document.getElementById('waSendLog');if(!el)return;el.innerHTML=DB.waSendLog.slice(-8).reverse().map(l=>`<div style="display:flex;align-items:center;gap:7px;padding:5px 8px;background:var(--sf2);border-radius:var(--r2);font-size:11px"><span style="color:var(--wa2);font-weight:600;flex-shrink:0">${l.time}</span><span style="color:var(--tx2);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${l.to}</span><span class="tag twa" style="font-size:9px">${l.type}</span></div>`).join('')||'<div style="font-size:11px;color:var(--tx3);text-align:center;padding:10px">No messages sent yet</div>';}
 
     // ═══ STAFF ═══
-    const PERMS=[
-      {key:'students', label:'Students',    desc:'Enroll, edit, seat & attendance',  icon:'school'},
-      {key:'fees',     label:'Fees',        desc:'Payments, invoices & renewals',     icon:'payments'},
-      {key:'books',    label:'Books',       desc:'Catalog, issue & return',            icon:'menu_book'},
-      {key:'expenses', label:'Expenses',    desc:'Add & view expense records',         icon:'receipt'},
-      {key:'reports',  label:'Reports',     desc:'Analytics & export data',            icon:'bar_chart'},
-      {key:'staff',    label:'Staff',       desc:'Add/edit staff & salary',            icon:'manage_accounts'},
-      {key:'settings', label:'Settings',    desc:'Library config & branding',          icon:'settings'},
-    ];
+    const PERMS=[{key:'students',label:'Manage Students'},{key:'fees',label:'Fee Management'},{key:'books',label:'Books & Transactions'},{key:'expenses',label:'Expenses'},{key:'reports',label:'Reports'},{key:'staff',label:'Staff Mgmt'},{key:'settings',label:'Settings'}];
     const ROLE_PERMS={admin:{students:true,fees:true,books:true,expenses:true,reports:true,staff:true,settings:true},librarian:{students:true,fees:false,books:true,expenses:false,reports:true,staff:false,settings:false},accountant:{students:false,fees:true,books:false,expenses:true,reports:true,staff:false,settings:false},receptionist:{students:true,fees:false,books:false,expenses:false,reports:false,staff:false,settings:false}};
     function renderStaff(){
         document.getElementById('staffCount').textContent=`${DB.staff.length} staff`;
         document.getElementById('staffTable').innerHTML=DB.staff.map((sf,i)=>{const pc=Object.values(sf.perms).filter(Boolean).length;
             return `<tr><td><div class="si"><div class="sav" style="background:linear-gradient(135deg,var(--ac),var(--vi))">${sf.name.split(' ').map(n=>n[0]).join('').slice(0,2)}</div><div><div style="font-weight:600;font-size:12.5px">${sf.name}</div><div style="font-size:10px;color:var(--tx3);font-family:var(--fm)">${sf.id}</div></div></div></td>
     <td><span class="tag tac" style="text-transform:capitalize">${sf.role}</span></td><td>${sf.email}</td><td>${sf.phone}</td>
-    <td><div style="display:flex;flex-wrap:wrap;gap:4px">${PERMS.filter(p=>sf.perms[p.key]).map(p=>`<span title="${p.label}" style="display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;background:rgba(61,111,240,.09);border:1px solid rgba(61,111,240,.2);border-radius:6px"><span class="mi" style="font-size:13px;color:var(--ac)">${p.icon}</span></span>`).join('')}${pc===0?'<span style="font-size:10px;color:var(--tx3);font-style:italic">No access</span>':''}</div></td><td><span class="tag tpd">Active</span></td>
+    <td><span style="font-family:var(--fm);font-size:11px">${pc}/7 perms</span></td><td><span class="tag tpd">Active</span></td>
     <td><div style="display:flex;gap:4px"><button class="btn bg" style="font-size:10px;padding:3px 7px" onclick="editStaff(${i})">✏</button>${i>0?`<button class="btn bd" style="font-size:10px;padding:3px 6px" onclick="delStaff(${i})"><span class="mi sm">close</span></button>`:''}</div></td></tr>`;
         }).join('')||'<tr><td colspan="7"><div class="empty"><div class="ei">👥</div><div class="et">No staff</div></div></td></tr>';
     }
-    function buildPermList(){
-      const role=gv('sf-rl')||'librarian';
-      const d=ROLE_PERMS[role];
-      const isAdmin=role==='admin';
-      document.getElementById('permList').innerHTML=`
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px">
-        ${PERMS.map(p=>{
-          const on=isAdmin?true:d[p.key];
-          return `<label style="display:flex;align-items:center;gap:10px;padding:10px 13px;background:${on?'rgba(61,111,240,.05)':'var(--sf2)'};border:1.5px solid ${on?'rgba(61,111,240,.25)':'var(--br)'};border-radius:var(--r2);cursor:pointer;transition:all .18s;position:relative" class="perm-card-lbl">
-            <div style="width:34px;height:34px;border-radius:9px;background:${on?'rgba(61,111,240,.1)':'var(--sf3)'};display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .18s">
-              <span class="mi sm" style="color:${on?'var(--ac)':'var(--tx3)'}">${p.icon}</span>
-            </div>
-            <div style="flex:1;min-width:0">
-              <div style="font-size:12px;font-weight:700;color:${on?'var(--tx)':'var(--tx2)'}">${p.label}</div>
-              <div style="font-size:9.5px;color:var(--tx3);line-height:1.3;margin-top:1px">${p.desc}</div>
-            </div>
-            <div style="flex-shrink:0">
-              <label class="toggle-wrap" onclick="event.stopPropagation();setTimeout(()=>refreshPermCards(),10)">
-                <input type="checkbox" id="perm-${p.key}" class="toggle-inp" ${on?'checked':''} ${isAdmin?'disabled':''}>
-                <span class="toggle-sl"></span>
-              </label>
-            </div>
-          </label>`;
-        }).join('')}
-        </div>
-        ${isAdmin?'<div style="margin-top:8px;padding:7px 11px;background:rgba(61,111,240,.06);border:1px solid rgba(61,111,240,.2);border-radius:var(--r2);font-size:11px;color:var(--ac);display:flex;align-items:center;gap:6px"><span class="mi sm">verified_user</span>Admin has full access to all modules — permissions locked.</div>':''}
-      `;
-    }
-    function refreshPermCards(){
-      PERMS.forEach(p=>{
-        const cb=document.getElementById('perm-'+p.key);
-        const card=cb?.closest('label.perm-card-lbl');
-        if(!cb||!card)return;
-        const on=cb.checked;
-        card.style.background=on?'rgba(61,111,240,.05)':'var(--sf2)';
-        card.style.borderColor=on?'rgba(61,111,240,.25)':'var(--br)';
-        const ic=card.querySelector('.mi');
-        if(ic)ic.style.color=on?'var(--ac)':'var(--tx3)';
-        const icBox=card.querySelector('div[style*="34px"]');
-        if(icBox)icBox.style.background=on?'rgba(61,111,240,.1)':'var(--sf3)';
-        const lbl=card.querySelector('div[style*="font-weight:700"]');
-        if(lbl)lbl.style.color=on?'var(--tx)':'var(--tx2)';
-      });
-    }
+    function buildPermList(){const role=gv('sf-rl')||'librarian';const d=ROLE_PERMS[role];document.getElementById('permList').innerHTML=PERMS.map(p=>`<div class="perm-row"><div><div style="font-size:13px;font-weight:500">${p.label}</div></div><label class="toggle-wrap"><input type="checkbox" id="perm-${p.key}" class="toggle-inp" ${d[p.key]?'checked':''}><span class="toggle-sl"></span></label></div>`).join('');}
     function setDefaultPerms(){buildPermList();}
     function editStaff(idx){editStaffIdx=idx;const sf=DB.staff[idx];document.getElementById('staffModalTitle').textContent='✏ Edit Staff';document.getElementById('staffSaveBtn').textContent='Save';document.getElementById('sf-nm').value=sf.name;document.getElementById('sf-rl').value=sf.role;document.getElementById('sf-em').value=sf.email;document.getElementById('sf-ph').value=sf.phone;document.getElementById('sf-un').value=sf.username;buildPermList();PERMS.forEach(p=>{const el=document.getElementById('perm-'+p.key);if(el)el.checked=sf.perms[p.key];});openM('mAddStaff');}
     // delStaff is defined below as an async function (API-backed with local fallback)
