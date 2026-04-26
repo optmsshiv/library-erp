@@ -109,32 +109,13 @@ switch ($action) {
         try { $db->exec("ALTER TABLE settings ADD COLUMN IF NOT EXISTS upi_id VARCHAR(128) DEFAULT '7282071620@okaxis'"); } catch(Exception $e) {}
         $settings = $db->query("SELECT * FROM settings WHERE id=1")->fetch();
         $invoices = $db->query("SELECT * FROM invoices ORDER BY created_at DESC")->fetchAll();
-        $staff    = $db->query("SELECT s.id,s.name,s.role,s.email,s.phone,s.username,s.perm_students,s.perm_fees,s.perm_books,s.perm_expenses,s.perm_reports,s.perm_staff,s.perm_settings,COALESCE(s.perm_whatsapp,1) AS perm_whatsapp,COALESCE(s.perm_notifications,1) AS perm_notifications,s.act_perms,s.status,COALESCE(ss.base_monthly,0) AS base_salary FROM staff s LEFT JOIN staff_salary ss ON ss.staff_id=s.id ORDER BY s.created_at")->fetchAll();
-        // Decode act_perms JSON for each staff row
-        foreach ($staff as &$sfRow) {
-            if (isset($sfRow['act_perms']) && is_string($sfRow['act_perms'])) {
-                $sfRow['act_perms'] = json_decode($sfRow['act_perms'], true) ?? [];
-            }
-        }
-        unset($sfRow);
-        // Guard: redirect to login if session missing
-        if (empty($_SESSION['staff_id'])) {
-            jsonError('Session expired. Please log in again.', 401);
-        }
-        // Auto-migrate: add new perm columns if they don't exist yet
-        try { $db->exec("ALTER TABLE staff ADD COLUMN IF NOT EXISTS perm_whatsapp TINYINT(1) NOT NULL DEFAULT 1"); } catch(Exception $e) {}
-        try { $db->exec("ALTER TABLE staff ADD COLUMN IF NOT EXISTS perm_notifications TINYINT(1) NOT NULL DEFAULT 1"); } catch(Exception $e) {}
-        try { $db->exec("ALTER TABLE staff ADD COLUMN IF NOT EXISTS act_perms JSON NULL"); } catch(Exception $e) {}
-        $meStmt = $db->prepare("SELECT role,perm_students,perm_fees,perm_books,perm_expenses,perm_reports,perm_staff,perm_settings,COALESCE(perm_whatsapp,1) as perm_whatsapp,COALESCE(perm_notifications,1) as perm_notifications,act_perms FROM staff WHERE id=? LIMIT 1");
+        $staff    = $db->query("SELECT s.id,s.name,s.role,s.email,s.phone,s.username,s.perm_students,s.perm_fees,s.perm_books,s.perm_expenses,s.perm_reports,s.perm_staff,s.perm_settings,s.status,COALESCE(ss.base_monthly,0) AS base_salary FROM staff s LEFT JOIN staff_salary ss ON ss.staff_id=s.id ORDER BY s.created_at")->fetchAll();
+        $meStmt   = $db->prepare("SELECT role,perm_students,perm_fees,perm_books,perm_expenses,perm_reports,perm_staff,perm_settings FROM staff WHERE id=? LIMIT 1");
         $meStmt->execute([$_SESSION['staff_id']]);
         $me = $meStmt->fetch();
         if (!$me) {
             // Fallback: admin gets full access
-            $me = ['role'=>'admin','perm_students'=>1,'perm_fees'=>1,'perm_books'=>1,'perm_expenses'=>1,'perm_reports'=>1,'perm_staff'=>1,'perm_settings'=>1,'perm_whatsapp'=>1,'perm_notifications'=>1,'act_perms'=>null];
-        }
-        // Decode act_perms JSON string → array for the frontend
-        if (isset($me['act_perms']) && is_string($me['act_perms'])) {
-            $me['act_perms'] = json_decode($me['act_perms'], true) ?? [];
+            $me = ['role'=>'admin','perm_students'=>1,'perm_fees'=>1,'perm_books'=>1,'perm_expenses'=>1,'perm_reports'=>1,'perm_staff'=>1,'perm_settings'=>1];
         }
         jsonResponse([
             'students'      => $students,
@@ -517,13 +498,7 @@ switch ($action) {
     // STAFF
     // ══════════════════════════════════
     case 'get_staff':
-        $rows = $db->query("SELECT id,name,role,email,phone,username,perm_students,perm_fees,perm_books,perm_expenses,perm_reports,perm_staff,perm_settings,COALESCE(perm_whatsapp,1) AS perm_whatsapp,COALESCE(perm_notifications,1) AS perm_notifications,act_perms,status FROM staff ORDER BY created_at")->fetchAll();
-        foreach ($rows as &$r) {
-            if (isset($r['act_perms']) && is_string($r['act_perms'])) {
-                $r['act_perms'] = json_decode($r['act_perms'], true) ?? [];
-            }
-        }
-        unset($r);
+        $rows = $db->query("SELECT id,name,role,email,phone,username,perm_students,perm_fees,perm_books,perm_expenses,perm_reports,perm_staff,perm_settings,status FROM staff ORDER BY created_at")->fetchAll();
         jsonResponse($rows);
 
     case 'save_staff':
@@ -534,23 +509,20 @@ switch ($action) {
         $isEdit = !empty($d['id']);
         if ($isEdit) {
             // If a new password is provided, update it too; otherwise keep existing hash
-            $actPermsJson = json_encode($d['actPerms'] ?? []);
             if (!empty($d['password'])) {
                 $newHash = password_hash($d['password'], PASSWORD_BCRYPT);
-                $db->prepare("UPDATE staff SET name=?,role=?,email=?,phone=?,username=?,password_hash=?,perm_students=?,perm_fees=?,perm_books=?,perm_expenses=?,perm_reports=?,perm_staff=?,perm_settings=?,perm_whatsapp=?,perm_notifications=?,act_perms=? WHERE id=?")
+                $db->prepare("UPDATE staff SET name=?,role=?,email=?,phone=?,username=?,password_hash=?,perm_students=?,perm_fees=?,perm_books=?,perm_expenses=?,perm_reports=?,perm_staff=?,perm_settings=? WHERE id=?")
                     ->execute([$d['name'],$d['role'],$d['email'],$d['phone'] ?? '',$d['username'] ?? '',
                         $newHash,
                         (int)($perms['students'] ?? 0),(int)($perms['fees'] ?? 0),(int)($perms['books'] ?? 0),
                         (int)($perms['expenses'] ?? 0),(int)($perms['reports'] ?? 0),(int)($perms['staff'] ?? 0),(int)($perms['settings'] ?? 0),
-                        (int)($perms['whatsapp'] ?? 1),(int)($perms['notifications'] ?? 1),
-                        $actPermsJson, $d['id']]);
+                        $d['id']]);
             } else {
-                $db->prepare("UPDATE staff SET name=?,role=?,email=?,phone=?,username=?,perm_students=?,perm_fees=?,perm_books=?,perm_expenses=?,perm_reports=?,perm_staff=?,perm_settings=?,perm_whatsapp=?,perm_notifications=?,act_perms=? WHERE id=?")
+                $db->prepare("UPDATE staff SET name=?,role=?,email=?,phone=?,username=?,perm_students=?,perm_fees=?,perm_books=?,perm_expenses=?,perm_reports=?,perm_staff=?,perm_settings=? WHERE id=?")
                     ->execute([$d['name'],$d['role'],$d['email'],$d['phone'] ?? '',$d['username'] ?? '',
                         (int)($perms['students'] ?? 0),(int)($perms['fees'] ?? 0),(int)($perms['books'] ?? 0),
                         (int)($perms['expenses'] ?? 0),(int)($perms['reports'] ?? 0),(int)($perms['staff'] ?? 0),(int)($perms['settings'] ?? 0),
-                        (int)($perms['whatsapp'] ?? 1),(int)($perms['notifications'] ?? 1),
-                        $actPermsJson, $d['id']]);
+                        $d['id']]);
             }
         } else {
             // New staff: require username; default password is 'Pass@1234' if none given
@@ -560,13 +532,11 @@ switch ($action) {
             $lastSfId = $db->query("SELECT id FROM staff ORDER BY id DESC LIMIT 1")->fetchColumn();
             $lastSfNum = $lastSfId ? (int)substr($lastSfId, 3) : 0;
             $newId = 'SF-' . str_pad($lastSfNum + 1, 3, '0', STR_PAD_LEFT);
-            $actPermsJson = json_encode($d['actPerms'] ?? []);
-            $db->prepare("INSERT INTO staff (id,name,role,email,phone,username,password_hash,perm_students,perm_fees,perm_books,perm_expenses,perm_reports,perm_staff,perm_settings,perm_whatsapp,perm_notifications,act_perms,status) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)")
+            $db->prepare("INSERT INTO staff (id,name,role,email,phone,username,password_hash,perm_students,perm_fees,perm_books,perm_expenses,perm_reports,perm_staff,perm_settings,status) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)")
                 ->execute([$newId,$d['name'],$d['role'],$d['email'],$d['phone'] ?? '',$d['username'],$hash,
                     (int)($perms['students'] ?? 0),(int)($perms['fees'] ?? 0),(int)($perms['books'] ?? 0),
                     (int)($perms['expenses'] ?? 0),(int)($perms['reports'] ?? 0),(int)($perms['staff'] ?? 0),(int)($perms['settings'] ?? 0),
-                    (int)($perms['whatsapp'] ?? 1),(int)($perms['notifications'] ?? 1),
-                    $actPermsJson, 'active']);
+                    'active']);
             addActivity($db, '👥', 'rgba(74,124,111,.14)', "Staff <strong>{$d['name']}</strong> added");
         }
         jsonResponse(['success' => true]);
@@ -1605,358 +1575,7 @@ switch ($action) {
             'name'     => $s['name'] ?? 'Library ERP',
             'logo_url' => $s['logo_url'] ?? ''
         ]);
-
-
-    // ══════════════════════════════════════════════════════════════
-    // BIOMETRIC DEVICE INTEGRATION — eSSL X990 + Realtime RS9N
-    // ZK/eSSL iClock PUSH Protocol (ADMS)
-    // ══════════════════════════════════════════════════════════════
-
-    // ── Step 1: Device calls GET /iclock/cdata?SN=XXXXX&options=all ──
-    // We respond with server config so device knows what to do next
-    case 'iclock_cdata':
-    case 'biometric_init': {
-        $sn = $_GET['SN'] ?? $_GET['sn'] ?? 'UNKNOWN';
-        // Log device heartbeat
-        $db->exec("CREATE TABLE IF NOT EXISTS biometric_devices (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            serial_number VARCHAR(64) NOT NULL UNIQUE,
-            device_name VARCHAR(128) DEFAULT '',
-            last_seen TIMESTAMP NULL,
-            ip_address VARCHAR(64) DEFAULT '',
-            status VARCHAR(16) DEFAULT 'online',
-            total_punches INT DEFAULT 0,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
-        $ip = $_SERVER['HTTP_X_FORWARDED_FOR'] ?? $_SERVER['REMOTE_ADDR'] ?? '';
-        $db->prepare("INSERT INTO biometric_devices (serial_number, ip_address, last_seen, status)
-            VALUES (?,?,NOW(),'online')
-            ON DUPLICATE KEY UPDATE last_seen=NOW(), ip_address=?, status='online'")
-            ->execute([$sn, $ip, $ip]);
-        // Respond in iClock protocol format
-        header('Content-Type: text/plain');
-        echo "GET OPTION FROM: $sn
-";
-        echo "Stamp=9999
-";
-        echo "OpStamp=9999
-";
-        echo "ErrorDelay=30
-";
-        echo "Delay=10
-";
-        echo "TransTimes=00:00;23:59
-";
-        echo "TransInterval=1
-";
-        echo "TransFlag=1111000000
-";
-        echo "Realtime=1
-";
-        echo "Encrypt=0
-";
-        exit;
-    }
-
-    // ── Step 2: Device pushes attendance logs ──
-    // POST /api/index.php?action=biometric_push
-    // Body: ATTLOG	UserID	Timestamp	Status	Verify	WorkCode
-...
-    // OR JSON push from newer firmware / Realtime RS9N
-    case 'biometric_push': {
-        $sn = $_GET['SN'] ?? $_GET['sn'] ?? ($_SERVER['HTTP_SN'] ?? 'UNKNOWN');
-        $rawBody = file_get_contents('php://input');
-
-        // Create tables
-        $db->exec("CREATE TABLE IF NOT EXISTS biometric_devices (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            serial_number VARCHAR(64) NOT NULL UNIQUE,
-            device_name VARCHAR(128) DEFAULT '',
-            last_seen TIMESTAMP NULL,
-            ip_address VARCHAR(64) DEFAULT '',
-            status VARCHAR(16) DEFAULT 'online',
-            total_punches INT DEFAULT 0,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
-
-        $db->exec("CREATE TABLE IF NOT EXISTS biometric_punches (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            serial_number VARCHAR(64) NOT NULL,
-            user_id VARCHAR(32) NOT NULL,
-            punch_time DATETIME NOT NULL,
-            punch_type VARCHAR(16) DEFAULT 'check_in',
-            verify_type VARCHAR(16) DEFAULT 'fingerprint',
-            student_id VARCHAR(32) NULL,
-            processed TINYINT(1) DEFAULT 0,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            INDEX idx_uid (user_id),
-            INDEX idx_time (punch_time),
-            INDEX idx_student (student_id)
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
-
-        $db->exec("CREATE TABLE IF NOT EXISTS student_attendance (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            student_id VARCHAR(32) NOT NULL,
-            date DATE NOT NULL,
-            status VARCHAR(16) NOT NULL DEFAULT 'present',
-            check_in TIME NULL,
-            check_out TIME NULL,
-            is_late TINYINT(1) DEFAULT 0,
-            late_minutes INT DEFAULT 0,
-            marked_by VARCHAR(64) DEFAULT 'biometric',
-            device_sn VARCHAR(64) DEFAULT '',
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            UNIQUE KEY uniq_student_date (student_id, date)
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
-
-        $processed = 0;
-        $denied    = 0;
-
-        // ── Parse format ──
-        // Try JSON first (Realtime RS9N / newer eSSL)
-        $jsonData = json_decode($rawBody, true);
-
-        if ($jsonData && isset($jsonData['RealTime']['PunchLog'])) {
-            // Modern JSON push format
-            $pl     = $jsonData['RealTime']['PunchLog'];
-            $userId = $pl['UserId'] ?? '';
-            $logTime= $pl['LogTime'] ?? date('Y-m-d H:i:s');
-            $type   = strtolower($pl['Type'] ?? 'checkin');
-            $verify = strtolower($pl['InputType'] ?? 'fingerprint');
-            if ($userId) {
-                $rows = [[$userId, $logTime, ($type === 'checkout' ? 1 : 0), $verify]];
-            } else { $rows = []; }
-        } elseif (strpos($rawBody, 'ATTLOG') !== false || strpos($rawBody, "	") !== false) {
-            // Standard iClock ATTLOG text format:
-            // ATTLOG	UserID	Timestamp	Status	Verify	WorkCode
-
-            $rows = [];
-            foreach (explode("
-", $rawBody) as $line) {
-                $line = trim($line);
-                if (empty($line)) continue;
-                // Strip ATTLOG prefix if present
-                if (substr($line, 0, 6) === 'ATTLOG') $line = trim(substr($line, 6));
-                $parts = preg_split('/	+/', $line);
-                if (count($parts) >= 2) {
-                    $rows[] = [
-                        $parts[0],                     // UserID
-                        $parts[1],                     // Timestamp
-                        (int)($parts[2] ?? 0),         // Status (0=check_in, 1=check_out)
-                        $parts[3] ?? 'fingerprint'     // VerifyType
-                    ];
-                }
-            }
-        } elseif ($jsonData && is_array($jsonData)) {
-            // Array of punch records
-            $rows = [];
-            $list = isset($jsonData[0]) ? $jsonData : [$jsonData];
-            foreach ($list as $rec) {
-                $userId = $rec['user_id'] ?? $rec['UserId'] ?? $rec['userid'] ?? '';
-                $time   = $rec['punch_time'] ?? $rec['LogTime'] ?? $rec['time'] ?? date('Y-m-d H:i:s');
-                $status = $rec['status'] ?? $rec['Status'] ?? 0;
-                $verify = $rec['verify'] ?? $rec['InputType'] ?? 'fingerprint';
-                if ($userId) $rows[] = [$userId, $time, (int)$status, $verify];
-            }
-        } else {
-            // Fallback: try key=value or query string body
-            parse_str($rawBody, $params);
-            $userId = $params['user_id'] ?? $params['UserId'] ?? $_GET['user_id'] ?? '';
-            $time   = $params['punch_time'] ?? $params['time'] ?? date('Y-m-d H:i:s');
-            $status = (int)($params['status'] ?? 0);
-            $verify = $params['verify'] ?? 'fingerprint';
-            $rows   = $userId ? [[$userId, $time, $status, $verify]] : [];
-        }
-
-        // ── Process each punch ──
-        foreach ($rows as [$userId, $rawTime, $statusCode, $verifyType]) {
-            // Normalize timestamp
-            $rawTime  = trim($rawTime);
-            $punchTs  = strtotime(str_replace('T', ' ', $rawTime));
-            if (!$punchTs) $punchTs = time();
-            $punchDt  = date('Y-m-d H:i:s', $punchTs);
-            $punchDate= date('Y-m-d', $punchTs);
-            $punchTime= date('H:i:s', $punchTs);
-
-            // Determine check_in / check_out from status code
-            // 0 = check_in, 1 = check_out, 4 = break_out etc.
-            $punchType = ($statusCode == 1 || $statusCode == 3) ? 'check_out' : 'check_in';
-
-            // Save raw punch
-            $db->prepare("INSERT IGNORE INTO biometric_punches
-                (serial_number, user_id, punch_time, punch_type, verify_type)
-                VALUES (?,?,?,?,?)")
-                ->execute([$sn, $userId, $punchDt, $punchType, $verifyType]);
-
-            // Map device user_id to student
-            // Convention: device user_id = student id (e.g. STU-001) OR numeric enrollment number
-            $stuStmt = $db->prepare(
-                "SELECT s.*, b.name as batch_name, b.start_time as batch_start
-                 FROM students s
-                 LEFT JOIN batches b ON b.id = s.batch_id
-                 WHERE s.id = ? OR s.enrollment_no = ? LIMIT 1"
-            );
-            $stuStmt->execute([$userId, $userId]);
-            $stu = $stuStmt->fetch(PDO::FETCH_ASSOC);
-
-            if (!$stu) {
-                // Try matching by numeric part (device may store just number)
-                $stuStmt2 = $db->prepare(
-                    "SELECT s.*, b.name as batch_name, b.start_time as batch_start
-                     FROM students s
-                     LEFT JOIN batches b ON b.id = s.batch_id
-                     WHERE s.id LIKE ? OR s.id = ? LIMIT 1"
-                );
-                $stuStmt2->execute(['%'.$userId, 'STU-'.ltrim($userId,'0')]);
-                $stu = $stuStmt2->fetch(PDO::FETCH_ASSOC);
-            }
-
-            if (!$stu) { $denied++; continue; }
-
-            // Update biometric_punches with student_id
-            $db->prepare("UPDATE biometric_punches SET student_id=?, processed=1
-                WHERE serial_number=? AND user_id=? AND punch_time=? LIMIT 1")
-                ->execute([$stu['id'], $sn, $userId, $punchDt]);
-
-            // Check fee gate — deny entry if overdue (optional, controlled by setting)
-            $settRow = $db->query("SELECT * FROM settings WHERE id=1")->fetch();
-            $feeGate = $settRow['biometric_fee_gate'] ?? 0;
-            if ($feeGate && $stu['fee_status'] === 'overdue') {
-                $denied++;
-                // Log denial
-                addActivity($db, '🚫', 'rgba(239,68,68,.14)',
-                    "<strong>{$stu['fname']} {$stu['lname']}</strong> entry DENIED — fee overdue");
-                continue;
-            }
-
-            // ── Update student_attendance table ──
-            $existing = $db->prepare(
-                "SELECT * FROM student_attendance WHERE student_id=? AND date=? LIMIT 1"
-            );
-            $existing->execute([$stu['id'], $punchDate]);
-            $att = $existing->fetch(PDO::FETCH_ASSOC);
-
-            if (!$att) {
-                // First punch of day = check_in
-                $isLate = 0; $lateMin = 0;
-                if (!empty($stu['batch_start'])) {
-                    $batchTs = strtotime($punchDate . ' ' . $stu['batch_start']);
-                    $grace   = 15 * 60;
-                    if ($punchTs > $batchTs + $grace) {
-                        $isLate = 1;
-                        $lateMin = (int)round(($punchTs - $batchTs) / 60);
-                    }
-                }
-                $db->prepare("INSERT INTO student_attendance
-                    (student_id, date, status, check_in, is_late, late_minutes, marked_by, device_sn)
-                    VALUES (?,?,?,?,?,?,?,?)
-                    ON DUPLICATE KEY UPDATE check_in=VALUES(check_in), is_late=VALUES(is_late),
-                        late_minutes=VALUES(late_minutes), marked_by='biometric'")
-                    ->execute([$stu['id'], $punchDate, 'present', $punchTime,
-                        $isLate, $lateMin, 'biometric_device', $sn]);
-
-                // Also mark in main attendance table
-                $db->prepare("INSERT INTO attendance (student_id, attendance_date, status)
-                    VALUES (?,?,?) ON DUPLICATE KEY UPDATE status='present'")
-                    ->execute([$stu['id'], $punchDate, 'present']);
-
-                $lateMsg = $isLate ? " ⚠ Late by {$lateMin}min" : '';
-                addActivity($db, '🖐️', 'rgba(22,163,74,.14)',
-                    "<strong>{$stu['fname']} {$stu['lname']}</strong> checked in via biometric at $punchTime$lateMsg");
-
-            } elseif (!$att['check_out'] && $punchType === 'check_out') {
-                // Second punch = check_out
-                $db->prepare("UPDATE student_attendance SET check_out=?, marked_by='biometric_device'
-                    WHERE student_id=? AND date=?")
-                    ->execute([$punchTime, $stu['id'], $punchDate]);
-
-                addActivity($db, '🖐️', 'rgba(100,116,139,.14)',
-                    "<strong>{$stu['fname']} {$stu['lname']}</strong> checked out at $punchTime");
-            }
-
-            // Update device punch count
-            $db->prepare("UPDATE biometric_devices SET total_punches=total_punches+1, last_seen=NOW()
-                WHERE serial_number=?")
-                ->execute([$sn]);
-
-            $processed++;
-        }
-
-        // Respond in iClock format
-        header('Content-Type: text/plain');
-        echo "OK: $processed
-";
-        exit;
-    }
-
-    // ── Heartbeat / keepalive from device ──
-    case 'biometric_heartbeat': {
-        $sn = $_GET['SN'] ?? $_GET['sn'] ?? 'UNKNOWN';
-        $ip = $_SERVER['HTTP_X_FORWARDED_FOR'] ?? $_SERVER['REMOTE_ADDR'] ?? '';
-        try {
-            $db->prepare("UPDATE biometric_devices SET last_seen=NOW(), status='online', ip_address=?
-                WHERE serial_number=?")
-                ->execute([$ip, $sn]);
-        } catch(Exception $e) {}
-        header('Content-Type: text/plain');
-        echo "OK
-";
-        exit;
-    }
-
-    // ── Get biometric devices list for admin dashboard ──
-    case 'get_biometric_devices': {
-        try {
-            $db->exec("CREATE TABLE IF NOT EXISTS biometric_devices (
-                id INT AUTO_INCREMENT PRIMARY KEY,
-                serial_number VARCHAR(64) NOT NULL UNIQUE,
-                device_name VARCHAR(128) DEFAULT '',
-                last_seen TIMESTAMP NULL,
-                ip_address VARCHAR(64) DEFAULT '',
-                status VARCHAR(16) DEFAULT 'offline',
-                total_punches INT DEFAULT 0,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
-            // Mark devices offline if not seen in 5 min
-            $db->exec("UPDATE biometric_devices SET status='offline'
-                WHERE last_seen < DATE_SUB(NOW(), INTERVAL 5 MINUTE)");
-            $devices = $db->query("SELECT * FROM biometric_devices ORDER BY last_seen DESC")
-                ->fetchAll(PDO::FETCH_ASSOC);
-        } catch(Exception $e) { $devices = []; }
-        jsonResponse(['devices' => $devices]);
         break;
-    }
-
-    // ── Get today's biometric punches ──
-    case 'get_biometric_punches': {
-        $date = $_GET['date'] ?? date('Y-m-d');
-        try {
-            $punches = $db->prepare(
-                "SELECT bp.*, s.fname, s.lname, s.color
-                 FROM biometric_punches bp
-                 LEFT JOIN students s ON s.id = bp.student_id
-                 WHERE DATE(bp.punch_time) = ?
-                 ORDER BY bp.punch_time DESC LIMIT 200"
-            );
-            $punches->execute([$date]);
-            $rows = $punches->fetchAll(PDO::FETCH_ASSOC);
-        } catch(Exception $e) { $rows = []; }
-        jsonResponse(['punches' => $rows]);
-        break;
-    }
-
-    // ── Toggle fee gate (block overdue students at door) ──
-    case 'set_fee_gate': {
-        if ($method !== 'POST') jsonError('Method not allowed', 405);
-        $d = getInput();
-        $enabled = (int)($d['enabled'] ?? 0);
-        try {
-            $db->exec("ALTER TABLE settings ADD COLUMN IF NOT EXISTS biometric_fee_gate TINYINT(1) DEFAULT 0");
-            $db->prepare("UPDATE settings SET biometric_fee_gate=? WHERE id=1")->execute([$enabled]);
-        } catch(Exception $e) {}
-        jsonResponse(['ok' => true, 'fee_gate' => $enabled]);
-        break;
-    }        break;
 
     default:
         jsonError('Unknown action', 404);
