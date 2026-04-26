@@ -563,29 +563,24 @@ switch ($action) {
             if (empty($d['username'])) jsonError('Username is required for new staff.');
             $rawPassword = !empty($d['password']) ? $d['password'] : 'Pass@1234';
             $hash = password_hash($rawPassword, PASSWORD_BCRYPT);
-
-            // Determine prefix from role
+            // Role-based prefix: ADM, MGR, SF
             $role   = $d['role'] ?? 'staff';
             $prefix = ($role === 'admin') ? 'ADM' : (($role === 'manager') ? 'MGR' : 'SF');
-
-            // Use clean ID sent from JS if valid, otherwise generate one
+            // Use clean ID sent from JS if valid and not taken
             $sentId = trim($d['id'] ?? '');
-            if ($sentId && preg_match('/^(ADM|MGR|SF)-\d{3,}$/', $sentId)
-                && !$db->query("SELECT COUNT(*) FROM staff WHERE id='".addslashes($sentId)."'")->fetchColumn()) {
+            $idTaken = $sentId ? (int)$db->query("SELECT COUNT(*) FROM staff WHERE id='".addslashes($sentId)."'")->fetchColumn() : 1;
+            if ($sentId && preg_match('/^(ADM|MGR|SF)-\d{3}$/', $sentId) && !$idTaken) {
                 $newId = $sentId;
             } else {
-                // Generate by finding highest existing number for this prefix
+                // Count existing IDs for this prefix and get max number
                 $maxNum = 0;
-                $rows = $db->query("SELECT id FROM staff")->fetchAll(PDO::FETCH_COLUMN);
-                foreach ($rows as $rid) {
-                    if (strpos($rid, $prefix . '-') === 0) {
-                        $n = (int)substr($rid, strlen($prefix) + 1);
-                        if ($n > $maxNum) $maxNum = $n;
+                foreach ($db->query("SELECT id FROM staff")->fetchAll(PDO::FETCH_COLUMN) as $rid) {
+                    if (strpos($rid, $prefix.'-') === 0 && preg_match('/^[A-Z]+-(\d+)$/', $rid, $m)) {
+                        if ((int)$m[1] > $maxNum) $maxNum = (int)$m[1];
                     }
                 }
                 $newId = $prefix . '-' . str_pad($maxNum + 1, 3, '0', STR_PAD_LEFT);
             }
-
             $db->prepare("INSERT INTO staff (id,name,role,email,phone,username,password_hash,
                 perm_students,perm_fees,perm_books,perm_expenses,perm_reports,perm_staff,perm_settings,
                 perm_whatsapp,perm_notifications,act_perms,status) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)")
@@ -594,40 +589,57 @@ switch ($action) {
                     (int)($perms['expenses'] ?? 0),(int)($perms['reports'] ?? 0),(int)($perms['staff'] ?? 0),(int)($perms['settings'] ?? 0),
                     (int)($perms['whatsapp'] ?? 1),(int)($perms['notifications'] ?? 1),$actJson,
                     'active']);
-            addActivity($db, '👥', 'rgba(74,124,111,.14)', "Staff <strong>{$d['name']}</strong> added as <strong>$newId</strong>");
+            addActivity($db, '👥', 'rgba(74,124,111,.14)', "Staff <strong>{$d['name']}</strong> added");
         }
-        jsonResponse(['success' => true, 'id' => $newId ?? $d['id']]);
+        jsonResponse(['success' => true]);
 
     case 'cleanup_staff_ids':
-        // One-time migration — renames ugly timestamp IDs to SF-001, ADM-001, MGR-001
+        // Rename ALL non-clean IDs → SF-001, ADM-001, MGR-001
+        // CLEAN means: prefix + dash + exactly 3 zero-padded digits (e.g. SF-001, ADM-042)
+        // UGLY means: SF-1777225499861, ADM-20260331-687D etc
         $allStaff = $db->query("SELECT id, role, created_at FROM staff ORDER BY created_at ASC")->fetchAll(PDO::FETCH_ASSOC);
-        $counters  = ['ADM' => 0, 'MGR' => 0, 'SF' => 0];
-        $updated   = 0;
-        // First pass: read existing clean IDs so counters start correctly
+        $counters = ['ADM' => 0, 'MGR' => 0, 'SF' => 0];
+        $updated  = 0;
+
+        // First pass: lock in counters for IDs that are ALREADY clean (3-digit padded)
         foreach ($allStaff as $sf) {
             $role = $sf['role'] ?? 'staff';
             $pfx  = ($role === 'admin') ? 'ADM' : (($role === 'manager') ? 'MGR' : 'SF');
-            if (preg_match('/^(ADM|MGR|SF)-(\d+)$/', $sf['id'], $m)) {
+            // Strict clean check: exactly PREFIX-NNN (3 digits, zero-padded)
+            if (preg_match('/^(ADM|MGR|SF)-(\d{3})$/', $sf['id'], $m)) {
                 if ((int)$m[2] > $counters[$pfx]) $counters[$pfx] = (int)$m[2];
             }
         }
-        // Second pass: rename only ugly IDs
+
+        // Second pass: rename everything that is NOT exactly PREFIX-NNN
         foreach ($allStaff as $sf) {
             $role = $sf['role'] ?? 'staff';
             $pfx  = ($role === 'admin') ? 'ADM' : (($role === 'manager') ? 'MGR' : 'SF');
-            if (preg_match('/^(ADM|MGR|SF)-\d{3,}$/', $sf['id'])) continue; // already clean
+            // Skip if already clean 3-digit padded format
+            if (preg_match('/^(ADM|MGR|SF)-(\d{3})$/', $sf['id'])) continue;
+            // This ID is ugly — rename it
             $counters[$pfx]++;
             $newId = $pfx . '-' . str_pad($counters[$pfx], 3, '0', STR_PAD_LEFT);
             try {
-                // Update related tables first to avoid FK constraint issues
-                foreach (['staff_attendance','staff_salary'] as $tbl) {
-                    try { $db->prepare("UPDATE $tbl SET staff_id=? WHERE staff_id=?")->execute([$newId,$sf['id']]); } catch(Exception $e) {}
+                // Update foreign key tables first
+                foreach (['staff_attendance', 'staff_salary'] as $tbl) {
+                    try {
+                        $db->prepare("UPDATE {$tbl} SET staff_id=? WHERE staff_id=?")->execute([$newId, $sf['id']]);
+                    } catch(Exception $e) {}
                 }
                 $db->prepare("UPDATE staff SET id=? WHERE id=?")->execute([$newId, $sf['id']]);
+                // If this is the currently logged-in user, update session
+                if (isset($_SESSION['staff_id']) && $_SESSION['staff_id'] === $sf['id']) {
+                    $_SESSION['staff_id'] = $newId;
+                }
                 $updated++;
             } catch(Exception $e) {}
         }
-        jsonResponse(['ok' => true, 'updated' => $updated, 'message' => "Renamed $updated staff ID(s) to clean format"]);
+        jsonResponse(['ok' => true, 'updated' => $updated,
+            'message' => $updated > 0
+                ? "Renamed {$updated} staff ID(s) to clean format. Please log out and log back in."
+                : "All IDs already in clean format (PREFIX-NNN). No changes needed."
+        ]);
         break;
 
     case 'delete_staff':
