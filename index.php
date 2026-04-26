@@ -1517,24 +1517,17 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
 
     async function apiGet(action, params = {}) {
         const qs = new URLSearchParams({ action, ...params }).toString();
-        const r = await fetch(`${API}?${qs}`, { credentials: 'same-origin' });
-        if (r.status === 401) { window.location.href = 'login'; return null; }
-        const json = await r.json();
-        if (!r.ok) throw new Error(json.error || `HTTP ${r.status}`);
-        return json;
+        const r = await fetch(`${API}?${qs}`);
+        return r.json();
     }
 
     async function apiPost(action, data = {}) {
         const r = await fetch(`${API}?action=${action}`, {
             method: 'POST',
-            credentials: 'same-origin',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data)
         });
-        if (r.status === 401) { window.location.href = 'login'; return null; }
-        const json = await r.json();
-        if (!r.ok) throw new Error(json.error || `HTTP ${r.status}`);
-        return json;
+        return r.json();
     }
 
     // ═══ DB STATE ═══
@@ -1689,13 +1682,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
 
         } catch(e) {
             console.error('Init failed:', e);
-            const msg = e?.message || '';
-            if (msg.includes('401') || msg.toLowerCase().includes('session')) {
-                window.location.href = 'login';
-                return;
-            }
-            toast('Failed to load data from server — ' + (msg || 'check network'), 'er');
-            // Still render with whatever partial data loaded
+            toast('Failed to load data from server', 'er');
         }
         refreshAll();
     }
