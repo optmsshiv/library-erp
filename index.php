@@ -744,8 +744,10 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
                                 <div style="font-size:11px;color:var(--tx3);margin-top:3px">If ON — students with overdue fee cannot enter even if fingerprint matches</div>
                             </div>
                             <label style="position:relative;display:inline-block;width:44px;height:24px;flex-shrink:0;margin-left:12px">
-                                <input type="checkbox" id="feeGateToggle" onchange="toggleFeeGate(this.checked)" style="opacity:0;width:0;height:0">
-                                <span style="position:absolute;cursor:pointer;inset:0;background:#e2e8f0;border-radius:34px;transition:.3s" id="feeGateSlider"></span>
+                                <input type="checkbox" id="feeGateToggle" onchange="toggleFeeGate(this.checked)" style="opacity:0;width:0;height:0;position:absolute">
+                                <span id="feeGateSlider" style="position:absolute;cursor:pointer;inset:0;background:#e2e8f0;border-radius:34px;transition:.3s;--thumb-x:0px">
+                                    <span style="position:absolute;content:'';height:18px;width:18px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.3s;box-shadow:0 1px 3px rgba(0,0,0,.2);transform:translateX(var(--thumb-x,0px))" id="feeGateThumb"></span>
+                                </span>
                             </label>
                         </div>
                         <div id="feeGateStatus" style="font-size:11px;font-weight:700;color:var(--tx3)">Loading…</div>
@@ -1121,8 +1123,10 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
                                 <div style="font-size:11px;color:var(--tx3);margin-top:2px">Deny door access if student fee is overdue</div>
                             </div>
                             <label style="position:relative;display:inline-block;width:44px;height:24px;flex-shrink:0;cursor:pointer">
-                                <input type="checkbox" id="settFeeGate" onchange="toggleFeeGate(this.checked)" style="opacity:0;width:0;height:0">
-                                <span id="settFeeGateSlider" style="position:absolute;cursor:pointer;inset:0;background:#e2e8f0;border-radius:34px;transition:.3s"></span>
+                                <input type="checkbox" id="settFeeGate" onchange="toggleFeeGate(this.checked)" style="opacity:0;width:0;height:0;position:absolute">
+                                <span id="settFeeGateSlider" style="position:absolute;cursor:pointer;inset:0;background:#e2e8f0;border-radius:34px;transition:.3s">
+                                    <span style="position:absolute;height:18px;width:18px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.3s;box-shadow:0 1px 3px rgba(0,0,0,.2)" id="settFeeGateThumb"></span>
+                                </span>
                             </label>
                         </div>
                         <!-- ADMS URL -->
@@ -1788,6 +1792,9 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
                 DB.staffSalary = salData.salaries || {};
             } catch(e) { console.warn('get_salary failed:', e); }
 
+            // Pre-load biometric punches so dashboard stat card shows correct count
+            try { await loadAttBiometric(); } catch(e) { console.warn('biometric preload failed:', e); }
+
         } catch(e) {
             console.error('Init failed:', e);
             toast('Failed to load data from server', 'er');
@@ -1918,6 +1925,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
     <div class="al-card al-d"><span style="font-size:17px">🚨</span><div><div class="al-t">Fee Overdue Alert</div><div class="al-b">${overdue.length} students overdue — seats highlighted in red 🔴</div></div></div>
     <div class="al-card al-i"><span style="font-size:17px">🎁</span><div><div class="al-t">Discounts Applied</div><div class="al-b">${s.filter(x=>x.baseFee>x.netFee).length} students with discounts — ₹${totalDiscount.toLocaleString()} waived</div></div></div>`;
 
+        const bioCheckins = Object.values(_bioToday).filter(b=>b.in).length;
         document.getElementById('dashStats').innerHTML=`
     <div class="sc" style="--ca:var(--ac)"><div class="s-ic" style="background:var(--c-blue)"><span class="mi" style="color:var(--ac)">school</span></div><div class="s-lb">Total Students</div><div class="s-vl">${s.length}</div><div class="s-mt"><span class="bup">↑ 12%</span></div></div>
     <div class="sc" style="--ca:var(--em)"><div class="s-ic" style="background:var(--c-green)"><span class="mi" style="color:var(--em)">event_seat</span></div><div class="s-lb">Seats Available</div><div class="s-vl">${totalSeats-occSeats}</div><div class="s-mt">${occSeats}/${totalSeats} occupied</div></div>
@@ -1930,6 +1938,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
     <div class="sc" style="--ca:var(--or)"><div class="s-ic" style="background:var(--c-orange)"><span class="mi" style="color:var(--or)">redeem</span></div><div class="s-lb">Discounts Given</div><div class="s-vl">${fmt(totalDiscount)}</div><div class="s-mt">${s.filter(x=>x.baseFee>x.netFee).length} students</div></div>
     <div class="sc" style="--ca:var(--vi)"><div class="s-ic" style="background:var(--c-purple)"><span class="mi" style="color:var(--vi)">menu_book</span></div><div class="s-lb">Books Issued</div><div class="s-vl">${issTx.length}</div><div class="s-mt" style="color:var(--ro)">${odTx.length} overdue</div></div>
     <div class="sc" style="--ca:var(--sk)"><div class="s-ic" style="background:var(--c-sky)"><span class="mi" style="color:var(--sk)">fact_check</span></div><div class="s-lb">Attendance Today</div><div class="s-vl">${prsnt}</div><div class="s-mt" style="color:var(--em)">${s.length?Math.round(prsnt/s.length*100):0}%</div></div>
+    <div class="sc" style="--ca:#7c3aed;cursor:pointer" onclick="navTo('biometric')"><div class="s-ic" style="background:#faf5ff"><span class="mi" style="color:#7c3aed">fingerprint</span></div><div class="s-lb">Biometric Check-ins</div><div class="s-vl">${bioCheckins}</div><div class="s-mt" style="color:#7c3aed">today · via device</div></div>
     <div class="sc" style="--ca:var(--gd)"><div class="s-ic" style="background:var(--c-orange)"><span class="mi" style="color:var(--or)">trending_down</span></div><div class="s-lb">Monthly Expenses</div><div class="s-vl">${fmt(totalExp)}</div><div class="s-mt"><span class="bdn">↑ 3.1%</span></div></div>`;
 
         // ── BATCH SEAT AVAILABILITY WITH FEE STATUS ──
@@ -2739,7 +2748,9 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         const s=DB.students;
         const paid=s.filter(x=>x.feeStatus==='paid');const partial=s.filter(x=>x.feeStatus==='partial');
         const pend=s.filter(x=>x.feeStatus==='pending');const od=s.filter(x=>x.feeStatus==='overdue');
-        document.getElementById('fc-c').textContent=fmt(DB.invoices.reduce((a,i)=>a+i.paidAmt,0));document.getElementById('fc-cm').textContent=`${paid.length} fully paid`;
+        const activeIds = new Set(s.map(x=>x.id));
+        const activeInvs = DB.invoices.filter(i => activeIds.has(i.studentId));
+        document.getElementById('fc-c').textContent=fmt(activeInvs.reduce((a,i)=>a+i.paidAmt,0));document.getElementById('fc-cm').textContent=`${paid.length} fully paid`;
         document.getElementById('fc-pp').textContent=partial.length;document.getElementById('fc-ppm').textContent=`₹${partial.reduce((a,x)=>a+(x.netFee-x.paidAmt),0).toLocaleString()} balance due`;
         document.getElementById('fc-p').textContent=fmt(pend.reduce((a,x)=>a+x.netFee,0));document.getElementById('fc-pm').textContent=`${pend.length} students`;
         document.getElementById('fc-o').textContent=fmt(od.reduce((a,x)=>a+x.netFee,0));document.getElementById('fc-om').textContent=`${od.length} students (>7 days)`;
@@ -4699,6 +4710,23 @@ Thank you! 📚
                 }).join('') : '<div style="text-align:center;padding:28px;color:var(--tx3);font-size:13px">No biometric punches today</div>';
             }
 
+            // Fee Gate toggle — apply value from API response
+            const feeGateOn = !!res.fee_gate;
+            DB.settings.feeGate = feeGateOn;
+            const fgPairs = [
+                { cb:'feeGateToggle', sl:'feeGateSlider',    th:'feeGateThumb'     },
+                { cb:'settFeeGate',   sl:'settFeeGateSlider', th:'settFeeGateThumb' }
+            ];
+            fgPairs.forEach(({cb,sl,th}) => {
+                const cbEl = document.getElementById(cb); if (cbEl) cbEl.checked = feeGateOn;
+                const slEl = document.getElementById(sl);  if (slEl) slEl.style.background = feeGateOn ? 'var(--ac)' : '#e2e8f0';
+                const thEl = document.getElementById(th);  if (thEl) thEl.style.transform = feeGateOn ? 'translateX(20px)' : 'translateX(0)';
+            });
+            const fgs = document.getElementById('feeGateStatus');
+            if (fgs) fgs.textContent = feeGateOn
+                ? '🔒 Active — overdue students will be blocked at door'
+                : '🔓 Inactive — all students can enter regardless of fee status';
+
             // Sidebar badge
             const bioB = document.getElementById('b-bio');
             if (bioB) {
@@ -4771,12 +4799,18 @@ Thank you! 📚
     }
 
     async function toggleFeeGate(enabled) {
-        ['feeGateToggle','settFeeGate'].forEach(id => {
-            const el = document.getElementById(id);
-            if (el) el.checked = enabled;
-            const sliderMap = { feeGateToggle:'feeGateSlider', settFeeGate:'settFeeGateSlider' };
-            const sl = document.getElementById(sliderMap[id]);
-            if (sl) sl.style.background = enabled ? 'var(--ac)' : '#e2e8f0';
+        // Sync both toggles + sliders + thumbs
+        const pairs = [
+            { cb:'feeGateToggle',  sl:'feeGateSlider',     th:'feeGateThumb'     },
+            { cb:'settFeeGate',    sl:'settFeeGateSlider',  th:'settFeeGateThumb' }
+        ];
+        pairs.forEach(({cb,sl,th}) => {
+            const cbEl = document.getElementById(cb);
+            if (cbEl) cbEl.checked = enabled;
+            const slEl = document.getElementById(sl);
+            if (slEl) slEl.style.background = enabled ? 'var(--ac)' : '#e2e8f0';
+            const thEl = document.getElementById(th);
+            if (thEl) thEl.style.transform = enabled ? 'translateX(20px)' : 'translateX(0)';
         });
         const fgs = document.getElementById('feeGateStatus');
         if (fgs) fgs.textContent = enabled ? '🔒 Active — overdue students will be blocked at door' : '🔓 Inactive — all students can enter regardless of fee status';
