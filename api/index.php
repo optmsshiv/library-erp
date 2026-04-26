@@ -79,6 +79,21 @@ switch ($action) {
     // DASHBOARD
     // ══════════════════════════════════
     case 'get_dashboard':
+        // Guard: session must exist
+        if (empty($_SESSION['staff_id'])) jsonError('Session expired. Please log in again.', 401);
+
+        // Safe column migration — works on MySQL 5.7+ and 8+
+        // Uses information_schema instead of IF NOT EXISTS (not universal)
+        $dbName = $db->query("SELECT DATABASE()")->fetchColumn();
+        $staffCols = $db->query("SELECT COLUMN_NAME FROM information_schema.COLUMNS WHERE TABLE_SCHEMA='$dbName' AND TABLE_NAME='staff'")->fetchAll(PDO::FETCH_COLUMN);
+        if (!in_array('perm_whatsapp',   $staffCols)) { try { $db->exec("ALTER TABLE staff ADD COLUMN perm_whatsapp TINYINT(1) NOT NULL DEFAULT 1"); } catch(Exception $e){} }
+        if (!in_array('perm_notifications', $staffCols)) { try { $db->exec("ALTER TABLE staff ADD COLUMN perm_notifications TINYINT(1) NOT NULL DEFAULT 1"); } catch(Exception $e){} }
+        if (!in_array('act_perms',       $staffCols)) { try { $db->exec("ALTER TABLE staff ADD COLUMN act_perms JSON NULL"); } catch(Exception $e){} }
+        if (!in_array('dp_image',        $staffCols)) { try { $db->exec("ALTER TABLE staff ADD COLUMN dp_image MEDIUMTEXT NULL"); } catch(Exception $e){} }
+        $settCols = $db->query("SELECT COLUMN_NAME FROM information_schema.COLUMNS WHERE TABLE_SCHEMA='$dbName' AND TABLE_NAME='settings'")->fetchAll(PDO::FETCH_COLUMN);
+        if (!in_array('logo_url', $settCols)) { try { $db->exec("ALTER TABLE settings ADD COLUMN logo_url MEDIUMTEXT NULL"); } catch(Exception $e){} }
+        if (!in_array('upi_id',   $settCols)) { try { $db->exec("ALTER TABLE settings ADD COLUMN upi_id VARCHAR(128) DEFAULT '7282071620@okaxis'"); } catch(Exception $e){} }
+
         $students = $db->query("SELECT * FROM students")->fetchAll();
         // Auto-heal bad date values
         foreach ($students as &$row) {
@@ -106,33 +121,22 @@ switch ($action) {
         $activities = $db->query("SELECT * FROM activity_log ORDER BY created_at DESC LIMIT 15")->fetchAll();
         $notifications = $db->query("SELECT * FROM notifications ORDER BY created_at DESC")->fetchAll();
         // Ensure upi_id column exists BEFORE we SELECT settings so it's always in the result
-        try { $db->exec("ALTER TABLE settings ADD COLUMN IF NOT EXISTS upi_id VARCHAR(128) DEFAULT '7282071620@okaxis'"); } catch(Exception $e) {}
+        try { $db->exec("ALTER TABLE settings ADD COLUMN upi_id VARCHAR(128) DEFAULT '7282071620@okaxis'"); } catch(\Throwable \$e) {}
         $settings = $db->query("SELECT * FROM settings WHERE id=1")->fetch();
         $invoices = $db->query("SELECT * FROM invoices ORDER BY created_at DESC")->fetchAll();
         $staff    = $db->query("SELECT s.id,s.name,s.role,s.email,s.phone,s.username,s.perm_students,s.perm_fees,s.perm_books,s.perm_expenses,s.perm_reports,s.perm_staff,s.perm_settings,COALESCE(s.perm_whatsapp,1) AS perm_whatsapp,COALESCE(s.perm_notifications,1) AS perm_notifications,s.act_perms,s.status,COALESCE(ss.base_monthly,0) AS base_salary FROM staff s LEFT JOIN staff_salary ss ON ss.staff_id=s.id ORDER BY s.created_at")->fetchAll();
-        // Decode act_perms JSON for each staff row
         foreach ($staff as &$sfRow) {
             if (isset($sfRow['act_perms']) && is_string($sfRow['act_perms'])) {
                 $sfRow['act_perms'] = json_decode($sfRow['act_perms'], true) ?? [];
             }
         }
         unset($sfRow);
-        // Guard: redirect to login if session missing
-        if (empty($_SESSION['staff_id'])) {
-            jsonError('Session expired. Please log in again.', 401);
-        }
-        // Auto-migrate: add new perm columns if they don't exist yet
-        try { $db->exec("ALTER TABLE staff ADD COLUMN IF NOT EXISTS perm_whatsapp TINYINT(1) NOT NULL DEFAULT 1"); } catch(Exception $e) {}
-        try { $db->exec("ALTER TABLE staff ADD COLUMN IF NOT EXISTS perm_notifications TINYINT(1) NOT NULL DEFAULT 1"); } catch(Exception $e) {}
-        try { $db->exec("ALTER TABLE staff ADD COLUMN IF NOT EXISTS act_perms JSON NULL"); } catch(Exception $e) {}
-        $meStmt = $db->prepare("SELECT role,perm_students,perm_fees,perm_books,perm_expenses,perm_reports,perm_staff,perm_settings,COALESCE(perm_whatsapp,1) as perm_whatsapp,COALESCE(perm_notifications,1) as perm_notifications,act_perms FROM staff WHERE id=? LIMIT 1");
+        $meStmt = $db->prepare("SELECT role,perm_students,perm_fees,perm_books,perm_expenses,perm_reports,perm_staff,perm_settings,COALESCE(perm_whatsapp,1) AS perm_whatsapp,COALESCE(perm_notifications,1) AS perm_notifications,act_perms FROM staff WHERE id=? LIMIT 1");
         $meStmt->execute([$_SESSION['staff_id']]);
         $me = $meStmt->fetch();
         if (!$me) {
-            // Fallback: admin gets full access
-            $me = ['role'=>'admin','perm_students'=>1,'perm_fees'=>1,'perm_books'=>1,'perm_expenses'=>1,'perm_reports'=>1,'perm_staff'=>1,'perm_settings'=>1,'perm_whatsapp'=>1,'perm_notifications'=>1,'act_perms'=>null];
+            $me = ['role'=>'admin','perm_students'=>1,'perm_fees'=>1,'perm_books'=>1,'perm_expenses'=>1,'perm_reports'=>1,'perm_staff'=>1,'perm_settings'=>1,'perm_whatsapp'=>1,'perm_notifications'=>1,'act_perms'=>[]];
         }
-        // Decode act_perms JSON string → array for the frontend
         if (isset($me['act_perms']) && is_string($me['act_perms'])) {
             $me['act_perms'] = json_decode($me['act_perms'], true) ?? [];
         }
@@ -657,7 +661,7 @@ switch ($action) {
         if (in_array('ac_extra', $cols)) { $set[] = "ac_extra=?"; $vals[] = $acVal; }
 
         // UPI ID — add column if not exists, then re-check columns and only update if confirmed
-        try { $db->exec("ALTER TABLE settings ADD COLUMN IF NOT EXISTS upi_id VARCHAR(128) DEFAULT '7282071620@okaxis'"); } catch(Exception $e) {}
+        try { $db->exec("ALTER TABLE settings ADD COLUMN upi_id VARCHAR(128) DEFAULT '7282071620@okaxis'"); } catch(\Throwable \$e) {}
         $cols2 = [];
         foreach ($db->query("SHOW COLUMNS FROM settings")->fetchAll() as $c) $cols2[] = $c['Field'];
         if (in_array('upi_id', $cols2)) {
@@ -705,8 +709,8 @@ switch ($action) {
             $stmt = $db->prepare("SELECT dp_image FROM staff WHERE id=? LIMIT 1");
             $stmt->execute([$_SESSION['staff_id']]);
             $row = $stmt->fetch();
-            jsonResponse(['dp' => $row['dp_image'] ?? null]);
-        } catch (\PDOException $e) {
+            jsonResponse(['dp' => $row ? ($row['dp_image'] ?? null) : null]);
+        } catch (\Throwable $e) {
             jsonResponse(['dp' => null]); // column doesn't exist yet — safe fallback
         }
 
@@ -723,7 +727,13 @@ switch ($action) {
         try {
             $db->prepare("UPDATE staff SET dp_image=? WHERE id=?")->execute([$uri, $_SESSION['staff_id']]);
         } catch (\PDOException $e) {
-            jsonError('dp_image column missing. Run: ALTER TABLE staff ADD COLUMN dp_image MEDIUMTEXT NULL;');
+            // Auto-create column and retry
+            try {
+                $db->exec("ALTER TABLE staff ADD COLUMN dp_image MEDIUMTEXT NULL");
+                $db->prepare("UPDATE staff SET dp_image=? WHERE id=?")->execute([$uri, $_SESSION['staff_id']]);
+            } catch (\Throwable $e2) {
+                jsonError('Could not save profile photo: ' . $e2->getMessage());
+            }
         }
         jsonResponse(['success' => true, 'dp' => $uri]);
 
@@ -737,9 +747,8 @@ switch ($action) {
         $base64  = base64_encode(file_get_contents($file['tmp_name']));
         $uri     = 'data:' . $file['type'] . ';base64,' . $base64;
         try {
-            // Ensure logo_url column exists
-            $db->exec("ALTER TABLE settings ADD COLUMN IF NOT EXISTS logo_url MEDIUMTEXT NULL");
-        } catch (\PDOException $e) { /* column may already exist */ }
+            $db->exec("ALTER TABLE settings ADD COLUMN logo_url MEDIUMTEXT NULL");
+        } catch (\Throwable $e) { /* column already exists — safe to ignore */ }
         // Ensure row exists
         $exists = $db->query("SELECT COUNT(*) FROM settings WHERE id=1")->fetchColumn();
         if (!$exists) $db->exec("INSERT INTO settings (id) VALUES (1)");
@@ -749,8 +758,9 @@ switch ($action) {
     case 'get_logo':
         try {
             $row = $db->query("SELECT logo_url FROM settings WHERE id=1")->fetch();
-            jsonResponse(['logo_url' => $row['logo_url'] ?? '']);
-        } catch (\PDOException $e) {
+            jsonResponse(['logo_url' => $row ? ($row['logo_url'] ?? '') : '']);
+        } catch (\Throwable $e) {
+            // Column not yet created — safe fallback
             jsonResponse(['logo_url' => '']);
         }
 
@@ -889,7 +899,7 @@ switch ($action) {
         if (!$stu) jsonError('Student not found');
 
         // Get UPI ID from settings (safe — column may not exist yet)
-        try { $db->exec("ALTER TABLE settings ADD COLUMN IF NOT EXISTS upi_id VARCHAR(128) DEFAULT '7282071620@okaxis'"); } catch(Exception $e) {}
+        try { $db->exec("ALTER TABLE settings ADD COLUMN upi_id VARCHAR(128) DEFAULT '7282071620@okaxis'"); } catch(\Throwable \$e) {}
         try {
             $sett  = $db->query("SELECT upi_id FROM settings WHERE id=1")->fetch();
             $upiId = ($sett && !empty($sett['upi_id'])) ? $sett['upi_id'] : '7282071620@okaxis';
