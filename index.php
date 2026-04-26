@@ -1517,30 +1517,17 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
 
     async function apiGet(action, params = {}) {
         const qs = new URLSearchParams({ action, ...params }).toString();
-        const r = await fetch(`${API}?${qs}`, { credentials: 'same-origin' });
-        if (r.status === 401) { window.location.href = 'login'; return null; }
-        const text = await r.text();
-        if (!text) throw new Error(`Empty response from server (action=${action})`);
-        let json;
-        try { json = JSON.parse(text); } catch(e) { throw new Error(`Invalid JSON from server (action=${action}): ${text.slice(0,120)}`); }
-        if (!r.ok) throw new Error(json.error || `HTTP ${r.status}`);
-        return json;
+        const r = await fetch(`${API}?${qs}`);
+        return r.json();
     }
 
     async function apiPost(action, data = {}) {
         const r = await fetch(`${API}?action=${action}`, {
             method: 'POST',
-            credentials: 'same-origin',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data)
         });
-        if (r.status === 401) { window.location.href = 'login'; return null; }
-        const text = await r.text();
-        if (!text) throw new Error(`Empty response from server (action=${action})`);
-        let json;
-        try { json = JSON.parse(text); } catch(e) { throw new Error(`Invalid JSON from server (action=${action}): ${text.slice(0,120)}`); }
-        if (!r.ok) throw new Error(json.error || `HTTP ${r.status}`);
-        return json;
+        return r.json();
     }
 
     // ═══ DB STATE ═══
@@ -1695,11 +1682,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
 
         } catch(e) {
             console.error('Init failed:', e);
-            if (e?.message?.includes('401') || e?.message?.toLowerCase().includes('session')) {
-                window.location.href = 'login';
-                return;
-            }
-            toast('Failed to load data — ' + (e?.message || 'check server error log'), 'er');
+            toast('Failed to load data from server', 'er');
         }
         refreshAll();
     }
