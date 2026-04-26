@@ -473,6 +473,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
             <div class="ni" data-page="staff_attendance"><span class="ni-ic mi">co_present</span> Staff Attendance</div>
             <div class="ni" data-page="renewal"><span class="ni-ic mi">autorenew</span> Renewals <span class="nbadge y" id="b-renewal">0</span></div>
             <div class="ni" data-page="audit"><span class="ni-ic mi">history</span> Audit Log</div>
+            <div class="ni" data-page="biometric"><span class="ni-ic mi">fingerprint</span> Biometric <span class="nbadge g" id="b-bio" style="display:none">●</span></div>
             <div class="ni" data-page="notifications"><span class="ni-ic mi">notifications</span> Notifications <span class="nbadge g" id="b-notif">0</span></div>
             <div class="ni" data-page="settings"><span class="ni-ic mi">settings</span> Settings</div>
         </div>
@@ -682,24 +683,99 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
                 <div class="sc" style="--ca:var(--ac)"><div class="s-lb">Total</div><div class="s-vl" id="at-t">0</div></div>
             </div>
 
-            <!-- QR Scan Live Feed -->
-            <div class="panel" style="margin-bottom:16px">
-                <div class="ph">
-                    <div class="pt"><span class="mi sm" style="vertical-align:middle;margin-right:5px">qr_code_scanner</span>Today's QR Check-Ins</div>
-                    <div style="display:flex;align-items:center;gap:8px">
-                        <span id="qrScanCount" style="font-size:11px;color:var(--tx3)">0 scans</span>
-                        <button class="btn bg" style="font-size:10px;padding:4px 8px" onclick="loadQRScans()"><span class="mi sm">refresh</span> Refresh</button>
+            <!-- Live Check-In Feed: QR + Biometric -->
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px">
+                <!-- QR Feed -->
+                <div class="panel">
+                    <div class="ph">
+                        <div class="pt"><span class="mi sm" style="vertical-align:middle;margin-right:5px">qr_code_scanner</span>QR Check-Ins</div>
+                        <div style="display:flex;align-items:center;gap:8px">
+                            <span id="qrScanCount" style="font-size:11px;color:var(--tx3)">0 scans</span>
+                            <button class="btn bg" style="font-size:10px;padding:4px 8px" onclick="loadQRScans()"><span class="mi sm">refresh</span></button>
+                        </div>
+                    </div>
+                    <div class="pb" id="qrScanList" style="padding:10px;max-height:220px;overflow-y:auto">
+                        <div style="text-align:center;padding:20px;color:var(--tx3);font-size:12px">No QR check-ins yet today</div>
                     </div>
                 </div>
-                <div class="pb" id="qrScanList" style="padding:10px">
-                    <div style="text-align:center;padding:20px;color:var(--tx3);font-size:12px">No QR check-ins yet today</div>
+                <!-- Biometric Feed -->
+                <div class="panel">
+                    <div class="ph">
+                        <div class="pt"><span class="mi sm" style="vertical-align:middle;margin-right:5px">fingerprint</span>Biometric Check-Ins</div>
+                        <div style="display:flex;align-items:center;gap:8px">
+                            <span id="bioAttCount" style="font-size:11px;color:var(--tx3)">0 punches</span>
+                            <div id="bioDeviceDot" style="width:8px;height:8px;border-radius:50%;background:#e2e8f0;flex-shrink:0" title="Device status"></div>
+                            <button class="btn bg" style="font-size:10px;padding:4px 8px" onclick="loadAttBiometric()"><span class="mi sm">refresh</span></button>
+                        </div>
+                    </div>
+                    <div class="pb" id="bioAttList" style="padding:10px;max-height:220px;overflow-y:auto">
+                        <div style="text-align:center;padding:20px;color:var(--tx3);font-size:12px">No biometric punches yet today</div>
+                    </div>
                 </div>
             </div>
 
+            <!-- Attendance Table with check-in/out + hours -->
             <div class="panel"><div class="tw"><table>
-                        <thead><tr><th>Student</th><th>Batch</th><th>Seat</th><th>Fee Status</th><th>Attend.</th><th>Toggle</th></tr></thead>
+                        <thead><tr><th>Student</th><th>Batch</th><th>Seat</th><th>Fee Status</th><th>Check In</th><th>Check Out</th><th>Hours</th><th>Attend.</th><th>Toggle</th></tr></thead>
                         <tbody id="attTable"></tbody>
                     </table></div></div>
+        </div>
+
+        <!-- BIOMETRIC -->
+        <div class="page" id="page-biometric">
+            <div class="sec-hd">
+                <div><div class="sec-t">Biometric Door System</div><div class="sec-s">eSSL X990 &amp; Realtime RS9N attendance tracking</div></div>
+                <div style="display:flex;gap:7px;align-items:center">
+                    <button class="btn bg" onclick="loadBiometric()"><span class="mi sm">refresh</span> Refresh</button>
+                </div>
+            </div>
+            <!-- Device Status Row -->
+            <div id="bioDeviceCards" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;margin-bottom:16px">
+                <div style="text-align:center;padding:24px;color:var(--tx3);font-size:13px;grid-column:1/-1">Loading devices…</div>
+            </div>
+            <!-- Fee Gate Toggle + ADMS URL -->
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px">
+                <div class="panel">
+                    <div class="ph"><div class="pt"><span class="mi sm" style="vertical-align:middle;margin-right:5px">lock</span>Fee Gate</div></div>
+                    <div class="pb">
+                        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+                            <div>
+                                <div style="font-size:13px;font-weight:700;color:var(--tx)">Block overdue students at door</div>
+                                <div style="font-size:11px;color:var(--tx3);margin-top:3px">If ON — students with overdue fee cannot enter even if fingerprint matches</div>
+                            </div>
+                            <label style="position:relative;display:inline-block;width:44px;height:24px;flex-shrink:0;margin-left:12px">
+                                <input type="checkbox" id="feeGateToggle" onchange="toggleFeeGate(this.checked)" style="opacity:0;width:0;height:0">
+                                <span style="position:absolute;cursor:pointer;inset:0;background:#e2e8f0;border-radius:34px;transition:.3s" id="feeGateSlider"></span>
+                            </label>
+                        </div>
+                        <div id="feeGateStatus" style="font-size:11px;font-weight:700;color:var(--tx3)">Loading…</div>
+                    </div>
+                </div>
+                <div class="panel">
+                    <div class="ph"><div class="pt"><span class="mi sm" style="vertical-align:middle;margin-right:5px">link</span>ADMS Server URL</div></div>
+                    <div class="pb">
+                        <div style="font-size:12px;color:var(--tx2);margin-bottom:8px">Enter this URL in your device ADMS / Push Server settings:</div>
+                        <div style="display:flex;gap:7px">
+                            <input id="admsUrl" readonly style="flex:1;font-size:11px;font-family:var(--fm);background:var(--sf2)" value="">
+                            <button class="btn bg" style="font-size:11px;flex-shrink:0" onclick="navigator.clipboard?.writeText(document.getElementById('admsUrl').value).then(()=>toast('URL copied!','ok'))"><span class="mi sm">content_copy</span></button>
+                        </div>
+                        <div style="margin-top:8px;font-size:11px;color:var(--tx3)">Port: <b>80</b> (HTTP) or <b>443</b> (HTTPS) · Path auto-appended by device</div>
+                    </div>
+                </div>
+            </div>
+            <!-- Today's Punch Log -->
+            <div class="panel">
+                <div class="ph">
+                    <div class="pt"><span class="mi sm" style="vertical-align:middle;margin-right:5px">fingerprint</span>Today's Biometric Punches</div>
+                    <div style="display:flex;align-items:center;gap:8px">
+                        <span id="bioPunchCount" style="font-size:11px;color:var(--tx3)">0 punches</span>
+                        <button class="btn bg" style="font-size:10px;padding:4px 8px" onclick="loadBiometric()"><span class="mi sm">refresh</span></button>
+                    </div>
+                </div>
+                <div class="pb" id="bioPunchList" style="padding:10px">
+                    <div style="text-align:center;padding:24px;color:var(--tx3);font-size:13px">No punches today</div>
+                </div>
+            </div>
         </div>
 
         <!-- BOOKS -->
@@ -1031,6 +1107,38 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
                         </div></div>
                 </div>
                 <div class="panel"><div class="ph"><div class="pt">System Stats</div></div><div class="pb" id="setStats"></div></div>
+                <!-- Biometric Device Panel in Settings -->
+                <div class="panel" style="margin-top:14px">
+                    <div class="ph">
+                        <div class="pt"><span class="mi sm" style="vertical-align:middle;margin-right:5px">fingerprint</span>Biometric Devices</div>
+                        <button class="btn bg" style="font-size:11px" onclick="loadSettingsBio()"><span class="mi sm">refresh</span></button>
+                    </div>
+                    <div class="pb">
+                        <!-- Fee Gate -->
+                        <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--br)">
+                            <div>
+                                <div style="font-size:13px;font-weight:700;color:var(--tx)">🔒 Fee Gate — Block overdue students</div>
+                                <div style="font-size:11px;color:var(--tx3);margin-top:2px">Deny door access if student fee is overdue</div>
+                            </div>
+                            <label style="position:relative;display:inline-block;width:44px;height:24px;flex-shrink:0;cursor:pointer">
+                                <input type="checkbox" id="settFeeGate" onchange="toggleFeeGate(this.checked)" style="opacity:0;width:0;height:0">
+                                <span id="settFeeGateSlider" style="position:absolute;cursor:pointer;inset:0;background:#e2e8f0;border-radius:34px;transition:.3s"></span>
+                            </label>
+                        </div>
+                        <!-- ADMS URL -->
+                        <div style="padding:10px 0;border-bottom:1px solid var(--br)">
+                            <div style="font-size:12px;font-weight:700;color:var(--tx2);margin-bottom:6px">📡 ADMS Server URL — paste this in your device</div>
+                            <div style="display:flex;gap:7px">
+                                <input id="settAdmsUrl" readonly style="flex:1;font-size:11px;font-family:var(--fm);background:var(--sf2)" value="">
+                                <button class="btn bg" style="font-size:11px" onclick="navigator.clipboard?.writeText(document.getElementById('settAdmsUrl').value).then(()=>toast('Copied!','ok'))"><span class="mi sm">content_copy</span></button>
+                            </div>
+                        </div>
+                        <!-- Device list -->
+                        <div id="settBioDevices" style="margin-top:10px">
+                            <div style="text-align:center;padding:16px;color:var(--tx3);font-size:12px">Click Refresh to load devices</div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -1777,7 +1885,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         el.addEventListener('click',()=>{if(el.dataset.page==='enroll'){openM('mEnroll');return;}navTo(el.dataset.page);});
     });
     function renderPage(p){
-        const map={dashboard:renderDash,students:renderStudents,seats:renderSeats,attendance:renderAtt,books:renderBooks,transactions:renderTx,fees:renderFees,invoices:renderInv,expenses:renderExp,analytics:renderAnal,whatsapp:renderWA,staff:renderStaff,staff_attendance:renderStaffAtt,renewal:renderRenewal,audit:renderAudit,notifications:renderNotifs,settings:renderSettings};
+        const map={dashboard:renderDash,students:renderStudents,seats:renderSeats,attendance:renderAtt,books:renderBooks,transactions:renderTx,fees:renderFees,invoices:renderInv,expenses:renderExp,analytics:renderAnal,whatsapp:renderWA,staff:renderStaff,staff_attendance:renderStaffAtt,renewal:renderRenewal,audit:renderAudit,notifications:renderNotifs,settings:renderSettings,biometric:renderBiometric};
         if(map[p])map[p]();
     }
 
@@ -2490,24 +2598,97 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
     }
 
     // ═══ ATTENDANCE ═══
+    // Stores today's biometric punch data keyed by student_id
+    const _bioToday = {};
+
+    async function loadAttBiometric() {
+        try {
+            const res = await apiGet('get_biometric_punches', { date: new Date().toISOString().split('T')[0] });
+            const punches = res.punches || [];
+            // Build per-student check_in / check_out map
+            Object.keys(_bioToday).forEach(k => delete _bioToday[k]);
+            punches.forEach(p => {
+                if (!_bioToday[p.student_id]) _bioToday[p.student_id] = { in: null, out: null, verify: p.verify_type };
+                if (p.punch_type === 'check_in' && !_bioToday[p.student_id].in)
+                    _bioToday[p.student_id].in = p.punch_time.split(' ')[1]?.slice(0,5);
+                if (p.punch_type === 'check_out')
+                    _bioToday[p.student_id].out = p.punch_time.split(' ')[1]?.slice(0,5);
+            });
+            // Render biometric feed
+            const el = document.getElementById('bioAttList');
+            const cnt = document.getElementById('bioAttCount');
+            if (cnt) cnt.textContent = punches.length + ' punches';
+            if (el) {
+                el.innerHTML = punches.length ? punches.slice(0,30).map(p => {
+                    const stu = DB.students.find(s => s.id === p.student_id);
+                    const name = stu ? stu.fname + ' ' + (stu.lname||'') : (p.fname ? p.fname + ' ' + (p.lname||'') : 'Unknown #' + p.user_id);
+                    const av = stu ? (stu.fname[0]+(stu.lname?.[0]||'')).toUpperCase() : '?';
+                    const col = stu?.color || '#9aa3b8';
+                    const isIn = p.punch_type === 'check_in';
+                    const vIcon = (p.verify_type||'').includes('fp') || (p.verify_type||'').includes('finger') ? '🖐️' : '💳';
+                    const t = (p.punch_time||'').split(' ')[1]?.slice(0,5) || '';
+                    return `<div style="display:flex;align-items:center;gap:9px;padding:8px 0;border-bottom:1px solid var(--br)">
+                        <div style="width:28px;height:28px;border-radius:8px;background:${col};display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;flex-shrink:0">${av}</div>
+                        <div style="flex:1"><div style="font-size:12px;font-weight:700;color:var(--tx)">${name}</div>
+                        <div style="font-size:10px;color:var(--tx3)">${vIcon} ${p.verify_type||'fingerprint'}</div></div>
+                        <div style="text-align:right">
+                            <div style="font-size:11px;font-weight:700;color:${isIn?'var(--em)':'var(--ro)'}">${isIn?'▶ IN':'◀ OUT'}</div>
+                            <div style="font-size:10px;color:var(--tx3);font-family:var(--fm)">${t}</div>
+                        </div>
+                    </div>`;
+                }).join('') : '<div style="text-align:center;padding:20px;color:var(--tx3);font-size:12px">No biometric punches yet today</div>';
+            }
+            // Update device dot in attendance header
+            const dot = document.getElementById('bioDeviceDot');
+            if (dot) dot.style.background = punches.length > 0 ? '#22c55e' : '#e2e8f0';
+            // Auto-mark attendance for biometrically checked-in students
+            Object.keys(_bioToday).forEach(sid => {
+                if (_bioToday[sid].in) DB.attendance[sid] = 'present';
+            });
+            renderAtt();
+        } catch(e) { console.warn('Bio load failed', e); }
+    }
+
+    // Stores today's biometric check-in/out per student_id
+    const _bioToday = {};
+
     function renderAtt(){
         const today=new Date().toLocaleDateString('en-IN',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
         document.getElementById('attLbl').textContent=`Date: ${today}`;
         const bf=gv('attBatchF');
         const list=DB.students.filter(s=>bf==='all'||s.batchId===bf);
         const prs=list.filter(s=>DB.attendance[s.id]==='present').length;
-        document.getElementById('at-p').textContent=prs;document.getElementById('at-a').textContent=list.length-prs;
+        document.getElementById('at-p').textContent=prs;
+        document.getElementById('at-a').textContent=list.length-prs;
         document.getElementById('at-r').textContent=list.length?Math.round(prs/list.length*100)+'%':'0%';
         document.getElementById('at-t').textContent=list.length;
         document.getElementById('attTable').innerHTML=list.map(s=>{
             const st=DB.attendance[s.id]||'absent';
-            return `<tr><td><div class="si"><div class="sav" style="background:${s.color}">${s.fname[0]+s.lname[0]}</div><div><div style="font-weight:600;font-size:12.5px">${s.fname} ${s.lname}</div><div style="font-size:10px;color:var(--tx3);font-family:var(--fm)">${s.id}</div></div></div></td>
-    <td>${bTag(s.batchId)}</td><td><span style="font-family:var(--fm);font-size:11px">${s.seat||'—'}</span></td>
-    <td><span class="tag ${s.feeStatus==='paid'?'tpd':s.feeStatus==='partial'?'tpart':s.feeStatus==='pending'?'tpn':'tod'}">${s.feeStatus==='paid'?'✓ Paid':s.feeStatus==='partial'?'◑ Partial':s.feeStatus==='pending'?'⏳ Pending':'🚨 Overdue'}</span></td>
-    <td><span class="tag ${st==='present'?'tpd':'tod'}">${st==='present'?'✓ Present':'✗ Absent'}</span></td>
-    <td><button class="btn ${st==='present'?'bd':'bp'}" style="font-size:10.5px;padding:4px 10px" onclick="togAtt('${s.id}')">${st==='present'?'Absent':'Present'}</button></td></tr>`;
-        }).join('')||'<tr><td colspan="6"><div class="empty"><div class="ei">📋</div><div class="et">No students</div></div></td></tr>';
-        // Load QR scan feed
+            const bio=_bioToday[s.id]||{};
+            const checkIn=bio.in||'—';
+            const checkOut=bio.out||'—';
+            // Calculate hours studied
+            let hrs='—';
+            if(bio.in && bio.out){
+                const [ih,im]=bio.in.split(':').map(Number);
+                const [oh,om]=bio.out.split(':').map(Number);
+                const mins=(oh*60+om)-(ih*60+im);
+                if(mins>0) hrs=Math.floor(mins/60)+'h '+(mins%60)+'m';
+            }
+            const bioMark=bio.in?`<span style="font-size:9px;background:#dcfce7;border:1px solid #a3e8d4;color:#166534;padding:1px 5px;border-radius:4px;font-weight:700;font-family:var(--fm)">🖐️</span>`:'';
+            return `<tr>
+            <td><div class="si"><div class="sav" style="background:${s.color}">${s.fname[0]+s.lname[0]}</div><div><div style="font-weight:600;font-size:12.5px">${s.fname} ${s.lname} ${bioMark}</div><div style="font-size:10px;color:var(--tx3);font-family:var(--fm)">${s.id}</div></div></div></td>
+            <td>${bTag(s.batchId)}</td>
+            <td><span style="font-family:var(--fm);font-size:11px">${s.seat||'—'}</span></td>
+            <td><span class="tag ${s.feeStatus==='paid'?'tpd':s.feeStatus==='partial'?'tpart':s.feeStatus==='pending'?'tpn':'tod'}">${s.feeStatus==='paid'?'✓ Paid':s.feeStatus==='partial'?'◑ Partial':s.feeStatus==='pending'?'⏳ Pending':'🚨 Overdue'}</span></td>
+            <td><span style="font-family:var(--fm);font-size:11px;font-weight:700;color:${bio.in?'var(--em)':'var(--tx3)'}">${checkIn}</span></td>
+            <td><span style="font-family:var(--fm);font-size:11px;font-weight:700;color:${bio.out?'var(--ro)':'var(--tx3)'}">${checkOut}</span></td>
+            <td><span style="font-family:var(--fm);font-size:11px;font-weight:700;color:var(--ac)">${hrs}</span></td>
+            <td><span class="tag ${st==='present'?'tpd':'tod'}">${st==='present'?'✓ Present':'✗ Absent'}</span></td>
+            <td><button class="btn ${st==='present'?'bd':'bp'}" style="font-size:10.5px;padding:4px 10px" onclick="togAtt('${s.id}')">${st==='present'?'Absent':'Present'}</button></td>
+            </tr>`;
+        }).join('')||'<tr><td colspan="9"><div class="empty"><div class="ei">📋</div><div class="et">No students</div></div></td></tr>';
+        // Load QR feed (biometric loaded separately by loadAttBiometric)
         loadQRScans();
     }
     function togAtt(id){DB.attendance[id]=DB.attendance[id]==='present'?'absent':'present';renderAtt();}
@@ -3598,6 +3779,8 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
     // ── SETTINGS PAGE: populate from DB ──
     function renderSettings() {
         const s = DB.settings;
+        // Load biometric device panel
+        loadSettingsBio();
         const map = {
             's-name':  s.name  ?? '',
             's-phone': s.phone ?? '',
@@ -4502,6 +4685,157 @@ Thank you! 📚
         toast('WhatsApp opened!', 'wa');
         closeM('mUpiLink');
         addActivity('📱', 'rgba(79,142,247,.14)', `UPI link sent to <strong>${s.fname}</strong> via WhatsApp`);
+    }
+
+
+    // ═══════════════════════════════════════════════════════════════
+    // ═══ BIOMETRIC DEVICE MANAGEMENT ════════════════════════════════
+    // ═══════════════════════════════════════════════════════════════
+    async function renderBiometric() {
+        const admsUrl = window.location.origin + window.location.pathname.replace(/\/[^/]*$/, '/iclock.php');
+        ['admsUrl','settAdmsUrl'].forEach(id => { const el=document.getElementById(id); if(el) el.value=admsUrl; });
+        await loadBiometric();
+        await loadSettingsBio();
+    }
+
+    async function loadBiometric() {
+        try {
+            const res = await apiGet('get_biometric_devices');
+            const devices = res.devices || [];
+            const today = new Date().toISOString().split('T')[0];
+            const pr = await apiGet('get_biometric_punches', { date: today });
+            const punches = pr.punches || [];
+
+            // Device cards
+            const dc = document.getElementById('bioDeviceCards');
+            if (dc) {
+                dc.innerHTML = devices.length ? devices.map(d => {
+                    const on = d.status === 'online';
+                    const ls = d.last_seen ? timeSince(d.last_seen.replace(' ','T')) : 'Never';
+                    return `<div class="panel" style="padding:0;overflow:hidden">
+                        <div style="padding:14px 16px;background:${on?'#f0fdf4':'#fef2f2'};border-bottom:1px solid ${on?'#a3e8d4':'#fca5a5'};display:flex;align-items:center;justify-content:space-between">
+                            <div style="display:flex;align-items:center;gap:10px">
+                                <div style="width:36px;height:36px;background:${on?'#dcfce7':'#fee2e2'};border:1.5px solid ${on?'#a3e8d4':'#fca5a5'};border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px">🖐️</div>
+                                <div><div style="font-size:14px;font-weight:800;color:var(--tx)">${d.device_name||d.serial_number}</div><div style="font-size:10px;color:var(--tx3);font-family:var(--fm)">SN: ${d.serial_number}</div></div>
+                            </div>
+                            <span style="font-size:11px;font-weight:700;padding:4px 10px;border-radius:20px;background:${on?'#dcfce7':'#fee2e2'};border:1.5px solid ${on?'#a3e8d4':'#fca5a5'};color:${on?'#166634':'#991b1b'}">${on?'🟢 Online':'🔴 Offline'}</span>
+                        </div>
+                        <div style="padding:12px 16px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+                            <div style="text-align:center"><div style="font-size:10px;color:var(--tx3);font-weight:600">IP Address</div><div style="font-size:12px;font-weight:700;font-family:var(--fm)">${d.ip_address||'—'}</div></div>
+                            <div style="text-align:center"><div style="font-size:10px;color:var(--tx3);font-weight:600">Last Seen</div><div style="font-size:12px;font-weight:700">${ls}</div></div>
+                            <div style="text-align:center"><div style="font-size:10px;color:var(--tx3);font-weight:600">Total Punches</div><div style="font-size:12px;font-weight:700;color:var(--ac)">${d.total_punches||0}</div></div>
+                        </div>
+                    </div>`;
+                }).join('') : '<div style="text-align:center;padding:28px;color:var(--tx3);font-size:13px;grid-column:1/-1">⚙️ No devices connected yet.<br><br>Configure your eSSL X990 or RS9N with the ADMS URL shown above.</div>';
+            }
+
+            // Punch log
+            const pl = document.getElementById('bioPunchList');
+            const pc = document.getElementById('bioPunchCount');
+            if (pc) pc.textContent = punches.length + ' punches today';
+            if (pl) {
+                pl.innerHTML = punches.length ? punches.slice(0,50).map(p => {
+                    const stu = DB.students.find(s => s.id === p.student_id);
+                    const name = stu ? stu.fname+' '+(stu.lname||'') : (p.fname ? p.fname+' '+(p.lname||'') : 'ID: '+p.user_id);
+                    const col = stu?.color || '#9aa3b8';
+                    const av = stu ? (stu.fname[0]+(stu.lname?.[0]||'')).toUpperCase() : '?';
+                    const isIn = p.punch_type === 'check_in';
+                    const vIcon = (p.verify_type||'').includes('finger')||(p.verify_type||'').includes('fp') ? '🖐️' : '💳';
+                    const t = (p.punch_time||'').split(' ')[1]?.slice(0,5)||'';
+                    return `<div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--br)">
+                        <div style="width:32px;height:32px;border-radius:9px;background:${col};display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;flex-shrink:0">${av}</div>
+                        <div style="flex:1"><div style="font-size:13px;font-weight:700;color:var(--tx)">${name}</div><div style="font-size:10px;color:var(--tx3)">${vIcon} ${p.verify_type||'fingerprint'} · SN: ${p.serial_number}</div></div>
+                        <div style="text-align:right"><div style="font-size:12px;font-weight:800;color:${isIn?'var(--em)':'var(--ro)'}">${isIn?'▶ IN':'◀ OUT'}</div><div style="font-size:10px;color:var(--tx3);font-family:var(--fm)">${t}</div></div>
+                    </div>`;
+                }).join('') : '<div style="text-align:center;padding:28px;color:var(--tx3);font-size:13px">No biometric punches today</div>';
+            }
+
+            // Sidebar badge
+            const bioB = document.getElementById('b-bio');
+            if (bioB) {
+                const online = devices.filter(d=>d.status==='online').length;
+                bioB.style.display = online > 0 ? '' : 'none';
+                bioB.style.background = '#22c55e';
+            }
+
+        } catch(e) { console.warn('loadBiometric failed:', e); }
+    }
+
+    async function loadAttBiometric() {
+        try {
+            const today = new Date().toISOString().split('T')[0];
+            const res = await apiGet('get_biometric_punches', { date: today });
+            const punches = res.punches || [];
+            // Build _bioToday map
+            Object.keys(_bioToday).forEach(k => delete _bioToday[k]);
+            punches.forEach(p => {
+                if (!p.student_id) return;
+                if (!_bioToday[p.student_id]) _bioToday[p.student_id] = { in: null, out: null, verify: p.verify_type };
+                const t = (p.punch_time||'').split(' ')[1]?.slice(0,5);
+                if (p.punch_type === 'check_in' && !_bioToday[p.student_id].in) _bioToday[p.student_id].in = t;
+                if (p.punch_type === 'check_out') _bioToday[p.student_id].out = t;
+            });
+            // Render biometric feed in attendance page
+            const el = document.getElementById('bioAttList');
+            const cnt = document.getElementById('bioAttCount');
+            if (cnt) cnt.textContent = punches.length + ' punches';
+            if (el) {
+                el.innerHTML = punches.length ? punches.slice(0,30).map(p => {
+                    const stu = DB.students.find(s => s.id === p.student_id);
+                    const name = stu ? stu.fname+' '+(stu.lname||'') : 'ID: '+p.user_id;
+                    const col = stu?.color || '#9aa3b8';
+                    const av = stu ? (stu.fname[0]+(stu.lname?.[0]||'')).toUpperCase() : '?';
+                    const isIn = p.punch_type === 'check_in';
+                    const vIcon = (p.verify_type||'').includes('finger') ? '🖐️' : '💳';
+                    const t = (p.punch_time||'').split(' ')[1]?.slice(0,5)||'';
+                    return `<div style="display:flex;align-items:center;gap:9px;padding:7px 0;border-bottom:1px solid var(--br)">
+                        <div style="width:28px;height:28px;border-radius:8px;background:${col};display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;flex-shrink:0">${av}</div>
+                        <div style="flex:1"><div style="font-size:12px;font-weight:700">${name}</div><div style="font-size:10px;color:var(--tx3)">${vIcon} ${p.verify_type||'fp'}</div></div>
+                        <div style="text-align:right"><div style="font-size:11px;font-weight:700;color:${isIn?'var(--em)':'var(--ro)'}">${isIn?'▶ IN':'◀ OUT'}</div><div style="font-size:10px;color:var(--tx3);font-family:var(--fm)">${t}</div></div>
+                    </div>`;
+                }).join('') : '<div style="text-align:center;padding:18px;color:var(--tx3);font-size:12px">No biometric punches yet today</div>';
+            }
+            // Dot indicator
+            const dot = document.getElementById('bioDeviceDot');
+            if (dot) dot.style.background = punches.length > 0 ? '#22c55e' : '#e2e8f0';
+            // Auto mark present
+            Object.keys(_bioToday).forEach(sid => { if (_bioToday[sid].in) DB.attendance[sid] = 'present'; });
+        } catch(e) { console.warn('loadAttBiometric failed:', e); }
+    }
+
+    async function loadSettingsBio() {
+        try {
+            const res = await apiGet('get_biometric_devices');
+            const devices = res.devices || [];
+            const admsUrl = window.location.origin + window.location.pathname.replace(/\/[^/]*$/, '/iclock.php');
+            ['admsUrl','settAdmsUrl'].forEach(id => { const e=document.getElementById(id); if(e) e.value=admsUrl; });
+            const el = document.getElementById('settBioDevices');
+            if (!el) return;
+            el.innerHTML = devices.length ? devices.map(d => {
+                const on = d.status === 'online';
+                return `<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--br)">
+                    <span style="font-size:10px;font-weight:700;padding:3px 8px;border-radius:20px;background:${on?'#dcfce7':'#fee2e2'};border:1px solid ${on?'#a3e8d4':'#fca5a5'};color:${on?'#166634':'#991b1b'}">${on?'🟢 Online':'🔴 Offline'}</span>
+                    <div style="flex:1"><div style="font-size:12px;font-weight:700">${d.device_name||d.serial_number}</div><div style="font-size:10px;color:var(--tx3);font-family:var(--fm)">SN: ${d.serial_number} · IP: ${d.ip_address||'—'} · ${d.total_punches||0} punches</div></div>
+                </div>`;
+            }).join('') : '<div style="font-size:12px;color:var(--tx3);padding:8px 0">No devices connected. Set ADMS URL on device to connect.</div>';
+        } catch(e) {}
+    }
+
+    async function toggleFeeGate(enabled) {
+        ['feeGateToggle','settFeeGate'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.checked = enabled;
+            const sliderMap = { feeGateToggle:'feeGateSlider', settFeeGate:'settFeeGateSlider' };
+            const sl = document.getElementById(sliderMap[id]);
+            if (sl) sl.style.background = enabled ? 'var(--ac)' : '#e2e8f0';
+        });
+        const fgs = document.getElementById('feeGateStatus');
+        if (fgs) fgs.textContent = enabled ? '🔒 Active — overdue students will be blocked at door' : '🔓 Inactive — all students can enter regardless of fee status';
+        try {
+            await apiPost('set_fee_gate', { enabled: enabled ? 1 : 0 });
+            DB.settings.feeGate = enabled;
+            toast(enabled ? '🔒 Fee Gate ON — overdue students blocked' : '🔓 Fee Gate OFF', enabled ? 'wn' : 'ok');
+        } catch(e) { toast('Failed to save fee gate setting', 'er'); }
     }
 
     // ═══ BOOT ═══
