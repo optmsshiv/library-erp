@@ -947,7 +947,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
 
         <!-- STAFF -->
         <div class="page" id="page-staff">
-            <div class="sec-hd"><div><div class="sec-t">Staff & Users</div><div class="sec-s" id="staffCount"></div></div><button class="btn bp" data-action="add_staff" onclick="openM('mAddStaff')"><span class="mi sm">person_add</span>Add Staff</button></div>
+            <div class="sec-hd"><div><div class="sec-t">Staff & Users</div><div class="sec-s" id="staffCount"></div></div><div style="display:flex;gap:7px;align-items:center"><button class="btn bg" style="font-size:11px" onclick="cleanupStaffIds()" title="Fix ugly IDs to SF-001, ADM-001 format"><span class="mi sm">auto_fix_high</span> Fix IDs</button><button class="btn bp" data-action="add_staff" onclick="openM('mAddStaff')"><span class="mi sm">person_add</span>Add Staff</button></div></div>
             <div class="panel"><div class="tw"><table>
                         <thead><tr><th>Staff</th><th>Role</th><th>Email</th><th>Phone</th><th>Permissions</th><th>Status</th><th>Action</th></tr></thead>
                         <tbody id="staffTable"></tbody>
@@ -3614,17 +3614,28 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         PERMS.forEach(p => { const el=document.getElementById('perm-'+p.key); perms[p.key]=el?el.checked:false; });
         const actPerms = {};
         ACTION_PERMS.forEach(a => { const el=document.getElementById('act-'+a.key); actPerms[a.key]=el?el.checked:false; });
+        // Generate clean sequential ID: SF-001, ADM-001, MGR-001
+        let _newStaffId = null;
+        if (editStaffIdx < 0) {
+            const _prefix = rl === 'admin' ? 'ADM' : rl === 'manager' ? 'MGR' : 'SF';
+            const _nums = DB.staff
+                .filter(x => x.id && x.id.startsWith(_prefix + '-') && /^\d+$/.test(x.id.slice(_prefix.length + 1)))
+                .map(x => parseInt(x.id.slice(_prefix.length + 1)) || 0);
+            const _next = _nums.length ? Math.max(..._nums) + 1 : 1;
+            _newStaffId = _prefix + '-' + String(_next).padStart(3, '0');
+        }
+
         const payload = {
             name: nm, role: rl, email: em,
-            phone: gv('sf-ph'), username: gv('sf-un'), password: gv('sf-pw'), perms, actPerms
+            phone: gv('sf-ph'), username: gv('sf-un'), password: gv('sf-pw'), perms, actPerms,
+            id: editStaffIdx >= 0 ? DB.staff[editStaffIdx].id : _newStaffId
         };
-        if (editStaffIdx >= 0) payload.id = DB.staff[editStaffIdx].id;
 
         // Optimistically update local DB first so table shows immediately
         if (editStaffIdx >= 0) {
             Object.assign(DB.staff[editStaffIdx], { name: nm, role: rl, email: em, phone: gv('sf-ph'), username: gv('sf-un'), perms, actPerms });
         } else {
-            DB.staff.push({ id: 'SF-' + Date.now(), name: nm, role: rl, email: em, phone: gv('sf-ph'), username: gv('sf-un') || nm.split(' ')[0].toLowerCase(), perms, actPerms, status: 'active' });
+            DB.staff.push({ id: _newStaffId, name: nm, role: rl, email: em, phone: gv('sf-ph'), username: gv('sf-un') || nm.split(' ')[0].toLowerCase(), perms, actPerms, status: 'active' });
         }
         toast(editStaffIdx >= 0 ? `${nm} updated!` : `${nm} added!`, 'ok');
         editStaffIdx = -1;
@@ -4822,6 +4833,22 @@ Thank you! 📚
     }
 
     // ═══ BOOT ═══
+    // ── Clean up ugly staff IDs (one-time migration) ──
+    async function cleanupStaffIds() {
+        if (!confirm('This will rename all staff IDs to clean format (SF-001, ADM-001 etc).\nThis cannot be undone. Continue?')) return;
+        try {
+            const res = await apiPost('cleanup_staff_ids', {});
+            if (res.ok) {
+                toast('✅ ' + (res.message || 'Staff IDs cleaned!'), 'ok');
+                await reloadDB();
+                renderStaff();
+            } else {
+                toast(res.error || 'Cleanup failed', 'er');
+            }
+        } catch(e) { toast('Error: ' + e.message, 'er'); }
+    }
+
+
     document.getElementById('todayChip').textContent = new Date().toLocaleDateString('en-IN',{month:'long',year:'numeric'});
     initData();
     loadMyDP();

@@ -563,9 +563,29 @@ switch ($action) {
             if (empty($d['username'])) jsonError('Username is required for new staff.');
             $rawPassword = !empty($d['password']) ? $d['password'] : 'Pass@1234';
             $hash = password_hash($rawPassword, PASSWORD_BCRYPT);
-            $lastSfId = $db->query("SELECT id FROM staff ORDER BY id DESC LIMIT 1")->fetchColumn();
-            $lastSfNum = $lastSfId ? (int)substr($lastSfId, 3) : 0;
-            $newId = 'SF-' . str_pad($lastSfNum + 1, 3, '0', STR_PAD_LEFT);
+
+            // Determine prefix from role
+            $role   = $d['role'] ?? 'staff';
+            $prefix = ($role === 'admin') ? 'ADM' : (($role === 'manager') ? 'MGR' : 'SF');
+
+            // Use clean ID sent from JS if valid, otherwise generate one
+            $sentId = trim($d['id'] ?? '');
+            if ($sentId && preg_match('/^(ADM|MGR|SF)-\d{3,}$/', $sentId)
+                && !$db->query("SELECT COUNT(*) FROM staff WHERE id='".addslashes($sentId)."'")->fetchColumn()) {
+                $newId = $sentId;
+            } else {
+                // Generate by finding highest existing number for this prefix
+                $maxNum = 0;
+                $rows = $db->query("SELECT id FROM staff")->fetchAll(PDO::FETCH_COLUMN);
+                foreach ($rows as $rid) {
+                    if (strpos($rid, $prefix . '-') === 0) {
+                        $n = (int)substr($rid, strlen($prefix) + 1);
+                        if ($n > $maxNum) $maxNum = $n;
+                    }
+                }
+                $newId = $prefix . '-' . str_pad($maxNum + 1, 3, '0', STR_PAD_LEFT);
+            }
+
             $db->prepare("INSERT INTO staff (id,name,role,email,phone,username,password_hash,
                 perm_students,perm_fees,perm_books,perm_expenses,perm_reports,perm_staff,perm_settings,
                 perm_whatsapp,perm_notifications,act_perms,status) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)")
@@ -574,9 +594,41 @@ switch ($action) {
                     (int)($perms['expenses'] ?? 0),(int)($perms['reports'] ?? 0),(int)($perms['staff'] ?? 0),(int)($perms['settings'] ?? 0),
                     (int)($perms['whatsapp'] ?? 1),(int)($perms['notifications'] ?? 1),$actJson,
                     'active']);
-            addActivity($db, '👥', 'rgba(74,124,111,.14)', "Staff <strong>{$d['name']}</strong> added");
+            addActivity($db, '👥', 'rgba(74,124,111,.14)', "Staff <strong>{$d['name']}</strong> added as <strong>$newId</strong>");
         }
-        jsonResponse(['success' => true]);
+        jsonResponse(['success' => true, 'id' => $newId ?? $d['id']]);
+
+    case 'cleanup_staff_ids':
+        // One-time migration — renames ugly timestamp IDs to SF-001, ADM-001, MGR-001
+        $allStaff = $db->query("SELECT id, role, created_at FROM staff ORDER BY created_at ASC")->fetchAll(PDO::FETCH_ASSOC);
+        $counters  = ['ADM' => 0, 'MGR' => 0, 'SF' => 0];
+        $updated   = 0;
+        // First pass: read existing clean IDs so counters start correctly
+        foreach ($allStaff as $sf) {
+            $role = $sf['role'] ?? 'staff';
+            $pfx  = ($role === 'admin') ? 'ADM' : (($role === 'manager') ? 'MGR' : 'SF');
+            if (preg_match('/^(ADM|MGR|SF)-(\d+)$/', $sf['id'], $m)) {
+                if ((int)$m[2] > $counters[$pfx]) $counters[$pfx] = (int)$m[2];
+            }
+        }
+        // Second pass: rename only ugly IDs
+        foreach ($allStaff as $sf) {
+            $role = $sf['role'] ?? 'staff';
+            $pfx  = ($role === 'admin') ? 'ADM' : (($role === 'manager') ? 'MGR' : 'SF');
+            if (preg_match('/^(ADM|MGR|SF)-\d{3,}$/', $sf['id'])) continue; // already clean
+            $counters[$pfx]++;
+            $newId = $pfx . '-' . str_pad($counters[$pfx], 3, '0', STR_PAD_LEFT);
+            try {
+                // Update related tables first to avoid FK constraint issues
+                foreach (['staff_attendance','staff_salary'] as $tbl) {
+                    try { $db->prepare("UPDATE $tbl SET staff_id=? WHERE staff_id=?")->execute([$newId,$sf['id']]); } catch(Exception $e) {}
+                }
+                $db->prepare("UPDATE staff SET id=? WHERE id=?")->execute([$newId, $sf['id']]);
+                $updated++;
+            } catch(Exception $e) {}
+        }
+        jsonResponse(['ok' => true, 'updated' => $updated, 'message' => "Renamed $updated staff ID(s) to clean format"]);
+        break;
 
     case 'delete_staff':
         if ($method !== 'POST') jsonError('Method not allowed', 405);

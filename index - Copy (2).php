@@ -164,21 +164,38 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         .sec-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px}
         .sec-t{font-family:var(--fd);font-size:16px;color:var(--tx)}.sec-s{font-size:11px;color:var(--tx3);margin-top:2px}
 
-        .sbar{height:5px;background:var(--sf2);border-radius:3px;overflow:hidden;margin-bottom:7px;border:1px solid var(--br)}
-        .sfill{height:100%;border-radius:3px;transition:width 1s ease}
+        .sbar{height:10px;background:var(--sf2);border-radius:20px;overflow:hidden;margin-bottom:5px;border:1px solid var(--br)}
+        .sfill{height:100%;border-radius:20px;transition:width 1s ease}
         .sf-g{background:linear-gradient(90deg,var(--em),#4ade80)}.sf-y{background:linear-gradient(90deg,var(--gd),var(--gd2))}.sf-r{background:linear-gradient(90deg,var(--ro),#f87171)}
         .bst{font-size:9px;font-weight:700;padding:3px 8px;border-radius:20px;font-family:var(--fm)}
         .bst-o{background:var(--c-green);color:#166534}.bst-f{background:var(--c-rose);color:#9f1239}.bst-n{background:var(--c-amber);color:#92400e}
 
-        .seat-visual{display:flex;flex-wrap:wrap;gap:3px;margin-top:10px}
-        .seat-cell{width:34px;height:23px;border-radius:5px;border:1px solid;display:flex;align-items:center;justify-content:center;font-size:7.5px;font-family:var(--fm);cursor:pointer;transition:all .15s;font-weight:600;position:relative}
-        .seat-cell:hover{transform:scale(1.1);z-index:5}
-        .seat-occ{background:var(--c-rose);border-color:var(--cr);color:#9f1239}
+        .seat-visual{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+        .seat-cell{width:52px;height:38px;border-radius:10px;border:1.5px solid;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:all .15s;font-weight:700;position:relative;gap:1px}
+        .seat-cell:hover{transform:scale(1.08);z-index:5;box-shadow:0 4px 14px rgba(0,0,0,.13)}
+        .seat-num{font-size:11px;font-family:var(--fm);font-weight:700;line-height:1}
+        .seat-init{font-size:9px;font-weight:800;opacity:.8;line-height:1}
+        .seat-occ{background:#dbeafe;border-color:#93c5fd;color:#1d4ed8}
         .seat-vac{background:var(--c-green);border-color:var(--cg);color:#166534}
         .seat-due{background:var(--c-amber);border-color:var(--ca2);color:#92400e;animation:pulseDue 2s infinite}
         .seat-overdue{background:var(--c-rose);border-color:var(--cr);color:#9f1239;animation:pulseDue 1s infinite}
-        .seat-tooltip{display:none;position:absolute;bottom:calc(100%+5px);left:50%;transform:translateX(-50%);background:var(--tx);color:#fff;font-size:9px;padding:3px 8px;border-radius:5px;white-space:nowrap;z-index:20;pointer-events:none}
+        .seat-tooltip{display:none;position:absolute;bottom:calc(100%+7px);left:50%;transform:translateX(-50%);background:var(--tx);color:#fff;font-size:10px;padding:6px 11px;border-radius:8px;white-space:nowrap;z-index:20;pointer-events:none;line-height:1.5;text-align:center}
         .seat-cell:hover .seat-tooltip{display:block}
+        .seat-summary{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;padding-top:14px;border-top:1px solid var(--br)}
+        .ss-chip{display:inline-flex;align-items:center;gap:6px;padding:6px 13px 6px 9px;border-radius:20px;border:1.5px solid;font-family:var(--fm);box-shadow:0 1px 4px rgba(0,0,0,.07);transition:transform .15s;cursor:default}
+        .ss-chip:hover{transform:translateY(-1px)}
+        .ss-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+        .ss-ic{font-family:'Material Icons Round';font-style:normal;font-size:14px;line-height:1;display:inline-flex;align-items:center}
+        .ss-cnt{font-size:13px;font-weight:800}
+        .ss-lbl{font-size:10px;font-weight:600}
+        .ss-vac{background:var(--c-green);border-color:var(--cg);color:#15803d}
+        .ss-vac .ss-dot{background:#16a34a;box-shadow:0 0 0 2px rgba(22,163,74,.2)}
+        .ss-occ{background:#eff6ff;border-color:#93c5fd;color:#1d4ed8}
+        .ss-occ .ss-dot{background:#3b82f6;box-shadow:0 0 0 2px rgba(59,130,246,.2)}
+        .ss-due{background:var(--c-amber);border-color:var(--ca2);color:#92400e}
+        .ss-due .ss-dot{background:#d97706;box-shadow:0 0 0 2px rgba(217,119,6,.2)}
+        .ss-od{background:var(--c-rose);border-color:var(--cr);color:#9f1239}
+        .ss-od .ss-dot{background:#e11d48;box-shadow:0 0 0 2px rgba(225,29,72,.2);animation:pulseDue 1s infinite}
         @keyframes pulseDue{0%,100%{opacity:1}50%{opacity:.55}}
 
         /* ── SEAT LEGEND ── */
@@ -269,6 +286,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         .fee-due-row{background:rgba(220,38,38,.02)}.fee-partial-row{background:rgba(217,119,6,.02)}
 
         .perm-row{display:flex;align-items:center;justify-content:space-between;padding:9px 13px;border:1px solid var(--br);border-radius:var(--r2);margin-bottom:7px;background:var(--sf2)}
+        .perm-card-lbl:hover{border-color:rgba(61,111,240,.4)!important;box-shadow:0 2px 8px rgba(61,111,240,.08)}
         .toggle-wrap{position:relative;display:inline-block;width:36px;height:20px}
         .toggle-inp{opacity:0;width:0;height:0;position:absolute}
         .toggle-sl{position:absolute;inset:0;background:var(--br2);border-radius:20px;cursor:pointer;transition:.2s}
@@ -448,13 +466,14 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
             <div class="ni" data-page="reports"><span class="ni-ic mi">bar_chart</span> Reports</div>
         </div>
         <div class="ns"><div class="nl">Communication</div>
-            <div class="ni" data-page="whatsapp"><span class="ni-ic mi">chat</span> WhatsApp <span class="nbadge wa">New</span></div>
+            <div class="ni" data-page="whatsapp" data-action-page="send_whatsapp"><span class="ni-ic mi">chat</span> WhatsApp <span class="nbadge wa">New</span></div>
         </div>
         <div class="ns"><div class="nl">Admin</div>
             <div class="ni" data-page="staff"><span class="ni-ic mi">manage_accounts</span> Staff & Users</div>
             <div class="ni" data-page="staff_attendance"><span class="ni-ic mi">co_present</span> Staff Attendance</div>
             <div class="ni" data-page="renewal"><span class="ni-ic mi">autorenew</span> Renewals <span class="nbadge y" id="b-renewal">0</span></div>
             <div class="ni" data-page="audit"><span class="ni-ic mi">history</span> Audit Log</div>
+            <div class="ni" data-page="biometric"><span class="ni-ic mi">fingerprint</span> Biometric <span class="nbadge g" id="b-bio" style="display:none">●</span></div>
             <div class="ni" data-page="notifications"><span class="ni-ic mi">notifications</span> Notifications <span class="nbadge g" id="b-notif">0</span></div>
             <div class="ni" data-page="settings"><span class="ni-ic mi">settings</span> Settings</div>
         </div>
@@ -480,7 +499,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
             <button class="btn bwa" onclick="navTo('whatsapp')" style="gap:5px;font-size:11px"><span class="mi sm">chat</span>WhatsApp</button>
             <button class="btn bg" onclick="openM('mWaQR')" style="font-size:11px;padding:6px 9px" title="Connect WhatsApp QR"><span class="mi sm">qr_code_scanner</span></button>
             <div class="nb-btn" onclick="navTo('notifications')"><span class="mi sm">notifications</span><div class="nd" id="notifDot" style="display:none"></div></div>
-            <button class="btn bp" onclick="openM('mEnroll')"><span class="mi sm">person_add</span> Enroll</button>
+            <button class="btn bp" data-action="enroll_student" onclick="openM('mEnroll')"><span class="mi sm">person_add</span> Enroll</button>
         </div>
     </div>
     <div class="content">
@@ -491,13 +510,13 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
 
             <!-- Quick Actions -->
             <div class="qa-gr">
-                <div class="qa-b" onclick="openM('mEnroll')"><div class="qa-ic" style="background:var(--c-blue)"><span class="mi lg" style="color:var(--ac)">person_add</span></div><div class="qa-lb">New<br>Enroll</div></div>
-                <div class="qa-b" onclick="openM('mCollectFee')"><div class="qa-ic" style="background:var(--c-green)"><span class="mi lg" style="color:var(--em)">payments</span></div><div class="qa-lb">Collect<br>Fee</div></div>
-                <div class="qa-b" onclick="openM('mIssueBook')"><div class="qa-ic" style="background:var(--c-amber)"><span class="mi lg" style="color:var(--gd)">upload</span></div><div class="qa-lb">Issue<br>Book</div></div>
-                <div class="qa-b" onclick="openM('mReturnBook')"><div class="qa-ic" style="background:var(--c-purple)"><span class="mi lg" style="color:var(--vi)">download</span></div><div class="qa-lb">Return<br>Book</div></div>
+                <div class="qa-b" data-action="enroll_student" onclick="openM('mEnroll')"><div class="qa-ic" style="background:var(--c-blue)"><span class="mi lg" style="color:var(--ac)">person_add</span></div><div class="qa-lb">New<br>Enroll</div></div>
+                <div class="qa-b" data-action="collect_fee" onclick="openM('mCollectFee')"><div class="qa-ic" style="background:var(--c-green)"><span class="mi lg" style="color:var(--em)">payments</span></div><div class="qa-lb">Collect<br>Fee</div></div>
+                <div class="qa-b" data-action="issue_book" onclick="openM('mIssueBook')"><div class="qa-ic" style="background:var(--c-amber)"><span class="mi lg" style="color:var(--gd)">upload</span></div><div class="qa-lb">Issue<br>Book</div></div>
+                <div class="qa-b" data-action="return_book" onclick="openM('mReturnBook')"><div class="qa-ic" style="background:var(--c-purple)"><span class="mi lg" style="color:var(--vi)">download</span></div><div class="qa-lb">Return<br>Book</div></div>
                 <div class="qa-b" onclick="navTo('seats')"><div class="qa-ic" style="background:var(--c-rose)"><span class="mi lg" style="color:var(--ro)">event_seat</span></div><div class="qa-lb">Seat<br>Booking</div></div>
                 <div class="qa-b" onclick="navTo('attendance')"><div class="qa-ic" style="background:var(--c-sky)"><span class="mi lg" style="color:var(--sk)">fact_check</span></div><div class="qa-lb">Mark<br>Attend.</div></div>
-                <div class="qa-b" onclick="openM('mExpense')"><div class="qa-ic" style="background:var(--c-orange)"><span class="mi lg" style="color:var(--or)">account_balance_wallet</span></div><div class="qa-lb">Add<br>Expense</div></div>
+                <div class="qa-b" data-action="add_expense" onclick="openM('mExpense')"><div class="qa-ic" style="background:var(--c-orange)"><span class="mi lg" style="color:var(--or)">account_balance_wallet</span></div><div class="qa-lb">Add<br>Expense</div></div>
                 <div class="qa-b" onclick="navTo('whatsapp')"><div class="qa-ic" style="background:var(--c-teal)"><span class="mi lg" style="color:var(--wa2)">chat</span></div><div class="qa-lb">WhatsApp</div></div>
             </div>
 
@@ -613,7 +632,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
                 <div style="display:flex;gap:7px;align-items:center;flex-wrap:wrap">
                     <input placeholder="Search…" style="width:130px;font-size:11.5px" oninput="stuSrch(this.value)" id="stuSrchInp">
                     <div class="tabs" id="stuTabs"><div class="tab active" onclick="stuFilt('all',this)">All</div><div class="tab" onclick="stuFilt('paid',this)">Paid</div><div class="tab" onclick="stuFilt('partial',this)">Partial</div><div class="tab" onclick="stuFilt('pending',this)">Pending</div><div class="tab" onclick="stuFilt('overdue',this)">Overdue</div></div>
-                    <button class="btn bp" onclick="openM('mEnroll')"><span class="mi sm">person_add</span> Enroll</button>
+                    <button class="btn bp" data-action="enroll_student" onclick="openM('mEnroll')"><span class="mi sm">person_add</span> Enroll</button>
                     <button class="btn bwa" onclick="navTo('whatsapp')" style="font-size:11px"><span class="mi sm">chat</span>Bulk Msg</button>
                 </div>
             </div>
@@ -628,7 +647,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         <div class="page" id="page-seats">
             <div class="sec-hd">
                 <div><div class="sec-t">Seat Allocation</div><div class="sec-s">Batch seat map with fee status highlight</div></div>
-                <div style="display:flex;gap:7px"><button class="btn bp" onclick="openM('mAddBatch')">+ Add Batch</button><button class="btn bg" onclick="openM('mAllocSeat')">Allocate Seat</button></div>
+                <div style="display:flex;gap:7px"><button class="btn bp" data-action="add_batch" onclick="openM('mAddBatch')">+ Add Batch</button><button class="btn bg" data-action="alloc_seat" onclick="openM('mAllocSeat')">Allocate Seat</button></div>
             </div>
             <div class="stats-grid" style="grid-template-columns:repeat(3,1fr)">
                 <div class="sc" style="--ca:var(--ac)"><div class="s-ic" style="background:var(--c-blue)"><span class="mi" style="color:var(--ac)">event_seat</span></div><div class="s-lb">Total Seats</div><div class="s-vl" id="st-total">0</div></div>
@@ -638,7 +657,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
             <div style="margin-bottom:10px">
                 <div class="seat-legend">
                     <div class="sl-item"><div class="sl-dot seat-vac"></div>Vacant</div>
-                    <div class="sl-item"><div class="sl-dot seat-occ"></div>Occupied (Fee Paid)</div>
+                    <div class="sl-item"><div class="sl-dot seat-occ"></div>Paid &amp; Occupied</div>
                     <div class="sl-item"><div class="sl-dot seat-due"></div>Fee Pending / Partial</div>
                     <div class="sl-item"><div class="sl-dot seat-overdue"></div>Fee Overdue</div>
                 </div>
@@ -664,24 +683,101 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
                 <div class="sc" style="--ca:var(--ac)"><div class="s-lb">Total</div><div class="s-vl" id="at-t">0</div></div>
             </div>
 
-            <!-- QR Scan Live Feed -->
-            <div class="panel" style="margin-bottom:16px">
-                <div class="ph">
-                    <div class="pt"><span class="mi sm" style="vertical-align:middle;margin-right:5px">qr_code_scanner</span>Today's QR Check-Ins</div>
-                    <div style="display:flex;align-items:center;gap:8px">
-                        <span id="qrScanCount" style="font-size:11px;color:var(--tx3)">0 scans</span>
-                        <button class="btn bg" style="font-size:10px;padding:4px 8px" onclick="loadQRScans()"><span class="mi sm">refresh</span> Refresh</button>
+            <!-- Live Check-In Feed: QR + Biometric -->
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px">
+                <!-- QR Feed -->
+                <div class="panel">
+                    <div class="ph">
+                        <div class="pt"><span class="mi sm" style="vertical-align:middle;margin-right:5px">qr_code_scanner</span>QR Check-Ins</div>
+                        <div style="display:flex;align-items:center;gap:8px">
+                            <span id="qrScanCount" style="font-size:11px;color:var(--tx3)">0 scans</span>
+                            <button class="btn bg" style="font-size:10px;padding:4px 8px" onclick="loadQRScans()"><span class="mi sm">refresh</span></button>
+                        </div>
+                    </div>
+                    <div class="pb" id="qrScanList" style="padding:10px;max-height:220px;overflow-y:auto">
+                        <div style="text-align:center;padding:20px;color:var(--tx3);font-size:12px">No QR check-ins yet today</div>
                     </div>
                 </div>
-                <div class="pb" id="qrScanList" style="padding:10px">
-                    <div style="text-align:center;padding:20px;color:var(--tx3);font-size:12px">No QR check-ins yet today</div>
+                <!-- Biometric Feed -->
+                <div class="panel">
+                    <div class="ph">
+                        <div class="pt"><span class="mi sm" style="vertical-align:middle;margin-right:5px">fingerprint</span>Biometric Check-Ins</div>
+                        <div style="display:flex;align-items:center;gap:8px">
+                            <span id="bioAttCount" style="font-size:11px;color:var(--tx3)">0 punches</span>
+                            <div id="bioDeviceDot" style="width:8px;height:8px;border-radius:50%;background:#e2e8f0;flex-shrink:0" title="Device status"></div>
+                            <button class="btn bg" style="font-size:10px;padding:4px 8px" onclick="loadAttBiometric()"><span class="mi sm">refresh</span></button>
+                        </div>
+                    </div>
+                    <div class="pb" id="bioAttList" style="padding:10px;max-height:220px;overflow-y:auto">
+                        <div style="text-align:center;padding:20px;color:var(--tx3);font-size:12px">No biometric punches yet today</div>
+                    </div>
                 </div>
             </div>
 
+            <!-- Attendance Table with check-in/out + hours -->
             <div class="panel"><div class="tw"><table>
-                        <thead><tr><th>Student</th><th>Batch</th><th>Seat</th><th>Fee Status</th><th>Attend.</th><th>Toggle</th></tr></thead>
+                        <thead><tr><th>Student</th><th>Batch</th><th>Seat</th><th>Fee Status</th><th>Check In</th><th>Check Out</th><th>Hours</th><th>Attend.</th><th>Toggle</th></tr></thead>
                         <tbody id="attTable"></tbody>
                     </table></div></div>
+        </div>
+
+        <!-- BIOMETRIC -->
+        <div class="page" id="page-biometric">
+            <div class="sec-hd">
+                <div><div class="sec-t">Biometric Door System</div><div class="sec-s">eSSL X990 &amp; Realtime RS9N attendance tracking</div></div>
+                <div style="display:flex;gap:7px;align-items:center">
+                    <button class="btn bg" onclick="loadBiometric()"><span class="mi sm">refresh</span> Refresh</button>
+                </div>
+            </div>
+            <!-- Device Status Row -->
+            <div id="bioDeviceCards" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;margin-bottom:16px">
+                <div style="text-align:center;padding:24px;color:var(--tx3);font-size:13px;grid-column:1/-1">Loading devices…</div>
+            </div>
+            <!-- Fee Gate Toggle + ADMS URL -->
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px">
+                <div class="panel">
+                    <div class="ph"><div class="pt"><span class="mi sm" style="vertical-align:middle;margin-right:5px">lock</span>Fee Gate</div></div>
+                    <div class="pb">
+                        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+                            <div>
+                                <div style="font-size:13px;font-weight:700;color:var(--tx)">Block overdue students at door</div>
+                                <div style="font-size:11px;color:var(--tx3);margin-top:3px">If ON — students with overdue fee cannot enter even if fingerprint matches</div>
+                            </div>
+                            <label style="position:relative;display:inline-block;width:44px;height:24px;flex-shrink:0;margin-left:12px">
+                                <input type="checkbox" id="feeGateToggle" onchange="toggleFeeGate(this.checked)" style="opacity:0;width:0;height:0;position:absolute">
+                                <span id="feeGateSlider" style="position:absolute;cursor:pointer;inset:0;background:#e2e8f0;border-radius:34px;transition:.3s;--thumb-x:0px">
+                                    <span style="position:absolute;content:'';height:18px;width:18px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.3s;box-shadow:0 1px 3px rgba(0,0,0,.2);transform:translateX(var(--thumb-x,0px))" id="feeGateThumb"></span>
+                                </span>
+                            </label>
+                        </div>
+                        <div id="feeGateStatus" style="font-size:11px;font-weight:700;color:var(--tx3)">Loading…</div>
+                    </div>
+                </div>
+                <div class="panel">
+                    <div class="ph"><div class="pt"><span class="mi sm" style="vertical-align:middle;margin-right:5px">link</span>ADMS Server URL</div></div>
+                    <div class="pb">
+                        <div style="font-size:12px;color:var(--tx2);margin-bottom:8px">Enter this URL in your device ADMS / Push Server settings:</div>
+                        <div style="display:flex;gap:7px">
+                            <input id="admsUrl" readonly style="flex:1;font-size:11px;font-family:var(--fm);background:var(--sf2)" value="">
+                            <button class="btn bg" style="font-size:11px;flex-shrink:0" onclick="navigator.clipboard?.writeText(document.getElementById('admsUrl').value).then(()=>toast('URL copied!','ok'))"><span class="mi sm">content_copy</span></button>
+                        </div>
+                        <div style="margin-top:8px;font-size:11px;color:var(--tx3)">Port: <b>80</b> (HTTP) or <b>443</b> (HTTPS) · Path auto-appended by device</div>
+                    </div>
+                </div>
+            </div>
+            <!-- Today's Punch Log -->
+            <div class="panel">
+                <div class="ph">
+                    <div class="pt"><span class="mi sm" style="vertical-align:middle;margin-right:5px">fingerprint</span>Today's Biometric Punches</div>
+                    <div style="display:flex;align-items:center;gap:8px">
+                        <span id="bioPunchCount" style="font-size:11px;color:var(--tx3)">0 punches</span>
+                        <button class="btn bg" style="font-size:10px;padding:4px 8px" onclick="loadBiometric()"><span class="mi sm">refresh</span></button>
+                    </div>
+                </div>
+                <div class="pb" id="bioPunchList" style="padding:10px">
+                    <div style="text-align:center;padding:24px;color:var(--tx3);font-size:13px">No punches today</div>
+                </div>
+            </div>
         </div>
 
         <!-- BOOKS -->
@@ -691,7 +787,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
                 <div style="display:flex;gap:7px;align-items:center">
                     <input placeholder="Search…" style="width:130px;font-size:11.5px" oninput="bkSrch(this.value)">
                     <select id="bkCatF" onchange="renderBooks()" style="font-size:12px;padding:6px 9px"><option value="all">All</option><option>Academic</option><option>Self-Help</option><option>Fiction</option><option>Science</option></select>
-                    <button class="btn bp" onclick="openM('mAddBook')">+ Add Book</button>
+                    <button class="btn bp" data-action="add_book" onclick="openM('mAddBook')">+ Add Book</button>
                 </div>
             </div>
             <div class="panel"><div class="tw"><table>
@@ -705,7 +801,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         <div class="page" id="page-transactions">
             <div class="sec-hd">
                 <div><div class="sec-t">Issue & Returns</div><div class="sec-s" id="txCount"></div></div>
-                <div style="display:flex;gap:7px"><button class="btn bp" onclick="openM('mIssueBook')">📤 Issue</button><button class="btn bg" onclick="openM('mReturnBook')">📩 Return</button></div>
+                <div style="display:flex;gap:7px"><button class="btn bp" data-action="issue_book" onclick="openM('mIssueBook')">📤 Issue</button><button class="btn bg" data-action="return_book" onclick="openM('mReturnBook')">📩 Return</button></div>
             </div>
             <div class="stats-grid" style="grid-template-columns:repeat(4,1fr)">
                 <div class="sc" style="--ca:var(--vi)"><div class="s-lb">Issued</div><div class="s-vl" id="tx-is">0</div></div>
@@ -724,7 +820,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
             <div class="sec-hd">
                 <div><div class="sec-t">Fee Management</div></div>
                 <div style="display:flex;gap:7px;flex-wrap:wrap">
-                    <button class="btn bp" onclick="openM('mCollectFee')">💳 Collect Fee</button>
+                    <button class="btn bp" data-action="collect_fee" onclick="openM('mCollectFee')">💳 Collect Fee</button>
                     <button class="btn bwa" onclick="waBulkFee()" style="font-size:11px"><span class="mi sm">chat</span>WA Reminders</button>
                     <button class="btn bg" onclick="sendReminders()" style="font-size:11px">📣 Send Reminders</button>
                 </div>
@@ -752,8 +848,8 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
 
         <!-- INVOICES -->
         <div class="page" id="page-invoices">
-            <div class="sec-hd"><div><div class="sec-t">Invoices</div><div class="sec-s" id="invCount"></div></div><button class="btn bp" onclick="openM('mGenInv')">+ Generate</button></div>
-            <div class="panel"><div class="tw"><table>
+            <div class="sec-hd"><div><div class="sec-t">Invoices</div><div class="sec-s" id="invCount"></div></div><button class="btn bp" data-action="generate_invoice" onclick="openM('mGenInv')">+ Generate</button></div>
+            <div class="panel"><div id="invRevSummary"></div><div class="tw"><table>
                         <thead><tr><th>Invoice #</th><th>Student</th><th>Type</th><th>Total Fee</th><th>Discount</th><th>Paid</th><th>Balance</th><th>Date</th><th>Mode</th><th>Status</th><th>Action</th></tr></thead>
                         <tbody id="invTable"></tbody>
                     </table></div></div>
@@ -761,7 +857,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
 
         <!-- EXPENSES -->
         <div class="page" id="page-expenses">
-            <div class="sec-hd"><div><div class="sec-t">Expenses</div></div><button class="btn bp" onclick="openM('mExpense')">+ Add</button></div>
+            <div class="sec-hd"><div><div class="sec-t">Expenses</div></div><button class="btn bp" data-action="add_expense" onclick="openM('mExpense')">+ Add</button></div>
             <div class="stats-grid" style="grid-template-columns:repeat(3,1fr)">
                 <div class="sc" style="--ca:var(--ro)"><div class="s-lb">Total Expenses</div><div class="s-vl" id="ex-t">₹0</div></div>
                 <div class="sc" style="--ca:var(--em)"><div class="s-lb">Net Profit</div><div class="s-vl" id="ex-p">₹0</div></div>
@@ -843,7 +939,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
                 <div style="padding:16px"><div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px">
                         <div class="wa-bulk-card"><div style="font-size:22px;margin-bottom:6px">🎉</div><div style="font-weight:600;font-size:12px;margin-bottom:3px">Welcome New</div><div style="font-size:10px;color:var(--tx3);margin-bottom:10px">This month's enrollments</div><button class="btn bwa" style="width:100%;font-size:11px" onclick="bulkSend('welcome')">Send (<span id="bk-welcome">0</span>)</button></div>
                         <div class="wa-bulk-card"><div style="font-size:22px;margin-bottom:6px">⏳</div><div style="font-weight:600;font-size:12px;margin-bottom:3px">Fee Pending</div><div style="font-size:10px;color:var(--tx3);margin-bottom:10px">Pending + partial</div><button class="btn bwa" style="width:100%;font-size:11px;background:#e67e22" onclick="bulkSend('pending')">Send (<span id="bk-pending">0</span>)</button></div>
-                        <div class="wa-bulk-card"><div style="font-size:22px;margin-bottom:6px">🚨</div><div style="font-weight:600;font-size:12px;margin-bottom:3px">Fee Overdue</div><div style="font-size:10px;color:var(--tx3);margin-bottom:10px">Critical overdue</div><button class="btn bd" style="width:100%;font-size:11px" onclick="bulkSend('overdue')">Send (<span id="bk-overdue2">0</span>)</button></div>
+                        <div class="wa-bulk-card"><div style="font-size:22px;margin-bottom:6px">🚨</div><div style="font-weight:600;font-size:12px;margin-bottom:3px">Fee Overdue</div><div style="font-size:10px;color:var(--tx3);margin-bottom:10px">Critical overdue</div><button class="btn bd" data-action="send_whatsapp" style="width:100%;font-size:11px" onclick="bulkSend('overdue')">Send (<span id="bk-overdue2">0</span>)</button></div>
                         <div class="wa-bulk-card"><div style="font-size:22px;margin-bottom:6px">📚</div><div style="font-weight:600;font-size:12px;margin-bottom:3px">Book Overdue</div><div style="font-size:10px;color:var(--tx3);margin-bottom:10px">Return reminders</div><button class="btn" style="width:100%;font-size:11px;background:var(--vi);color:#fff" onclick="bulkSend('bookoverdue')">Send (<span id="bk-bookod">0</span>)</button></div>
                     </div></div>
             </div>
@@ -851,7 +947,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
 
         <!-- STAFF -->
         <div class="page" id="page-staff">
-            <div class="sec-hd"><div><div class="sec-t">Staff & Users</div><div class="sec-s" id="staffCount"></div></div><button class="btn bp" onclick="openM('mAddStaff')"><span class="mi sm">person_add</span>Add Staff</button></div>
+            <div class="sec-hd"><div><div class="sec-t">Staff & Users</div><div class="sec-s" id="staffCount"></div></div><button class="btn bp" data-action="add_staff" onclick="openM('mAddStaff')"><span class="mi sm">person_add</span>Add Staff</button></div>
             <div class="panel"><div class="tw"><table>
                         <thead><tr><th>Staff</th><th>Role</th><th>Email</th><th>Phone</th><th>Permissions</th><th>Status</th><th>Action</th></tr></thead>
                         <tbody id="staffTable"></tbody>
@@ -1008,11 +1104,45 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
                             </div>
                             <div style="margin-top:14px;display:flex;gap:8px">
                                 <button class="btn bp" onclick="saveSettings()"><span class="mi sm">save</span>Save Settings</button>
-                                <button class="btn bd" onclick="if(confirm('Reset all data?')){initData();toast('Reset!','wn')}"><span class="mi sm">restart_alt</span>Reset</button>
+                                <button class="btn bd" data-action="reset_data" onclick="if(confirm('Reset all data?')){initData();toast('Reset!','wn')}"><span class="mi sm">restart_alt</span>Reset</button>
                             </div>
                         </div></div>
                 </div>
                 <div class="panel"><div class="ph"><div class="pt">System Stats</div></div><div class="pb" id="setStats"></div></div>
+                <!-- Biometric Device Panel in Settings -->
+                <div class="panel" style="margin-top:14px">
+                    <div class="ph">
+                        <div class="pt"><span class="mi sm" style="vertical-align:middle;margin-right:5px">fingerprint</span>Biometric Devices</div>
+                        <button class="btn bg" style="font-size:11px" onclick="loadSettingsBio()"><span class="mi sm">refresh</span></button>
+                    </div>
+                    <div class="pb">
+                        <!-- Fee Gate -->
+                        <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--br)">
+                            <div>
+                                <div style="font-size:13px;font-weight:700;color:var(--tx)">🔒 Fee Gate — Block overdue students</div>
+                                <div style="font-size:11px;color:var(--tx3);margin-top:2px">Deny door access if student fee is overdue</div>
+                            </div>
+                            <label style="position:relative;display:inline-block;width:44px;height:24px;flex-shrink:0;cursor:pointer">
+                                <input type="checkbox" id="settFeeGate" onchange="toggleFeeGate(this.checked)" style="opacity:0;width:0;height:0;position:absolute">
+                                <span id="settFeeGateSlider" style="position:absolute;cursor:pointer;inset:0;background:#e2e8f0;border-radius:34px;transition:.3s">
+                                    <span style="position:absolute;height:18px;width:18px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.3s;box-shadow:0 1px 3px rgba(0,0,0,.2)" id="settFeeGateThumb"></span>
+                                </span>
+                            </label>
+                        </div>
+                        <!-- ADMS URL -->
+                        <div style="padding:10px 0;border-bottom:1px solid var(--br)">
+                            <div style="font-size:12px;font-weight:700;color:var(--tx2);margin-bottom:6px">📡 ADMS Server URL — paste this in your device</div>
+                            <div style="display:flex;gap:7px">
+                                <input id="settAdmsUrl" readonly style="flex:1;font-size:11px;font-family:var(--fm);background:var(--sf2)" value="">
+                                <button class="btn bg" style="font-size:11px" onclick="navigator.clipboard?.writeText(document.getElementById('settAdmsUrl').value).then(()=>toast('Copied!','ok'))"><span class="mi sm">content_copy</span></button>
+                            </div>
+                        </div>
+                        <!-- Device list -->
+                        <div id="settBioDevices" style="margin-top:10px">
+                            <div style="text-align:center;padding:16px;color:var(--tx3);font-size:12px">Click Refresh to load devices</div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -1352,11 +1482,11 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
             <!-- Quick Actions -->
             <div class="sp-section">⚡ Quick Actions</div>
             <div style="display:flex;gap:8px;flex-wrap:wrap">
-                <button class="btn bp" style="font-size:11px" id="spCollectBtn" onclick="closeM('mStudentProfile')"><span class="mi sm">payments</span>Collect Fee</button>
+                <button class="btn bp" data-action="collect_fee" style="font-size:11px" id="spCollectBtn" onclick="closeM('mStudentProfile')"><span class="mi sm">payments</span>Collect Fee</button>
                 <button class="btn bwa" style="font-size:11px" id="spWaBtn">💬 Send WhatsApp</button>
                 <button class="btn bg" style="font-size:11px;color:var(--ac);border-color:var(--ac)" id="spUpiBtn">📱 UPI Link</button>
                 <button class="btn bg" style="font-size:11px" onclick="openAllocFromProfile()"><span class="mi sm">event_seat</span>Change Seat</button>
-                <button class="btn bd" style="font-size:11px" id="spDelBtn">🗑 Remove</button>
+                <button class="btn bd" data-action="delete_student" style="font-size:11px" id="spDelBtn">🗑 Remove</button>
             </div>
         </div>
         <div class="mf" id="spSaveFooter" style="display:none">
@@ -1592,8 +1722,11 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
                         students: !!+sf.perm_students, fees: !!+sf.perm_fees,
                         books: !!+sf.perm_books, expenses: !!+sf.perm_expenses,
                         reports: !!+sf.perm_reports, staff: !!+sf.perm_staff,
-                        settings: !!+sf.perm_settings
+                        settings: !!+sf.perm_settings,
+                        whatsapp: sf.perm_whatsapp !== undefined ? !!+sf.perm_whatsapp : true,
+                        notifications: sf.perm_notifications !== undefined ? !!+sf.perm_notifications : true,
                     },
+                    actPerms: sf.act_perms ? (typeof sf.act_perms === 'string' ? JSON.parse(sf.act_perms) : sf.act_perms) : {},
                     status: sf.status
                 }));
             }
@@ -1659,6 +1792,9 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
                 DB.staffSalary = salData.salaries || {};
             } catch(e) { console.warn('get_salary failed:', e); }
 
+            // Pre-load biometric punches so dashboard stat card shows correct count
+            try { await loadAttBiometric(); } catch(e) { console.warn('biometric preload failed:', e); }
+
         } catch(e) {
             console.error('Init failed:', e);
             toast('Failed to load data from server', 'er');
@@ -1682,8 +1818,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         // Admins always see everything
         if (me.role === 'admin') return;
 
-        // Map each nav page to its required permission key.
-        // Pages not listed here are visible to all staff.
+        // ── Page-level gates (hide full sidebar items) ──
         const PAGE_PERM = {
             students:        'perm_students',
             enroll:          'perm_students',
@@ -1701,6 +1836,8 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
             renewal:         'perm_staff',
             audit:           'perm_staff',
             settings:        'perm_settings',
+            whatsapp:        'perm_whatsapp',
+            notifications:   'perm_notifications',
         };
 
         document.querySelectorAll('.ni[data-page]').forEach(el => {
@@ -1717,6 +1854,28 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
             const allHidden = Array.from(items).every(i => i.style.display === 'none');
             if (allHidden) ns.style.display = 'none';
         });
+
+        // ── Action-level gates (hide specific buttons inside pages) ──
+        // me.actPerms comes from the server as a JSON object
+        const ap = me.actPerms || {};
+        document.querySelectorAll('[data-action]').forEach(el => {
+            const action = el.dataset.action;
+            // If explicitly set to false, hide the button
+            if (action && ap[action] === false) {
+                el.style.display = 'none';
+            }
+        });
+
+        // Also gate inline dynamically-rendered buttons via a global flag
+        // so renderStudents / renderFees etc can check it too
+        window._actPerms = ap;
+    }
+
+    // Helper any render function can call: canDo('collect_fee')
+    function canDo(action) {
+        if (!window._actPerms) return true; // admin / not set = allow all
+        const v = window._actPerms[action];
+        return v === undefined ? true : !!v; // undefined = not restricted
     }
 
     // ═══ NAVIGATION ═══
@@ -1733,7 +1892,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         el.addEventListener('click',()=>{if(el.dataset.page==='enroll'){openM('mEnroll');return;}navTo(el.dataset.page);});
     });
     function renderPage(p){
-        const map={dashboard:renderDash,students:renderStudents,seats:renderSeats,attendance:renderAtt,books:renderBooks,transactions:renderTx,fees:renderFees,invoices:renderInv,expenses:renderExp,analytics:renderAnal,whatsapp:renderWA,staff:renderStaff,staff_attendance:renderStaffAtt,renewal:renderRenewal,audit:renderAudit,notifications:renderNotifs,settings:renderSettings};
+        const map={dashboard:renderDash,students:renderStudents,seats:renderSeats,attendance:renderAtt,books:renderBooks,transactions:renderTx,fees:renderFees,invoices:renderInv,expenses:renderExp,analytics:renderAnal,whatsapp:renderWA,staff:renderStaff,staff_attendance:renderStaffAtt,renewal:renderRenewal,audit:renderAudit,notifications:renderNotifs,settings:renderSettings,biometric:renderBiometric};
         if(map[p])map[p]();
     }
 
@@ -1746,6 +1905,12 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         const pending=s.filter(x=>x.feeStatus==='pending');
         const overdue=s.filter(x=>x.feeStatus==='overdue');
         const totalRev=DB.invoices.reduce((a,i)=>a+i.paidAmt,0);
+        const liveInvs=DB.invoices.filter(i=>!!DB.students.find(x=>x.id===i.studentId));
+        const deadInvs=DB.invoices.filter(i=>!DB.students.find(x=>x.id===i.studentId));
+        const revLivePaid=liveInvs.filter(i=>i.status==='paid').reduce((a,i)=>a+i.paidAmt,0);
+        const revLivePartial=liveInvs.filter(i=>i.status==='partial').reduce((a,i)=>a+i.paidAmt,0);
+        const revFromDeleted=deadInvs.reduce((a,i)=>a+i.paidAmt,0);
+        const activeStudentRev=revLivePaid+revLivePartial;
         const totalExp=DB.expenses.reduce((a,e)=>a+e.amount,0);
         const issTx=DB.transactions.filter(t=>t.status!=='returned');
         const odTx=DB.transactions.filter(t=>t.status==='overdue');
@@ -1760,14 +1925,20 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
     <div class="al-card al-d"><span style="font-size:17px">🚨</span><div><div class="al-t">Fee Overdue Alert</div><div class="al-b">${overdue.length} students overdue — seats highlighted in red 🔴</div></div></div>
     <div class="al-card al-i"><span style="font-size:17px">🎁</span><div><div class="al-t">Discounts Applied</div><div class="al-b">${s.filter(x=>x.baseFee>x.netFee).length} students with discounts — ₹${totalDiscount.toLocaleString()} waived</div></div></div>`;
 
+        const bioCheckins = Object.values(_bioToday).filter(b=>b.in).length;
         document.getElementById('dashStats').innerHTML=`
     <div class="sc" style="--ca:var(--ac)"><div class="s-ic" style="background:var(--c-blue)"><span class="mi" style="color:var(--ac)">school</span></div><div class="s-lb">Total Students</div><div class="s-vl">${s.length}</div><div class="s-mt"><span class="bup">↑ 12%</span></div></div>
     <div class="sc" style="--ca:var(--em)"><div class="s-ic" style="background:var(--c-green)"><span class="mi" style="color:var(--em)">event_seat</span></div><div class="s-lb">Seats Available</div><div class="s-vl">${totalSeats-occSeats}</div><div class="s-mt">${occSeats}/${totalSeats} occupied</div></div>
-    <div class="sc" style="--ca:var(--gd)"><div class="s-ic" style="background:var(--c-amber)"><span class="mi" style="color:var(--gd)">payments</span></div><div class="s-lb">Revenue Collected</div><div class="s-vl">${fmt(totalRev)}</div><div class="s-mt"><span class="bup">incl. partial</span></div></div>
+    <div class="sc" style="--ca:var(--gd)"><div class="s-ic" style="background:var(--c-amber)"><span class="mi" style="color:var(--gd)">payments</span></div><div class="s-lb">Revenue Collected</div><div class="s-vl">${fmt(activeStudentRev)}</div><div class="s-mt" style="display:flex;flex-direction:column;gap:3px;margin-top:6px">
+      <span style="display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:600;color:#166534"><span style="width:6px;height:6px;border-radius:50%;background:#16a34a;flex-shrink:0"></span>₹${revLivePaid.toLocaleString('en-IN')} live · fully paid</span>
+      ${revLivePartial>0?`<span style="display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:600;color:#92400e"><span style="width:6px;height:6px;border-radius:50%;background:#d97706;flex-shrink:0"></span>₹${revLivePartial.toLocaleString('en-IN')} live · partial</span>`:''}
+      ${revFromDeleted>0?`<span style="display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:600;color:#9f1239;opacity:.75"><span style="width:6px;height:6px;border-radius:50%;background:#e11d48;flex-shrink:0"></span>₹${revFromDeleted.toLocaleString('en-IN')} deleted students</span>`:''}
+    </div></div>
     <div class="sc" style="--ca:var(--ro)"><div class="s-ic" style="background:var(--c-rose)"><span class="mi" style="color:var(--ro)">pending</span></div><div class="s-lb">Total Due</div><div class="s-vl">${fmt(allDue)}</div><div class="s-mt" style="color:var(--ro)">${[...pending,...overdue,...partial].length} students</div></div>
     <div class="sc" style="--ca:var(--or)"><div class="s-ic" style="background:var(--c-orange)"><span class="mi" style="color:var(--or)">redeem</span></div><div class="s-lb">Discounts Given</div><div class="s-vl">${fmt(totalDiscount)}</div><div class="s-mt">${s.filter(x=>x.baseFee>x.netFee).length} students</div></div>
     <div class="sc" style="--ca:var(--vi)"><div class="s-ic" style="background:var(--c-purple)"><span class="mi" style="color:var(--vi)">menu_book</span></div><div class="s-lb">Books Issued</div><div class="s-vl">${issTx.length}</div><div class="s-mt" style="color:var(--ro)">${odTx.length} overdue</div></div>
     <div class="sc" style="--ca:var(--sk)"><div class="s-ic" style="background:var(--c-sky)"><span class="mi" style="color:var(--sk)">fact_check</span></div><div class="s-lb">Attendance Today</div><div class="s-vl">${prsnt}</div><div class="s-mt" style="color:var(--em)">${s.length?Math.round(prsnt/s.length*100):0}%</div></div>
+    <div class="sc" style="--ca:#7c3aed;cursor:pointer" onclick="navTo('biometric')"><div class="s-ic" style="background:#faf5ff"><span class="mi" style="color:#7c3aed">fingerprint</span></div><div class="s-lb">Biometric Check-ins</div><div class="s-vl">${bioCheckins}</div><div class="s-mt" style="color:#7c3aed">today · via device</div></div>
     <div class="sc" style="--ca:var(--gd)"><div class="s-ic" style="background:var(--c-orange)"><span class="mi" style="color:var(--or)">trending_down</span></div><div class="s-lb">Monthly Expenses</div><div class="s-vl">${fmt(totalExp)}</div><div class="s-mt"><span class="bdn">↑ 3.1%</span></div></div>`;
 
         // ── BATCH SEAT AVAILABILITY WITH FEE STATUS ──
@@ -2012,12 +2183,12 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
       <td><span class="tag ${x.feeStatus==='paid'?'tpd':x.feeStatus==='partial'?'tpart':x.feeStatus==='pending'?'tpn':'tod'}">${x.feeStatus==='paid'?'✓ Paid':x.feeStatus==='partial'?'◑ Partial':x.feeStatus==='pending'?'⏳ Pending':'🚨 Overdue'}</span></td>
       <td><span style="font-size:10.5px;font-family:var(--fm);color:${x.feeStatus==='overdue'?'var(--ro)':x.feeStatus==='pending'?'var(--gd)':'var(--tx3)'}">${fmtDate(x.dueDate)}</span></td>
       <td><div style="display:flex;gap:4px">
-        ${x.feeStatus!=='paid'?`<button class="btn bp" style="font-size:10px;padding:3px 7px" onclick="qCollect('${x.id}')">Collect</button>`:''}
+        ${x.feeStatus!=='paid'&&canDo('collect_fee')?`<button class="btn bp" data-action="collect_fee" style="font-size:10px;padding:3px 7px" onclick="qCollect('${x.id}')">Collect</button>`:''}
         <button class="btn bg" style="font-size:10px;padding:3px 7px" onclick="openStudentProfile('${x.id}')">👤</button>
         <button class="btn bg" style="font-size:10px;padding:3px 7px" onclick="showStudentQR('${x.id}')" title="Student QR Code"><span class="mi sm">qr_code</span></button>
         <button class="btn bwa" style="font-size:10px;padding:3px 7px" onclick="waQuick('${x.id}','${x.feeStatus==='paid'?'fee_receipt':x.feeStatus==='partial'?'partial_payment':x.feeStatus==='overdue'?'fee_overdue':'fee_due'}')">💬</button>
         ${x.feeStatus!=='paid'?`<button class="btn bg" style="font-size:10px;padding:3px 7px;color:var(--ac);border-color:var(--ac)" onclick="sendUpiLink('${x.id}')">📱 UPI</button>`:''}
-        <button class="btn bd" style="font-size:10px;padding:3px 6px" onclick="delStu('${x.id}')"><span class="mi sm">close</span></button>
+        ${canDo('delete_student')?`<button class="btn bd" data-action="delete_student" style="font-size:10px;padding:3px 6px" onclick="delStu('${x.id}')"><span class="mi sm">close</span></button>`:''}
       </div></td>
     </tr>`;
         }).join('')||'<tr><td colspan="12"><div class="empty"><div class="ei">👨‍🎓</div><div class="et">No students</div></div></td></tr>';
@@ -2287,40 +2458,71 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
             const pct=Math.round(b.occupied/b.total*100);
             const fc=pct>=100?'sf-r':pct>=70?'sf-y':'sf-g';
             const sc=pct>=100?'bst-f':pct>=70?'bst-n':'bst-o';
+            const scLbl=pct>=100?'Full':pct>=70?'Filling':'Open';
             const bStudents=DB.students.filter(x=>x.batchId===b.id);
             const seatStudentMap={};bStudents.forEach(st=>{if(st.seat)seatStudentMap[st.seat]=st;});
+            // Improvement 6: count per status for summary chips
+            let cntVac=0,cntPaid=0,cntDue=0,cntOD=0;
             let cells='';
             for(let s=1;s<=b.total;s++){
-                const sn=seatLbl(b.name,s);const stu=seatStudentMap[sn];
-                let cls='seat-vac',ttText='Vacant: '+sn;
+                const sn=seatLbl(b.name,s);
+                const stu=seatStudentMap[sn];
+                // Improvement 2: student initials; Improvement 3: color fix
+                let cls='seat-vac',ttText='Vacant — click to assign',initials='+';
                 if(stu){
-                    if(stu.feeStatus==='overdue'){cls='seat-overdue';ttText=`🚨 ${stu.fname} — OVERDUE ₹${stu.netFee-stu.paidAmt}`;}
-                    else if(stu.feeStatus==='pending'){cls='seat-due';ttText=`⏳ ${stu.fname} — Pending ₹${stu.netFee}`;}
-                    else if(stu.feeStatus==='partial'){cls='seat-due';ttText=`🟠 ${stu.fname} — Partial, Due ₹${stu.netFee-stu.paidAmt}`;}
-                    else{cls='seat-occ';ttText=`✓ ${stu.fname} — Paid · Click to view`;}
-                }
+                    initials=(stu.fname[0]+(stu.lname?stu.lname[0]:'')).toUpperCase();
+                    if(stu.feeStatus==='overdue'){
+                        cls='seat-overdue';cntOD++;
+                        ttText=`🚨 ${stu.fname} ${stu.lname||''} · Overdue ₹${stu.netFee-stu.paidAmt}`;
+                    } else if(stu.feeStatus==='pending'){
+                        cls='seat-due';cntDue++;
+                        ttText=`⏳ ${stu.fname} ${stu.lname||''} · Pending ₹${stu.netFee}`;
+                    } else if(stu.feeStatus==='partial'){
+                        cls='seat-due';cntDue++;
+                        ttText=`🟠 ${stu.fname} ${stu.lname||''} · Partial ₹${stu.netFee-stu.paidAmt} due`;
+                    } else {
+                        cls='seat-occ';cntPaid++;
+                        ttText=`✓ ${stu.fname} ${stu.lname||''} · Paid · Click to view`;
+                    }
+                } else { cntVac++; }
                 const clickFn=stu?`openStudentProfile('${stu.id}')`:`openAllocSeatPrefilled('${b.id}','${sn}')`;
-                cells+=`<div class="seat-cell ${cls}" onclick="${clickFn}"><div class="seat-tooltip">${ttText}</div>${sn}</div>`;
+                // Improvement 1: bigger cell with seat-num + seat-init divs
+                cells+=`<div class="seat-cell ${cls}" onclick="${clickFn}"><div class="seat-tooltip">${ttText}</div><div class="seat-num">${sn}</div><div class="seat-init">${initials}</div></div>`;
             }
-            const bDue=bStudents.filter(x=>x.feeStatus!=='paid').length;
-            const bOD=bStudents.filter(x=>x.feeStatus==='overdue').length;
+            // summary chips — modern pill with Material Icon + dot + count
+            const chips=[
+                cntVac>0  ?`<span class="ss-chip ss-vac"><span class="ss-dot"></span><span class="ss-ic">event_seat</span><span class="ss-cnt">${cntVac}</span><span class="ss-lbl">Vacant</span></span>`:'',
+                cntPaid>0 ?`<span class="ss-chip ss-occ"><span class="ss-dot"></span><span class="ss-ic">check_circle</span><span class="ss-cnt">${cntPaid}</span><span class="ss-lbl">Paid</span></span>`:'',
+                cntDue>0  ?`<span class="ss-chip ss-due"><span class="ss-dot"></span><span class="ss-ic">schedule</span><span class="ss-cnt">${cntDue}</span><span class="ss-lbl">Pending</span></span>`:'',
+                cntOD>0   ?`<span class="ss-chip ss-od"><span class="ss-dot"></span><span class="ss-ic">warning</span><span class="ss-cnt">${cntOD}</span><span class="ss-lbl">Overdue</span></span>`:'',
+            ].filter(Boolean).join('');
+            const vacCount=b.total-b.occupied;
+            // Improvement 5: better batch header with icon card
             return `<div class="panel"><div class="ph">
-      <div><div style="font-weight:600;font-size:13px">${batchEmoji(b.name)} ${b.name}</div>
-      <div style="font-size:10px;color:var(--tx3);font-family:var(--fm)">${fmtT(b.startTime)}–${fmtT(b.endTime)} · Base ₹${b.baseFee} · AC +₹${b.acExtra}</div></div>
+      <div style="display:flex;align-items:center;gap:12px">
+        <div style="width:42px;height:42px;background:var(--c-green);border:1.5px solid var(--cg);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">${batchEmoji(b.name)}</div>
+        <div>
+          <div style="font-weight:800;font-size:14px;color:var(--tx)">${b.name}</div>
+          <div style="font-size:11px;color:var(--tx3);font-family:var(--fm);margin-top:2px">${fmtT(b.startTime)}–${fmtT(b.endTime)} · ₹${b.baseFee}/mo · AC +₹${b.acExtra}</div>
+        </div>
+      </div>
       <div style="display:flex;gap:7px;align-items:center">
-        <div class="bst ${sc}">${pct>=100?'Full':pct>=70?'Filling':'Open'}</div>
-        ${bOD>0?`<span style="font-size:9px;background:rgba(192,68,79,.15);color:var(--ro);padding:2px 6px;border-radius:3px;font-weight:700;animation:pulseDue 1s infinite">🚨${bOD} overdue</span>`:''}
-        ${bDue>bOD?`<span style="font-size:9px;background:rgba(230,126,34,.15);color:var(--or);padding:2px 6px;border-radius:3px;font-weight:700">🟠${bDue-bOD} due</span>`:''}
-        <button class="btn bg" style="font-size:10px;padding:3px 7px" onclick="editBatch(${i})">✏ Edit</button>
-        <button class="btn bd" style="font-size:10px;padding:3px 6px" onclick="delBatch(${i})"><span class="mi sm">close</span></button>
+        <div class="bst ${sc}">${scLbl}</div>
+        ${cntOD>0?`<span style="font-size:10px;background:var(--c-rose);border:1.5px solid var(--cr);color:#9f1239;padding:4px 9px;border-radius:8px;font-weight:700;animation:pulseDue 1s infinite">🚨 ${cntOD} Overdue</span>`:''}
+        ${cntDue>0?`<span style="font-size:10px;background:var(--c-amber);border:1.5px solid var(--ca2);color:#92400e;padding:4px 9px;border-radius:8px;font-weight:700">⏳ ${cntDue} Due</span>`:''}
+        <button class="btn bg" style="font-size:11px;padding:5px 10px" onclick="editBatch(${i})">✏ Edit</button>
+        <button class="btn bd" style="font-size:11px;padding:5px 8px" onclick="delBatch(${i})"><span class="mi sm">close</span></button>
       </div>
     </div>
     <div class="pb">
-      <div class="sbar"><div class="sfill ${fc}" style="width:${pct}%"></div></div>
-      <div style="display:flex;justify-content:space-between;font-size:10px;font-family:var(--fm);color:var(--tx3);margin-bottom:12px">
-        <span>Total:<b>${b.total}</b></span><span style="color:var(--ro)">Occupied:<b>${b.occupied}</b></span><span style="color:var(--em)">Vacant:<b>${b.total-b.occupied}</b></span>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+        <span style="font-size:12px;font-weight:700;color:var(--em)">${vacCount} Vacant</span>
+        <span style="font-size:12px;font-weight:700;color:var(--ac)">${b.occupied} Occupied</span>
+        <span style="font-size:12px;font-weight:700;color:var(--tx3)">${b.total} Total</span>
       </div>
+      <div class="sbar"><div class="sfill ${fc}" style="width:${pct}%"></div></div>
       <div class="seat-visual">${cells}</div>
+      ${chips?`<div class="seat-summary">${chips}</div>`:''}
     </div></div>`;
         }).join('');
     }
@@ -2405,24 +2607,46 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
     }
 
     // ═══ ATTENDANCE ═══
+    // Stores today's biometric check-in/out per student_id
+    const _bioToday = {};
+
     function renderAtt(){
         const today=new Date().toLocaleDateString('en-IN',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
         document.getElementById('attLbl').textContent=`Date: ${today}`;
         const bf=gv('attBatchF');
         const list=DB.students.filter(s=>bf==='all'||s.batchId===bf);
         const prs=list.filter(s=>DB.attendance[s.id]==='present').length;
-        document.getElementById('at-p').textContent=prs;document.getElementById('at-a').textContent=list.length-prs;
+        document.getElementById('at-p').textContent=prs;
+        document.getElementById('at-a').textContent=list.length-prs;
         document.getElementById('at-r').textContent=list.length?Math.round(prs/list.length*100)+'%':'0%';
         document.getElementById('at-t').textContent=list.length;
         document.getElementById('attTable').innerHTML=list.map(s=>{
             const st=DB.attendance[s.id]||'absent';
-            return `<tr><td><div class="si"><div class="sav" style="background:${s.color}">${s.fname[0]+s.lname[0]}</div><div><div style="font-weight:600;font-size:12.5px">${s.fname} ${s.lname}</div><div style="font-size:10px;color:var(--tx3);font-family:var(--fm)">${s.id}</div></div></div></td>
-    <td>${bTag(s.batchId)}</td><td><span style="font-family:var(--fm);font-size:11px">${s.seat||'—'}</span></td>
-    <td><span class="tag ${s.feeStatus==='paid'?'tpd':s.feeStatus==='partial'?'tpart':s.feeStatus==='pending'?'tpn':'tod'}">${s.feeStatus==='paid'?'✓ Paid':s.feeStatus==='partial'?'◑ Partial':s.feeStatus==='pending'?'⏳ Pending':'🚨 Overdue'}</span></td>
-    <td><span class="tag ${st==='present'?'tpd':'tod'}">${st==='present'?'✓ Present':'✗ Absent'}</span></td>
-    <td><button class="btn ${st==='present'?'bd':'bp'}" style="font-size:10.5px;padding:4px 10px" onclick="togAtt('${s.id}')">${st==='present'?'Absent':'Present'}</button></td></tr>`;
-        }).join('')||'<tr><td colspan="6"><div class="empty"><div class="ei">📋</div><div class="et">No students</div></div></td></tr>';
-        // Load QR scan feed
+            const bio=_bioToday[s.id]||{};
+            const checkIn=bio.in||'—';
+            const checkOut=bio.out||'—';
+            // Calculate hours studied
+            let hrs='—';
+            if(bio.in && bio.out){
+                const [ih,im]=bio.in.split(':').map(Number);
+                const [oh,om]=bio.out.split(':').map(Number);
+                const mins=(oh*60+om)-(ih*60+im);
+                if(mins>0) hrs=Math.floor(mins/60)+'h '+(mins%60)+'m';
+            }
+            const bioMark=bio.in?`<span style="font-size:9px;background:#dcfce7;border:1px solid #a3e8d4;color:#166534;padding:1px 5px;border-radius:4px;font-weight:700;font-family:var(--fm)">🖐️</span>`:'';
+            return `<tr>
+            <td><div class="si"><div class="sav" style="background:${s.color}">${s.fname[0]+s.lname[0]}</div><div><div style="font-weight:600;font-size:12.5px">${s.fname} ${s.lname} ${bioMark}</div><div style="font-size:10px;color:var(--tx3);font-family:var(--fm)">${s.id}</div></div></div></td>
+            <td>${bTag(s.batchId)}</td>
+            <td><span style="font-family:var(--fm);font-size:11px">${s.seat||'—'}</span></td>
+            <td><span class="tag ${s.feeStatus==='paid'?'tpd':s.feeStatus==='partial'?'tpart':s.feeStatus==='pending'?'tpn':'tod'}">${s.feeStatus==='paid'?'✓ Paid':s.feeStatus==='partial'?'◑ Partial':s.feeStatus==='pending'?'⏳ Pending':'🚨 Overdue'}</span></td>
+            <td><span style="font-family:var(--fm);font-size:11px;font-weight:700;color:${bio.in?'var(--em)':'var(--tx3)'}">${checkIn}</span></td>
+            <td><span style="font-family:var(--fm);font-size:11px;font-weight:700;color:${bio.out?'var(--ro)':'var(--tx3)'}">${checkOut}</span></td>
+            <td><span style="font-family:var(--fm);font-size:11px;font-weight:700;color:var(--ac)">${hrs}</span></td>
+            <td><span class="tag ${st==='present'?'tpd':'tod'}">${st==='present'?'✓ Present':'✗ Absent'}</span></td>
+            <td><button class="btn ${st==='present'?'bd':'bp'}" style="font-size:10.5px;padding:4px 10px" onclick="togAtt('${s.id}')">${st==='present'?'Absent':'Present'}</button></td>
+            </tr>`;
+        }).join('')||'<tr><td colspan="9"><div class="empty"><div class="ei">📋</div><div class="et">No students</div></div></td></tr>';
+        // Load QR feed (biometric loaded separately by loadAttBiometric)
         loadQRScans();
     }
     function togAtt(id){DB.attendance[id]=DB.attendance[id]==='present'?'absent':'present';renderAtt();}
@@ -2524,7 +2748,9 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         const s=DB.students;
         const paid=s.filter(x=>x.feeStatus==='paid');const partial=s.filter(x=>x.feeStatus==='partial');
         const pend=s.filter(x=>x.feeStatus==='pending');const od=s.filter(x=>x.feeStatus==='overdue');
-        document.getElementById('fc-c').textContent=fmt(DB.invoices.reduce((a,i)=>a+i.paidAmt,0));document.getElementById('fc-cm').textContent=`${paid.length} fully paid`;
+        const activeIds = new Set(s.map(x=>x.id));
+        const activeInvs = DB.invoices.filter(i => activeIds.has(i.studentId));
+        document.getElementById('fc-c').textContent=fmt(activeInvs.reduce((a,i)=>a+i.paidAmt,0));document.getElementById('fc-cm').textContent=`${paid.length} fully paid`;
         document.getElementById('fc-pp').textContent=partial.length;document.getElementById('fc-ppm').textContent=`₹${partial.reduce((a,x)=>a+(x.netFee-x.paidAmt),0).toLocaleString()} balance due`;
         document.getElementById('fc-p').textContent=fmt(pend.reduce((a,x)=>a+x.netFee,0));document.getElementById('fc-pm').textContent=`${pend.length} students`;
         document.getElementById('fc-o').textContent=fmt(od.reduce((a,x)=>a+x.netFee,0));document.getElementById('fc-om').textContent=`${od.length} students (>7 days)`;
@@ -2660,6 +2886,56 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
     function renderInv(){
         document.getElementById('invCount').textContent=`${DB.invoices.length} invoice(s)`;
         document.getElementById('gi-stu').innerHTML='<option value="">-- Select --</option>'+DB.students.map(s=>`<option value="${s.id}">${s.fname} ${s.lname}</option>`).join('');
+        // ── Invoice revenue summary bar ──
+        const _liveInvs = DB.invoices.filter(i=> !!DB.students.find(x=>x.id===i.studentId));
+        const _deadInvs = DB.invoices.filter(i=> !DB.students.find(x=>x.id===i.studentId));
+        const _livePaid        = _liveInvs.filter(i=>i.status==='paid').reduce((a,i)=>a+i.paidAmt,0);
+        const _livePartial     = _liveInvs.filter(i=>i.status==='partial').reduce((a,i)=>a+i.paidAmt,0);
+        const _livePartialBal  = _liveInvs.filter(i=>i.status==='partial').reduce((a,i)=>a+i.balance,0);
+        const _livePaidCnt     = _liveInvs.filter(i=>i.status==='paid').length;
+        const _livePartialCnt  = _liveInvs.filter(i=>i.status==='partial').length;
+        const _liveTotal = _livePaid + _livePartial;
+        const _deletedRev   = _deadInvs.reduce((a,i)=>a+i.paidAmt,0);
+        const _deletedCount = _deadInvs.length;
+        const _summaryEl=document.getElementById('invRevSummary');
+        if(_summaryEl) _summaryEl.innerHTML=`
+        <div style="display:flex;flex-wrap:wrap;gap:10px;padding:13px 18px;background:var(--sf2);border-bottom:1px solid var(--br);align-items:center">
+
+          <div style="display:flex;align-items:center;gap:9px;padding:8px 16px;background:linear-gradient(135deg,#f0fdf4,#dcfce7);border:2px solid #86efac;border-radius:22px;box-shadow:0 2px 8px rgba(22,163,74,.15)">
+            <span class="mi sm" style="color:#15803d">person</span>
+            <div>
+              <div style="font-size:9px;font-family:var(--fm);font-weight:700;color:#15803d;letter-spacing:.8px;text-transform:uppercase;line-height:1">Live Students</div>
+              <div style="font-size:15px;font-weight:800;color:#14532d;font-family:var(--fm);line-height:1.3">₹${_liveTotal.toLocaleString('en-IN')}</div>
+            </div>
+          </div>
+
+          <div style="width:1px;height:32px;background:var(--br);flex-shrink:0"></div>
+
+          <div style="display:flex;align-items:center;gap:7px;padding:7px 13px;background:#fff;border:1.5px solid var(--cg);border-radius:20px;box-shadow:0 1px 3px rgba(0,0,0,.06)">
+            <span style="width:8px;height:8px;border-radius:50%;background:#16a34a;box-shadow:0 0 0 2px rgba(22,163,74,.2);flex-shrink:0"></span>
+            <div>
+              <div style="font-size:11.5px;font-weight:800;color:#15803d;font-family:var(--fm);line-height:1">₹${_livePaid.toLocaleString('en-IN')}</div>
+              <div style="font-size:9px;color:var(--tx3);line-height:1.4">Fully Paid · ${_livePaidCnt} invoice${_livePaidCnt!==1?'s':''}</div>
+            </div>
+          </div>
+
+          ${_livePartial>0?`<div style="display:flex;align-items:center;gap:7px;padding:7px 13px;background:#fff;border:1.5px solid var(--ca2);border-radius:20px;box-shadow:0 1px 3px rgba(0,0,0,.06)">
+            <span style="width:8px;height:8px;border-radius:50%;background:#d97706;box-shadow:0 0 0 2px rgba(217,119,6,.2);flex-shrink:0"></span>
+            <div>
+              <div style="font-size:11.5px;font-weight:800;color:#92400e;font-family:var(--fm);line-height:1">₹${_livePartial.toLocaleString('en-IN')}</div>
+              <div style="font-size:9px;color:var(--tx3);line-height:1.4">Partial · ${_livePartialCnt} invoice${_livePartialCnt!==1?'s':''} · <span style="color:var(--ro);font-weight:600">₹${_livePartialBal.toLocaleString('en-IN')} still due</span></div>
+            </div>
+          </div>`:''}
+
+          ${_deletedRev>0?`<div style="display:flex;align-items:center;gap:7px;padding:7px 13px;background:#fff8f8;border:1.5px dashed rgba(192,68,79,.45);border-radius:20px;box-shadow:0 1px 3px rgba(0,0,0,.05);opacity:.85">
+            <span class="mi sm" style="color:#c0444f">person_remove</span>
+            <div>
+              <div style="font-size:11.5px;font-weight:800;color:#9f1239;font-family:var(--fm);line-height:1">₹${_deletedRev.toLocaleString('en-IN')}</div>
+              <div style="font-size:9px;color:var(--tx3);line-height:1.4">${_deletedCount} deleted student invoice${_deletedCount!==1?'s':''}</div>
+            </div>
+          </div>`:''}
+
+        </div>`;
         document.getElementById('invTable').innerHTML=DB.invoices.length?DB.invoices.map(inv=>{
             const s=DB.students.find(x=>x.id===inv.studentId);
             const deleted=!s;
@@ -2867,20 +3143,153 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
     function renderWASendLog(){const el=document.getElementById('waSendLog');if(!el)return;el.innerHTML=DB.waSendLog.slice(-8).reverse().map(l=>`<div style="display:flex;align-items:center;gap:7px;padding:5px 8px;background:var(--sf2);border-radius:var(--r2);font-size:11px"><span style="color:var(--wa2);font-weight:600;flex-shrink:0">${l.time}</span><span style="color:var(--tx2);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${l.to}</span><span class="tag twa" style="font-size:9px">${l.type}</span></div>`).join('')||'<div style="font-size:11px;color:var(--tx3);text-align:center;padding:10px">No messages sent yet</div>';}
 
     // ═══ STAFF ═══
-    const PERMS=[{key:'students',label:'Manage Students'},{key:'fees',label:'Fee Management'},{key:'books',label:'Books & Transactions'},{key:'expenses',label:'Expenses'},{key:'reports',label:'Reports'},{key:'staff',label:'Staff Mgmt'},{key:'settings',label:'Settings'}];
-    const ROLE_PERMS={admin:{students:true,fees:true,books:true,expenses:true,reports:true,staff:true,settings:true},librarian:{students:true,fees:false,books:true,expenses:false,reports:true,staff:false,settings:false},accountant:{students:false,fees:true,books:false,expenses:true,reports:true,staff:false,settings:false},receptionist:{students:true,fees:false,books:false,expenses:false,reports:false,staff:false,settings:false}};
+    const PERMS=[
+      {key:'students',      label:'Students',       desc:'Enroll, edit, seat & attendance',  icon:'school'},
+      {key:'fees',          label:'Fees',            desc:'Payments, invoices & renewals',     icon:'payments'},
+      {key:'books',         label:'Books',           desc:'Catalog, issue & return',           icon:'menu_book'},
+      {key:'expenses',      label:'Expenses',        desc:'Add & view expense records',        icon:'receipt'},
+      {key:'reports',       label:'Reports',         desc:'Analytics & export data',           icon:'bar_chart'},
+      {key:'staff',         label:'Staff',           desc:'Add/edit staff & salary',           icon:'manage_accounts'},
+      {key:'whatsapp',      label:'WhatsApp',        desc:'Messaging & bulk sends',            icon:'chat'},
+      {key:'notifications', label:'Notifications',   desc:'System alerts & notices',           icon:'notifications'},
+      {key:'settings',      label:'Settings',        desc:'Library config & branding',         icon:'settings'},
+    ];
+    const ROLE_PERMS={admin:{students:true,fees:true,books:true,expenses:true,reports:true,staff:true,whatsapp:true,notifications:true,settings:true},librarian:{students:true,fees:false,books:true,expenses:false,reports:true,staff:false,whatsapp:false,notifications:true,settings:false},accountant:{students:false,fees:true,books:false,expenses:true,reports:true,staff:false,whatsapp:false,notifications:true,settings:false},receptionist:{students:true,fees:false,books:false,expenses:false,reports:false,staff:false,whatsapp:true,notifications:true,settings:false}};
+
+    // ── Action-level permissions ──
+    const ACTION_PERMS = [
+      {key:'enroll_student',    label:'Enroll Student',     desc:'Add new students',             icon:'person_add',     module:'students'},
+      {key:'delete_student',    label:'Delete Student',     desc:'Remove student records',       icon:'person_remove',  module:'students'},
+      {key:'alloc_seat',        label:'Allocate Seat',      desc:'Assign & change seats',        icon:'event_seat',     module:'students'},
+      {key:'collect_fee',       label:'Collect Fee',        desc:'Mark payments & UPI',          icon:'payments',       module:'fees'},
+      {key:'apply_discount',    label:'Apply Discount',     desc:'Give fee discounts',           icon:'redeem',         module:'fees'},
+      {key:'generate_invoice',  label:'Generate Invoice',   desc:'Create new invoices',          icon:'receipt_long',   module:'fees'},
+      {key:'issue_book',        label:'Issue Book',         desc:'Issue books to students',      icon:'upload',         module:'books'},
+      {key:'return_book',       label:'Return Book',        desc:'Process book returns',         icon:'download',       module:'books'},
+      {key:'add_book',          label:'Add Book',           desc:'Add titles to catalog',        icon:'menu_book',      module:'books'},
+      {key:'add_expense',       label:'Add Expense',        desc:'Log expense records',          icon:'receipt',        module:'expenses'},
+      {key:'send_whatsapp',     label:'Send WhatsApp',      desc:'Bulk & individual messages',   icon:'chat',           module:'whatsapp'},
+      {key:'add_staff',         label:'Add / Edit Staff',   desc:'Manage staff accounts',        icon:'manage_accounts',module:'staff'},
+      {key:'add_batch',         label:'Add / Edit Batch',   desc:'Create & modify batches',      icon:'groups',         module:'students'},
+      {key:'reset_data',        label:'Reset Data',         desc:'Factory reset — dangerous',    icon:'restart_alt',    module:'settings'},
+    ];
+
+    // Default action perms per role (all true for admin, sensible defaults for others)
+    const ROLE_ACTION_PERMS = {
+      admin:       Object.fromEntries(ACTION_PERMS.map(a=>[a.key,true])),
+      librarian:   {enroll_student:false,delete_student:false,alloc_seat:true,collect_fee:false,apply_discount:false,generate_invoice:false,issue_book:true,return_book:true,add_book:true,add_expense:false,send_whatsapp:false,add_staff:false,add_batch:false,reset_data:false},
+      accountant:  {enroll_student:false,delete_student:false,alloc_seat:false,collect_fee:true,apply_discount:true,generate_invoice:true,issue_book:false,return_book:false,add_book:false,add_expense:true,send_whatsapp:false,add_staff:false,add_batch:false,reset_data:false},
+      receptionist:{enroll_student:true,delete_student:false,alloc_seat:true,collect_fee:true,apply_discount:false,generate_invoice:false,issue_book:false,return_book:false,add_book:false,add_expense:false,send_whatsapp:true,add_staff:false,add_batch:false,reset_data:false},
+    };
     function renderStaff(){
         document.getElementById('staffCount').textContent=`${DB.staff.length} staff`;
         document.getElementById('staffTable').innerHTML=DB.staff.map((sf,i)=>{const pc=Object.values(sf.perms).filter(Boolean).length;
             return `<tr><td><div class="si"><div class="sav" style="background:linear-gradient(135deg,var(--ac),var(--vi))">${sf.name.split(' ').map(n=>n[0]).join('').slice(0,2)}</div><div><div style="font-weight:600;font-size:12.5px">${sf.name}</div><div style="font-size:10px;color:var(--tx3);font-family:var(--fm)">${sf.id}</div></div></div></td>
     <td><span class="tag tac" style="text-transform:capitalize">${sf.role}</span></td><td>${sf.email}</td><td>${sf.phone}</td>
-    <td><span style="font-family:var(--fm);font-size:11px">${pc}/7 perms</span></td><td><span class="tag tpd">Active</span></td>
+    <td><div style="display:flex;flex-direction:column;gap:4px">
+      <div style="display:flex;flex-wrap:wrap;gap:3px">${PERMS.filter(p=>sf.perms[p.key]).map(p=>`<span title="Page: ${p.label}" style="display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;background:rgba(61,111,240,.09);border:1px solid rgba(61,111,240,.2);border-radius:6px"><span class="mi" style="font-size:12px;color:var(--ac)">${p.icon}</span></span>`).join('')}${pc===0?'<span style="font-size:10px;color:var(--tx3);font-style:italic">No pages</span>':''}</div>
+      <div style="display:flex;flex-wrap:wrap;gap:3px">${ACTION_PERMS.filter(a=>(sf.actPerms||{})[a.key]).map(a=>`<span title="Action: ${a.label}" style="display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;background:rgba(124,58,237,.08);border:1px solid rgba(124,58,237,.2);border-radius:6px"><span class="mi" style="font-size:12px;color:var(--vi)">${a.icon}</span></span>`).join('')||'<span style="font-size:9px;color:var(--tx3);font-style:italic">No actions</span>'}</div>
+    </div></td><td><span class="tag tpd">Active</span></td>
     <td><div style="display:flex;gap:4px"><button class="btn bg" style="font-size:10px;padding:3px 7px" onclick="editStaff(${i})">✏</button>${i>0?`<button class="btn bd" style="font-size:10px;padding:3px 6px" onclick="delStaff(${i})"><span class="mi sm">close</span></button>`:''}</div></td></tr>`;
         }).join('')||'<tr><td colspan="7"><div class="empty"><div class="ei">👥</div><div class="et">No staff</div></div></td></tr>';
     }
-    function buildPermList(){const role=gv('sf-rl')||'librarian';const d=ROLE_PERMS[role];document.getElementById('permList').innerHTML=PERMS.map(p=>`<div class="perm-row"><div><div style="font-size:13px;font-weight:500">${p.label}</div></div><label class="toggle-wrap"><input type="checkbox" id="perm-${p.key}" class="toggle-inp" ${d[p.key]?'checked':''}><span class="toggle-sl"></span></label></div>`).join('');}
+    function buildPermList(){
+      const role=gv('sf-rl')||'librarian';
+      const d=ROLE_PERMS[role];
+      const da=ROLE_ACTION_PERMS[role]||{};
+      const isAdmin=role==='admin';
+
+      // helper: render one permission card (works for both module & action perms)
+      function permCard(key,label,desc,icon,on,disabled,idPrefix){
+        return `<label style="display:flex;align-items:center;gap:10px;padding:10px 13px;background:${on?'rgba(61,111,240,.05)':'var(--sf2)'};border:1.5px solid ${on?'rgba(61,111,240,.25)':'var(--br)'};border-radius:var(--r2);cursor:${disabled?'default':'pointer'};transition:all .18s" class="perm-card-lbl">
+          <div style="width:32px;height:32px;border-radius:8px;background:${on?'rgba(61,111,240,.1)':'var(--sf3)'};display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .18s">
+            <span class="mi sm" style="color:${on?'var(--ac)':'var(--tx3)'}">${icon}</span>
+          </div>
+          <div style="flex:1;min-width:0">
+            <div style="font-size:12px;font-weight:700;color:${on?'var(--tx)':'var(--tx2)'}">${label}</div>
+            <div style="font-size:9.5px;color:var(--tx3);line-height:1.3;margin-top:1px">${desc}</div>
+          </div>
+          <label class="toggle-wrap" onclick="event.stopPropagation();setTimeout(()=>refreshPermCards(),10)" style="flex-shrink:0">
+            <input type="checkbox" id="${idPrefix}${key}" class="toggle-inp" ${on?'checked':''} ${disabled?'disabled':''}>
+            <span class="toggle-sl"></span>
+          </label>
+        </label>`;
+      }
+
+      const adminBanner = `<div style="margin-top:8px;padding:7px 11px;background:rgba(61,111,240,.06);border:1px solid rgba(61,111,240,.2);border-radius:var(--r2);font-size:11px;color:var(--ac);display:flex;align-items:center;gap:6px"><span class="mi sm">verified_user</span>Admin has full access — all permissions locked.</div>`;
+
+      // Group action perms by module for cleaner display
+      const actionModules = [...new Set(ACTION_PERMS.map(a=>a.module))];
+
+      document.getElementById('permList').innerHTML=`
+        <!-- ── Section 1: Module Access ── -->
+        <div style="display:flex;align-items:center;gap:8px;margin:10px 0 8px">
+          <span class="mi sm" style="color:var(--ac)">grid_view</span>
+          <span style="font-size:11px;font-weight:700;color:var(--tx2);text-transform:uppercase;letter-spacing:.8px;font-family:var(--fm)">Module Access</span>
+          <div style="flex:1;height:1px;background:var(--br)"></div>
+          <span style="font-size:9.5px;color:var(--tx3)">Show / hide full pages</span>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          ${PERMS.map(p=>permCard(p.key,p.label,p.desc,p.icon,isAdmin?true:d[p.key],isAdmin,'perm-')).join('')}
+        </div>
+        ${isAdmin?adminBanner:''}
+
+        <!-- ── Section 2: Action Controls ── -->
+        <div style="display:flex;align-items:center;gap:8px;margin:16px 0 8px">
+          <span class="mi sm" style="color:var(--vi)">tune</span>
+          <span style="font-size:11px;font-weight:700;color:var(--tx2);text-transform:uppercase;letter-spacing:.8px;font-family:var(--fm)">Action Controls</span>
+          <div style="flex:1;height:1px;background:var(--br)"></div>
+          <span style="font-size:9.5px;color:var(--tx3)">Show / hide specific buttons</span>
+        </div>
+        ${actionModules.map(mod=>{
+          const modActions = ACTION_PERMS.filter(a=>a.module===mod);
+          const modLabel = mod.charAt(0).toUpperCase()+mod.slice(1);
+          return `<div style="margin-bottom:10px">
+            <div style="font-size:10px;font-weight:600;color:var(--tx3);font-family:var(--fm);text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px;padding-left:2px">${modLabel}</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+              ${modActions.map(a=>permCard(a.key,a.label,a.desc,a.icon,isAdmin?true:da[a.key],isAdmin,'act-')).join('')}
+            </div>
+          </div>`;
+        }).join('')}
+        ${isAdmin?'':'<div style="padding:7px 11px;background:rgba(124,58,237,.05);border:1px solid rgba(124,58,237,.2);border-radius:var(--r2);font-size:10.5px;color:var(--vi);display:flex;align-items:center;gap:6px"><span class="mi sm">info</span>Action controls work inside pages the staff member can already access.</div>'}
+      `;
+    }
+    function refreshPermCards(){
+      function syncCard(cb){
+        const card=cb?.closest('label.perm-card-lbl');
+        if(!cb||!card)return;
+        const on=cb.checked;
+        card.style.background=on?'rgba(61,111,240,.05)':'var(--sf2)';
+        card.style.borderColor=on?'rgba(61,111,240,.25)':'var(--br)';
+        const ic=card.querySelector('.mi.sm');
+        if(ic)ic.style.color=on?'var(--ac)':'var(--tx3)';
+        const icBox=card.querySelector('div[style*="32px"]');
+        if(icBox)icBox.style.background=on?'rgba(61,111,240,.1)':'var(--sf3)';
+        const lbl=card.querySelector('div[style*="font-weight:700"]');
+        if(lbl)lbl.style.color=on?'var(--tx)':'var(--tx2)';
+      }
+      PERMS.forEach(p=>syncCard(document.getElementById('perm-'+p.key)));
+      ACTION_PERMS.forEach(a=>syncCard(document.getElementById('act-'+a.key)));
+    }
     function setDefaultPerms(){buildPermList();}
-    function editStaff(idx){editStaffIdx=idx;const sf=DB.staff[idx];document.getElementById('staffModalTitle').textContent='✏ Edit Staff';document.getElementById('staffSaveBtn').textContent='Save';document.getElementById('sf-nm').value=sf.name;document.getElementById('sf-rl').value=sf.role;document.getElementById('sf-em').value=sf.email;document.getElementById('sf-ph').value=sf.phone;document.getElementById('sf-un').value=sf.username;buildPermList();PERMS.forEach(p=>{const el=document.getElementById('perm-'+p.key);if(el)el.checked=sf.perms[p.key];});openM('mAddStaff');}
+    function editStaff(idx){
+      editStaffIdx=idx;
+      const sf=DB.staff[idx];
+      document.getElementById('staffModalTitle').textContent='✏ Edit Staff';
+      document.getElementById('staffSaveBtn').textContent='Save';
+      document.getElementById('sf-nm').value=sf.name;
+      document.getElementById('sf-rl').value=sf.role;
+      document.getElementById('sf-em').value=sf.email;
+      document.getElementById('sf-ph').value=sf.phone;
+      document.getElementById('sf-un').value=sf.username;
+      buildPermList();
+      // Restore module perms
+      PERMS.forEach(p=>{const el=document.getElementById('perm-'+p.key);if(el)el.checked=!!sf.perms[p.key];});
+      // Restore action perms
+      ACTION_PERMS.forEach(a=>{const el=document.getElementById('act-'+a.key);if(el)el.checked=!!(sf.actPerms||{})[a.key];});
+      refreshPermCards();
+      openM('mAddStaff');
+    }
     // delStaff is defined below as an async function (API-backed with local fallback)
     // saveStaff is defined below as an async function (API-backed with local fallback)
 
@@ -3203,17 +3612,19 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         if (!nm || !rl || !em) return toast('Fill required', 'er');
         const perms = {};
         PERMS.forEach(p => { const el=document.getElementById('perm-'+p.key); perms[p.key]=el?el.checked:false; });
+        const actPerms = {};
+        ACTION_PERMS.forEach(a => { const el=document.getElementById('act-'+a.key); actPerms[a.key]=el?el.checked:false; });
         const payload = {
             name: nm, role: rl, email: em,
-            phone: gv('sf-ph'), username: gv('sf-un'), password: gv('sf-pw'), perms
+            phone: gv('sf-ph'), username: gv('sf-un'), password: gv('sf-pw'), perms, actPerms
         };
         if (editStaffIdx >= 0) payload.id = DB.staff[editStaffIdx].id;
 
         // Optimistically update local DB first so table shows immediately
         if (editStaffIdx >= 0) {
-            Object.assign(DB.staff[editStaffIdx], { name: nm, role: rl, email: em, phone: gv('sf-ph'), username: gv('sf-un'), perms });
+            Object.assign(DB.staff[editStaffIdx], { name: nm, role: rl, email: em, phone: gv('sf-ph'), username: gv('sf-un'), perms, actPerms });
         } else {
-            DB.staff.push({ id: 'SF-' + Date.now(), name: nm, role: rl, email: em, phone: gv('sf-ph'), username: gv('sf-un') || nm.split(' ')[0].toLowerCase(), perms, status: 'active' });
+            DB.staff.push({ id: 'SF-' + Date.now(), name: nm, role: rl, email: em, phone: gv('sf-ph'), username: gv('sf-un') || nm.split(' ')[0].toLowerCase(), perms, actPerms, status: 'active' });
         }
         toast(editStaffIdx >= 0 ? `${nm} updated!` : `${nm} added!`, 'ok');
         editStaffIdx = -1;
@@ -3328,6 +3739,8 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
     // ── SETTINGS PAGE: populate from DB ──
     function renderSettings() {
         const s = DB.settings;
+        // Load biometric device panel
+        loadSettingsBio();
         const map = {
             's-name':  s.name  ?? '',
             's-phone': s.phone ?? '',
@@ -4232,6 +4645,180 @@ Thank you! 📚
         toast('WhatsApp opened!', 'wa');
         closeM('mUpiLink');
         addActivity('📱', 'rgba(79,142,247,.14)', `UPI link sent to <strong>${s.fname}</strong> via WhatsApp`);
+    }
+
+
+    // ═══════════════════════════════════════════════════════════════
+    // ═══ BIOMETRIC DEVICE MANAGEMENT ════════════════════════════════
+    // ═══════════════════════════════════════════════════════════════
+    async function renderBiometric() {
+        const admsUrl = window.location.origin + window.location.pathname.replace(/\/[^/]*$/, '/iclock.php');
+        ['admsUrl','settAdmsUrl'].forEach(id => { const el=document.getElementById(id); if(el) el.value=admsUrl; });
+        await loadBiometric();
+        await loadSettingsBio();
+    }
+
+    async function loadBiometric() {
+        try {
+            const res = await apiGet('get_biometric_devices');
+            const devices = res.devices || [];
+            const today = new Date().toISOString().split('T')[0];
+            const pr = await apiGet('get_biometric_punches', { date: today });
+            const punches = pr.punches || [];
+
+            // Device cards
+            const dc = document.getElementById('bioDeviceCards');
+            if (dc) {
+                dc.innerHTML = devices.length ? devices.map(d => {
+                    const on = d.status === 'online';
+                    const ls = d.last_seen ? timeSince(d.last_seen.replace(' ','T')) : 'Never';
+                    return `<div class="panel" style="padding:0;overflow:hidden">
+                        <div style="padding:14px 16px;background:${on?'#f0fdf4':'#fef2f2'};border-bottom:1px solid ${on?'#a3e8d4':'#fca5a5'};display:flex;align-items:center;justify-content:space-between">
+                            <div style="display:flex;align-items:center;gap:10px">
+                                <div style="width:36px;height:36px;background:${on?'#dcfce7':'#fee2e2'};border:1.5px solid ${on?'#a3e8d4':'#fca5a5'};border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px">🖐️</div>
+                                <div><div style="font-size:14px;font-weight:800;color:var(--tx)">${d.device_name||d.serial_number}</div><div style="font-size:10px;color:var(--tx3);font-family:var(--fm)">SN: ${d.serial_number}</div></div>
+                            </div>
+                            <span style="font-size:11px;font-weight:700;padding:4px 10px;border-radius:20px;background:${on?'#dcfce7':'#fee2e2'};border:1.5px solid ${on?'#a3e8d4':'#fca5a5'};color:${on?'#166634':'#991b1b'}">${on?'🟢 Online':'🔴 Offline'}</span>
+                        </div>
+                        <div style="padding:12px 16px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+                            <div style="text-align:center"><div style="font-size:10px;color:var(--tx3);font-weight:600">IP Address</div><div style="font-size:12px;font-weight:700;font-family:var(--fm)">${d.ip_address||'—'}</div></div>
+                            <div style="text-align:center"><div style="font-size:10px;color:var(--tx3);font-weight:600">Last Seen</div><div style="font-size:12px;font-weight:700">${ls}</div></div>
+                            <div style="text-align:center"><div style="font-size:10px;color:var(--tx3);font-weight:600">Total Punches</div><div style="font-size:12px;font-weight:700;color:var(--ac)">${d.total_punches||0}</div></div>
+                        </div>
+                    </div>`;
+                }).join('') : '<div style="text-align:center;padding:28px;color:var(--tx3);font-size:13px;grid-column:1/-1">⚙️ No devices connected yet.<br><br>Configure your eSSL X990 or RS9N with the ADMS URL shown above.</div>';
+            }
+
+            // Punch log
+            const pl = document.getElementById('bioPunchList');
+            const pc = document.getElementById('bioPunchCount');
+            if (pc) pc.textContent = punches.length + ' punches today';
+            if (pl) {
+                pl.innerHTML = punches.length ? punches.slice(0,50).map(p => {
+                    const stu = DB.students.find(s => s.id === p.student_id);
+                    const name = stu ? stu.fname+' '+(stu.lname||'') : (p.fname ? p.fname+' '+(p.lname||'') : 'ID: '+p.user_id);
+                    const col = stu?.color || '#9aa3b8';
+                    const av = stu ? (stu.fname[0]+(stu.lname?.[0]||'')).toUpperCase() : '?';
+                    const isIn = p.punch_type === 'check_in';
+                    const vIcon = (p.verify_type||'').includes('finger')||(p.verify_type||'').includes('fp') ? '🖐️' : '💳';
+                    const t = (p.punch_time||'').split(' ')[1]?.slice(0,5)||'';
+                    return `<div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--br)">
+                        <div style="width:32px;height:32px;border-radius:9px;background:${col};display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;flex-shrink:0">${av}</div>
+                        <div style="flex:1"><div style="font-size:13px;font-weight:700;color:var(--tx)">${name}</div><div style="font-size:10px;color:var(--tx3)">${vIcon} ${p.verify_type||'fingerprint'} · SN: ${p.serial_number}</div></div>
+                        <div style="text-align:right"><div style="font-size:12px;font-weight:800;color:${isIn?'var(--em)':'var(--ro)'}">${isIn?'▶ IN':'◀ OUT'}</div><div style="font-size:10px;color:var(--tx3);font-family:var(--fm)">${t}</div></div>
+                    </div>`;
+                }).join('') : '<div style="text-align:center;padding:28px;color:var(--tx3);font-size:13px">No biometric punches today</div>';
+            }
+
+            // Fee Gate toggle — apply value from API response
+            const feeGateOn = !!res.fee_gate;
+            DB.settings.feeGate = feeGateOn;
+            const fgPairs = [
+                { cb:'feeGateToggle', sl:'feeGateSlider',    th:'feeGateThumb'     },
+                { cb:'settFeeGate',   sl:'settFeeGateSlider', th:'settFeeGateThumb' }
+            ];
+            fgPairs.forEach(({cb,sl,th}) => {
+                const cbEl = document.getElementById(cb); if (cbEl) cbEl.checked = feeGateOn;
+                const slEl = document.getElementById(sl);  if (slEl) slEl.style.background = feeGateOn ? 'var(--ac)' : '#e2e8f0';
+                const thEl = document.getElementById(th);  if (thEl) thEl.style.transform = feeGateOn ? 'translateX(20px)' : 'translateX(0)';
+            });
+            const fgs = document.getElementById('feeGateStatus');
+            if (fgs) fgs.textContent = feeGateOn
+                ? '🔒 Active — overdue students will be blocked at door'
+                : '🔓 Inactive — all students can enter regardless of fee status';
+
+            // Sidebar badge
+            const bioB = document.getElementById('b-bio');
+            if (bioB) {
+                const online = devices.filter(d=>d.status==='online').length;
+                bioB.style.display = online > 0 ? '' : 'none';
+                bioB.style.background = '#22c55e';
+            }
+
+        } catch(e) { console.warn('loadBiometric failed:', e); }
+    }
+
+    async function loadAttBiometric() {
+        try {
+            const today = new Date().toISOString().split('T')[0];
+            const res = await apiGet('get_biometric_punches', { date: today });
+            const punches = res.punches || [];
+            // Build _bioToday map
+            Object.keys(_bioToday).forEach(k => delete _bioToday[k]);
+            punches.forEach(p => {
+                if (!p.student_id) return;
+                if (!_bioToday[p.student_id]) _bioToday[p.student_id] = { in: null, out: null, verify: p.verify_type };
+                const t = (p.punch_time||'').split(' ')[1]?.slice(0,5);
+                if (p.punch_type === 'check_in' && !_bioToday[p.student_id].in) _bioToday[p.student_id].in = t;
+                if (p.punch_type === 'check_out') _bioToday[p.student_id].out = t;
+            });
+            // Render biometric feed in attendance page
+            const el = document.getElementById('bioAttList');
+            const cnt = document.getElementById('bioAttCount');
+            if (cnt) cnt.textContent = punches.length + ' punches';
+            if (el) {
+                el.innerHTML = punches.length ? punches.slice(0,30).map(p => {
+                    const stu = DB.students.find(s => s.id === p.student_id);
+                    const name = stu ? stu.fname+' '+(stu.lname||'') : 'ID: '+p.user_id;
+                    const col = stu?.color || '#9aa3b8';
+                    const av = stu ? (stu.fname[0]+(stu.lname?.[0]||'')).toUpperCase() : '?';
+                    const isIn = p.punch_type === 'check_in';
+                    const vIcon = (p.verify_type||'').includes('finger') ? '🖐️' : '💳';
+                    const t = (p.punch_time||'').split(' ')[1]?.slice(0,5)||'';
+                    return `<div style="display:flex;align-items:center;gap:9px;padding:7px 0;border-bottom:1px solid var(--br)">
+                        <div style="width:28px;height:28px;border-radius:8px;background:${col};display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;flex-shrink:0">${av}</div>
+                        <div style="flex:1"><div style="font-size:12px;font-weight:700">${name}</div><div style="font-size:10px;color:var(--tx3)">${vIcon} ${p.verify_type||'fp'}</div></div>
+                        <div style="text-align:right"><div style="font-size:11px;font-weight:700;color:${isIn?'var(--em)':'var(--ro)'}">${isIn?'▶ IN':'◀ OUT'}</div><div style="font-size:10px;color:var(--tx3);font-family:var(--fm)">${t}</div></div>
+                    </div>`;
+                }).join('') : '<div style="text-align:center;padding:18px;color:var(--tx3);font-size:12px">No biometric punches yet today</div>';
+            }
+            // Dot indicator
+            const dot = document.getElementById('bioDeviceDot');
+            if (dot) dot.style.background = punches.length > 0 ? '#22c55e' : '#e2e8f0';
+            // Auto mark present
+            Object.keys(_bioToday).forEach(sid => { if (_bioToday[sid].in) DB.attendance[sid] = 'present'; });
+        } catch(e) { console.warn('loadAttBiometric failed:', e); }
+    }
+
+    async function loadSettingsBio() {
+        try {
+            const res = await apiGet('get_biometric_devices');
+            const devices = res.devices || [];
+            const admsUrl = window.location.origin + window.location.pathname.replace(/\/[^/]*$/, '/iclock.php');
+            ['admsUrl','settAdmsUrl'].forEach(id => { const e=document.getElementById(id); if(e) e.value=admsUrl; });
+            const el = document.getElementById('settBioDevices');
+            if (!el) return;
+            el.innerHTML = devices.length ? devices.map(d => {
+                const on = d.status === 'online';
+                return `<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--br)">
+                    <span style="font-size:10px;font-weight:700;padding:3px 8px;border-radius:20px;background:${on?'#dcfce7':'#fee2e2'};border:1px solid ${on?'#a3e8d4':'#fca5a5'};color:${on?'#166634':'#991b1b'}">${on?'🟢 Online':'🔴 Offline'}</span>
+                    <div style="flex:1"><div style="font-size:12px;font-weight:700">${d.device_name||d.serial_number}</div><div style="font-size:10px;color:var(--tx3);font-family:var(--fm)">SN: ${d.serial_number} · IP: ${d.ip_address||'—'} · ${d.total_punches||0} punches</div></div>
+                </div>`;
+            }).join('') : '<div style="font-size:12px;color:var(--tx3);padding:8px 0">No devices connected. Set ADMS URL on device to connect.</div>';
+        } catch(e) {}
+    }
+
+    async function toggleFeeGate(enabled) {
+        // Sync both toggles + sliders + thumbs
+        const pairs = [
+            { cb:'feeGateToggle',  sl:'feeGateSlider',     th:'feeGateThumb'     },
+            { cb:'settFeeGate',    sl:'settFeeGateSlider',  th:'settFeeGateThumb' }
+        ];
+        pairs.forEach(({cb,sl,th}) => {
+            const cbEl = document.getElementById(cb);
+            if (cbEl) cbEl.checked = enabled;
+            const slEl = document.getElementById(sl);
+            if (slEl) slEl.style.background = enabled ? 'var(--ac)' : '#e2e8f0';
+            const thEl = document.getElementById(th);
+            if (thEl) thEl.style.transform = enabled ? 'translateX(20px)' : 'translateX(0)';
+        });
+        const fgs = document.getElementById('feeGateStatus');
+        if (fgs) fgs.textContent = enabled ? '🔒 Active — overdue students will be blocked at door' : '🔓 Inactive — all students can enter regardless of fee status';
+        try {
+            await apiPost('set_fee_gate', { enabled: enabled ? 1 : 0 });
+            DB.settings.feeGate = enabled;
+            toast(enabled ? '🔒 Fee Gate ON — overdue students blocked' : '🔓 Fee Gate OFF', enabled ? 'wn' : 'ok');
+        } catch(e) { toast('Failed to save fee gate setting', 'er'); }
     }
 
     // ═══ BOOT ═══
