@@ -466,7 +466,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
             <div class="ni" data-page="reports"><span class="ni-ic mi">bar_chart</span> Reports</div>
         </div>
         <div class="ns"><div class="nl">Communication</div>
-            <div class="ni" data-page="whatsapp" data-action-page="send_whatsapp"><span class="ni-ic mi">chat</span> WhatsApp <span class="nbadge wa">New</span></div>
+            <div class="ni" data-page="whatsapp"><span class="ni-ic mi">chat</span> WhatsApp <span class="nbadge wa">New</span></div>
         </div>
         <div class="ns"><div class="nl">Admin</div>
             <div class="ni" data-page="staff"><span class="ni-ic mi">manage_accounts</span> Staff & Users</div>
@@ -498,7 +498,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
             <button class="btn bwa" onclick="navTo('whatsapp')" style="gap:5px;font-size:11px"><span class="mi sm">chat</span>WhatsApp</button>
             <button class="btn bg" onclick="openM('mWaQR')" style="font-size:11px;padding:6px 9px" title="Connect WhatsApp QR"><span class="mi sm">qr_code_scanner</span></button>
             <div class="nb-btn" onclick="navTo('notifications')"><span class="mi sm">notifications</span><div class="nd" id="notifDot" style="display:none"></div></div>
-            <button class="btn bp" data-action="enroll_student" onclick="openM('mEnroll')"><span class="mi sm">person_add</span> Enroll</button>
+            <button class="btn bp" onclick="openM('mEnroll')"><span class="mi sm">person_add</span> Enroll</button>
         </div>
     </div>
     <div class="content">
@@ -509,13 +509,13 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
 
             <!-- Quick Actions -->
             <div class="qa-gr">
-                <div class="qa-b" data-action="enroll_student" onclick="openM('mEnroll')"><div class="qa-ic" style="background:var(--c-blue)"><span class="mi lg" style="color:var(--ac)">person_add</span></div><div class="qa-lb">New<br>Enroll</div></div>
-                <div class="qa-b" data-action="collect_fee" onclick="openM('mCollectFee')"><div class="qa-ic" style="background:var(--c-green)"><span class="mi lg" style="color:var(--em)">payments</span></div><div class="qa-lb">Collect<br>Fee</div></div>
-                <div class="qa-b" data-action="issue_book" onclick="openM('mIssueBook')"><div class="qa-ic" style="background:var(--c-amber)"><span class="mi lg" style="color:var(--gd)">upload</span></div><div class="qa-lb">Issue<br>Book</div></div>
-                <div class="qa-b" data-action="return_book" onclick="openM('mReturnBook')"><div class="qa-ic" style="background:var(--c-purple)"><span class="mi lg" style="color:var(--vi)">download</span></div><div class="qa-lb">Return<br>Book</div></div>
+                <div class="qa-b" onclick="openM('mEnroll')"><div class="qa-ic" style="background:var(--c-blue)"><span class="mi lg" style="color:var(--ac)">person_add</span></div><div class="qa-lb">New<br>Enroll</div></div>
+                <div class="qa-b" onclick="openM('mCollectFee')"><div class="qa-ic" style="background:var(--c-green)"><span class="mi lg" style="color:var(--em)">payments</span></div><div class="qa-lb">Collect<br>Fee</div></div>
+                <div class="qa-b" onclick="openM('mIssueBook')"><div class="qa-ic" style="background:var(--c-amber)"><span class="mi lg" style="color:var(--gd)">upload</span></div><div class="qa-lb">Issue<br>Book</div></div>
+                <div class="qa-b" onclick="openM('mReturnBook')"><div class="qa-ic" style="background:var(--c-purple)"><span class="mi lg" style="color:var(--vi)">download</span></div><div class="qa-lb">Return<br>Book</div></div>
                 <div class="qa-b" onclick="navTo('seats')"><div class="qa-ic" style="background:var(--c-rose)"><span class="mi lg" style="color:var(--ro)">event_seat</span></div><div class="qa-lb">Seat<br>Booking</div></div>
                 <div class="qa-b" onclick="navTo('attendance')"><div class="qa-ic" style="background:var(--c-sky)"><span class="mi lg" style="color:var(--sk)">fact_check</span></div><div class="qa-lb">Mark<br>Attend.</div></div>
-                <div class="qa-b" data-action="add_expense" onclick="openM('mExpense')"><div class="qa-ic" style="background:var(--c-orange)"><span class="mi lg" style="color:var(--or)">account_balance_wallet</span></div><div class="qa-lb">Add<br>Expense</div></div>
+                <div class="qa-b" onclick="openM('mExpense')"><div class="qa-ic" style="background:var(--c-orange)"><span class="mi lg" style="color:var(--or)">account_balance_wallet</span></div><div class="qa-lb">Add<br>Expense</div></div>
                 <div class="qa-b" onclick="navTo('whatsapp')"><div class="qa-ic" style="background:var(--c-teal)"><span class="mi lg" style="color:var(--wa2)">chat</span></div><div class="qa-lb">WhatsApp</div></div>
             </div>
 
@@ -631,7 +631,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
                 <div style="display:flex;gap:7px;align-items:center;flex-wrap:wrap">
                     <input placeholder="Search…" style="width:130px;font-size:11.5px" oninput="stuSrch(this.value)" id="stuSrchInp">
                     <div class="tabs" id="stuTabs"><div class="tab active" onclick="stuFilt('all',this)">All</div><div class="tab" onclick="stuFilt('paid',this)">Paid</div><div class="tab" onclick="stuFilt('partial',this)">Partial</div><div class="tab" onclick="stuFilt('pending',this)">Pending</div><div class="tab" onclick="stuFilt('overdue',this)">Overdue</div></div>
-                    <button class="btn bp" data-action="enroll_student" onclick="openM('mEnroll')"><span class="mi sm">person_add</span> Enroll</button>
+                    <button class="btn bp" onclick="openM('mEnroll')"><span class="mi sm">person_add</span> Enroll</button>
                     <button class="btn bwa" onclick="navTo('whatsapp')" style="font-size:11px"><span class="mi sm">chat</span>Bulk Msg</button>
                 </div>
             </div>
@@ -646,7 +646,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         <div class="page" id="page-seats">
             <div class="sec-hd">
                 <div><div class="sec-t">Seat Allocation</div><div class="sec-s">Batch seat map with fee status highlight</div></div>
-                <div style="display:flex;gap:7px"><button class="btn bp" data-action="add_batch" onclick="openM('mAddBatch')">+ Add Batch</button><button class="btn bg" data-action="alloc_seat" onclick="openM('mAllocSeat')">Allocate Seat</button></div>
+                <div style="display:flex;gap:7px"><button class="btn bp" onclick="openM('mAddBatch')">+ Add Batch</button><button class="btn bg" onclick="openM('mAllocSeat')">Allocate Seat</button></div>
             </div>
             <div class="stats-grid" style="grid-template-columns:repeat(3,1fr)">
                 <div class="sc" style="--ca:var(--ac)"><div class="s-ic" style="background:var(--c-blue)"><span class="mi" style="color:var(--ac)">event_seat</span></div><div class="s-lb">Total Seats</div><div class="s-vl" id="st-total">0</div></div>
@@ -709,7 +709,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
                 <div style="display:flex;gap:7px;align-items:center">
                     <input placeholder="Search…" style="width:130px;font-size:11.5px" oninput="bkSrch(this.value)">
                     <select id="bkCatF" onchange="renderBooks()" style="font-size:12px;padding:6px 9px"><option value="all">All</option><option>Academic</option><option>Self-Help</option><option>Fiction</option><option>Science</option></select>
-                    <button class="btn bp" data-action="add_book" onclick="openM('mAddBook')">+ Add Book</button>
+                    <button class="btn bp" onclick="openM('mAddBook')">+ Add Book</button>
                 </div>
             </div>
             <div class="panel"><div class="tw"><table>
@@ -723,7 +723,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         <div class="page" id="page-transactions">
             <div class="sec-hd">
                 <div><div class="sec-t">Issue & Returns</div><div class="sec-s" id="txCount"></div></div>
-                <div style="display:flex;gap:7px"><button class="btn bp" data-action="issue_book" onclick="openM('mIssueBook')">📤 Issue</button><button class="btn bg" data-action="return_book" onclick="openM('mReturnBook')">📩 Return</button></div>
+                <div style="display:flex;gap:7px"><button class="btn bp" onclick="openM('mIssueBook')">📤 Issue</button><button class="btn bg" onclick="openM('mReturnBook')">📩 Return</button></div>
             </div>
             <div class="stats-grid" style="grid-template-columns:repeat(4,1fr)">
                 <div class="sc" style="--ca:var(--vi)"><div class="s-lb">Issued</div><div class="s-vl" id="tx-is">0</div></div>
@@ -742,7 +742,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
             <div class="sec-hd">
                 <div><div class="sec-t">Fee Management</div></div>
                 <div style="display:flex;gap:7px;flex-wrap:wrap">
-                    <button class="btn bp" data-action="collect_fee" onclick="openM('mCollectFee')">💳 Collect Fee</button>
+                    <button class="btn bp" onclick="openM('mCollectFee')">💳 Collect Fee</button>
                     <button class="btn bwa" onclick="waBulkFee()" style="font-size:11px"><span class="mi sm">chat</span>WA Reminders</button>
                     <button class="btn bg" onclick="sendReminders()" style="font-size:11px">📣 Send Reminders</button>
                 </div>
@@ -770,7 +770,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
 
         <!-- INVOICES -->
         <div class="page" id="page-invoices">
-            <div class="sec-hd"><div><div class="sec-t">Invoices</div><div class="sec-s" id="invCount"></div></div><button class="btn bp" data-action="generate_invoice" onclick="openM('mGenInv')">+ Generate</button></div>
+            <div class="sec-hd"><div><div class="sec-t">Invoices</div><div class="sec-s" id="invCount"></div></div><button class="btn bp" onclick="openM('mGenInv')">+ Generate</button></div>
             <div class="panel"><div id="invRevSummary"></div><div class="tw"><table>
                         <thead><tr><th>Invoice #</th><th>Student</th><th>Type</th><th>Total Fee</th><th>Discount</th><th>Paid</th><th>Balance</th><th>Date</th><th>Mode</th><th>Status</th><th>Action</th></tr></thead>
                         <tbody id="invTable"></tbody>
@@ -779,7 +779,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
 
         <!-- EXPENSES -->
         <div class="page" id="page-expenses">
-            <div class="sec-hd"><div><div class="sec-t">Expenses</div></div><button class="btn bp" data-action="add_expense" onclick="openM('mExpense')">+ Add</button></div>
+            <div class="sec-hd"><div><div class="sec-t">Expenses</div></div><button class="btn bp" onclick="openM('mExpense')">+ Add</button></div>
             <div class="stats-grid" style="grid-template-columns:repeat(3,1fr)">
                 <div class="sc" style="--ca:var(--ro)"><div class="s-lb">Total Expenses</div><div class="s-vl" id="ex-t">₹0</div></div>
                 <div class="sc" style="--ca:var(--em)"><div class="s-lb">Net Profit</div><div class="s-vl" id="ex-p">₹0</div></div>
@@ -861,7 +861,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
                 <div style="padding:16px"><div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px">
                         <div class="wa-bulk-card"><div style="font-size:22px;margin-bottom:6px">🎉</div><div style="font-weight:600;font-size:12px;margin-bottom:3px">Welcome New</div><div style="font-size:10px;color:var(--tx3);margin-bottom:10px">This month's enrollments</div><button class="btn bwa" style="width:100%;font-size:11px" onclick="bulkSend('welcome')">Send (<span id="bk-welcome">0</span>)</button></div>
                         <div class="wa-bulk-card"><div style="font-size:22px;margin-bottom:6px">⏳</div><div style="font-weight:600;font-size:12px;margin-bottom:3px">Fee Pending</div><div style="font-size:10px;color:var(--tx3);margin-bottom:10px">Pending + partial</div><button class="btn bwa" style="width:100%;font-size:11px;background:#e67e22" onclick="bulkSend('pending')">Send (<span id="bk-pending">0</span>)</button></div>
-                        <div class="wa-bulk-card"><div style="font-size:22px;margin-bottom:6px">🚨</div><div style="font-weight:600;font-size:12px;margin-bottom:3px">Fee Overdue</div><div style="font-size:10px;color:var(--tx3);margin-bottom:10px">Critical overdue</div><button class="btn bd" data-action="send_whatsapp" style="width:100%;font-size:11px" onclick="bulkSend('overdue')">Send (<span id="bk-overdue2">0</span>)</button></div>
+                        <div class="wa-bulk-card"><div style="font-size:22px;margin-bottom:6px">🚨</div><div style="font-weight:600;font-size:12px;margin-bottom:3px">Fee Overdue</div><div style="font-size:10px;color:var(--tx3);margin-bottom:10px">Critical overdue</div><button class="btn bd" style="width:100%;font-size:11px" onclick="bulkSend('overdue')">Send (<span id="bk-overdue2">0</span>)</button></div>
                         <div class="wa-bulk-card"><div style="font-size:22px;margin-bottom:6px">📚</div><div style="font-weight:600;font-size:12px;margin-bottom:3px">Book Overdue</div><div style="font-size:10px;color:var(--tx3);margin-bottom:10px">Return reminders</div><button class="btn" style="width:100%;font-size:11px;background:var(--vi);color:#fff" onclick="bulkSend('bookoverdue')">Send (<span id="bk-bookod">0</span>)</button></div>
                     </div></div>
             </div>
@@ -869,7 +869,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
 
         <!-- STAFF -->
         <div class="page" id="page-staff">
-            <div class="sec-hd"><div><div class="sec-t">Staff & Users</div><div class="sec-s" id="staffCount"></div></div><button class="btn bp" data-action="add_staff" onclick="openM('mAddStaff')"><span class="mi sm">person_add</span>Add Staff</button></div>
+            <div class="sec-hd"><div><div class="sec-t">Staff & Users</div><div class="sec-s" id="staffCount"></div></div><button class="btn bp" onclick="openM('mAddStaff')"><span class="mi sm">person_add</span>Add Staff</button></div>
             <div class="panel"><div class="tw"><table>
                         <thead><tr><th>Staff</th><th>Role</th><th>Email</th><th>Phone</th><th>Permissions</th><th>Status</th><th>Action</th></tr></thead>
                         <tbody id="staffTable"></tbody>
@@ -1026,7 +1026,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
                             </div>
                             <div style="margin-top:14px;display:flex;gap:8px">
                                 <button class="btn bp" onclick="saveSettings()"><span class="mi sm">save</span>Save Settings</button>
-                                <button class="btn bd" data-action="reset_data" onclick="if(confirm('Reset all data?')){initData();toast('Reset!','wn')}"><span class="mi sm">restart_alt</span>Reset</button>
+                                <button class="btn bd" onclick="if(confirm('Reset all data?')){initData();toast('Reset!','wn')}"><span class="mi sm">restart_alt</span>Reset</button>
                             </div>
                         </div></div>
                 </div>
@@ -1370,11 +1370,11 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
             <!-- Quick Actions -->
             <div class="sp-section">⚡ Quick Actions</div>
             <div style="display:flex;gap:8px;flex-wrap:wrap">
-                <button class="btn bp" data-action="collect_fee" style="font-size:11px" id="spCollectBtn" onclick="closeM('mStudentProfile')"><span class="mi sm">payments</span>Collect Fee</button>
+                <button class="btn bp" style="font-size:11px" id="spCollectBtn" onclick="closeM('mStudentProfile')"><span class="mi sm">payments</span>Collect Fee</button>
                 <button class="btn bwa" style="font-size:11px" id="spWaBtn">💬 Send WhatsApp</button>
                 <button class="btn bg" style="font-size:11px;color:var(--ac);border-color:var(--ac)" id="spUpiBtn">📱 UPI Link</button>
                 <button class="btn bg" style="font-size:11px" onclick="openAllocFromProfile()"><span class="mi sm">event_seat</span>Change Seat</button>
-                <button class="btn bd" data-action="delete_student" style="font-size:11px" id="spDelBtn">🗑 Remove</button>
+                <button class="btn bd" style="font-size:11px" id="spDelBtn">🗑 Remove</button>
             </div>
         </div>
         <div class="mf" id="spSaveFooter" style="display:none">
@@ -1610,11 +1610,8 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
                         students: !!+sf.perm_students, fees: !!+sf.perm_fees,
                         books: !!+sf.perm_books, expenses: !!+sf.perm_expenses,
                         reports: !!+sf.perm_reports, staff: !!+sf.perm_staff,
-                        settings: !!+sf.perm_settings,
-                        whatsapp: sf.perm_whatsapp !== undefined ? !!+sf.perm_whatsapp : true,
-                        notifications: sf.perm_notifications !== undefined ? !!+sf.perm_notifications : true,
+                        settings: !!+sf.perm_settings
                     },
-                    actPerms: sf.act_perms ? (typeof sf.act_perms === 'string' ? JSON.parse(sf.act_perms) : sf.act_perms) : {},
                     status: sf.status
                 }));
             }
@@ -1703,7 +1700,8 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         // Admins always see everything
         if (me.role === 'admin') return;
 
-        // ── Page-level gates (hide full sidebar items) ──
+        // Map each nav page to its required permission key.
+        // Pages not listed here are visible to all staff.
         const PAGE_PERM = {
             students:        'perm_students',
             enroll:          'perm_students',
@@ -1721,8 +1719,6 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
             renewal:         'perm_staff',
             audit:           'perm_staff',
             settings:        'perm_settings',
-            whatsapp:        'perm_whatsapp',
-            notifications:   'perm_notifications',
         };
 
         document.querySelectorAll('.ni[data-page]').forEach(el => {
@@ -1739,28 +1735,6 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
             const allHidden = Array.from(items).every(i => i.style.display === 'none');
             if (allHidden) ns.style.display = 'none';
         });
-
-        // ── Action-level gates (hide specific buttons inside pages) ──
-        // me.actPerms comes from the server as a JSON object
-        const ap = me.actPerms || {};
-        document.querySelectorAll('[data-action]').forEach(el => {
-            const action = el.dataset.action;
-            // If explicitly set to false, hide the button
-            if (action && ap[action] === false) {
-                el.style.display = 'none';
-            }
-        });
-
-        // Also gate inline dynamically-rendered buttons via a global flag
-        // so renderStudents / renderFees etc can check it too
-        window._actPerms = ap;
-    }
-
-    // Helper any render function can call: canDo('collect_fee')
-    function canDo(action) {
-        if (!window._actPerms) return true; // admin / not set = allow all
-        const v = window._actPerms[action];
-        return v === undefined ? true : !!v; // undefined = not restricted
     }
 
     // ═══ NAVIGATION ═══
@@ -2066,12 +2040,12 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
       <td><span class="tag ${x.feeStatus==='paid'?'tpd':x.feeStatus==='partial'?'tpart':x.feeStatus==='pending'?'tpn':'tod'}">${x.feeStatus==='paid'?'✓ Paid':x.feeStatus==='partial'?'◑ Partial':x.feeStatus==='pending'?'⏳ Pending':'🚨 Overdue'}</span></td>
       <td><span style="font-size:10.5px;font-family:var(--fm);color:${x.feeStatus==='overdue'?'var(--ro)':x.feeStatus==='pending'?'var(--gd)':'var(--tx3)'}">${fmtDate(x.dueDate)}</span></td>
       <td><div style="display:flex;gap:4px">
-        ${x.feeStatus!=='paid'&&canDo('collect_fee')?`<button class="btn bp" data-action="collect_fee" style="font-size:10px;padding:3px 7px" onclick="qCollect('${x.id}')">Collect</button>`:''}
+        ${x.feeStatus!=='paid'?`<button class="btn bp" style="font-size:10px;padding:3px 7px" onclick="qCollect('${x.id}')">Collect</button>`:''}
         <button class="btn bg" style="font-size:10px;padding:3px 7px" onclick="openStudentProfile('${x.id}')">👤</button>
         <button class="btn bg" style="font-size:10px;padding:3px 7px" onclick="showStudentQR('${x.id}')" title="Student QR Code"><span class="mi sm">qr_code</span></button>
         <button class="btn bwa" style="font-size:10px;padding:3px 7px" onclick="waQuick('${x.id}','${x.feeStatus==='paid'?'fee_receipt':x.feeStatus==='partial'?'partial_payment':x.feeStatus==='overdue'?'fee_overdue':'fee_due'}')">💬</button>
         ${x.feeStatus!=='paid'?`<button class="btn bg" style="font-size:10px;padding:3px 7px;color:var(--ac);border-color:var(--ac)" onclick="sendUpiLink('${x.id}')">📱 UPI</button>`:''}
-        ${canDo('delete_student')?`<button class="btn bd" data-action="delete_student" style="font-size:10px;padding:3px 6px" onclick="delStu('${x.id}')"><span class="mi sm">close</span></button>`:''}
+        <button class="btn bd" style="font-size:10px;padding:3px 6px" onclick="delStu('${x.id}')"><span class="mi sm">close</span></button>
       </div></td>
     </tr>`;
         }).join('')||'<tr><td colspan="12"><div class="empty"><div class="ei">👨‍🎓</div><div class="et">No students</div></div></td></tr>';
@@ -3003,152 +2977,70 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
 
     // ═══ STAFF ═══
     const PERMS=[
-      {key:'students',      label:'Students',       desc:'Enroll, edit, seat & attendance',  icon:'school'},
-      {key:'fees',          label:'Fees',            desc:'Payments, invoices & renewals',     icon:'payments'},
-      {key:'books',         label:'Books',           desc:'Catalog, issue & return',           icon:'menu_book'},
-      {key:'expenses',      label:'Expenses',        desc:'Add & view expense records',        icon:'receipt'},
-      {key:'reports',       label:'Reports',         desc:'Analytics & export data',           icon:'bar_chart'},
-      {key:'staff',         label:'Staff',           desc:'Add/edit staff & salary',           icon:'manage_accounts'},
-      {key:'whatsapp',      label:'WhatsApp',        desc:'Messaging & bulk sends',            icon:'chat'},
-      {key:'notifications', label:'Notifications',   desc:'System alerts & notices',           icon:'notifications'},
-      {key:'settings',      label:'Settings',        desc:'Library config & branding',         icon:'settings'},
+      {key:'students', label:'Students',    desc:'Enroll, edit, seat & attendance',  icon:'school'},
+      {key:'fees',     label:'Fees',        desc:'Payments, invoices & renewals',     icon:'payments'},
+      {key:'books',    label:'Books',       desc:'Catalog, issue & return',            icon:'menu_book'},
+      {key:'expenses', label:'Expenses',    desc:'Add & view expense records',         icon:'receipt'},
+      {key:'reports',  label:'Reports',     desc:'Analytics & export data',            icon:'bar_chart'},
+      {key:'staff',    label:'Staff',       desc:'Add/edit staff & salary',            icon:'manage_accounts'},
+      {key:'settings', label:'Settings',    desc:'Library config & branding',          icon:'settings'},
     ];
-    const ROLE_PERMS={admin:{students:true,fees:true,books:true,expenses:true,reports:true,staff:true,whatsapp:true,notifications:true,settings:true},librarian:{students:true,fees:false,books:true,expenses:false,reports:true,staff:false,whatsapp:false,notifications:true,settings:false},accountant:{students:false,fees:true,books:false,expenses:true,reports:true,staff:false,whatsapp:false,notifications:true,settings:false},receptionist:{students:true,fees:false,books:false,expenses:false,reports:false,staff:false,whatsapp:true,notifications:true,settings:false}};
-
-    // ── Action-level permissions ──
-    const ACTION_PERMS = [
-      {key:'enroll_student',    label:'Enroll Student',     desc:'Add new students',             icon:'person_add',     module:'students'},
-      {key:'delete_student',    label:'Delete Student',     desc:'Remove student records',       icon:'person_remove',  module:'students'},
-      {key:'alloc_seat',        label:'Allocate Seat',      desc:'Assign & change seats',        icon:'event_seat',     module:'students'},
-      {key:'collect_fee',       label:'Collect Fee',        desc:'Mark payments & UPI',          icon:'payments',       module:'fees'},
-      {key:'apply_discount',    label:'Apply Discount',     desc:'Give fee discounts',           icon:'redeem',         module:'fees'},
-      {key:'generate_invoice',  label:'Generate Invoice',   desc:'Create new invoices',          icon:'receipt_long',   module:'fees'},
-      {key:'issue_book',        label:'Issue Book',         desc:'Issue books to students',      icon:'upload',         module:'books'},
-      {key:'return_book',       label:'Return Book',        desc:'Process book returns',         icon:'download',       module:'books'},
-      {key:'add_book',          label:'Add Book',           desc:'Add titles to catalog',        icon:'menu_book',      module:'books'},
-      {key:'add_expense',       label:'Add Expense',        desc:'Log expense records',          icon:'receipt',        module:'expenses'},
-      {key:'send_whatsapp',     label:'Send WhatsApp',      desc:'Bulk & individual messages',   icon:'chat',           module:'whatsapp'},
-      {key:'add_staff',         label:'Add / Edit Staff',   desc:'Manage staff accounts',        icon:'manage_accounts',module:'staff'},
-      {key:'add_batch',         label:'Add / Edit Batch',   desc:'Create & modify batches',      icon:'groups',         module:'students'},
-      {key:'reset_data',        label:'Reset Data',         desc:'Factory reset — dangerous',    icon:'restart_alt',    module:'settings'},
-    ];
-
-    // Default action perms per role (all true for admin, sensible defaults for others)
-    const ROLE_ACTION_PERMS = {
-      admin:       Object.fromEntries(ACTION_PERMS.map(a=>[a.key,true])),
-      librarian:   {enroll_student:false,delete_student:false,alloc_seat:true,collect_fee:false,apply_discount:false,generate_invoice:false,issue_book:true,return_book:true,add_book:true,add_expense:false,send_whatsapp:false,add_staff:false,add_batch:false,reset_data:false},
-      accountant:  {enroll_student:false,delete_student:false,alloc_seat:false,collect_fee:true,apply_discount:true,generate_invoice:true,issue_book:false,return_book:false,add_book:false,add_expense:true,send_whatsapp:false,add_staff:false,add_batch:false,reset_data:false},
-      receptionist:{enroll_student:true,delete_student:false,alloc_seat:true,collect_fee:true,apply_discount:false,generate_invoice:false,issue_book:false,return_book:false,add_book:false,add_expense:false,send_whatsapp:true,add_staff:false,add_batch:false,reset_data:false},
-    };
+    const ROLE_PERMS={admin:{students:true,fees:true,books:true,expenses:true,reports:true,staff:true,settings:true},librarian:{students:true,fees:false,books:true,expenses:false,reports:true,staff:false,settings:false},accountant:{students:false,fees:true,books:false,expenses:true,reports:true,staff:false,settings:false},receptionist:{students:true,fees:false,books:false,expenses:false,reports:false,staff:false,settings:false}};
     function renderStaff(){
         document.getElementById('staffCount').textContent=`${DB.staff.length} staff`;
         document.getElementById('staffTable').innerHTML=DB.staff.map((sf,i)=>{const pc=Object.values(sf.perms).filter(Boolean).length;
             return `<tr><td><div class="si"><div class="sav" style="background:linear-gradient(135deg,var(--ac),var(--vi))">${sf.name.split(' ').map(n=>n[0]).join('').slice(0,2)}</div><div><div style="font-weight:600;font-size:12.5px">${sf.name}</div><div style="font-size:10px;color:var(--tx3);font-family:var(--fm)">${sf.id}</div></div></div></td>
     <td><span class="tag tac" style="text-transform:capitalize">${sf.role}</span></td><td>${sf.email}</td><td>${sf.phone}</td>
-    <td><div style="display:flex;flex-direction:column;gap:4px">
-      <div style="display:flex;flex-wrap:wrap;gap:3px">${PERMS.filter(p=>sf.perms[p.key]).map(p=>`<span title="Page: ${p.label}" style="display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;background:rgba(61,111,240,.09);border:1px solid rgba(61,111,240,.2);border-radius:6px"><span class="mi" style="font-size:12px;color:var(--ac)">${p.icon}</span></span>`).join('')}${pc===0?'<span style="font-size:10px;color:var(--tx3);font-style:italic">No pages</span>':''}</div>
-      <div style="display:flex;flex-wrap:wrap;gap:3px">${ACTION_PERMS.filter(a=>(sf.actPerms||{})[a.key]).map(a=>`<span title="Action: ${a.label}" style="display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;background:rgba(124,58,237,.08);border:1px solid rgba(124,58,237,.2);border-radius:6px"><span class="mi" style="font-size:12px;color:var(--vi)">${a.icon}</span></span>`).join('')||'<span style="font-size:9px;color:var(--tx3);font-style:italic">No actions</span>'}</div>
-    </div></td><td><span class="tag tpd">Active</span></td>
+    <td><div style="display:flex;flex-wrap:wrap;gap:4px">${PERMS.filter(p=>sf.perms[p.key]).map(p=>`<span title="${p.label}" style="display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;background:rgba(61,111,240,.09);border:1px solid rgba(61,111,240,.2);border-radius:6px"><span class="mi" style="font-size:13px;color:var(--ac)">${p.icon}</span></span>`).join('')}${pc===0?'<span style="font-size:10px;color:var(--tx3);font-style:italic">No access</span>':''}</div></td><td><span class="tag tpd">Active</span></td>
     <td><div style="display:flex;gap:4px"><button class="btn bg" style="font-size:10px;padding:3px 7px" onclick="editStaff(${i})">✏</button>${i>0?`<button class="btn bd" style="font-size:10px;padding:3px 6px" onclick="delStaff(${i})"><span class="mi sm">close</span></button>`:''}</div></td></tr>`;
         }).join('')||'<tr><td colspan="7"><div class="empty"><div class="ei">👥</div><div class="et">No staff</div></div></td></tr>';
     }
     function buildPermList(){
       const role=gv('sf-rl')||'librarian';
       const d=ROLE_PERMS[role];
-      const da=ROLE_ACTION_PERMS[role]||{};
       const isAdmin=role==='admin';
-
-      // helper: render one permission card (works for both module & action perms)
-      function permCard(key,label,desc,icon,on,disabled,idPrefix){
-        return `<label style="display:flex;align-items:center;gap:10px;padding:10px 13px;background:${on?'rgba(61,111,240,.05)':'var(--sf2)'};border:1.5px solid ${on?'rgba(61,111,240,.25)':'var(--br)'};border-radius:var(--r2);cursor:${disabled?'default':'pointer'};transition:all .18s" class="perm-card-lbl">
-          <div style="width:32px;height:32px;border-radius:8px;background:${on?'rgba(61,111,240,.1)':'var(--sf3)'};display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .18s">
-            <span class="mi sm" style="color:${on?'var(--ac)':'var(--tx3)'}">${icon}</span>
-          </div>
-          <div style="flex:1;min-width:0">
-            <div style="font-size:12px;font-weight:700;color:${on?'var(--tx)':'var(--tx2)'}">${label}</div>
-            <div style="font-size:9.5px;color:var(--tx3);line-height:1.3;margin-top:1px">${desc}</div>
-          </div>
-          <label class="toggle-wrap" onclick="event.stopPropagation();setTimeout(()=>refreshPermCards(),10)" style="flex-shrink:0">
-            <input type="checkbox" id="${idPrefix}${key}" class="toggle-inp" ${on?'checked':''} ${disabled?'disabled':''}>
-            <span class="toggle-sl"></span>
-          </label>
-        </label>`;
-      }
-
-      const adminBanner = `<div style="margin-top:8px;padding:7px 11px;background:rgba(61,111,240,.06);border:1px solid rgba(61,111,240,.2);border-radius:var(--r2);font-size:11px;color:var(--ac);display:flex;align-items:center;gap:6px"><span class="mi sm">verified_user</span>Admin has full access — all permissions locked.</div>`;
-
-      // Group action perms by module for cleaner display
-      const actionModules = [...new Set(ACTION_PERMS.map(a=>a.module))];
-
       document.getElementById('permList').innerHTML=`
-        <!-- ── Section 1: Module Access ── -->
-        <div style="display:flex;align-items:center;gap:8px;margin:10px 0 8px">
-          <span class="mi sm" style="color:var(--ac)">grid_view</span>
-          <span style="font-size:11px;font-weight:700;color:var(--tx2);text-transform:uppercase;letter-spacing:.8px;font-family:var(--fm)">Module Access</span>
-          <div style="flex:1;height:1px;background:var(--br)"></div>
-          <span style="font-size:9.5px;color:var(--tx3)">Show / hide full pages</span>
-        </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-          ${PERMS.map(p=>permCard(p.key,p.label,p.desc,p.icon,isAdmin?true:d[p.key],isAdmin,'perm-')).join('')}
-        </div>
-        ${isAdmin?adminBanner:''}
-
-        <!-- ── Section 2: Action Controls ── -->
-        <div style="display:flex;align-items:center;gap:8px;margin:16px 0 8px">
-          <span class="mi sm" style="color:var(--vi)">tune</span>
-          <span style="font-size:11px;font-weight:700;color:var(--tx2);text-transform:uppercase;letter-spacing:.8px;font-family:var(--fm)">Action Controls</span>
-          <div style="flex:1;height:1px;background:var(--br)"></div>
-          <span style="font-size:9.5px;color:var(--tx3)">Show / hide specific buttons</span>
-        </div>
-        ${actionModules.map(mod=>{
-          const modActions = ACTION_PERMS.filter(a=>a.module===mod);
-          const modLabel = mod.charAt(0).toUpperCase()+mod.slice(1);
-          return `<div style="margin-bottom:10px">
-            <div style="font-size:10px;font-weight:600;color:var(--tx3);font-family:var(--fm);text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px;padding-left:2px">${modLabel}</div>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
-              ${modActions.map(a=>permCard(a.key,a.label,a.desc,a.icon,isAdmin?true:da[a.key],isAdmin,'act-')).join('')}
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px">
+        ${PERMS.map(p=>{
+          const on=isAdmin?true:d[p.key];
+          return `<label style="display:flex;align-items:center;gap:10px;padding:10px 13px;background:${on?'rgba(61,111,240,.05)':'var(--sf2)'};border:1.5px solid ${on?'rgba(61,111,240,.25)':'var(--br)'};border-radius:var(--r2);cursor:pointer;transition:all .18s;position:relative" class="perm-card-lbl">
+            <div style="width:34px;height:34px;border-radius:9px;background:${on?'rgba(61,111,240,.1)':'var(--sf3)'};display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .18s">
+              <span class="mi sm" style="color:${on?'var(--ac)':'var(--tx3)'}">${p.icon}</span>
             </div>
-          </div>`;
+            <div style="flex:1;min-width:0">
+              <div style="font-size:12px;font-weight:700;color:${on?'var(--tx)':'var(--tx2)'}">${p.label}</div>
+              <div style="font-size:9.5px;color:var(--tx3);line-height:1.3;margin-top:1px">${p.desc}</div>
+            </div>
+            <div style="flex-shrink:0">
+              <label class="toggle-wrap" onclick="event.stopPropagation();setTimeout(()=>refreshPermCards(),10)">
+                <input type="checkbox" id="perm-${p.key}" class="toggle-inp" ${on?'checked':''} ${isAdmin?'disabled':''}>
+                <span class="toggle-sl"></span>
+              </label>
+            </div>
+          </label>`;
         }).join('')}
-        ${isAdmin?'':'<div style="padding:7px 11px;background:rgba(124,58,237,.05);border:1px solid rgba(124,58,237,.2);border-radius:var(--r2);font-size:10.5px;color:var(--vi);display:flex;align-items:center;gap:6px"><span class="mi sm">info</span>Action controls work inside pages the staff member can already access.</div>'}
+        </div>
+        ${isAdmin?'<div style="margin-top:8px;padding:7px 11px;background:rgba(61,111,240,.06);border:1px solid rgba(61,111,240,.2);border-radius:var(--r2);font-size:11px;color:var(--ac);display:flex;align-items:center;gap:6px"><span class="mi sm">verified_user</span>Admin has full access to all modules — permissions locked.</div>':''}
       `;
     }
     function refreshPermCards(){
-      function syncCard(cb){
+      PERMS.forEach(p=>{
+        const cb=document.getElementById('perm-'+p.key);
         const card=cb?.closest('label.perm-card-lbl');
         if(!cb||!card)return;
         const on=cb.checked;
         card.style.background=on?'rgba(61,111,240,.05)':'var(--sf2)';
         card.style.borderColor=on?'rgba(61,111,240,.25)':'var(--br)';
-        const ic=card.querySelector('.mi.sm');
+        const ic=card.querySelector('.mi');
         if(ic)ic.style.color=on?'var(--ac)':'var(--tx3)';
-        const icBox=card.querySelector('div[style*="32px"]');
+        const icBox=card.querySelector('div[style*="34px"]');
         if(icBox)icBox.style.background=on?'rgba(61,111,240,.1)':'var(--sf3)';
         const lbl=card.querySelector('div[style*="font-weight:700"]');
         if(lbl)lbl.style.color=on?'var(--tx)':'var(--tx2)';
-      }
-      PERMS.forEach(p=>syncCard(document.getElementById('perm-'+p.key)));
-      ACTION_PERMS.forEach(a=>syncCard(document.getElementById('act-'+a.key)));
+      });
     }
     function setDefaultPerms(){buildPermList();}
-    function editStaff(idx){
-      editStaffIdx=idx;
-      const sf=DB.staff[idx];
-      document.getElementById('staffModalTitle').textContent='✏ Edit Staff';
-      document.getElementById('staffSaveBtn').textContent='Save';
-      document.getElementById('sf-nm').value=sf.name;
-      document.getElementById('sf-rl').value=sf.role;
-      document.getElementById('sf-em').value=sf.email;
-      document.getElementById('sf-ph').value=sf.phone;
-      document.getElementById('sf-un').value=sf.username;
-      buildPermList();
-      // Restore module perms
-      PERMS.forEach(p=>{const el=document.getElementById('perm-'+p.key);if(el)el.checked=!!sf.perms[p.key];});
-      // Restore action perms
-      ACTION_PERMS.forEach(a=>{const el=document.getElementById('act-'+a.key);if(el)el.checked=!!(sf.actPerms||{})[a.key];});
-      refreshPermCards();
-      openM('mAddStaff');
-    }
+    function editStaff(idx){editStaffIdx=idx;const sf=DB.staff[idx];document.getElementById('staffModalTitle').textContent='✏ Edit Staff';document.getElementById('staffSaveBtn').textContent='Save';document.getElementById('sf-nm').value=sf.name;document.getElementById('sf-rl').value=sf.role;document.getElementById('sf-em').value=sf.email;document.getElementById('sf-ph').value=sf.phone;document.getElementById('sf-un').value=sf.username;buildPermList();PERMS.forEach(p=>{const el=document.getElementById('perm-'+p.key);if(el)el.checked=sf.perms[p.key];});openM('mAddStaff');}
     // delStaff is defined below as an async function (API-backed with local fallback)
     // saveStaff is defined below as an async function (API-backed with local fallback)
 
@@ -3471,19 +3363,17 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         if (!nm || !rl || !em) return toast('Fill required', 'er');
         const perms = {};
         PERMS.forEach(p => { const el=document.getElementById('perm-'+p.key); perms[p.key]=el?el.checked:false; });
-        const actPerms = {};
-        ACTION_PERMS.forEach(a => { const el=document.getElementById('act-'+a.key); actPerms[a.key]=el?el.checked:false; });
         const payload = {
             name: nm, role: rl, email: em,
-            phone: gv('sf-ph'), username: gv('sf-un'), password: gv('sf-pw'), perms, actPerms
+            phone: gv('sf-ph'), username: gv('sf-un'), password: gv('sf-pw'), perms
         };
         if (editStaffIdx >= 0) payload.id = DB.staff[editStaffIdx].id;
 
         // Optimistically update local DB first so table shows immediately
         if (editStaffIdx >= 0) {
-            Object.assign(DB.staff[editStaffIdx], { name: nm, role: rl, email: em, phone: gv('sf-ph'), username: gv('sf-un'), perms, actPerms });
+            Object.assign(DB.staff[editStaffIdx], { name: nm, role: rl, email: em, phone: gv('sf-ph'), username: gv('sf-un'), perms });
         } else {
-            DB.staff.push({ id: 'SF-' + Date.now(), name: nm, role: rl, email: em, phone: gv('sf-ph'), username: gv('sf-un') || nm.split(' ')[0].toLowerCase(), perms, actPerms, status: 'active' });
+            DB.staff.push({ id: 'SF-' + Date.now(), name: nm, role: rl, email: em, phone: gv('sf-ph'), username: gv('sf-un') || nm.split(' ')[0].toLowerCase(), perms, status: 'active' });
         }
         toast(editStaffIdx >= 0 ? `${nm} updated!` : `${nm} added!`, 'ok');
         editStaffIdx = -1;
