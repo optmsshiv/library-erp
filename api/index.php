@@ -2,13 +2,22 @@
 // ── Bootstrap ────────────────────────────────────────────────────────────────
 session_start();
 
-set_exception_handler(function($e) {
-    http_response_code(500);
-    header('Content-Type: application/json');
-    echo json_encode(['error' => $e->getMessage(), 'file' => $e->getFile(), 'line' => $e->getLine()]);
+// ── Global error handler — always return JSON, never blank 500 ──
+set_exception_handler(function(Throwable $e) {
+    if (!headers_sent()) {
+        http_response_code(500);
+        header('Content-Type: application/json; charset=utf-8');
+    }
+    echo json_encode([
+        'error' => $e->getMessage(),
+        'file'  => basename($e->getFile()),
+        'line'  => $e->getLine()
+    ]);
     exit;
 });
-error_reporting(E_ALL);
+set_error_handler(function($errno, $errstr, $errfile, $errline) {
+    throw new ErrorException($errstr, 0, $errno, $errfile, $errline);
+});
 
 require_once __DIR__ . '/../core/tenant.php';
 
