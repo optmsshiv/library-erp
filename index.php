@@ -2598,57 +2598,6 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
     }
 
     // ═══ ATTENDANCE ═══
-    // Stores today's biometric punch data keyed by student_id
-    const _bioToday = {};
-
-    async function loadAttBiometric() {
-        try {
-            const res = await apiGet('get_biometric_punches', { date: new Date().toISOString().split('T')[0] });
-            const punches = res.punches || [];
-            // Build per-student check_in / check_out map
-            Object.keys(_bioToday).forEach(k => delete _bioToday[k]);
-            punches.forEach(p => {
-                if (!_bioToday[p.student_id]) _bioToday[p.student_id] = { in: null, out: null, verify: p.verify_type };
-                if (p.punch_type === 'check_in' && !_bioToday[p.student_id].in)
-                    _bioToday[p.student_id].in = p.punch_time.split(' ')[1]?.slice(0,5);
-                if (p.punch_type === 'check_out')
-                    _bioToday[p.student_id].out = p.punch_time.split(' ')[1]?.slice(0,5);
-            });
-            // Render biometric feed
-            const el = document.getElementById('bioAttList');
-            const cnt = document.getElementById('bioAttCount');
-            if (cnt) cnt.textContent = punches.length + ' punches';
-            if (el) {
-                el.innerHTML = punches.length ? punches.slice(0,30).map(p => {
-                    const stu = DB.students.find(s => s.id === p.student_id);
-                    const name = stu ? stu.fname + ' ' + (stu.lname||'') : (p.fname ? p.fname + ' ' + (p.lname||'') : 'Unknown #' + p.user_id);
-                    const av = stu ? (stu.fname[0]+(stu.lname?.[0]||'')).toUpperCase() : '?';
-                    const col = stu?.color || '#9aa3b8';
-                    const isIn = p.punch_type === 'check_in';
-                    const vIcon = (p.verify_type||'').includes('fp') || (p.verify_type||'').includes('finger') ? '🖐️' : '💳';
-                    const t = (p.punch_time||'').split(' ')[1]?.slice(0,5) || '';
-                    return `<div style="display:flex;align-items:center;gap:9px;padding:8px 0;border-bottom:1px solid var(--br)">
-                        <div style="width:28px;height:28px;border-radius:8px;background:${col};display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;flex-shrink:0">${av}</div>
-                        <div style="flex:1"><div style="font-size:12px;font-weight:700;color:var(--tx)">${name}</div>
-                        <div style="font-size:10px;color:var(--tx3)">${vIcon} ${p.verify_type||'fingerprint'}</div></div>
-                        <div style="text-align:right">
-                            <div style="font-size:11px;font-weight:700;color:${isIn?'var(--em)':'var(--ro)'}">${isIn?'▶ IN':'◀ OUT'}</div>
-                            <div style="font-size:10px;color:var(--tx3);font-family:var(--fm)">${t}</div>
-                        </div>
-                    </div>`;
-                }).join('') : '<div style="text-align:center;padding:20px;color:var(--tx3);font-size:12px">No biometric punches yet today</div>';
-            }
-            // Update device dot in attendance header
-            const dot = document.getElementById('bioDeviceDot');
-            if (dot) dot.style.background = punches.length > 0 ? '#22c55e' : '#e2e8f0';
-            // Auto-mark attendance for biometrically checked-in students
-            Object.keys(_bioToday).forEach(sid => {
-                if (_bioToday[sid].in) DB.attendance[sid] = 'present';
-            });
-            renderAtt();
-        } catch(e) { console.warn('Bio load failed', e); }
-    }
-
     // Stores today's biometric check-in/out per student_id
     const _bioToday = {};
 
