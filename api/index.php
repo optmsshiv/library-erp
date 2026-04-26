@@ -109,11 +109,7 @@ switch ($action) {
         try { $db->exec("ALTER TABLE settings ADD COLUMN IF NOT EXISTS upi_id VARCHAR(128) DEFAULT '7282071620@okaxis'"); } catch(Exception $e) {}
         $settings = $db->query("SELECT * FROM settings WHERE id=1")->fetch();
         $invoices = $db->query("SELECT * FROM invoices ORDER BY created_at DESC")->fetchAll();
-        // Ensure optional columns exist before selecting them
-        try { $db->exec("ALTER TABLE staff ADD COLUMN IF NOT EXISTS perm_whatsapp TINYINT(1) NOT NULL DEFAULT 1"); } catch(Exception $e) {}
-        try { $db->exec("ALTER TABLE staff ADD COLUMN IF NOT EXISTS perm_notifications TINYINT(1) NOT NULL DEFAULT 1"); } catch(Exception $e) {}
-        try { $db->exec("ALTER TABLE staff ADD COLUMN IF NOT EXISTS act_perms JSON NULL"); } catch(Exception $e) {}
-        $staff    = $db->query("SELECT s.id,s.name,s.role,s.email,s.phone,s.username,s.perm_students,s.perm_fees,s.perm_books,s.perm_expenses,s.perm_reports,s.perm_staff,s.perm_settings,s.perm_whatsapp,s.perm_notifications,s.act_perms,s.status,COALESCE(ss.base_monthly,0) AS base_salary FROM staff s LEFT JOIN staff_salary ss ON ss.staff_id=s.id ORDER BY s.created_at")->fetchAll();
+        $staff    = $db->query("SELECT s.id,s.name,s.role,s.email,s.phone,s.username,s.perm_students,s.perm_fees,s.perm_books,s.perm_expenses,s.perm_reports,s.perm_staff,s.perm_settings,s.status,COALESCE(ss.base_monthly,0) AS base_salary FROM staff s LEFT JOIN staff_salary ss ON ss.staff_id=s.id ORDER BY s.created_at")->fetchAll();
         $meStmt   = $db->prepare("SELECT role,perm_students,perm_fees,perm_books,perm_expenses,perm_reports,perm_staff,perm_settings FROM staff WHERE id=? LIMIT 1");
         $meStmt->execute([$_SESSION['staff_id']]);
         $me = $meStmt->fetch();
@@ -502,45 +498,30 @@ switch ($action) {
     // STAFF
     // ══════════════════════════════════
     case 'get_staff':
-        $rows = $db->query("SELECT id,name,role,email,phone,username,perm_students,perm_fees,perm_books,perm_expenses,perm_reports,perm_staff,perm_settings,perm_whatsapp,perm_notifications,act_perms,status FROM staff ORDER BY created_at")->fetchAll();
+        $rows = $db->query("SELECT id,name,role,email,phone,username,perm_students,perm_fees,perm_books,perm_expenses,perm_reports,perm_staff,perm_settings,status FROM staff ORDER BY created_at")->fetchAll();
         jsonResponse($rows);
 
     case 'save_staff':
         if ($method !== 'POST') jsonError('Method not allowed', 405);
         $d = getInput();
         if (empty($d['name']) || empty($d['role']) || empty($d['email'])) jsonError('Name, role, email required');
-        $perms    = $d['perms']    ?? [];
-        $actPerms = $d['actPerms'] ?? [];
-        $isEdit   = !empty($d['id']);
-
-        // Ensure optional columns exist (safe ALTER — no-op if already present)
-        try { $db->exec("ALTER TABLE staff ADD COLUMN IF NOT EXISTS perm_whatsapp TINYINT(1) NOT NULL DEFAULT 1"); } catch(Exception $e) {}
-        try { $db->exec("ALTER TABLE staff ADD COLUMN IF NOT EXISTS perm_notifications TINYINT(1) NOT NULL DEFAULT 1"); } catch(Exception $e) {}
-        try { $db->exec("ALTER TABLE staff ADD COLUMN IF NOT EXISTS act_perms JSON NULL"); } catch(Exception $e) {}
-
-        $actJson = !empty($actPerms) ? json_encode($actPerms) : null;
-
+        $perms = $d['perms'] ?? [];
+        $isEdit = !empty($d['id']);
         if ($isEdit) {
             // If a new password is provided, update it too; otherwise keep existing hash
             if (!empty($d['password'])) {
                 $newHash = password_hash($d['password'], PASSWORD_BCRYPT);
-                $db->prepare("UPDATE staff SET name=?,role=?,email=?,phone=?,username=?,password_hash=?,
-                    perm_students=?,perm_fees=?,perm_books=?,perm_expenses=?,perm_reports=?,perm_staff=?,perm_settings=?,
-                    perm_whatsapp=?,perm_notifications=?,act_perms=? WHERE id=?")
+                $db->prepare("UPDATE staff SET name=?,role=?,email=?,phone=?,username=?,password_hash=?,perm_students=?,perm_fees=?,perm_books=?,perm_expenses=?,perm_reports=?,perm_staff=?,perm_settings=? WHERE id=?")
                     ->execute([$d['name'],$d['role'],$d['email'],$d['phone'] ?? '',$d['username'] ?? '',
                         $newHash,
                         (int)($perms['students'] ?? 0),(int)($perms['fees'] ?? 0),(int)($perms['books'] ?? 0),
                         (int)($perms['expenses'] ?? 0),(int)($perms['reports'] ?? 0),(int)($perms['staff'] ?? 0),(int)($perms['settings'] ?? 0),
-                        (int)($perms['whatsapp'] ?? 1),(int)($perms['notifications'] ?? 1),$actJson,
                         $d['id']]);
             } else {
-                $db->prepare("UPDATE staff SET name=?,role=?,email=?,phone=?,username=?,
-                    perm_students=?,perm_fees=?,perm_books=?,perm_expenses=?,perm_reports=?,perm_staff=?,perm_settings=?,
-                    perm_whatsapp=?,perm_notifications=?,act_perms=? WHERE id=?")
+                $db->prepare("UPDATE staff SET name=?,role=?,email=?,phone=?,username=?,perm_students=?,perm_fees=?,perm_books=?,perm_expenses=?,perm_reports=?,perm_staff=?,perm_settings=? WHERE id=?")
                     ->execute([$d['name'],$d['role'],$d['email'],$d['phone'] ?? '',$d['username'] ?? '',
                         (int)($perms['students'] ?? 0),(int)($perms['fees'] ?? 0),(int)($perms['books'] ?? 0),
                         (int)($perms['expenses'] ?? 0),(int)($perms['reports'] ?? 0),(int)($perms['staff'] ?? 0),(int)($perms['settings'] ?? 0),
-                        (int)($perms['whatsapp'] ?? 1),(int)($perms['notifications'] ?? 1),$actJson,
                         $d['id']]);
             }
         } else {
@@ -551,13 +532,10 @@ switch ($action) {
             $lastSfId = $db->query("SELECT id FROM staff ORDER BY id DESC LIMIT 1")->fetchColumn();
             $lastSfNum = $lastSfId ? (int)substr($lastSfId, 3) : 0;
             $newId = 'SF-' . str_pad($lastSfNum + 1, 3, '0', STR_PAD_LEFT);
-            $db->prepare("INSERT INTO staff (id,name,role,email,phone,username,password_hash,
-                perm_students,perm_fees,perm_books,perm_expenses,perm_reports,perm_staff,perm_settings,
-                perm_whatsapp,perm_notifications,act_perms,status) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)")
+            $db->prepare("INSERT INTO staff (id,name,role,email,phone,username,password_hash,perm_students,perm_fees,perm_books,perm_expenses,perm_reports,perm_staff,perm_settings,status) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)")
                 ->execute([$newId,$d['name'],$d['role'],$d['email'],$d['phone'] ?? '',$d['username'],$hash,
                     (int)($perms['students'] ?? 0),(int)($perms['fees'] ?? 0),(int)($perms['books'] ?? 0),
                     (int)($perms['expenses'] ?? 0),(int)($perms['reports'] ?? 0),(int)($perms['staff'] ?? 0),(int)($perms['settings'] ?? 0),
-                    (int)($perms['whatsapp'] ?? 1),(int)($perms['notifications'] ?? 1),$actJson,
                     'active']);
             addActivity($db, '👥', 'rgba(74,124,111,.14)', "Staff <strong>{$d['name']}</strong> added");
         }
@@ -1598,76 +1576,6 @@ switch ($action) {
             'logo_url' => $s['logo_url'] ?? ''
         ]);
         break;
-
-    // ══════════════════════════════════
-    // BIOMETRIC DEVICES & PUNCHES
-    // ══════════════════════════════════
-
-    case 'get_biometric_devices':
-        // Auto-create tables if not exists
-        $db->exec("CREATE TABLE IF NOT EXISTS biometric_devices (
-            id            INT AUTO_INCREMENT PRIMARY KEY,
-            serial_number VARCHAR(64)  NOT NULL UNIQUE,
-            device_name   VARCHAR(128) DEFAULT '',
-            ip_address    VARCHAR(64)  DEFAULT '',
-            status        ENUM('online','offline') DEFAULT 'offline',
-            last_seen     DATETIME     NULL,
-            total_punches INT          DEFAULT 0,
-            fee_gate      TINYINT(1)   DEFAULT 0,
-            created_at    TIMESTAMP    DEFAULT CURRENT_TIMESTAMP
-        )");
-        $devices = $db->query("SELECT * FROM biometric_devices ORDER BY status DESC, last_seen DESC")->fetchAll();
-        // Read fee_gate setting from settings table
-        $feeGate = 0;
-        try {
-            $db->exec("ALTER TABLE settings ADD COLUMN IF NOT EXISTS fee_gate TINYINT(1) DEFAULT 0");
-            $fg = $db->query("SELECT fee_gate FROM settings WHERE id=1")->fetch();
-            $feeGate = (int)($fg['fee_gate'] ?? 0);
-        } catch(Exception $e) {}
-        jsonResponse(['devices' => $devices, 'fee_gate' => $feeGate]);
-
-    case 'get_biometric_punches':
-        // Auto-create table if not exists
-        $db->exec("CREATE TABLE IF NOT EXISTS biometric_punches (
-            id            INT AUTO_INCREMENT PRIMARY KEY,
-            serial_number VARCHAR(64)  NOT NULL,
-            user_id       VARCHAR(64)  NOT NULL,
-            student_id    VARCHAR(32)  DEFAULT NULL,
-            fname         VARCHAR(64)  DEFAULT NULL,
-            lname         VARCHAR(64)  DEFAULT NULL,
-            punch_time    DATETIME     NOT NULL,
-            punch_type    ENUM('check_in','check_out') DEFAULT 'check_in',
-            verify_type   VARCHAR(32)  DEFAULT 'fingerprint',
-            created_at    TIMESTAMP    DEFAULT CURRENT_TIMESTAMP,
-            INDEX idx_punch_date (punch_time),
-            INDEX idx_student (student_id)
-        )");
-        $date = $_GET['date'] ?? date('Y-m-d');
-        $stmt = $db->prepare("
-            SELECT bp.*, s.fname, s.lname, s.color
-            FROM biometric_punches bp
-            LEFT JOIN students s ON bp.student_id = s.id
-            WHERE DATE(bp.punch_time) = ?
-            ORDER BY bp.punch_time ASC
-        ");
-        $stmt->execute([$date]);
-        $punches = $stmt->fetchAll();
-        jsonResponse(['punches' => $punches, 'date' => $date]);
-
-    case 'set_fee_gate':
-        if ($method !== 'POST') jsonError('Method not allowed', 405);
-        $d = getInput();
-        $enabled = (int)($d['enabled'] ?? 0);
-        try {
-            $db->exec("ALTER TABLE settings ADD COLUMN IF NOT EXISTS fee_gate TINYINT(1) DEFAULT 0");
-            $exists = $db->query("SELECT COUNT(*) FROM settings WHERE id=1")->fetchColumn();
-            if (!$exists) $db->exec("INSERT INTO settings (id) VALUES (1)");
-            $db->prepare("UPDATE settings SET fee_gate=? WHERE id=1")->execute([$enabled]);
-        } catch(Exception $e) {
-            jsonError('Failed to save fee gate: ' . $e->getMessage(), 500);
-        }
-        addActivity($db, '🔒', 'rgba(220,38,38,.12)', $enabled ? 'Fee Gate <strong>activated</strong> — overdue students blocked' : 'Fee Gate <strong>deactivated</strong>');
-        jsonResponse(['success' => true, 'fee_gate' => $enabled]);
 
     default:
         jsonError('Unknown action', 404);
