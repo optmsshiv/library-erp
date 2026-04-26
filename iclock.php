@@ -164,9 +164,11 @@ if ($method === 'POST') {
     // ── Get fee gate setting ──
     $feeGate = 0;
     try {
-        $db->exec("ALTER TABLE settings ADD COLUMN IF NOT EXISTS biometric_fee_gate TINYINT(1) DEFAULT 0");
-        $sg = $db->query("SELECT biometric_fee_gate FROM settings WHERE id=1")->fetch();
-        $feeGate = (int)($sg['biometric_fee_gate'] ?? 0);
+        $stgCols = [];
+        foreach ($db->query("SHOW COLUMNS FROM settings")->fetchAll() as $c) $stgCols[] = $c['Field'];
+        if (!in_array('fee_gate', $stgCols)) $db->exec("ALTER TABLE settings ADD COLUMN fee_gate TINYINT(1) DEFAULT 0");
+        $sg = $db->query("SELECT fee_gate FROM settings WHERE id=1")->fetch();
+        $feeGate = (int)($sg['fee_gate'] ?? 0);
     } catch(Exception $e) {}
 
     $processed = 0;
@@ -237,6 +239,13 @@ if ($method === 'POST') {
         }
 
         // ── Update attendance ──
+        // Strategy:
+        //   - Always track FIRST check_in of the day (never overwrite it)
+        //   - Always update check_out to the LATEST punch (so final departure wins)
+        //   - Re-entry after check_out just updates check_out to null until they leave again
+        //     Actually simpler: track last punch time regardless — if it's a check_in
+        //     after a check_out it means they came back, so clear check_out.
+
         $existStmt = $db->prepare(
             "SELECT * FROM student_attendance WHERE student_id=? AND date=? LIMIT 1"
         );
@@ -244,7 +253,7 @@ if ($method === 'POST') {
         $att = $existStmt->fetch(PDO::FETCH_ASSOC);
 
         if (!$att) {
-            // First punch today = check_in with late check
+            // Very first punch today — always treat as check_in regardless of device status
             $isLate = 0; $lateMin = 0;
             if (!empty($stu['bstart'])) {
                 $bTs   = strtotime($punchDate . ' ' . $stu['bstart']);
@@ -257,10 +266,7 @@ if ($method === 'POST') {
             $db->prepare(
                 "INSERT INTO student_attendance
                  (student_id, date, status, check_in, is_late, late_minutes, marked_by, device_sn)
-                 VALUES (?,?,?,?,?,?,?,?)
-                 ON DUPLICATE KEY UPDATE
-                 check_in=VALUES(check_in), is_late=VALUES(is_late),
-                 late_minutes=VALUES(late_minutes), marked_by='biometric_device'"
+                 VALUES (?,?,?,?,?,?,?,?)"
             )->execute([$stu['id'], $punchDate, 'present', $punchTime, $isLate, $lateMin, 'biometric_device', $sn]);
 
             // Sync to main attendance table
@@ -272,15 +278,39 @@ if ($method === 'POST') {
             addAct($db, '🖐️', 'rgba(22,163,74,.14)',
                 "<strong>{$stu['fname']} {$stu['lname']}</strong> checked in via biometric at $punchTime$lateMsg");
 
-        } elseif (!$att['check_out']) {
-            // Second punch = check_out
-            $db->prepare(
-                "UPDATE student_attendance SET check_out=?, marked_by='biometric_device'
-                 WHERE student_id=? AND date=?"
-            )->execute([$punchTime, $stu['id'], $punchDate]);
+        } else {
+            // Subsequent punch today — use device punch_type to decide
+            // If device sends all punches as check_in (no OUT distinction),
+            // infer direction from current state: if they're "inside" → going out; if "outside" → coming back
+            $effectiveType = $punchType;
+            if ($punchType === 'check_in' && $att['check_out'] === null) {
+                // Currently inside (check_in set, no check_out) → treat this as check_out
+                $effectiveType = 'check_out';
+            }
+            // If check_out is already set and punch is check_in → they're returning (keep as check_in)
 
-            addAct($db, '🚪', 'rgba(100,116,139,.14)',
-                "<strong>{$stu['fname']} {$stu['lname']}</strong> checked out at $punchTime");
+            if ($effectiveType === 'check_out') {
+                // Student leaving — update check_out to this (latest) time
+                $db->prepare(
+                    "UPDATE student_attendance SET check_out=?, marked_by='biometric_device'
+                     WHERE student_id=? AND date=?"
+                )->execute([$punchTime, $stu['id'], $punchDate]);
+
+                addAct($db, '🚪', 'rgba(100,116,139,.14)',
+                    "<strong>{$stu['fname']} {$stu['lname']}</strong> checked out at $punchTime");
+
+            } else {
+                // check_in punch after a previous check_out — student returned
+                // Clear check_out so they're shown as "inside" again
+                // First check_in time is preserved (never overwritten)
+                $db->prepare(
+                    "UPDATE student_attendance SET check_out=NULL, marked_by='biometric_device'
+                     WHERE student_id=? AND date=? AND check_out IS NOT NULL"
+                )->execute([$stu['id'], $punchDate]);
+
+                addAct($db, '🔄', 'rgba(59,130,246,.14)',
+                    "<strong>{$stu['fname']} {$stu['lname']}</strong> re-entered at $punchTime");
+            }
         }
 
         // Update device total
