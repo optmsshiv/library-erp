@@ -2,6 +2,9 @@
 // ── Bootstrap ────────────────────────────────────────────────────────────────
 session_start();
 
+// ── FIX: Set timezone to IST so PHP date() and MySQL NOW() stay in sync ──
+date_default_timezone_set('Asia/Kolkata');
+
 require_once __DIR__ . '/../core/tenant.php';
 
 // CORS — allow same-site subdomain requests (e.g. chhaya.optms.co.in)
@@ -44,6 +47,10 @@ function getInput(): array {
 
 // ── Tenant DB (resolves subdomain automatically) ─────────────────────────────
 $db     = Tenant::db();
+
+// ── FIX: Sync MySQL timezone with PHP (IST = UTC+5:30) ──
+$db->exec("SET time_zone = '+05:30'");
+
 $method = $_SERVER['REQUEST_METHOD'];
 $action = $_GET['action'] ?? '';
 
@@ -1225,8 +1232,11 @@ switch ($action) {
             expires_at DATETIME NOT NULL,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )");
-        // Delete old tokens for this student
-        $db->prepare("DELETE FROM qr_tokens WHERE student_id=? AND type='attendance'")->execute([$studentId]);
+        // ── FIX: Only delete tokens from previous days, NOT today's token
+        // (prevents race condition where student's app still shows old QR)
+        $db->prepare("DELETE FROM qr_tokens WHERE student_id=? AND type='attendance' AND date < ?")->execute([$studentId, date('Y-m-d')]);
+        // Also delete any existing token for today so we generate a fresh one
+        $db->prepare("DELETE FROM qr_tokens WHERE student_id=? AND type='attendance' AND date=?")->execute([$studentId, date('Y-m-d')]);
         // Generate new token
         $token = bin2hex(random_bytes(24));
         $date  = date('Y-m-d');
@@ -1262,6 +1272,8 @@ switch ($action) {
         )");
         // Get or create token for today
         $today = date('Y-m-d');
+        // ── FIX: Clean up expired tokens from previous days ──
+        $db->prepare("DELETE FROM qr_tokens WHERE student_id=? AND type='attendance' AND date < ?")->execute([$studentId, $today]);
         $tok = $db->prepare("SELECT token, expires_at FROM qr_tokens WHERE student_id=? AND type='attendance' AND date=? AND expires_at > NOW() LIMIT 1");
         $tok->execute([$studentId, $today]);
         $existing = $tok->fetch();

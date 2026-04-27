@@ -4,9 +4,6 @@
 session_start();
 require_once __DIR__ . '/includes/db.php';
 
-// ── FIX: Set timezone to IST so PHP date() and MySQL NOW() stay in sync ──
-date_default_timezone_set('Asia/Kolkata');
-
 $token  = $_GET['token'] ?? '';
 $result = null;
 $error  = null;
@@ -14,9 +11,6 @@ $error  = null;
 if ($token) {
     try {
         $db = getDB();
-
-        // ── FIX: Sync MySQL timezone with PHP (IST = UTC+5:30) ──
-        $db->exec("SET time_zone = '+05:30'");
 
         // Create tables if not exist
         $db->exec("CREATE TABLE IF NOT EXISTS qr_tokens (
