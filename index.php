@@ -251,7 +251,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         .g4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
         .gm{display:grid;grid-template-columns:1fr 320px;gap:16px}
 
-        .empty{text-align:center;padding:40px 16px;color:var(--tx3)}
+        .empty{text-align:center;padding:12px 16px;color:var(--tx3)}
         .empty .ei{font-size:38px;margin-bottom:8px}.empty .et{font-size:12.5px}
 
         .qa-gr{display:grid;grid-template-columns:repeat(8,1fr);gap:10px;margin-bottom:20px}
