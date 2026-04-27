@@ -584,13 +584,19 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
             <!-- ROW B: Batch Seat Availability + Fee Overview — horizontal -->
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px">
 
-                <!-- Batch-wise Seat Availability -->
-                <div>
-                    <div class="sec-hd" style="margin-bottom:10px">
-                        <div><div class="sec-t">Batch Seat Availability</div><div class="sec-s">Live occupancy per batch</div></div>
-                        <button class="btn bg" onclick="navTo('seats')" style="font-size:11px"><span class="mi sm">event_seat</span>Manage</button>
+                <!-- Batch Seats Quick Summary Card -->
+                <div class="panel" style="padding:0;overflow:hidden">
+                    <div style="display:flex;align-items:center;justify-content:space-between;padding:13px 16px 10px;border-bottom:1px solid var(--br)">
+                        <div>
+                            <div style="font-size:13px;font-weight:700;color:var(--tx)">Batch Seats</div>
+                            <div style="font-size:10px;color:var(--tx3);font-family:var(--fm);margin-top:1px">Live occupancy per batch</div>
+                        </div>
+                        <div style="display:flex;align-items:center;gap:8px">
+                            <span style="display:inline-flex;align-items:center;gap:4px;padding:3px 9px;background:rgba(22,163,74,.1);border:1px solid rgba(22,163,74,.25);border-radius:20px;font-size:10px;font-weight:700;color:#15803d;font-family:var(--fm)"><span style="width:6px;height:6px;border-radius:50%;background:#16a34a;animation:pulseDue 1.5s infinite"></span>Live</span>
+                            <button class="btn bg" onclick="navTo('seats')" style="font-size:11px;padding:5px 10px"><span class="mi sm">event_seat</span>Manage</button>
+                        </div>
                     </div>
-                    <div id="dashBatchCards" style="display:grid;grid-template-columns:1fr 1fr;gap:10px"></div>
+                    <div id="dashBatchCards" style="padding:10px 14px;display:flex;flex-direction:column;gap:0"></div>
                 </div>
 
                 <!-- Fee Overview -->
@@ -2072,38 +2078,42 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
       </div>`;
     })()}`;
 
-        // ── BATCH SEAT AVAILABILITY WITH FEE STATUS ──
-        // Build seat→student map
-        const seatMap={};
-        DB.students.forEach(st=>{ if(st.seat&&st.batchId)seatMap[st.batchId+'_'+st.seat]=st; });
+        // ── BATCH SEATS QUICK SUMMARY CARD ──
         let batchHTML='';
-        DB.batches.forEach(b=>{
-            const pct=Math.round(b.occupied/b.total*100);
-            const fc=pct>=100?'sf-r':pct>=70?'sf-y':'sf-g';
-            const sc=pct>=100?'bst-f':pct>=70?'bst-n':'bst-o';
+        const barColors=['#3b82f6','#16a34a','#9333ea','#f59e0b','#0ea5e9','#ef4444'];
+        DB.batches.forEach((b,idx)=>{
+            const pct=b.total?Math.round(b.occupied/b.total*100):0;
             const vacCount=b.total-b.occupied;
             const bStudents=DB.students.filter(x=>x.batchId===b.id);
             const bDue=bStudents.filter(x=>x.feeStatus==='pending'||x.feeStatus==='partial').length;
             const bOD=bStudents.filter(x=>x.feeStatus==='overdue').length;
-            batchHTML+=`<div class="panel" style="margin-bottom:10px">
-      <div class="ph" style="padding:10px 14px">
-        <div><div style="font-weight:600;font-size:13px">${batchEmoji(b.name)} ${b.name}</div>
-          <div style="font-size:10px;color:var(--tx3);font-family:var(--fm)">${fmtT(b.startTime)}–${fmtT(b.endTime)} · ₹${b.baseFee}+AC₹${b.acExtra}</div></div>
-        <div style="display:flex;align-items:center;gap:8px">
-          <div class="bst ${sc}">${pct>=100?'Full':pct>=70?'Filling':'Open'}</div>
-          ${bDue>0?`<span style="font-size:9px;background:rgba(230,126,34,.15);color:var(--or);padding:2px 6px;border-radius:3px;font-weight:700;font-family:var(--fm)">⏳${bDue} pending</span>`:''}
-          ${bOD>0?`<span style="font-size:9px;background:rgba(192,68,79,.15);color:var(--ro);padding:2px 6px;border-radius:3px;font-weight:700;font-family:var(--fm);animation:pulseDue 1s infinite">🚨${bOD} overdue</span>`:''}
+            const barColor=barColors[idx%barColors.length];
+            const isLast=idx===DB.batches.length-1;
+            batchHTML+=`
+      <div style="padding:9px 2px ${isLast?'4px':'9px'};${isLast?'':'border-bottom:1px solid var(--br)'}">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+          <div style="display:flex;align-items:center;gap:7px">
+            <span style="font-size:12px;font-weight:700;color:var(--tx)">${batchEmoji(b.name)} ${b.name}</span>
+            <span style="font-size:9px;color:var(--tx3);font-family:var(--fm)">${fmtT(b.startTime)}–${fmtT(b.endTime)}</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:5px">
+            ${bOD>0?`<span style="display:inline-flex;align-items:center;gap:3px;padding:2px 7px;background:rgba(192,68,79,.1);border:1px solid rgba(192,68,79,.25);border-radius:20px;font-size:9px;font-weight:700;color:var(--ro);font-family:var(--fm)"><span class="mi" style="font-size:10px;color:var(--ro)">warning</span>${bOD} overdue</span>`:''}
+            ${bDue>0&&bOD===0?`<span style="display:inline-flex;align-items:center;gap:3px;padding:2px 7px;background:rgba(217,119,6,.1);border:1px solid rgba(217,119,6,.25);border-radius:20px;font-size:9px;font-weight:700;color:#92400e;font-family:var(--fm)"><span class="mi" style="font-size:10px;color:#d97706">schedule</span>${bDue} pending</span>`:''}
+            <span style="font-size:11px;font-weight:800;color:var(--tx2);font-family:var(--fm)">${b.occupied}/${b.total}</span>
+          </div>
         </div>
-      </div>
-      <div style="padding:8px 14px 12px">
-        <div class="sbar"><div class="sfill ${fc}" style="width:${pct}%"></div></div>
-        <div style="display:flex;justify-content:space-between;font-size:10px;font-family:var(--fm);color:var(--tx3)"><span>Total: <b>${b.total}</b></span><span style="color:var(--ro)">Occupied: <b>${b.occupied}</b></span><span style="color:var(--em)">Vacant: <b>${vacCount}</b></span></div>
-      </div>
-    </div>`;
+        <!-- Progress bar -->
+        <div style="height:6px;background:var(--sf3);border-radius:6px;overflow:hidden">
+          <div style="height:100%;width:${pct}%;background:${barColor};border-radius:6px;transition:width .4s ease"></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-top:4px">
+          <span style="font-size:9px;color:var(--tx3);font-family:var(--fm)">${vacCount} vacant · ${pct}% full</span>
+          <span style="font-size:9px;font-weight:700;font-family:var(--fm);color:${pct>=100?'var(--ro)':pct>=70?'#d97706':'var(--em)'}">${pct>=100?'Full':pct>=70?'Filling fast':'Open'}</span>
+        </div>
+      </div>`;
         });
-        document.getElementById('dashBatchCards').innerHTML=batchHTML;
-        // In the new layout the batch grid is inside a 50% column — always 2 cols
-        document.getElementById('dashBatchCards').style.gridTemplateColumns = window.innerWidth<600?'1fr':'repeat(2,1fr)';
+        document.getElementById('dashBatchCards').innerHTML = DB.batches.length ? batchHTML
+          : '<div style="text-align:center;padding:24px;color:var(--tx3);font-size:12px">No batches configured</div>';
 
         // ── EXPENSE TRACKER ──
         const catTotals={};DB.expenses.forEach(e=>{catTotals[e.category]=(catTotals[e.category]||0)+e.amount;});
