@@ -1759,7 +1759,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
                 apiGet('get_salary').catch(e => { console.warn('get_salary failed:', e); return {}; }),
             ]);
 
-            // Attendance — only seed present for known students
+            // Attendance — default to absent until manually marked or saved
             DB.attendance = attData.attendance || {};
             DB.students.forEach(st => { if (!DB.attendance[st.id]) DB.attendance[st.id] = 'absent'; });
 
@@ -2783,7 +2783,6 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
     }
     function togAtt(id){DB.attendance[id]=DB.attendance[id]==='present'?'absent':'present';renderAtt();}
     function markAll(p){DB.students.forEach(s=>{DB.attendance[s.id]=p?'present':'absent';});renderAtt();toast(p?'All present':'All absent',p?'ok':'wn');}
-    function saveAtt(){const p=Object.values(DB.attendance).filter(v=>v==='present').length;addActivity('<span class="mi sm">fact_check</span>','rgba(2,132,199,.12)',`Attendance: <strong>${p}/${DB.students.length}</strong> present`);toast(`Saved! ${p} present`,'ok');updateBadges();}
 
     // ═══ BOOKS ═══
     let bkPage=1,bkSearch='';
@@ -3732,6 +3731,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         });
         if (res.error) return toast(res.error, 'er');
         const p = Object.values(DB.attendance).filter(v=>v==='present').length;
+        addActivity('<span class="mi sm">fact_check</span>','rgba(2,132,199,.12)',`Attendance: <strong>${p}/${DB.students.length}</strong> present`);
         toast(`Saved! ${p} present`, 'ok');
         updateBadges();
     }
