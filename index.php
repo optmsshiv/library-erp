@@ -1761,7 +1761,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
 
             // Attendance — only seed present for known students
             DB.attendance = attData.attendance || {};
-            DB.students.forEach(st => { if (!DB.attendance[st.id]) DB.attendance[st.id] = 'present'; });
+            DB.students.forEach(st => { if (!DB.attendance[st.id]) DB.attendance[st.id] = 'absent'; });
 
             // WA log
             const waRows = Array.isArray(waLogRes) ? waLogRes : (waLogRes.logs || []);
