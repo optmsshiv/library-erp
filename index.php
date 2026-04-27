@@ -220,11 +220,13 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         .cbar .tt{display:none;position:absolute;bottom:calc(100%+4px);left:50%;transform:translateX(-50%);background:var(--tx);color:#fff;font-size:9px;padding:2px 7px;border-radius:4px;white-space:nowrap;font-family:var(--fm);z-index:10}
         .cbar:hover .tt{display:block}
 
-        .mcal{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;font-family:var(--fm)}
-        .cal-dl{text-align:center;color:var(--tx3);padding:2px 0;font-size:9px}
-        .cal-d{text-align:center;padding:5px 2px;border-radius:5px;cursor:pointer;color:var(--tx2);transition:all .15s;font-size:11px}
-        .cal-d:hover{background:var(--sf2)}.cal-d.today{background:var(--ac);color:#fff;font-weight:700}
-        .cal-d.event{color:var(--gd);font-weight:600}.cal-d.empty{color:transparent;pointer-events:none}
+        .mcal{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;font-family:var(--fm);margin-top:4px}
+        .cal-dl{text-align:center;color:var(--tx3);padding:4px 0;font-size:10px;font-weight:700;letter-spacing:.3px}
+        .cal-d{text-align:center;padding:7px 2px;border-radius:8px;cursor:pointer;color:var(--tx2);transition:all .15s;font-size:12px;font-weight:600;line-height:1;position:relative}
+        .cal-d:hover{background:var(--sf2);color:var(--ac)}
+        .cal-d.today{background:var(--ac);color:#fff;font-weight:800;box-shadow:0 2px 8px rgba(61,111,240,.3)}
+        .cal-d.event{color:var(--tx2);font-weight:700}
+        .cal-d.empty{color:transparent;pointer-events:none}
 
         .toast-wrap{position:fixed;bottom:18px;right:18px;z-index:9999;display:flex;flex-direction:column;gap:7px}
         .toast{padding:12px 16px;border-radius:var(--r2);background:var(--tx);color:#fff;font-size:12.5px;font-weight:500;box-shadow:var(--sh2);display:flex;align-items:center;gap:8px;animation:tIn .28s ease;min-width:230px}
@@ -1886,7 +1888,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
     }
 
     // ═══ DASHBOARD ═══
-    let calDate=new Date(2026,2,1);
+    let calDate=new Date(new Date().getFullYear(),new Date().getMonth(),1); // always start at current month
     function renderDash(){
         const s=DB.students;
         const paid=s.filter(x=>x.feeStatus==='paid');
@@ -1927,7 +1929,49 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
     <div class="sc" style="--ca:var(--vi)"><div class="s-ic" style="background:var(--c-purple)"><span class="mi" style="color:var(--vi)">menu_book</span></div><div class="s-lb">Books Issued</div><div class="s-vl">${issTx.length}</div><div class="s-mt" style="color:var(--ro)">${odTx.length} overdue</div></div>
     <div class="sc" style="--ca:var(--sk)"><div class="s-ic" style="background:var(--c-sky)"><span class="mi" style="color:var(--sk)">fact_check</span></div><div class="s-lb">Attendance Today</div><div class="s-vl">${prsnt}</div><div class="s-mt" style="color:var(--em)">${s.length?Math.round(prsnt/s.length*100):0}%</div></div>
     <div class="sc" style="--ca:#7c3aed;cursor:pointer" onclick="navTo('biometric')"><div class="s-ic" style="background:#faf5ff"><span class="mi" style="color:#7c3aed">fingerprint</span></div><div class="s-lb">Biometric Check-ins</div><div class="s-vl">${Object.values(_bioToday).filter(b=>b.in).length}</div><div class="s-mt" style="color:#7c3aed">today · via device</div></div>
-    <div class="sc" style="--ca:var(--gd)"><div class="s-ic" style="background:var(--c-orange)"><span class="mi" style="color:var(--or)">trending_down</span></div><div class="s-lb">Monthly Expenses</div><div class="s-vl">${fmt(totalExp)}</div><div class="s-mt"><span class="bdn">↑ 3.1%</span></div></div>`;
+    <div class="sc" style="--ca:var(--em);padding:14px;min-width:0">
+      <div style="font-size:11px;font-weight:700;color:var(--tx2);margin-bottom:10px">Quick Summary — Seats</div>
+      <div style="display:flex;align-items:center;gap:14px">
+        <!-- Donut chart via SVG -->
+        <div style="position:relative;flex-shrink:0;width:72px;height:72px">
+          <svg width="72" height="72" viewBox="0 0 72 72">
+            <circle cx="36" cy="36" r="28" fill="none" stroke="#e8edf5" stroke-width="10"/>
+            ${(()=>{
+              const total = totalSeats || 1;
+              const occPct = occSeats / total;
+              const circ = 2 * Math.PI * 28;
+              const occDash = occPct * circ;
+              return `<circle cx="36" cy="36" r="28" fill="none" stroke="var(--ac)" stroke-width="10"
+                stroke-dasharray="${occDash.toFixed(1)} ${circ.toFixed(1)}"
+                stroke-dashoffset="${(circ * 0.25).toFixed(1)}"
+                stroke-linecap="round"/>`;
+            })()}
+          </svg>
+          <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center">
+            <div style="font-size:14px;font-weight:800;color:var(--tx);line-height:1">${totalSeats}</div>
+            <div style="font-size:8px;color:var(--tx3);font-weight:600;margin-top:1px">Total</div>
+          </div>
+        </div>
+        <!-- Legend -->
+        <div style="display:flex;flex-direction:column;gap:6px;min-width:0">
+          <div style="display:flex;align-items:center;gap:6px;font-size:11px;font-weight:700">
+            <span style="width:8px;height:8px;border-radius:50%;background:var(--em);flex-shrink:0"></span>
+            <span style="color:var(--tx2)">Available</span>
+            <span style="margin-left:auto;color:var(--em)">${totalSeats-occSeats} <span style="font-size:9px;color:var(--tx3)">(${totalSeats?Math.round((totalSeats-occSeats)/totalSeats*100):0}%)</span></span>
+          </div>
+          <div style="display:flex;align-items:center;gap:6px;font-size:11px;font-weight:700">
+            <span style="width:8px;height:8px;border-radius:50%;background:var(--ac);flex-shrink:0"></span>
+            <span style="color:var(--tx2)">Occupied</span>
+            <span style="margin-left:auto;color:var(--ac)">${occSeats} <span style="font-size:9px;color:var(--tx3)">(${totalSeats?Math.round(occSeats/totalSeats*100):0}%)</span></span>
+          </div>
+          <div style="display:flex;align-items:center;gap:6px;font-size:11px;font-weight:700">
+            <span style="width:8px;height:8px;border-radius:50%;background:var(--gd);flex-shrink:0"></span>
+            <span style="color:var(--tx2)">Reserved</span>
+            <span style="margin-left:auto;color:var(--gd)">0 <span style="font-size:9px;color:var(--tx3)">(0%)</span></span>
+          </div>
+        </div>
+      </div>
+    </div>`;
 
         // ── BATCH SEAT AVAILABILITY WITH FEE STATUS ──
         // Build seat→student map
@@ -2128,10 +2172,10 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
                 ? upcoming.map(({s,dd})=>{
                     const diff = Math.round((dd-today)/86400000);
                     const col  = diff===0?'var(--ro)':diff<=3?'var(--or)':diff<=7?'var(--gd)':'var(--tx3)';
-                    return `<div style="display:flex;align-items:center;gap:7px;font-size:10.5px">
-            <div style="width:6px;height:6px;border-radius:50%;background:${col};flex-shrink:0"></div>
-            <span style="flex:1;color:var(--tx2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${s.fname} ${s.lname}</span>
-            <span style="font-family:var(--fm);font-size:9.5px;color:${col};font-weight:700;white-space:nowrap">${diff===0?'Today':diff===1?'Tomorrow':'in '+diff+'d'}</span>
+                    return `<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--br)">
+            <div style="width:7px;height:7px;border-radius:50%;background:${col};flex-shrink:0"></div>
+            <span style="flex:1;font-size:12px;font-weight:600;color:var(--tx2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${s.fname} ${s.lname}</span>
+            <span style="font-family:var(--fm);font-size:10px;font-weight:800;color:${col};white-space:nowrap;background:${col}18;padding:2px 7px;border-radius:5px">${diff===0?'Today':diff===1?'Tomorrow':'in '+diff+'d'}</span>
           </div>`;
                 }).join('')
                 : '<div style="font-size:11px;color:var(--tx3)">No upcoming dues</div>';
