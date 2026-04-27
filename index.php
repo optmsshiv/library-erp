@@ -1929,49 +1929,87 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
     <div class="sc" style="--ca:var(--vi)"><div class="s-ic" style="background:var(--c-purple)"><span class="mi" style="color:var(--vi)">menu_book</span></div><div class="s-lb">Books Issued</div><div class="s-vl">${issTx.length}</div><div class="s-mt" style="color:var(--ro)">${odTx.length} overdue</div></div>
     <div class="sc" style="--ca:var(--sk)"><div class="s-ic" style="background:var(--c-sky)"><span class="mi" style="color:var(--sk)">fact_check</span></div><div class="s-lb">Attendance Today</div><div class="s-vl">${prsnt}</div><div class="s-mt" style="color:var(--em)">${s.length?Math.round(prsnt/s.length*100):0}%</div></div>
     <div class="sc" style="--ca:#7c3aed;cursor:pointer" onclick="navTo('biometric')"><div class="s-ic" style="background:#faf5ff"><span class="mi" style="color:#7c3aed">fingerprint</span></div><div class="s-lb">Biometric Check-ins</div><div class="s-vl">${Object.values(_bioToday).filter(b=>b.in).length}</div><div class="s-mt" style="color:#7c3aed">today · via device</div></div>
-    <div class="sc" style="--ca:var(--em);padding:14px;min-width:0">
-      <div style="font-size:11px;font-weight:700;color:var(--tx2);margin-bottom:10px">Quick Summary — Seats</div>
-      <div style="display:flex;align-items:center;gap:14px">
-        <!-- Donut chart via SVG -->
-        <div style="position:relative;flex-shrink:0;width:72px;height:72px">
-          <svg width="72" height="72" viewBox="0 0 72 72">
-            <circle cx="36" cy="36" r="28" fill="none" stroke="#e8edf5" stroke-width="10"/>
-            ${(()=>{
-              const total = totalSeats || 1;
-              const occPct = occSeats / total;
-              const circ = 2 * Math.PI * 28;
-              const occDash = occPct * circ;
-              return `<circle cx="36" cy="36" r="28" fill="none" stroke="var(--ac)" stroke-width="10"
-                stroke-dasharray="${occDash.toFixed(1)} ${circ.toFixed(1)}"
-                stroke-dashoffset="${(circ * 0.25).toFixed(1)}"
-                stroke-linecap="round"/>`;
-            })()}
-          </svg>
-          <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center">
-            <div style="font-size:14px;font-weight:800;color:var(--tx);line-height:1">${totalSeats}</div>
-            <div style="font-size:8px;color:var(--tx3);font-weight:600;margin-top:1px">Total</div>
+    ${(()=>{
+      // ── Monthly Expenses Sparkline Card ──
+      const now = new Date();
+      const curY = now.getFullYear(), curM = now.getMonth();
+
+      // Build last-6-months buckets
+      const months = [];
+      for(let i = 5; i >= 0; i--){
+        const d = new Date(curY, curM - i, 1);
+        months.push({ y: d.getFullYear(), m: d.getMonth(), total: 0,
+          label: d.toLocaleDateString('en-IN',{month:'short'}) });
+      }
+      DB.expenses.forEach(e => {
+        if(!e.date) return;
+        const d = new Date(e.date);
+        const bucket = months.find(b => b.y===d.getFullYear() && b.m===d.getMonth());
+        if(bucket) bucket.total += e.amount;
+      });
+
+      const curTotal  = months[5].total;
+      const prevTotal = months[4].total;
+      const pctChange = prevTotal > 0 ? ((curTotal - prevTotal) / prevTotal * 100) : 0;
+      const isUp      = pctChange >= 0;
+      const vals      = months.map(b => b.total);
+      const maxV      = Math.max(...vals, 1);
+
+      // SVG sparkline (area chart) — 220×60
+      const W=220, H=60, padX=6, padY=6;
+      const pts = vals.map((v,i)=>{
+        const x = padX + (i / (vals.length-1)) * (W - padX*2);
+        const y = H - padY - (v/maxV) * (H - padY*2);
+        return [x.toFixed(1), y.toFixed(1)];
+      });
+      const polyline = pts.map(p=>p.join(',')).join(' ');
+      const area = `${pts[0][0]},${H-padY} ${polyline} ${pts[pts.length-1][0]},${H-padY}`;
+
+      // Y-axis tick labels (3 levels)
+      const yTicks = [0, Math.round(maxV/2), maxV].map((v,i)=>{
+        const y = H - padY - (v/maxV)*(H-padY*2);
+        const label = v>=1000?`${(v/1000).toFixed(0)}K`:`${v}`;
+        return `<text x="0" y="${y.toFixed(1)}" font-size="5.5" fill="var(--tx3)" dominant-baseline="middle" font-family="JetBrains Mono,monospace">${label}</text>`;
+      }).join('');
+
+      const xLabels = months.map((b,i)=>{
+        const x = padX + (i/(vals.length-1))*(W-padX*2);
+        return `<text x="${x.toFixed(1)}" y="${H+1}" font-size="6" fill="var(--tx3)" text-anchor="middle" font-family="JetBrains Mono,monospace">${b.label}</text>`;
+      }).join('');
+
+      // dot on last point
+      const lastPt = pts[pts.length-1];
+      const dot = `<circle cx="${lastPt[0]}" cy="${lastPt[1]}" r="3" fill="var(--vi)" stroke="#fff" stroke-width="1.5"/>`;
+
+      return `<div class="sc" style="--ca:var(--vi);padding:14px 16px;min-width:0;grid-column:span 1">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:6px">
+          <div>
+            <div style="font-size:10px;font-weight:700;color:var(--tx3);letter-spacing:.8px;text-transform:uppercase;font-family:var(--fm)">Monthly Expenses</div>
+            <div style="font-size:22px;font-weight:800;color:var(--tx);line-height:1.15;font-family:var(--fd)">₹${curTotal.toLocaleString('en-IN')}</div>
+            <div style="display:flex;align-items:center;gap:5px;margin-top:3px">
+              <span style="display:inline-flex;align-items:center;gap:2px;padding:2px 6px;border-radius:5px;font-size:10px;font-weight:700;background:${isUp?'rgba(220,38,38,.10)':'rgba(22,163,74,.12)'};color:${isUp?'var(--ro)':'var(--em)'}">
+                ${isUp?'▲':'▼'} ${Math.abs(pctChange).toFixed(1)}%
+              </span>
+              <span style="font-size:10px;color:var(--tx3)">vs last month</span>
+            </div>
           </div>
+          <div style="font-size:9px;color:var(--tx3);font-family:var(--fm);background:var(--sf2);border:1px solid var(--br);border-radius:6px;padding:3px 8px;white-space:nowrap">This Month</div>
         </div>
-        <!-- Legend -->
-        <div style="display:flex;flex-direction:column;gap:6px;min-width:0">
-          <div style="display:flex;align-items:center;gap:6px;font-size:11px;font-weight:700">
-            <span style="width:8px;height:8px;border-radius:50%;background:var(--em);flex-shrink:0"></span>
-            <span style="color:var(--tx2)">Available</span>
-            <span style="margin-left:auto;color:var(--em)">${totalSeats-occSeats} <span style="font-size:9px;color:var(--tx3)">(${totalSeats?Math.round((totalSeats-occSeats)/totalSeats*100):0}%)</span></span>
-          </div>
-          <div style="display:flex;align-items:center;gap:6px;font-size:11px;font-weight:700">
-            <span style="width:8px;height:8px;border-radius:50%;background:var(--ac);flex-shrink:0"></span>
-            <span style="color:var(--tx2)">Occupied</span>
-            <span style="margin-left:auto;color:var(--ac)">${occSeats} <span style="font-size:9px;color:var(--tx3)">(${totalSeats?Math.round(occSeats/totalSeats*100):0}%)</span></span>
-          </div>
-          <div style="display:flex;align-items:center;gap:6px;font-size:11px;font-weight:700">
-            <span style="width:8px;height:8px;border-radius:50%;background:var(--gd);flex-shrink:0"></span>
-            <span style="color:var(--tx2)">Reserved</span>
-            <span style="margin-left:auto;color:var(--gd)">0 <span style="font-size:9px;color:var(--tx3)">(0%)</span></span>
-          </div>
-        </div>
-      </div>
-    </div>`;
+        <svg width="100%" viewBox="0 0 ${W} ${H+10}" preserveAspectRatio="none" style="display:block;overflow:visible">
+          <defs>
+            <linearGradient id="expGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="var(--vi)" stop-opacity="0.22"/>
+              <stop offset="100%" stop-color="var(--vi)" stop-opacity="0.02"/>
+            </linearGradient>
+          </defs>
+          ${yTicks}
+          <polygon points="${area}" fill="url(#expGrad)"/>
+          <polyline points="${polyline}" fill="none" stroke="var(--vi)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+          ${dot}
+          ${xLabels}
+        </svg>
+      </div>`;
+    })()}`;
 
         // ── BATCH SEAT AVAILABILITY WITH FEE STATUS ──
         // Build seat→student map
