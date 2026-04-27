@@ -220,15 +220,11 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         .cbar .tt{display:none;position:absolute;bottom:calc(100%+4px);left:50%;transform:translateX(-50%);background:var(--tx);color:#fff;font-size:9px;padding:2px 7px;border-radius:4px;white-space:nowrap;font-family:var(--fm);z-index:10}
         .cbar:hover .tt{display:block}
 
-        .mcal{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;font-family:var(--fm)}
-        .cal-dl{text-align:center;color:var(--tx3);padding:4px 0 5px;font-size:9.5px;font-weight:600;letter-spacing:.4px;text-transform:uppercase}
-        .cal-d{text-align:center;padding:0;height:32px;line-height:32px;border-radius:8px;cursor:pointer;color:var(--tx2);transition:background .12s,color .12s;font-size:12px;position:relative}
-        .cal-d:hover{background:var(--sf2);color:var(--tx)}
-        .cal-d.today{background:var(--ac);color:#fff;font-weight:700;border-radius:8px;box-shadow:0 2px 8px rgba(61,111,240,.35)}
-        .cal-d.event{color:var(--tx);font-weight:600}
-        .cal-d.weekend{color:var(--ro);opacity:.8}
-        .cal-d.empty{color:transparent;pointer-events:none}
-        .cal-dot{position:absolute;bottom:3px;left:50%;transform:translateX(-50%);width:5px;height:5px;border-radius:50%}
+        .mcal{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;font-family:var(--fm)}
+        .cal-dl{text-align:center;color:var(--tx3);padding:2px 0;font-size:9px}
+        .cal-d{text-align:center;padding:5px 2px;border-radius:5px;cursor:pointer;color:var(--tx2);transition:all .15s;font-size:11px}
+        .cal-d:hover{background:var(--sf2)}.cal-d.today{background:var(--ac);color:#fff;font-weight:700}
+        .cal-d.event{color:var(--gd);font-weight:600}.cal-d.empty{color:transparent;pointer-events:none}
 
         .toast-wrap{position:fixed;bottom:18px;right:18px;z-index:9999;display:flex;flex-direction:column;gap:7px}
         .toast{padding:12px 16px;border-radius:var(--r2);background:var(--tx);color:#fff;font-size:12.5px;font-weight:500;box-shadow:var(--sh2);display:flex;align-items:center;gap:8px;animation:tIn .28s ease;min-width:230px}
@@ -568,14 +564,11 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
 
                 <!-- Calendar -->
                 <div class="panel" style="margin-bottom:0">
-                    <div class="ph" style="padding:12px 16px">
-                        <div style="display:flex;align-items:center;gap:7px">
-                            <span class="mi sm" style="color:var(--ac)">calendar_month</span>
-                            <span style="font-size:13px;font-weight:700;color:var(--tx)" id="calTitle"></span>
-                        </div>
+                    <div class="ph" style="padding:11px 16px">
+                        <div class="pt"><span class="mi sm" style="vertical-align:middle;margin-right:4px">calendar_month</span><span id="calTitle"></span></div>
                         <div style="display:flex;gap:4px">
-                            <button class="btn bg" style="width:28px;height:28px;padding:0;display:flex;align-items:center;justify-content:center;border-radius:8px" id="calPrev"><span class="mi sm">chevron_left</span></button>
-                            <button class="btn bg" style="width:28px;height:28px;padding:0;display:flex;align-items:center;justify-content:center;border-radius:8px" id="calNext"><span class="mi sm">chevron_right</span></button>
+                            <button class="btn bg" style="font-size:11px;padding:3px 8px" id="calPrev">‹</button>
+                            <button class="btn bg" style="font-size:11px;padding:3px 8px" id="calNext">›</button>
                         </div>
                     </div>
                     <div class="pb" style="padding:12px 14px">
@@ -751,8 +744,8 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
                                 <div style="font-size:11px;color:var(--tx3);margin-top:3px">If ON — students with overdue fee cannot enter even if fingerprint matches</div>
                             </div>
                             <label style="position:relative;display:inline-block;width:44px;height:24px;flex-shrink:0;margin-left:12px">
-                                <input type="checkbox" id="feeGateToggle" onchange="toggleFeeGate(this.checked)" style="opacity:0;width:0;height:0">
-                                <span style="position:absolute;cursor:pointer;inset:0;background:#e2e8f0;border-radius:34px;transition:.3s" id="feeGateSlider"></span>
+                                <input type="checkbox" id="feeGateToggle" onchange="toggleFeeGate(this.checked)" style="opacity:0;width:0;height:0;position:absolute">
+                                <span id="feeGateSlider" style="position:absolute;cursor:pointer;inset:0;background:#e2e8f0;border-radius:34px;transition:.3s"><span id="feeGateThumb" style="position:absolute;height:18px;width:18px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.3s;box-shadow:0 1px 3px rgba(0,0,0,.2)"></span></span>
                             </label>
                         </div>
                         <div id="feeGateStatus" style="font-size:11px;font-weight:700;color:var(--tx3)">Loading…</div>
@@ -879,13 +872,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
             <div class="sec-hd"><div><div class="sec-t">Analytics</div></div></div>
             <div class="g3" id="analCards"></div>
             <div class="g2">
-                <div class="panel"><div class="ph"><div class="pt">Monthly Revenue</div><span style="font-size:10px;color:var(--tx3);font-family:var(--fm)">Last 6 months</span></div><div class="pb" style="padding-bottom:14px">
-                    <div id="revChartWrap" style="position:relative;height:110px;margin-bottom:2px">
-                        <svg id="revChartSvg" width="100%" height="110" style="overflow:visible"></svg>
-                    </div>
-                    <div style="display:flex;align-items:flex-end;gap:7px;height:110px;display:none" id="revChart"></div>
-                    <div id="revChartLabels" style="display:flex;justify-content:space-around;font-size:9px;color:var(--tx3);font-family:var(--fm);margin-top:6px"><span>Dec</span><span>Jan</span><span>Feb</span><span>Mar</span><span>Apr</span><span>May</span></div>
-                </div></div>
+                <div class="panel"><div class="ph"><div class="pt">Monthly Revenue</div></div><div class="pb"><div style="display:flex;align-items:flex-end;gap:7px;height:110px" id="revChart"></div><div style="display:flex;justify-content:space-around;font-size:9px;color:var(--tx3);font-family:var(--fm);margin-top:5px"><span>Jan</span><span>Feb</span><span>Mar</span><span>Apr*</span></div></div></div>
                 <div class="panel"><div class="ph"><div class="pt">Batch Occupancy</div></div><div class="pb" id="batchAnal"></div></div>
             </div>
         </div>
@@ -1134,8 +1121,8 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
                                 <div style="font-size:11px;color:var(--tx3);margin-top:2px">Deny door access if student fee is overdue</div>
                             </div>
                             <label style="position:relative;display:inline-block;width:44px;height:24px;flex-shrink:0;cursor:pointer">
-                                <input type="checkbox" id="settFeeGate" onchange="toggleFeeGate(this.checked)" style="opacity:0;width:0;height:0">
-                                <span id="settFeeGateSlider" style="position:absolute;cursor:pointer;inset:0;background:#e2e8f0;border-radius:34px;transition:.3s"></span>
+                                <input type="checkbox" id="settFeeGate" onchange="toggleFeeGate(this.checked)" style="opacity:0;width:0;height:0;position:absolute">
+                                <span id="settFeeGateSlider" style="position:absolute;cursor:pointer;inset:0;background:#e2e8f0;border-radius:34px;transition:.3s"><span id="settFeeGateThumb" style="position:absolute;height:18px;width:18px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.3s;box-shadow:0 1px 3px rgba(0,0,0,.2)"></span></span>
                             </label>
                         </div>
                         <!-- ADMS URL -->
@@ -1761,45 +1748,41 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
             // Apply nav permissions for the logged-in staff member
             if (data.me) applyNavPerms(data.me);
 
-            // Build attendance map from today's data — isolated so failure doesn't kill init
-            try {
-                const attData = await apiGet('get_attendance', { date: new Date().toISOString().split('T')[0] });
-                DB.attendance = attData.attendance || {};
-            } catch(e) { console.warn('get_attendance failed:', e); }
+            // ── Fire all secondary calls IN PARALLEL (saves ~800ms vs sequential awaits) ──
+            const today = new Date().toISOString().split('T')[0];
+            const [attData, waLogRes, auditData, salData] = await Promise.all([
+                apiGet('get_attendance', { date: today }).catch(e => { console.warn('get_attendance failed:', e); return {}; }),
+                apiGet('get_wa_log').catch(e => { console.warn('get_wa_log failed:', e); return []; }),
+                apiGet('get_audit_log').catch(e => { console.warn('get_audit_log failed:', e); return {}; }),
+                apiGet('get_salary').catch(e => { console.warn('get_salary failed:', e); return {}; }),
+            ]);
+
+            // Attendance — only seed present for known students
+            DB.attendance = attData.attendance || {};
             DB.students.forEach(st => { if (!DB.attendance[st.id]) DB.attendance[st.id] = 'present'; });
 
             // WA log
-            try {
-                const waLog = await apiGet('get_wa_log');
-                const waRows = Array.isArray(waLog) ? waLog : (waLog.logs || []);
-                DB.waSendLog = waRows.map(l => ({
-                    time: l.created_at ? l.created_at.slice(11,16) : '',
-                    to: l.sent_to, preview: l.preview, type: l.type
-                }));
-            } catch(e) { console.warn('get_wa_log failed:', e); }
+            const waRows = Array.isArray(waLogRes) ? waLogRes : (waLogRes.logs || []);
+            DB.waSendLog = waRows.map(l => ({
+                time: l.created_at ? l.created_at.slice(11,16) : '',
+                to: l.sent_to, preview: l.preview, type: l.type
+            }));
 
             // Audit log
-            try {
-                const auditData = await apiGet('get_audit_log');
-                const auditRows = Array.isArray(auditData) ? auditData : (auditData.logs || auditData.records || []);
-                DB.auditLog = auditRows.map(a => {
-                    const isoTs = a.created_at ? a.created_at.replace(' ', 'T') : null;
-                    return {
-                        id: a.id,
-                        who: a.who || 'Admin',
-                        type: a.type || 'other',
-                        text: a.text || '',
-                        time: timeSince(isoTs),
-                        ts: isoTs ? new Date(isoTs).getTime() : Date.now()
-                    };
-                });
-            } catch(e) { console.warn('get_audit_log failed:', e); }
+            const auditRows = Array.isArray(auditData) ? auditData : (auditData.logs || auditData.records || []);
+            DB.auditLog = auditRows.map(a => {
+                const isoTs = a.created_at ? a.created_at.replace(' ', 'T') : null;
+                return {
+                    id: a.id, who: a.who || 'Admin', type: a.type || 'other', text: a.text || '',
+                    time: timeSince(isoTs), ts: isoTs ? new Date(isoTs).getTime() : Date.now()
+                };
+            });
 
-            // Load staff salaries
-            try {
-                const salData = await apiGet('get_salary');
-                DB.staffSalary = salData.salaries || {};
-            } catch(e) { console.warn('get_salary failed:', e); }
+            // Staff salaries
+            DB.staffSalary = salData.salaries || {};
+
+            // Biometric preload — after parallel block so dashboard stat card shows correct count
+            try { await loadAttBiometric(); } catch(e) { console.warn('biometric preload failed:', e); }
 
         } catch(e) {
             console.error('Init failed:', e);
@@ -1922,7 +1905,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         const odTx=DB.transactions.filter(t=>t.status==='overdue');
         const totalSeats=DB.batches.reduce((a,b)=>a+b.total,0);
         const occSeats=DB.batches.reduce((a,b)=>a+b.occupied,0);
-        const prsnt=Object.values(DB.attendance).filter(v=>v==='present').length;
+        const prsnt=DB.students.filter(st=>DB.attendance[st.id]==='present').length;
         const totalDiscount=s.reduce((a,x)=>a+(x.baseFee-x.netFee),0);
         const allDue=[...pending,...overdue,...partial].reduce((a,x)=>a+(x.netFee-x.paidAmt),0);
 
@@ -1943,6 +1926,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
     <div class="sc" style="--ca:var(--or)"><div class="s-ic" style="background:var(--c-orange)"><span class="mi" style="color:var(--or)">redeem</span></div><div class="s-lb">Discounts Given</div><div class="s-vl">${fmt(totalDiscount)}</div><div class="s-mt">${s.filter(x=>x.baseFee>x.netFee).length} students</div></div>
     <div class="sc" style="--ca:var(--vi)"><div class="s-ic" style="background:var(--c-purple)"><span class="mi" style="color:var(--vi)">menu_book</span></div><div class="s-lb">Books Issued</div><div class="s-vl">${issTx.length}</div><div class="s-mt" style="color:var(--ro)">${odTx.length} overdue</div></div>
     <div class="sc" style="--ca:var(--sk)"><div class="s-ic" style="background:var(--c-sky)"><span class="mi" style="color:var(--sk)">fact_check</span></div><div class="s-lb">Attendance Today</div><div class="s-vl">${prsnt}</div><div class="s-mt" style="color:var(--em)">${s.length?Math.round(prsnt/s.length*100):0}%</div></div>
+    <div class="sc" style="--ca:#7c3aed;cursor:pointer" onclick="navTo('biometric')"><div class="s-ic" style="background:#faf5ff"><span class="mi" style="color:#7c3aed">fingerprint</span></div><div class="s-lb">Biometric Check-ins</div><div class="s-vl">${Object.values(_bioToday).filter(b=>b.in).length}</div><div class="s-mt" style="color:#7c3aed">today · via device</div></div>
     <div class="sc" style="--ca:var(--gd)"><div class="s-ic" style="background:var(--c-orange)"><span class="mi" style="color:var(--or)">trending_down</span></div><div class="s-lb">Monthly Expenses</div><div class="s-vl">${fmt(totalExp)}</div><div class="s-mt"><span class="bdn">↑ 3.1%</span></div></div>`;
 
         // ── BATCH SEAT AVAILABILITY WITH FEE STATUS ──
@@ -1976,7 +1960,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         });
         document.getElementById('dashBatchCards').innerHTML=batchHTML;
         // In the new layout the batch grid is inside a 50% column — always 2 cols
-        document.getElementById('dashBatchCards').style.gridTemplateColumns = 'repeat(2,1fr)';
+        document.getElementById('dashBatchCards').style.gridTemplateColumns = window.innerWidth<600?'1fr':'repeat(2,1fr)';
 
         // ── EXPENSE TRACKER ──
         const catTotals={};DB.expenses.forEach(e=>{catTotals[e.category]=(catTotals[e.category]||0)+e.amount;});
@@ -2009,7 +1993,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
             const bal=x.netFee-x.paidAmt;
             const rowClass=x.feeStatus==='overdue'?'fee-due-row':x.feeStatus==='partial'||x.feeStatus==='pending'?'fee-partial-row':'';
             return `<tr class="${rowClass}">
-      <td><div class="si"><div class="sav" style="background:${x.color}">${x.fname[0]+x.lname[0]}</div><div><div style="font-weight:600;font-size:12.5px;cursor:pointer;color:var(--ac)" onclick="openStudentProfile('${x.id}')">${x.fname} ${x.lname}</div><div style="font-size:10px;color:var(--tx3);font-family:var(--fm)">#${x.id}</div></div></div></td>
+      <td><div class="si"><div class="sav" style="background:${x.color}">${((x.fname||"?")[0]+((x.lname||"")[0]||"")).toUpperCase()}</div><div><div style="font-weight:600;font-size:12.5px;cursor:pointer;color:var(--ac)" onclick="openStudentProfile('${x.id}')">${x.fname||""} ${x.lname||""}</div><div style="font-size:10px;color:var(--tx3);font-family:var(--fm)">#${x.id}</div></div></div></td>
       <td>${bTag(x.batchId)}</td>
       <td>${x.seat?`<span style="font-family:var(--fm);font-size:11px;font-weight:600">${x.seat}</span>`:'<span style="color:var(--tx3)">—</span>'}${x.feeStatus==='overdue'?'<span style="font-size:9px;margin-left:3px">🔴</span>':x.feeStatus==='pending'||x.feeStatus==='partial'?'<span style="font-size:9px;margin-left:3px">🟠</span>':''}</td>
       <td><span style="font-family:var(--fm);font-weight:700">₹${x.netFee}</span>${x.baseFee>x.netFee?`<div style="font-size:9px;color:var(--or)">🎁-₹${x.baseFee-x.netFee}</div>`:''}</td>
@@ -2074,7 +2058,8 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         // ── WEEKLY CHART — last 4 weeks from invoices ──
         const now = new Date();
         const weekTotals = [0,0,0,0];
-        DB.invoices.forEach(inv => {
+        const liveStudentIds = new Set(DB.students.map(s=>s.id));
+        DB.invoices.filter(i=>liveStudentIds.has(i.studentId)).forEach(inv => {
             const d = new Date(inv.date);
             const diffDays = Math.floor((now - d) / 86400000);
             const wk = Math.floor(diffDays / 7);
@@ -2115,18 +2100,17 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         for(let i=1;i<=dim;i++){
             const thisDate = new Date(d.getFullYear(), d.getMonth(), i);
             thisDate.setHours(0,0,0,0);
-            const dow     = thisDate.getDay();
             const isToday = thisDate.getTime() === today.getTime();
             const hasDue  = dueMap[i] && dueMap[i].length > 0;
             const hasOD   = hasDue && dueMap[i].some(s=>s.feeStatus==='overdue');
-            const isWeekend = (dow===0||dow===6) && !isToday;
-            let cls = isToday ? 'today' : (hasDue ? 'event' : (isWeekend ? 'weekend' : ''));
-            let dot = '';
+            let cls = isToday ? 'today' : '';
+            let extra = '';
             if (hasDue && !isToday) {
-                const dotColor = hasOD ? 'var(--ro)' : 'var(--ac)';
-                dot = `<span class="cal-dot" style="background:${dotColor}"></span>`;
+                cls = hasOD ? 'event' : 'event';
+                const dotColor = hasOD ? 'var(--ro)' : 'var(--gd)';
+                extra = `<span style="position:absolute;bottom:1px;left:50%;transform:translateX(-50%);width:4px;height:4px;border-radius:50%;background:${dotColor}"></span>`;
             }
-            h += `<div class="cal-d ${cls}" title="${hasDue?dueMap[i].map(s=>s.fname+' '+s.lname).join(', '):''}">${i}${dot}</div>`;
+            h += `<div class="cal-d ${cls}" style="position:relative" title="${hasDue?dueMap[i].map(s=>s.fname+' '+s.lname).join(', '):''}">${i}${extra}</div>`;
         }
         const calEl = document.getElementById('miniCal');
         if (calEl) calEl.innerHTML = h;
@@ -2143,15 +2127,14 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
             legEl.innerHTML = upcoming.length
                 ? upcoming.map(({s,dd})=>{
                     const diff = Math.round((dd-today)/86400000);
-                    const [col,bg] = diff===0?['#b91c1c','rgba(239,68,68,.1)']:diff<=3?['#b45309','rgba(245,158,11,.1)']:diff<=7?['#166534','rgba(22,163,74,.1)']:['var(--tx3)','var(--sf2)'];
-                    const label = diff===0?'Today':diff===1?'Tomorrow':'in '+diff+'d';
-                    return `<div style="display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:8px;background:var(--sf2)">
-            <div style="width:7px;height:7px;border-radius:50%;background:${col};flex-shrink:0"></div>
-            <span style="flex:1;font-size:11.5px;font-weight:600;color:var(--tx);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${s.fname} ${s.lname}</span>
-            <span style="font-size:9.5px;font-weight:700;padding:2px 7px;border-radius:20px;background:${bg};color:${col};white-space:nowrap;font-family:var(--fm)">${label}</span>
+                    const col  = diff===0?'var(--ro)':diff<=3?'var(--or)':diff<=7?'var(--gd)':'var(--tx3)';
+                    return `<div style="display:flex;align-items:center;gap:7px;font-size:10.5px">
+            <div style="width:6px;height:6px;border-radius:50%;background:${col};flex-shrink:0"></div>
+            <span style="flex:1;color:var(--tx2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${s.fname} ${s.lname}</span>
+            <span style="font-family:var(--fm);font-size:9.5px;color:${col};font-weight:700;white-space:nowrap">${diff===0?'Today':diff===1?'Tomorrow':'in '+diff+'d'}</span>
           </div>`;
                 }).join('')
-                : '<div style="font-size:11px;color:var(--tx3);padding:6px 0">No upcoming dues this month</div>';
+                : '<div style="font-size:11px;color:var(--tx3)">No upcoming dues</div>';
         }
 
         const prevBtn = document.getElementById('calPrev');
@@ -2177,7 +2160,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
             const discTxt=x.baseFee>x.netFee?`<span class="tag tor" style="font-size:9px">🎁-₹${x.baseFee-x.netFee}</span>`:'<span style="color:var(--tx3);font-size:10px">—</span>';
             const rowClass=x.feeStatus==='overdue'?'fee-due-row':x.feeStatus==='partial'||x.feeStatus==='pending'?'fee-partial-row':'';
             return `<tr class="${rowClass}">
-      <td><div class="si"><div class="sav" style="background:${x.color}">${x.fname[0]+x.lname[0]}</div><div><div style="font-weight:600;font-size:12.5px;cursor:pointer;color:var(--ac)" onclick="openStudentProfile('${x.id}')">${x.fname} ${x.lname}</div><div style="font-size:10px;color:var(--tx3);font-family:var(--fm)">#${x.id}</div></div></div></td>
+      <td><div class="si"><div class="sav" style="background:${x.color}">${((x.fname||"?")[0]+((x.lname||"")[0]||"")).toUpperCase()}</div><div><div style="font-weight:600;font-size:12.5px;cursor:pointer;color:var(--ac)" onclick="openStudentProfile('${x.id}')">${x.fname||""} ${x.lname||""}</div><div style="font-size:10px;color:var(--tx3);font-family:var(--fm)">#${x.id}</div></div></div></td>
       <td>${bTag(x.batchId)}</td>
       <td><span style="font-family:var(--fm);font-size:11px">${x.seat||'—'}</span>${x.feeStatus==='overdue'?'🔴':x.feeStatus!=='paid'?'🟠':''}</td>
       <td>${x.seatType==='ac'?'<span class="tag tac" style="font-size:9px">❄ AC</span>':'<span style="font-size:10px;color:var(--tx3)">Non-AC</span>'}</td>
@@ -2754,7 +2737,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         const s=DB.students;
         const paid=s.filter(x=>x.feeStatus==='paid');const partial=s.filter(x=>x.feeStatus==='partial');
         const pend=s.filter(x=>x.feeStatus==='pending');const od=s.filter(x=>x.feeStatus==='overdue');
-        document.getElementById('fc-c').textContent=fmt(DB.invoices.reduce((a,i)=>a+i.paidAmt,0));document.getElementById('fc-cm').textContent=`${paid.length} fully paid`;
+        const activeIds=new Set(s.map(x=>x.id));const activeInvs=DB.invoices.filter(i=>activeIds.has(i.studentId));document.getElementById('fc-c').textContent=fmt(activeInvs.reduce((a,i)=>a+i.paidAmt,0));document.getElementById('fc-cm').textContent=`${paid.length} fully paid`;
         document.getElementById('fc-pp').textContent=partial.length;document.getElementById('fc-ppm').textContent=`₹${partial.reduce((a,x)=>a+(x.netFee-x.paidAmt),0).toLocaleString()} balance due`;
         document.getElementById('fc-p').textContent=fmt(pend.reduce((a,x)=>a+x.netFee,0));document.getElementById('fc-pm').textContent=`${pend.length} students`;
         document.getElementById('fc-o').textContent=fmt(od.reduce((a,x)=>a+x.netFee,0));document.getElementById('fc-om').textContent=`${od.length} students (>7 days)`;
@@ -2801,7 +2784,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
       <td style="padding:4px 13px 6px"><span style="font-size:9px;color:var(--tx3)">—</span></td>
     </tr>`:'';
             return `<tr class="${rowClass}">
-      <td><div class="si"><div class="sav" style="background:${x.color}">${x.fname[0]+x.lname[0]}</div><div><div style="font-weight:600;font-size:12.5px;cursor:pointer;color:var(--ac)" onclick="openStudentProfile('${x.id}')">${x.fname} ${x.lname}</div><div style="font-size:10px;color:var(--tx3);font-family:var(--fm)">${x.id}</div></div></div></td>
+      <td><div class="si"><div class="sav" style="background:${x.color}">${((x.fname||"?")[0]+((x.lname||"")[0]||"")).toUpperCase()}</div><div><div style="font-weight:600;font-size:12.5px;cursor:pointer;color:var(--ac)" onclick="openStudentProfile('${x.id}')">${x.fname||""} ${x.lname||""}</div><div style="font-size:10px;color:var(--tx3);font-family:var(--fm)">${x.id}</div></div></div></td>
       <td>${bTag(x.batchId)}</td>
       <td><span style="font-family:var(--fm)">₹${x.baseFee}</span></td>
       <td>${discTxt}</td>
@@ -3015,58 +2998,9 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
     <div class="panel"><div class="pb"><div class="s-lb">Book Utilization</div><div class="s-vl">${bks?Math.round(iss.length/bks*100):0}%</div></div></div>
     <div class="panel"><div class="pb"><div class="s-lb">Overdue Rate</div><div class="s-vl" style="color:var(--ro)">${iss.length?Math.round(od.length/iss.length*100):0}%</div></div></div>
     <div class="panel"><div class="pb"><div class="s-lb">Net Profit</div><div class="s-vl" style="color:var(--ac)">${fmt(rev-DB.expenses.reduce((a,e)=>a+e.amount,0))}</div></div></div>`;
-        // ── SVG line chart (smooth bezier curve + gradient fill) ──
-        const rData=[rev*0.55, rev*0.68, rev*0.79, rev*0.91, rev*1.0, rev*1.12];
-        const svgEl = document.getElementById('revChartSvg');
-        if (svgEl) {
-            const W = svgEl.parentElement.offsetWidth || 300, H = 110, pad = 14;
-            const rMax = Math.max(...rData, 1);
-            const pts  = rData.map((v,i)=>[pad + i*(W-2*pad)/(rData.length-1), H-pad - (v/rMax)*(H-2*pad)]);
-            // Smooth bezier path
-            let path = `M${pts[0][0]},${pts[0][1]}`;
-            for(let i=1;i<pts.length;i++){
-                const [px,py]=pts[i-1],[cx,cy]=pts[i];
-                const mx=(px+cx)/2;
-                path+=` C${mx},${py} ${mx},${cy} ${cx},${cy}`;
-            }
-            const fillPath = path+` L${pts[pts.length-1][0]},${H} L${pts[0][0]},${H} Z`;
-            svgEl.innerHTML=`
-                <defs>
-                    <linearGradient id="rcGrad" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stop-color="var(--ac)" stop-opacity="0.22"/>
-                        <stop offset="100%" stop-color="var(--ac)" stop-opacity="0"/>
-                    </linearGradient>
-                </defs>
-                <path d="${fillPath}" fill="url(#rcGrad)"/>
-                <path d="${path}" fill="none" stroke="var(--ac)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-                ${pts.map(([x,y],i)=>`
-                    <circle cx="${x}" cy="${y}" r="3.5" fill="var(--ac)" stroke="#fff" stroke-width="2"/>
-                    <title>₹${rData[i].toLocaleString('en-IN',{maximumFractionDigits:0})}</title>
-                `).join('')}`;
-        }
+        const rData=[155000,162000,rev,rev*0.5];const rMax=Math.max(...rData,1);
+        document.getElementById('revChart').innerHTML=rData.map((v,i)=>`<div class="cbar" style="flex:1;height:${Math.round(v/rMax*100)}%;background:var(--ac);opacity:${i===3?.4:.8};border-radius:4px 4px 0 0"><div class="tt">₹${v.toLocaleString()}</div></div>`).join('');
         document.getElementById('batchAnal').innerHTML=DB.batches.map(b=>{const p=Math.round(b.occupied/b.total*100);const fc=p>=80?'sf-r':p>=50?'sf-y':'sf-g';return`<div style="margin-bottom:10px"><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px"><span>${b.name}</span><span style="font-family:var(--fm)">${b.occupied}/${b.total} (${p}%)</span></div><div class="sbar"><div class="sfill ${fc}" style="width:${p}%"></div></div></div>`;}).join('');
-        // ── Quick Summary donut ──
-        const qsTotal = DB.batches.reduce((a,b)=>a+b.total,0);
-        const qsOcc   = DB.batches.reduce((a,b)=>a+b.occupied,0);
-        const qsRes   = 0; // reserved — extend if you add reserved seat type
-        const qsAvail = qsTotal - qsOcc - qsRes;
-        const CIRC    = 226;
-        const setArcQS = (id, val, total, offset) => {
-            const el = document.getElementById(id); if (!el) return;
-            const dash = total > 0 ? Math.max(0,(val/total)*CIRC) : 0;
-            el.setAttribute('stroke-dasharray', `${dash} ${CIRC}`);
-            el.setAttribute('stroke-dashoffset', -offset);
-        };
-        const a1 = (qsAvail/qsTotal)*CIRC;
-        const a2 = (qsOcc/qsTotal)*CIRC;
-        setArcQS('qsArc1', qsAvail, qsTotal, 0);
-        setArcQS('qsArc2', qsOcc,   qsTotal, -a1);
-        setArcQS('qsArc3', qsRes,   qsTotal, -(a1+a2));
-        const pct = v => qsTotal>0?` (${Math.round(v/qsTotal*100)}%)`:'';
-        const qsTotalEl = document.getElementById('qsTotal'); if (qsTotalEl) qsTotalEl.textContent = qsTotal;
-        const qsAvailEl = document.getElementById('qsAvail'); if (qsAvailEl) qsAvailEl.textContent = `${qsAvail}${pct(qsAvail)}`;
-        const qsOccEl   = document.getElementById('qsOcc');   if (qsOccEl)   qsOccEl.textContent   = `${qsOcc}${pct(qsOcc)}`;
-        const qsResEl   = document.getElementById('qsRes');   if (qsResEl)   qsResEl.textContent   = `${qsRes}${pct(qsRes)}`;
     }
 
     // ═══ REPORTS ═══
@@ -3237,12 +3171,12 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
     function renderStaff(){
         document.getElementById('staffCount').textContent=`${DB.staff.length} staff`;
         document.getElementById('staffTable').innerHTML=DB.staff.map((sf,i)=>{const pc=Object.values(sf.perms).filter(Boolean).length;
-            return `<tr><td><div class="si"><div class="sav" style="background:linear-gradient(135deg,var(--ac),var(--vi))">${sf.name.split(' ').map(n=>n[0]).join('').slice(0,2)}</div><div><div style="font-weight:600;font-size:12.5px">${sf.name}</div><div style="font-size:10px;color:var(--tx3);font-family:var(--fm)">${sf.id}</div></div></div></td>
+            return `<tr><td><div class="si"><div class="sav" style="background:linear-gradient(135deg,var(--ac),var(--vi))">${(sf.name||"?").split(' ').filter(Boolean).map(n=>n[0]).join('').slice(0,2).toUpperCase()||"?"}</div><div><div style="font-weight:600;font-size:12.5px">${sf.name||""}</div><div style="font-size:10px;color:var(--tx3);font-family:var(--fm)">${sf.id}</div></div></div></td>
     <td><span class="tag tac" style="text-transform:capitalize">${sf.role}</span></td><td>${sf.email}</td><td>${sf.phone}</td>
     <td><div style="display:flex;flex-direction:column;gap:4px">
       <div style="display:flex;flex-wrap:wrap;gap:3px">${PERMS.filter(p=>sf.perms[p.key]).map(p=>`<span title="Page: ${p.label}" style="display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;background:rgba(61,111,240,.09);border:1px solid rgba(61,111,240,.2);border-radius:6px"><span class="mi" style="font-size:12px;color:var(--ac)">${p.icon}</span></span>`).join('')}${pc===0?'<span style="font-size:10px;color:var(--tx3);font-style:italic">No pages</span>':''}</div>
       <div style="display:flex;flex-wrap:wrap;gap:3px">${ACTION_PERMS.filter(a=>(sf.actPerms||{})[a.key]).map(a=>`<span title="Action: ${a.label}" style="display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;background:rgba(124,58,237,.08);border:1px solid rgba(124,58,237,.2);border-radius:6px"><span class="mi" style="font-size:12px;color:var(--vi)">${a.icon}</span></span>`).join('')||'<span style="font-size:9px;color:var(--tx3);font-style:italic">No actions</span>'}</div>
-    </div></td><td><span class="tag tpd">Active</span></td>
+    </div></td><td><span class="tag ${sf.status==='active'?'tpd':'tod'}">${sf.status==='active'?'Active':'Inactive'}</span></td>
     <td><div style="display:flex;gap:4px"><button class="btn bg" style="font-size:10px;padding:3px 7px" onclick="editStaff(${i})">✏</button>${i>0?`<button class="btn bd" style="font-size:10px;padding:3px 6px" onclick="delStaff(${i})"><span class="mi sm">close</span></button>`:''}</div></td></tr>`;
         }).join('')||'<tr><td colspan="7"><div class="empty"><div class="ei">👥</div><div class="et">No staff</div></div></td></tr>';
     }
@@ -4068,7 +4002,7 @@ Thank you! 📚
 
         document.getElementById('staffAttList').innerHTML = DB.staff.map(sf => {
             const cur = DB.staffAtt[date][sf.id] !== undefined ? DB.staffAtt[date][sf.id] : 'present';
-            const av  = sf.name.split(' ').map(p=>p[0]).join('').toUpperCase().slice(0,2);
+            const av  = (sf.name||'?').split(' ').filter(Boolean).map(p=>p[0]).join('').toUpperCase().slice(0,2)||'?';
             return `<div class="att-row">
       <div class="att-av" style="background:${sf.color||'var(--ac)'}">${av}</div>
       <div style="flex:1">
@@ -4751,7 +4685,7 @@ Thank you! 📚
                     const stu = DB.students.find(s => s.id === p.student_id);
                     const name = stu ? stu.fname+' '+(stu.lname||'') : (p.fname ? p.fname+' '+(p.lname||'') : 'ID: '+p.user_id);
                     const col = stu?.color || '#9aa3b8';
-                    const av = stu ? (stu.fname[0]+(stu.lname?.[0]||'')).toUpperCase() : '?';
+                    const av = stu ? (((stu.fname||'?')[0])+((stu.lname||'')[0]||'')).toUpperCase() : '?';
                     const isIn = p.punch_type === 'check_in';
                     const vIcon = (p.verify_type||'').includes('finger')||(p.verify_type||'').includes('fp') ? '🖐️' : '💳';
                     const t = (p.punch_time||'').split(' ')[1]?.slice(0,5)||'';
@@ -4762,6 +4696,22 @@ Thank you! 📚
                     </div>`;
                 }).join('') : '<div style="text-align:center;padding:28px;color:var(--tx3);font-size:13px">No biometric punches today</div>';
             }
+
+            // Fee Gate toggle — restore saved state from API
+            const feeGateOn = !!res.fee_gate;
+            DB.settings = DB.settings || {};
+            DB.settings.feeGate = feeGateOn;
+            const fgPairs = [
+                { cb:'feeGateToggle', sl:'feeGateSlider',    th:'feeGateThumb'     },
+                { cb:'settFeeGate',   sl:'settFeeGateSlider', th:'settFeeGateThumb' }
+            ];
+            fgPairs.forEach(({cb,sl,th}) => {
+                const cbEl = document.getElementById(cb); if (cbEl) cbEl.checked = feeGateOn;
+                const slEl = document.getElementById(sl);  if (slEl) slEl.style.background = feeGateOn ? 'var(--ac)' : '#e2e8f0';
+                const thEl = document.getElementById(th);  if (thEl) thEl.style.transform = feeGateOn ? 'translateX(20px)' : 'translateX(0)';
+            });
+            const fgs = document.getElementById('feeGateStatus');
+            if (fgs) fgs.textContent = feeGateOn ? '🔒 Active — overdue students will be blocked at door' : '🔓 Inactive — all students can enter regardless of fee status';
 
             // Sidebar badge
             const bioB = document.getElementById('b-bio');
@@ -4797,7 +4747,7 @@ Thank you! 📚
                     const stu = DB.students.find(s => s.id === p.student_id);
                     const name = stu ? stu.fname+' '+(stu.lname||'') : 'ID: '+p.user_id;
                     const col = stu?.color || '#9aa3b8';
-                    const av = stu ? (stu.fname[0]+(stu.lname?.[0]||'')).toUpperCase() : '?';
+                    const av = stu ? (((stu.fname||'?')[0])+((stu.lname||'')[0]||'')).toUpperCase() : '?';
                     const isIn = p.punch_type === 'check_in';
                     const vIcon = (p.verify_type||'').includes('finger') ? '🖐️' : '💳';
                     const t = (p.punch_time||'').split(' ')[1]?.slice(0,5)||'';
@@ -4835,12 +4785,14 @@ Thank you! 📚
     }
 
     async function toggleFeeGate(enabled) {
-        ['feeGateToggle','settFeeGate'].forEach(id => {
-            const el = document.getElementById(id);
-            if (el) el.checked = enabled;
-            const sliderMap = { feeGateToggle:'feeGateSlider', settFeeGate:'settFeeGateSlider' };
-            const sl = document.getElementById(sliderMap[id]);
-            if (sl) sl.style.background = enabled ? 'var(--ac)' : '#e2e8f0';
+        const pairs = [
+            { cb:'feeGateToggle',  sl:'feeGateSlider',     th:'feeGateThumb'     },
+            { cb:'settFeeGate',    sl:'settFeeGateSlider',  th:'settFeeGateThumb' }
+        ];
+        pairs.forEach(({cb,sl,th}) => {
+            const cbEl = document.getElementById(cb); if (cbEl) cbEl.checked = enabled;
+            const slEl = document.getElementById(sl);  if (slEl) slEl.style.background = enabled ? 'var(--ac)' : '#e2e8f0';
+            const thEl = document.getElementById(th);  if (thEl) thEl.style.transform = enabled ? 'translateX(20px)' : 'translateX(0)';
         });
         const fgs = document.getElementById('feeGateStatus');
         if (fgs) fgs.textContent = enabled ? '🔒 Active — overdue students will be blocked at door' : '🔓 Inactive — all students can enter regardless of fee status';
