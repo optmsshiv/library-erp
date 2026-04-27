@@ -745,9 +745,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
                             </div>
                             <label style="position:relative;display:inline-block;width:44px;height:24px;flex-shrink:0;margin-left:12px">
                                 <input type="checkbox" id="feeGateToggle" onchange="toggleFeeGate(this.checked)" style="opacity:0;width:0;height:0;position:absolute">
-                                <span id="feeGateSlider" style="position:absolute;cursor:pointer;inset:0;background:#e2e8f0;border-radius:34px;transition:.3s;--thumb-x:0px">
-                                    <span style="position:absolute;content:'';height:18px;width:18px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.3s;box-shadow:0 1px 3px rgba(0,0,0,.2);transform:translateX(var(--thumb-x,0px))" id="feeGateThumb"></span>
-                                </span>
+                                <span id="feeGateSlider" style="position:absolute;cursor:pointer;inset:0;background:#e2e8f0;border-radius:34px;transition:.3s"><span id="feeGateThumb" style="position:absolute;height:18px;width:18px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.3s;box-shadow:0 1px 3px rgba(0,0,0,.2)"></span></span>
                             </label>
                         </div>
                         <div id="feeGateStatus" style="font-size:11px;font-weight:700;color:var(--tx3)">Loading…</div>
@@ -947,7 +945,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
 
         <!-- STAFF -->
         <div class="page" id="page-staff">
-            <div class="sec-hd"><div><div class="sec-t">Staff & Users</div><div class="sec-s" id="staffCount"></div></div><div style="display:flex;gap:7px;align-items:center"><button class="btn bg" style="font-size:11px" onclick="cleanupStaffIds()" title="Fix ugly IDs to SF-001, ADM-001 format"><span class="mi sm">auto_fix_high</span> Fix IDs</button><button class="btn bp" data-action="add_staff" onclick="openM('mAddStaff')"><span class="mi sm">person_add</span>Add Staff</button></div></div>
+            <div class="sec-hd"><div><div class="sec-t">Staff & Users</div><div class="sec-s" id="staffCount"></div></div><button class="btn bp" data-action="add_staff" onclick="openM('mAddStaff')"><span class="mi sm">person_add</span>Add Staff</button></div>
             <div class="panel"><div class="tw"><table>
                         <thead><tr><th>Staff</th><th>Role</th><th>Email</th><th>Phone</th><th>Permissions</th><th>Status</th><th>Action</th></tr></thead>
                         <tbody id="staffTable"></tbody>
@@ -1124,9 +1122,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
                             </div>
                             <label style="position:relative;display:inline-block;width:44px;height:24px;flex-shrink:0;cursor:pointer">
                                 <input type="checkbox" id="settFeeGate" onchange="toggleFeeGate(this.checked)" style="opacity:0;width:0;height:0;position:absolute">
-                                <span id="settFeeGateSlider" style="position:absolute;cursor:pointer;inset:0;background:#e2e8f0;border-radius:34px;transition:.3s">
-                                    <span style="position:absolute;height:18px;width:18px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.3s;box-shadow:0 1px 3px rgba(0,0,0,.2)" id="settFeeGateThumb"></span>
-                                </span>
+                                <span id="settFeeGateSlider" style="position:absolute;cursor:pointer;inset:0;background:#e2e8f0;border-radius:34px;transition:.3s"><span id="settFeeGateThumb" style="position:absolute;height:18px;width:18px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.3s;box-shadow:0 1px 3px rgba(0,0,0,.2)"></span></span>
                             </label>
                         </div>
                         <!-- ADMS URL -->
@@ -1752,47 +1748,40 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
             // Apply nav permissions for the logged-in staff member
             if (data.me) applyNavPerms(data.me);
 
-            // Build attendance map from today's data — isolated so failure doesn't kill init
-            try {
-                const attData = await apiGet('get_attendance', { date: new Date().toISOString().split('T')[0] });
-                DB.attendance = attData.attendance || {};
-            } catch(e) { console.warn('get_attendance failed:', e); }
+            // ── Fire all secondary calls IN PARALLEL (saves ~800ms vs sequential awaits) ──
+            const today = new Date().toISOString().split('T')[0];
+            const [attData, waLogRes, auditData, salData] = await Promise.all([
+                apiGet('get_attendance', { date: today }).catch(e => { console.warn('get_attendance failed:', e); return {}; }),
+                apiGet('get_wa_log').catch(e => { console.warn('get_wa_log failed:', e); return []; }),
+                apiGet('get_audit_log').catch(e => { console.warn('get_audit_log failed:', e); return {}; }),
+                apiGet('get_salary').catch(e => { console.warn('get_salary failed:', e); return {}; }),
+            ]);
+
+            // Attendance — only seed present for known students
+            DB.attendance = attData.attendance || {};
             DB.students.forEach(st => { if (!DB.attendance[st.id]) DB.attendance[st.id] = 'present'; });
 
             // WA log
-            try {
-                const waLog = await apiGet('get_wa_log');
-                const waRows = Array.isArray(waLog) ? waLog : (waLog.logs || []);
-                DB.waSendLog = waRows.map(l => ({
-                    time: l.created_at ? l.created_at.slice(11,16) : '',
-                    to: l.sent_to, preview: l.preview, type: l.type
-                }));
-            } catch(e) { console.warn('get_wa_log failed:', e); }
+            const waRows = Array.isArray(waLogRes) ? waLogRes : (waLogRes.logs || []);
+            DB.waSendLog = waRows.map(l => ({
+                time: l.created_at ? l.created_at.slice(11,16) : '',
+                to: l.sent_to, preview: l.preview, type: l.type
+            }));
 
             // Audit log
-            try {
-                const auditData = await apiGet('get_audit_log');
-                const auditRows = Array.isArray(auditData) ? auditData : (auditData.logs || auditData.records || []);
-                DB.auditLog = auditRows.map(a => {
-                    const isoTs = a.created_at ? a.created_at.replace(' ', 'T') : null;
-                    return {
-                        id: a.id,
-                        who: a.who || 'Admin',
-                        type: a.type || 'other',
-                        text: a.text || '',
-                        time: timeSince(isoTs),
-                        ts: isoTs ? new Date(isoTs).getTime() : Date.now()
-                    };
-                });
-            } catch(e) { console.warn('get_audit_log failed:', e); }
+            const auditRows = Array.isArray(auditData) ? auditData : (auditData.logs || auditData.records || []);
+            DB.auditLog = auditRows.map(a => {
+                const isoTs = a.created_at ? a.created_at.replace(' ', 'T') : null;
+                return {
+                    id: a.id, who: a.who || 'Admin', type: a.type || 'other', text: a.text || '',
+                    time: timeSince(isoTs), ts: isoTs ? new Date(isoTs).getTime() : Date.now()
+                };
+            });
 
-            // Load staff salaries
-            try {
-                const salData = await apiGet('get_salary');
-                DB.staffSalary = salData.salaries || {};
-            } catch(e) { console.warn('get_salary failed:', e); }
+            // Staff salaries
+            DB.staffSalary = salData.salaries || {};
 
-            // Pre-load biometric punches so dashboard stat card shows correct count
+            // Biometric preload — after parallel block so dashboard stat card shows correct count
             try { await loadAttBiometric(); } catch(e) { console.warn('biometric preload failed:', e); }
 
         } catch(e) {
@@ -1916,7 +1905,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         const odTx=DB.transactions.filter(t=>t.status==='overdue');
         const totalSeats=DB.batches.reduce((a,b)=>a+b.total,0);
         const occSeats=DB.batches.reduce((a,b)=>a+b.occupied,0);
-        const prsnt=Object.values(DB.attendance).filter(v=>v==='present').length;
+        const prsnt=DB.students.filter(st=>DB.attendance[st.id]==='present').length;
         const totalDiscount=s.reduce((a,x)=>a+(x.baseFee-x.netFee),0);
         const allDue=[...pending,...overdue,...partial].reduce((a,x)=>a+(x.netFee-x.paidAmt),0);
 
@@ -1925,7 +1914,6 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
     <div class="al-card al-d"><span style="font-size:17px">🚨</span><div><div class="al-t">Fee Overdue Alert</div><div class="al-b">${overdue.length} students overdue — seats highlighted in red 🔴</div></div></div>
     <div class="al-card al-i"><span style="font-size:17px">🎁</span><div><div class="al-t">Discounts Applied</div><div class="al-b">${s.filter(x=>x.baseFee>x.netFee).length} students with discounts — ₹${totalDiscount.toLocaleString()} waived</div></div></div>`;
 
-        const bioCheckins = Object.values(_bioToday).filter(b=>b.in).length;
         document.getElementById('dashStats').innerHTML=`
     <div class="sc" style="--ca:var(--ac)"><div class="s-ic" style="background:var(--c-blue)"><span class="mi" style="color:var(--ac)">school</span></div><div class="s-lb">Total Students</div><div class="s-vl">${s.length}</div><div class="s-mt"><span class="bup">↑ 12%</span></div></div>
     <div class="sc" style="--ca:var(--em)"><div class="s-ic" style="background:var(--c-green)"><span class="mi" style="color:var(--em)">event_seat</span></div><div class="s-lb">Seats Available</div><div class="s-vl">${totalSeats-occSeats}</div><div class="s-mt">${occSeats}/${totalSeats} occupied</div></div>
@@ -1938,7 +1926,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
     <div class="sc" style="--ca:var(--or)"><div class="s-ic" style="background:var(--c-orange)"><span class="mi" style="color:var(--or)">redeem</span></div><div class="s-lb">Discounts Given</div><div class="s-vl">${fmt(totalDiscount)}</div><div class="s-mt">${s.filter(x=>x.baseFee>x.netFee).length} students</div></div>
     <div class="sc" style="--ca:var(--vi)"><div class="s-ic" style="background:var(--c-purple)"><span class="mi" style="color:var(--vi)">menu_book</span></div><div class="s-lb">Books Issued</div><div class="s-vl">${issTx.length}</div><div class="s-mt" style="color:var(--ro)">${odTx.length} overdue</div></div>
     <div class="sc" style="--ca:var(--sk)"><div class="s-ic" style="background:var(--c-sky)"><span class="mi" style="color:var(--sk)">fact_check</span></div><div class="s-lb">Attendance Today</div><div class="s-vl">${prsnt}</div><div class="s-mt" style="color:var(--em)">${s.length?Math.round(prsnt/s.length*100):0}%</div></div>
-    <div class="sc" style="--ca:#7c3aed;cursor:pointer" onclick="navTo('biometric')"><div class="s-ic" style="background:#faf5ff"><span class="mi" style="color:#7c3aed">fingerprint</span></div><div class="s-lb">Biometric Check-ins</div><div class="s-vl">${bioCheckins}</div><div class="s-mt" style="color:#7c3aed">today · via device</div></div>
+    <div class="sc" style="--ca:#7c3aed;cursor:pointer" onclick="navTo('biometric')"><div class="s-ic" style="background:#faf5ff"><span class="mi" style="color:#7c3aed">fingerprint</span></div><div class="s-lb">Biometric Check-ins</div><div class="s-vl">${Object.values(_bioToday).filter(b=>b.in).length}</div><div class="s-mt" style="color:#7c3aed">today · via device</div></div>
     <div class="sc" style="--ca:var(--gd)"><div class="s-ic" style="background:var(--c-orange)"><span class="mi" style="color:var(--or)">trending_down</span></div><div class="s-lb">Monthly Expenses</div><div class="s-vl">${fmt(totalExp)}</div><div class="s-mt"><span class="bdn">↑ 3.1%</span></div></div>`;
 
         // ── BATCH SEAT AVAILABILITY WITH FEE STATUS ──
@@ -1972,7 +1960,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         });
         document.getElementById('dashBatchCards').innerHTML=batchHTML;
         // In the new layout the batch grid is inside a 50% column — always 2 cols
-        document.getElementById('dashBatchCards').style.gridTemplateColumns = 'repeat(2,1fr)';
+        document.getElementById('dashBatchCards').style.gridTemplateColumns = window.innerWidth<600?'1fr':'repeat(2,1fr)';
 
         // ── EXPENSE TRACKER ──
         const catTotals={};DB.expenses.forEach(e=>{catTotals[e.category]=(catTotals[e.category]||0)+e.amount;});
@@ -2005,7 +1993,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
             const bal=x.netFee-x.paidAmt;
             const rowClass=x.feeStatus==='overdue'?'fee-due-row':x.feeStatus==='partial'||x.feeStatus==='pending'?'fee-partial-row':'';
             return `<tr class="${rowClass}">
-      <td><div class="si"><div class="sav" style="background:${x.color}">${x.fname[0]+x.lname[0]}</div><div><div style="font-weight:600;font-size:12.5px;cursor:pointer;color:var(--ac)" onclick="openStudentProfile('${x.id}')">${x.fname} ${x.lname}</div><div style="font-size:10px;color:var(--tx3);font-family:var(--fm)">#${x.id}</div></div></div></td>
+      <td><div class="si"><div class="sav" style="background:${x.color}">${((x.fname||"?")[0]+((x.lname||"")[0]||"")).toUpperCase()}</div><div><div style="font-weight:600;font-size:12.5px;cursor:pointer;color:var(--ac)" onclick="openStudentProfile('${x.id}')">${x.fname||""} ${x.lname||""}</div><div style="font-size:10px;color:var(--tx3);font-family:var(--fm)">#${x.id}</div></div></div></td>
       <td>${bTag(x.batchId)}</td>
       <td>${x.seat?`<span style="font-family:var(--fm);font-size:11px;font-weight:600">${x.seat}</span>`:'<span style="color:var(--tx3)">—</span>'}${x.feeStatus==='overdue'?'<span style="font-size:9px;margin-left:3px">🔴</span>':x.feeStatus==='pending'||x.feeStatus==='partial'?'<span style="font-size:9px;margin-left:3px">🟠</span>':''}</td>
       <td><span style="font-family:var(--fm);font-weight:700">₹${x.netFee}</span>${x.baseFee>x.netFee?`<div style="font-size:9px;color:var(--or)">🎁-₹${x.baseFee-x.netFee}</div>`:''}</td>
@@ -2070,7 +2058,8 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         // ── WEEKLY CHART — last 4 weeks from invoices ──
         const now = new Date();
         const weekTotals = [0,0,0,0];
-        DB.invoices.forEach(inv => {
+        const liveStudentIds = new Set(DB.students.map(s=>s.id));
+        DB.invoices.filter(i=>liveStudentIds.has(i.studentId)).forEach(inv => {
             const d = new Date(inv.date);
             const diffDays = Math.floor((now - d) / 86400000);
             const wk = Math.floor(diffDays / 7);
@@ -2171,7 +2160,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
             const discTxt=x.baseFee>x.netFee?`<span class="tag tor" style="font-size:9px">🎁-₹${x.baseFee-x.netFee}</span>`:'<span style="color:var(--tx3);font-size:10px">—</span>';
             const rowClass=x.feeStatus==='overdue'?'fee-due-row':x.feeStatus==='partial'||x.feeStatus==='pending'?'fee-partial-row':'';
             return `<tr class="${rowClass}">
-      <td><div class="si"><div class="sav" style="background:${x.color}">${x.fname[0]+x.lname[0]}</div><div><div style="font-weight:600;font-size:12.5px;cursor:pointer;color:var(--ac)" onclick="openStudentProfile('${x.id}')">${x.fname} ${x.lname}</div><div style="font-size:10px;color:var(--tx3);font-family:var(--fm)">#${x.id}</div></div></div></td>
+      <td><div class="si"><div class="sav" style="background:${x.color}">${((x.fname||"?")[0]+((x.lname||"")[0]||"")).toUpperCase()}</div><div><div style="font-weight:600;font-size:12.5px;cursor:pointer;color:var(--ac)" onclick="openStudentProfile('${x.id}')">${x.fname||""} ${x.lname||""}</div><div style="font-size:10px;color:var(--tx3);font-family:var(--fm)">#${x.id}</div></div></div></td>
       <td>${bTag(x.batchId)}</td>
       <td><span style="font-family:var(--fm);font-size:11px">${x.seat||'—'}</span>${x.feeStatus==='overdue'?'🔴':x.feeStatus!=='paid'?'🟠':''}</td>
       <td>${x.seatType==='ac'?'<span class="tag tac" style="font-size:9px">❄ AC</span>':'<span style="font-size:10px;color:var(--tx3)">Non-AC</span>'}</td>
@@ -2748,9 +2737,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         const s=DB.students;
         const paid=s.filter(x=>x.feeStatus==='paid');const partial=s.filter(x=>x.feeStatus==='partial');
         const pend=s.filter(x=>x.feeStatus==='pending');const od=s.filter(x=>x.feeStatus==='overdue');
-        const activeIds = new Set(s.map(x=>x.id));
-        const activeInvs = DB.invoices.filter(i => activeIds.has(i.studentId));
-        document.getElementById('fc-c').textContent=fmt(activeInvs.reduce((a,i)=>a+i.paidAmt,0));document.getElementById('fc-cm').textContent=`${paid.length} fully paid`;
+        const activeIds=new Set(s.map(x=>x.id));const activeInvs=DB.invoices.filter(i=>activeIds.has(i.studentId));document.getElementById('fc-c').textContent=fmt(activeInvs.reduce((a,i)=>a+i.paidAmt,0));document.getElementById('fc-cm').textContent=`${paid.length} fully paid`;
         document.getElementById('fc-pp').textContent=partial.length;document.getElementById('fc-ppm').textContent=`₹${partial.reduce((a,x)=>a+(x.netFee-x.paidAmt),0).toLocaleString()} balance due`;
         document.getElementById('fc-p').textContent=fmt(pend.reduce((a,x)=>a+x.netFee,0));document.getElementById('fc-pm').textContent=`${pend.length} students`;
         document.getElementById('fc-o').textContent=fmt(od.reduce((a,x)=>a+x.netFee,0));document.getElementById('fc-om').textContent=`${od.length} students (>7 days)`;
@@ -2797,7 +2784,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
       <td style="padding:4px 13px 6px"><span style="font-size:9px;color:var(--tx3)">—</span></td>
     </tr>`:'';
             return `<tr class="${rowClass}">
-      <td><div class="si"><div class="sav" style="background:${x.color}">${x.fname[0]+x.lname[0]}</div><div><div style="font-weight:600;font-size:12.5px;cursor:pointer;color:var(--ac)" onclick="openStudentProfile('${x.id}')">${x.fname} ${x.lname}</div><div style="font-size:10px;color:var(--tx3);font-family:var(--fm)">${x.id}</div></div></div></td>
+      <td><div class="si"><div class="sav" style="background:${x.color}">${((x.fname||"?")[0]+((x.lname||"")[0]||"")).toUpperCase()}</div><div><div style="font-weight:600;font-size:12.5px;cursor:pointer;color:var(--ac)" onclick="openStudentProfile('${x.id}')">${x.fname||""} ${x.lname||""}</div><div style="font-size:10px;color:var(--tx3);font-family:var(--fm)">${x.id}</div></div></div></td>
       <td>${bTag(x.batchId)}</td>
       <td><span style="font-family:var(--fm)">₹${x.baseFee}</span></td>
       <td>${discTxt}</td>
@@ -3184,12 +3171,12 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
     function renderStaff(){
         document.getElementById('staffCount').textContent=`${DB.staff.length} staff`;
         document.getElementById('staffTable').innerHTML=DB.staff.map((sf,i)=>{const pc=Object.values(sf.perms).filter(Boolean).length;
-            return `<tr><td><div class="si"><div class="sav" style="background:linear-gradient(135deg,var(--ac),var(--vi))">${sf.name.split(' ').map(n=>n[0]).join('').slice(0,2)}</div><div><div style="font-weight:600;font-size:12.5px">${sf.name}</div><div style="font-size:10px;color:var(--tx3);font-family:var(--fm)">${sf.id}</div></div></div></td>
+            return `<tr><td><div class="si"><div class="sav" style="background:linear-gradient(135deg,var(--ac),var(--vi))">${(sf.name||"?").split(' ').filter(Boolean).map(n=>n[0]).join('').slice(0,2).toUpperCase()||"?"}</div><div><div style="font-weight:600;font-size:12.5px">${sf.name||""}</div><div style="font-size:10px;color:var(--tx3);font-family:var(--fm)">${sf.id}</div></div></div></td>
     <td><span class="tag tac" style="text-transform:capitalize">${sf.role}</span></td><td>${sf.email}</td><td>${sf.phone}</td>
     <td><div style="display:flex;flex-direction:column;gap:4px">
       <div style="display:flex;flex-wrap:wrap;gap:3px">${PERMS.filter(p=>sf.perms[p.key]).map(p=>`<span title="Page: ${p.label}" style="display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;background:rgba(61,111,240,.09);border:1px solid rgba(61,111,240,.2);border-radius:6px"><span class="mi" style="font-size:12px;color:var(--ac)">${p.icon}</span></span>`).join('')}${pc===0?'<span style="font-size:10px;color:var(--tx3);font-style:italic">No pages</span>':''}</div>
       <div style="display:flex;flex-wrap:wrap;gap:3px">${ACTION_PERMS.filter(a=>(sf.actPerms||{})[a.key]).map(a=>`<span title="Action: ${a.label}" style="display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;background:rgba(124,58,237,.08);border:1px solid rgba(124,58,237,.2);border-radius:6px"><span class="mi" style="font-size:12px;color:var(--vi)">${a.icon}</span></span>`).join('')||'<span style="font-size:9px;color:var(--tx3);font-style:italic">No actions</span>'}</div>
-    </div></td><td><span class="tag tpd">Active</span></td>
+    </div></td><td><span class="tag ${sf.status==='active'?'tpd':'tod'}">${sf.status==='active'?'Active':'Inactive'}</span></td>
     <td><div style="display:flex;gap:4px"><button class="btn bg" style="font-size:10px;padding:3px 7px" onclick="editStaff(${i})">✏</button>${i>0?`<button class="btn bd" style="font-size:10px;padding:3px 6px" onclick="delStaff(${i})"><span class="mi sm">close</span></button>`:''}</div></td></tr>`;
         }).join('')||'<tr><td colspan="7"><div class="empty"><div class="ei">👥</div><div class="et">No staff</div></div></td></tr>';
     }
@@ -3614,28 +3601,17 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         PERMS.forEach(p => { const el=document.getElementById('perm-'+p.key); perms[p.key]=el?el.checked:false; });
         const actPerms = {};
         ACTION_PERMS.forEach(a => { const el=document.getElementById('act-'+a.key); actPerms[a.key]=el?el.checked:false; });
-        // Generate clean sequential ID: SF-001, ADM-001, MGR-001
-        let _newStaffId = null;
-        if (editStaffIdx < 0) {
-            const _prefix = rl === 'admin' ? 'ADM' : rl === 'manager' ? 'MGR' : 'SF';
-            const _nums = DB.staff
-                .filter(x => x.id && x.id.startsWith(_prefix + '-') && /^\d+$/.test(x.id.slice(_prefix.length + 1)))
-                .map(x => parseInt(x.id.slice(_prefix.length + 1)) || 0);
-            const _next = _nums.length ? Math.max(..._nums) + 1 : 1;
-            _newStaffId = _prefix + '-' + String(_next).padStart(3, '0');
-        }
-
         const payload = {
             name: nm, role: rl, email: em,
-            phone: gv('sf-ph'), username: gv('sf-un'), password: gv('sf-pw'), perms, actPerms,
-            id: editStaffIdx >= 0 ? DB.staff[editStaffIdx].id : _newStaffId
+            phone: gv('sf-ph'), username: gv('sf-un'), password: gv('sf-pw'), perms, actPerms
         };
+        if (editStaffIdx >= 0) payload.id = DB.staff[editStaffIdx].id;
 
         // Optimistically update local DB first so table shows immediately
         if (editStaffIdx >= 0) {
             Object.assign(DB.staff[editStaffIdx], { name: nm, role: rl, email: em, phone: gv('sf-ph'), username: gv('sf-un'), perms, actPerms });
         } else {
-            DB.staff.push({ id: _newStaffId, name: nm, role: rl, email: em, phone: gv('sf-ph'), username: gv('sf-un') || nm.split(' ')[0].toLowerCase(), perms, actPerms, status: 'active' });
+            DB.staff.push({ id: 'SF-' + Date.now(), name: nm, role: rl, email: em, phone: gv('sf-ph'), username: gv('sf-un') || nm.split(' ')[0].toLowerCase(), perms, actPerms, status: 'active' });
         }
         toast(editStaffIdx >= 0 ? `${nm} updated!` : `${nm} added!`, 'ok');
         editStaffIdx = -1;
@@ -4026,7 +4002,7 @@ Thank you! 📚
 
         document.getElementById('staffAttList').innerHTML = DB.staff.map(sf => {
             const cur = DB.staffAtt[date][sf.id] !== undefined ? DB.staffAtt[date][sf.id] : 'present';
-            const av  = sf.name.split(' ').map(p=>p[0]).join('').toUpperCase().slice(0,2);
+            const av  = (sf.name||'?').split(' ').filter(Boolean).map(p=>p[0]).join('').toUpperCase().slice(0,2)||'?';
             return `<div class="att-row">
       <div class="att-av" style="background:${sf.color||'var(--ac)'}">${av}</div>
       <div style="flex:1">
@@ -4709,7 +4685,7 @@ Thank you! 📚
                     const stu = DB.students.find(s => s.id === p.student_id);
                     const name = stu ? stu.fname+' '+(stu.lname||'') : (p.fname ? p.fname+' '+(p.lname||'') : 'ID: '+p.user_id);
                     const col = stu?.color || '#9aa3b8';
-                    const av = stu ? (stu.fname[0]+(stu.lname?.[0]||'')).toUpperCase() : '?';
+                    const av = stu ? (((stu.fname||'?')[0])+((stu.lname||'')[0]||'')).toUpperCase() : '?';
                     const isIn = p.punch_type === 'check_in';
                     const vIcon = (p.verify_type||'').includes('finger')||(p.verify_type||'').includes('fp') ? '🖐️' : '💳';
                     const t = (p.punch_time||'').split(' ')[1]?.slice(0,5)||'';
@@ -4721,8 +4697,9 @@ Thank you! 📚
                 }).join('') : '<div style="text-align:center;padding:28px;color:var(--tx3);font-size:13px">No biometric punches today</div>';
             }
 
-            // Fee Gate toggle — apply value from API response
+            // Fee Gate toggle — restore saved state from API
             const feeGateOn = !!res.fee_gate;
+            DB.settings = DB.settings || {};
             DB.settings.feeGate = feeGateOn;
             const fgPairs = [
                 { cb:'feeGateToggle', sl:'feeGateSlider',    th:'feeGateThumb'     },
@@ -4734,9 +4711,7 @@ Thank you! 📚
                 const thEl = document.getElementById(th);  if (thEl) thEl.style.transform = feeGateOn ? 'translateX(20px)' : 'translateX(0)';
             });
             const fgs = document.getElementById('feeGateStatus');
-            if (fgs) fgs.textContent = feeGateOn
-                ? '🔒 Active — overdue students will be blocked at door'
-                : '🔓 Inactive — all students can enter regardless of fee status';
+            if (fgs) fgs.textContent = feeGateOn ? '🔒 Active — overdue students will be blocked at door' : '🔓 Inactive — all students can enter regardless of fee status';
 
             // Sidebar badge
             const bioB = document.getElementById('b-bio');
@@ -4772,7 +4747,7 @@ Thank you! 📚
                     const stu = DB.students.find(s => s.id === p.student_id);
                     const name = stu ? stu.fname+' '+(stu.lname||'') : 'ID: '+p.user_id;
                     const col = stu?.color || '#9aa3b8';
-                    const av = stu ? (stu.fname[0]+(stu.lname?.[0]||'')).toUpperCase() : '?';
+                    const av = stu ? (((stu.fname||'?')[0])+((stu.lname||'')[0]||'')).toUpperCase() : '?';
                     const isIn = p.punch_type === 'check_in';
                     const vIcon = (p.verify_type||'').includes('finger') ? '🖐️' : '💳';
                     const t = (p.punch_time||'').split(' ')[1]?.slice(0,5)||'';
@@ -4810,18 +4785,14 @@ Thank you! 📚
     }
 
     async function toggleFeeGate(enabled) {
-        // Sync both toggles + sliders + thumbs
         const pairs = [
             { cb:'feeGateToggle',  sl:'feeGateSlider',     th:'feeGateThumb'     },
             { cb:'settFeeGate',    sl:'settFeeGateSlider',  th:'settFeeGateThumb' }
         ];
         pairs.forEach(({cb,sl,th}) => {
-            const cbEl = document.getElementById(cb);
-            if (cbEl) cbEl.checked = enabled;
-            const slEl = document.getElementById(sl);
-            if (slEl) slEl.style.background = enabled ? 'var(--ac)' : '#e2e8f0';
-            const thEl = document.getElementById(th);
-            if (thEl) thEl.style.transform = enabled ? 'translateX(20px)' : 'translateX(0)';
+            const cbEl = document.getElementById(cb); if (cbEl) cbEl.checked = enabled;
+            const slEl = document.getElementById(sl);  if (slEl) slEl.style.background = enabled ? 'var(--ac)' : '#e2e8f0';
+            const thEl = document.getElementById(th);  if (thEl) thEl.style.transform = enabled ? 'translateX(20px)' : 'translateX(0)';
         });
         const fgs = document.getElementById('feeGateStatus');
         if (fgs) fgs.textContent = enabled ? '🔒 Active — overdue students will be blocked at door' : '🔓 Inactive — all students can enter regardless of fee status';
@@ -4833,22 +4804,6 @@ Thank you! 📚
     }
 
     // ═══ BOOT ═══
-    // ── Clean up ugly staff IDs (one-time migration) ──
-    async function cleanupStaffIds() {
-        if (!confirm('This will rename all staff IDs to clean format (SF-001, ADM-001 etc).\nThis cannot be undone. Continue?')) return;
-        try {
-            const res = await apiPost('cleanup_staff_ids', {});
-            if (res.ok) {
-                toast('✅ ' + (res.message || 'Staff IDs cleaned!'), 'ok');
-                await reloadDB();
-                renderStaff();
-            } else {
-                toast(res.error || 'Cleanup failed', 'er');
-            }
-        } catch(e) { toast('Error: ' + e.message, 'er'); }
-    }
-
-
     document.getElementById('todayChip').textContent = new Date().toLocaleDateString('en-IN',{month:'long',year:'numeric'});
     initData();
     loadMyDP();
