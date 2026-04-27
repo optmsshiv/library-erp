@@ -2,9 +2,7 @@
 // scan.php — Public QR Attendance Scanner
 // Called when student scans their QR code
 session_start();
-// require_once __DIR__ . '/includes/db.php';
 require_once __DIR__ . '/../core/tenant.php';
-$db     = Tenant::db();
 
 // ── FIX: Set timezone to IST so PHP date() and MySQL NOW() stay in sync ──
 date_default_timezone_set('Asia/Kolkata');
@@ -15,7 +13,7 @@ $error  = null;
 
 if ($token) {
     try {
-        $db = getDB();
+        $db = Tenant::db();
 
         // ── FIX: Sync MySQL timezone with PHP (IST = UTC+5:30) ──
         $db->exec("SET time_zone = '+05:30'");
