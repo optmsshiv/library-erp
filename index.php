@@ -2009,6 +2009,67 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
           ${xLabels}
         </svg>
       </div>`;
+    })()}
+    ${(()=>{
+      // ── Quick Summary — Seats Donut Card ──
+      const total = totalSeats || 1;
+      const occPct = occSeats / total;
+      const circ = 2 * Math.PI * 28;
+      const occDash = occPct * circ;
+      const avail = totalSeats - occSeats;
+      const availPct = totalSeats ? Math.round(avail/totalSeats*100) : 0;
+      const occPctDisp = totalSeats ? Math.round(occSeats/totalSeats*100) : 0;
+
+      // Three arcs: available (green), occupied (blue), reserved (amber) — just avail+occ for now
+      const circFull = 2 * Math.PI * 28;
+      const availDash = (avail/total) * circFull;
+      const occDashV  = (occSeats/total) * circFull;
+      const offset    = circFull * 0.25; // start from top
+
+      return `<div class="sc" style="--ca:var(--em);padding:14px 16px;min-width:0">
+        <div style="font-size:10px;font-weight:700;color:var(--tx3);letter-spacing:.8px;text-transform:uppercase;font-family:var(--fm);margin-bottom:10px">Quick Summary</div>
+        <div style="display:flex;align-items:center;gap:16px">
+          <!-- Donut -->
+          <div style="position:relative;flex-shrink:0;width:80px;height:80px">
+            <svg width="80" height="80" viewBox="0 0 72 72">
+              <!-- track -->
+              <circle cx="36" cy="36" r="28" fill="none" stroke="#e8edf5" stroke-width="10"/>
+              <!-- occupied (blue) — drawn first, from top -->
+              <circle cx="36" cy="36" r="28" fill="none" stroke="var(--ac)" stroke-width="10"
+                stroke-dasharray="${occDashV.toFixed(1)} ${circFull.toFixed(1)}"
+                stroke-dashoffset="${offset.toFixed(1)}"
+                stroke-linecap="butt"/>
+              <!-- available (green) — starts after occupied arc -->
+              <circle cx="36" cy="36" r="28" fill="none" stroke="var(--em)" stroke-width="10"
+                stroke-dasharray="${availDash.toFixed(1)} ${circFull.toFixed(1)}"
+                stroke-dashoffset="${(offset - occDashV).toFixed(1)}"
+                stroke-linecap="butt"/>
+            </svg>
+            <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center">
+              <div style="font-size:15px;font-weight:800;color:var(--tx);line-height:1;font-family:var(--fd)">${totalSeats}</div>
+              <div style="font-size:8px;color:var(--tx3);font-weight:600;margin-top:2px;font-family:var(--fm)">Total Seats</div>
+            </div>
+          </div>
+          <!-- Legend -->
+          <div style="display:flex;flex-direction:column;gap:7px;flex:1;min-width:0">
+            <div style="display:flex;align-items:center;gap:6px;font-size:11px;font-weight:700">
+              <span style="width:8px;height:8px;border-radius:50%;background:var(--em);flex-shrink:0"></span>
+              <span style="color:var(--tx2);flex:1">Available</span>
+              <span style="color:var(--em)">${avail} <span style="font-size:9px;color:var(--tx3);font-weight:500">(${availPct}%)</span></span>
+            </div>
+            <div style="display:flex;align-items:center;gap:6px;font-size:11px;font-weight:700">
+              <span style="width:8px;height:8px;border-radius:50%;background:var(--ac);flex-shrink:0"></span>
+              <span style="color:var(--tx2);flex:1">Occupied</span>
+              <span style="color:var(--ac)">${occSeats} <span style="font-size:9px;color:var(--tx3);font-weight:500">(${occPctDisp}%)</span></span>
+            </div>
+            <div style="display:flex;align-items:center;gap:6px;font-size:11px;font-weight:700">
+              <span style="width:8px;height:8px;border-radius:50%;background:var(--gd);flex-shrink:0"></span>
+              <span style="color:var(--tx2);flex:1">Reserved</span>
+              <span style="color:var(--gd)">0 <span style="font-size:9px;color:var(--tx3);font-weight:500">(0%)</span></span>
+            </div>
+          </div>
+        </div>
+      </div>`;
     })()}`;
 
         // ── BATCH SEAT AVAILABILITY WITH FEE STATUS ──
