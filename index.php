@@ -220,9 +220,9 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         .cbar .tt{display:none;position:absolute;bottom:calc(100%+4px);left:50%;transform:translateX(-50%);background:var(--tx);color:#fff;font-size:9px;padding:2px 7px;border-radius:4px;white-space:nowrap;font-family:var(--fm);z-index:10}
         .cbar:hover .tt{display:block}
 
-        .mcal{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;font-family:var(--fm);margin-top:6px}
-        .cal-dl{text-align:center;color:var(--tx3);padding:5px 0 6px;font-size:9.5px;font-weight:700;letter-spacing:.5px;text-transform:uppercase}
-        .cal-d{text-align:center;padding:0;border-radius:9px;cursor:pointer;color:var(--tx2);transition:all .15s;font-size:12.5px;font-weight:600;line-height:1;position:relative;aspect-ratio:1;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:2px}
+        .mcal{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;font-family:var(--fm);margin-top:6px}
+        .cal-dl{text-align:center;color:var(--tx3);padding:6px 0 8px;font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase}
+        .cal-d{text-align:center;padding:0;border-radius:10px;cursor:pointer;color:var(--tx2);transition:all .15s;font-size:13.5px;font-weight:600;line-height:1;position:relative;aspect-ratio:1;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:3px;min-height:36px}
         .cal-d:hover{background:var(--c-blue);color:var(--ac)}
         .cal-d.today{background:var(--ac);color:#fff;font-weight:800;box-shadow:0 3px 10px rgba(61,111,240,.35)}
         .cal-d.today:hover{background:var(--ac2)}
@@ -537,7 +537,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
             </div>
 
             <!-- ROW A: Live Activity + Revenue Split + Calendar — 3 columns horizontal -->
-            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:16px" id="dashRowA">
+            <div style="display:grid;grid-template-columns:1fr 1fr 1.5fr;gap:14px;margin-bottom:16px" id="dashRowA">
 
                 <!-- Live Activity Feed -->
                 <div class="panel" style="margin-bottom:0;display:flex;flex-direction:column">
@@ -587,10 +587,10 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
                             <button class="btn bg" style="font-size:11px;padding:3px 8px" id="calNext">›</button>
                         </div>
                     </div>
-                    <div class="pb" style="padding:10px 12px 14px">
+                    <div class="pb" style="padding:12px 16px 16px">
                         <div class="mcal" id="miniCal"></div>
                         <!-- Due date legend -->
-                        <div style="margin-top:8px;display:flex;flex-direction:column;gap:4px" id="calDueLegend"></div>
+                        <div style="margin-top:10px;display:flex;flex-direction:column;gap:4px" id="calDueLegend"></div>
                     </div>
                 </div>
             </div>
@@ -1943,7 +1943,17 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
     <div class="sc" style="--ca:var(--vi)"><div class="s-ic" style="background:var(--c-purple)"><span class="mi" style="color:var(--vi)">menu_book</span></div><div class="s-lb">Books Issued</div><div class="s-vl">${issTx.length}</div><div class="s-mt" style="color:var(--ro)">${odTx.length} overdue</div></div>
     <div class="sc" style="--ca:var(--sk)"><div class="s-ic" style="background:var(--c-sky)"><span class="mi" style="color:var(--sk)">fact_check</span></div><div class="s-lb">Attendance Today</div><div class="s-vl">${prsnt}</div><div class="s-mt" style="color:var(--em)">${s.length?Math.round(prsnt/s.length*100):0}%</div></div>
     <div class="sc" style="--ca:#7c3aed;cursor:pointer" onclick="navTo('biometric')"><div class="s-ic" style="background:#faf5ff"><span class="mi" style="color:#7c3aed">fingerprint</span></div><div class="s-lb">Biometric Check-ins</div><div class="s-vl">${Object.values(_bioToday).filter(b=>b.in).length}</div><div class="s-mt" style="color:#7c3aed">today · via device</div></div>
-    <div class="sc" style="--ca:var(--em);padding:14px;min-width:0">
+    <div class="sc" style="--ca:var(--or);padding:14px;min-width:0;cursor:pointer;grid-column:span 2" onclick="navTo('expenses')">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+        <div style="font-size:11px;font-weight:700;color:var(--tx2)">Monthly Expenses</div>
+        <div style="font-size:9px;font-weight:700;font-family:var(--fm);color:var(--tx3);background:var(--sf2);border:1px solid var(--br);border-radius:5px;padding:2px 6px">This Month</div>
+      </div>
+      <div style="font-size:20px;font-weight:800;color:var(--or);font-family:var(--fd);line-height:1;margin-bottom:2px">${fmt(totalExp)}</div>
+      <div style="margin-bottom:8px" id="scExpBadge"></div>
+      <div id="scExpGraph" style="width:100%;height:52px;position:relative;overflow:hidden"></div>
+      <div id="scExpMonths" style="display:flex;justify-content:space-between;font-size:8.5px;color:var(--tx3);font-family:var(--fm);margin-top:3px"></div>
+    </div>
+    <div class="sc" style="--ca:var(--em);padding:14px;min-width:0;grid-column:span 2">
       <div style="font-size:11px;font-weight:700;color:var(--tx2);margin-bottom:10px">Quick Summary — Seats</div>
       <div style="display:flex;align-items:center;gap:14px">
         <!-- Donut chart via SVG -->
@@ -1986,6 +1996,39 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         </div>
       </div>
     </div>`;
+
+        // ── MINI EXPENSE LINE GRAPH (inside stat card) ──
+        (()=>{
+            const now3 = new Date();
+            const mLabels=[], mTotals=[];
+            for(let m=5;m>=0;m--){
+                const dt=new Date(now3.getFullYear(),now3.getMonth()-m,1);
+                mLabels.push(dt.toLocaleDateString('en-IN',{month:'short'}));
+                const yr=dt.getFullYear(),mo=dt.getMonth();
+                mTotals.push(DB.expenses.filter(e=>{const ed=new Date(e.date);return ed.getFullYear()===yr&&ed.getMonth()===mo;}).reduce((a,e)=>a+e.amount,0));
+            }
+            const thisM=mTotals[5]||0, lastM=mTotals[4]||0;
+            const pct=lastM>0?((thisM-lastM)/lastM*100).toFixed(1):0;
+            const isUp=thisM>=lastM;
+            const badge=document.getElementById('scExpBadge');
+            if(badge) badge.innerHTML=`<span style="display:inline-flex;align-items:center;gap:3px;font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;background:${isUp?'rgba(220,38,38,.1)':'rgba(22,163,74,.1)'};color:${isUp?'var(--ro)':'var(--em)'}">${isUp?'↑':'↓'}${Math.abs(pct)}% vs last month</span>`;
+            const maxV=Math.max(...mTotals,1);
+            const W=400,H=52,pX=4,pY=5;
+            const pts=mTotals.map((v,i)=>({x:pX+(i/(mTotals.length-1))*(W-pX*2),y:H-pY-(v/maxV)*(H-pY*2)}));
+            const pd=pts.map((p,i)=>`${i===0?'M':'L'}${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ');
+            const ad=pd+` L${pts[pts.length-1].x.toFixed(1)},${H} L${pts[0].x.toFixed(1)},${H} Z`;
+            const lp=pts[pts.length-1];
+            const gr=document.getElementById('scExpGraph');
+            if(gr) gr.innerHTML=`<svg width="100%" height="52" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" style="display:block">
+                <defs><linearGradient id="scExpGr" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="var(--or)" stop-opacity=".2"/><stop offset="100%" stop-color="var(--or)" stop-opacity="0"/></linearGradient></defs>
+                <path d="${ad}" fill="url(#scExpGr)"/>
+                <path d="${pd}" fill="none" stroke="var(--or)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                ${pts.map((p,i)=>i===pts.length-1?`<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="5" fill="var(--or)" stroke="#fff" stroke-width="2"/>`:
+                  `<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="2.5" fill="var(--or)" opacity=".45"/>`).join('')}
+            </svg>`;
+            const mn=document.getElementById('scExpMonths');
+            if(mn) mn.innerHTML=mLabels.map(l=>`<span>${l}</span>`).join('');
+        })();
 
         // ── BATCH SEAT AVAILABILITY WITH FEE STATUS ──
         // Build seat→student map
