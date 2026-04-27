@@ -220,15 +220,11 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         .cbar .tt{display:none;position:absolute;bottom:calc(100%+4px);left:50%;transform:translateX(-50%);background:var(--tx);color:#fff;font-size:9px;padding:2px 7px;border-radius:4px;white-space:nowrap;font-family:var(--fm);z-index:10}
         .cbar:hover .tt{display:block}
 
-        .mcal{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;font-family:var(--fm);margin-top:6px}
-        .cal-dl{text-align:center;color:var(--tx3);padding:6px 0 8px;font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase}
-        .cal-d{text-align:center;padding:0;border-radius:10px;cursor:pointer;color:var(--tx2);transition:all .15s;font-size:13.5px;font-weight:600;line-height:1;position:relative;aspect-ratio:1;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:3px;min-height:36px}
-        .cal-d:hover{background:var(--c-blue);color:var(--ac)}
-        .cal-d.today{background:var(--ac);color:#fff;font-weight:800;box-shadow:0 3px 10px rgba(61,111,240,.35)}
-        .cal-d.today:hover{background:var(--ac2)}
-        .cal-d.event{color:var(--tx);font-weight:700}
-        .cal-d.empty{pointer-events:none;opacity:0}
-        .cal-d.other-month{color:var(--tx3);opacity:.4}
+        .mcal{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;font-family:var(--fm)}
+        .cal-dl{text-align:center;color:var(--tx3);padding:2px 0;font-size:9px}
+        .cal-d{text-align:center;padding:5px 2px;border-radius:5px;cursor:pointer;color:var(--tx2);transition:all .15s;font-size:11px}
+        .cal-d:hover{background:var(--sf2)}.cal-d.today{background:var(--ac);color:#fff;font-weight:700}
+        .cal-d.event{color:var(--gd);font-weight:600}.cal-d.empty{color:transparent;pointer-events:none}
 
         .toast-wrap{position:fixed;bottom:18px;right:18px;z-index:9999;display:flex;flex-direction:column;gap:7px}
         .toast{padding:12px 16px;border-radius:var(--r2);background:var(--tx);color:#fff;font-size:12.5px;font-weight:500;box-shadow:var(--sh2);display:flex;align-items:center;gap:8px;animation:tIn .28s ease;min-width:230px}
@@ -244,18 +240,6 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         .pag-i{font-size:11px;color:var(--tx3)}.pag-b{display:flex;gap:3px}
         .pb2{padding:3px 9px;border-radius:6px;font-size:11px;cursor:pointer;border:1px solid var(--br);background:var(--sf);color:var(--tx2);transition:all .18s}
         .pb2:hover,.pb2.active{background:var(--ac);color:#fff;border-color:var(--ac)}
-
-        /* ── MONTHLY EXPENSE GRAPH ── */
-        .exp-graph-wrap{padding:16px 18px 0}
-        .exp-graph-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:2px}
-        .exp-graph-label{font-size:11px;color:var(--tx3);font-family:var(--fm);text-transform:uppercase;letter-spacing:.8px}
-        .exp-graph-val{font-size:26px;font-weight:800;color:var(--tx);font-family:var(--fd);line-height:1}
-        .exp-graph-badge{display:inline-flex;align-items:center;gap:3px;font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;margin-left:7px;vertical-align:middle}
-        .exp-graph-badge.up{background:rgba(220,38,38,.1);color:var(--ro)}
-        .exp-graph-badge.dn{background:rgba(22,163,74,.1);color:var(--em)}
-        .exp-graph-filter{font-size:10px;font-weight:600;color:var(--tx3);background:var(--sf2);border:1px solid var(--br);border-radius:6px;padding:3px 9px;cursor:pointer;font-family:var(--fm)}
-        .exp-graph-svg{width:100%;overflow:visible;display:block;margin-top:4px}
-        .exp-graph-months{display:flex;justify-content:space-between;padding:0 4px 10px;font-size:9.5px;color:var(--tx3);font-family:var(--fm);margin-top:2px}
 
         .prg{height:6px;background:var(--sf2);border-radius:3px;overflow:hidden;border:1px solid var(--br)}
         .prf{height:100%;border-radius:3px}
@@ -537,7 +521,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
             </div>
 
             <!-- ROW A: Live Activity + Revenue Split + Calendar — 3 columns horizontal -->
-            <div style="display:grid;grid-template-columns:1fr 1fr 1.5fr;gap:14px;margin-bottom:16px" id="dashRowA">
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:16px" id="dashRowA">
 
                 <!-- Live Activity Feed -->
                 <div class="panel" style="margin-bottom:0;display:flex;flex-direction:column">
@@ -587,10 +571,10 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
                             <button class="btn bg" style="font-size:11px;padding:3px 8px" id="calNext">›</button>
                         </div>
                     </div>
-                    <div class="pb" style="padding:12px 16px 16px">
+                    <div class="pb" style="padding:12px 14px">
                         <div class="mcal" id="miniCal"></div>
                         <!-- Due date legend -->
-                        <div style="margin-top:10px;display:flex;flex-direction:column;gap:4px" id="calDueLegend"></div>
+                        <div style="margin-top:10px;display:flex;flex-direction:column;gap:5px" id="calDueLegend"></div>
                     </div>
                 </div>
             </div>
@@ -1902,7 +1886,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
     }
 
     // ═══ DASHBOARD ═══
-    let calDate=new Date(new Date().getFullYear(),new Date().getMonth(),1); // always start at current month
+    let calDate=new Date(2026,2,1);
     function renderDash(){
         const s=DB.students;
         const paid=s.filter(x=>x.feeStatus==='paid');
@@ -1943,92 +1927,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
     <div class="sc" style="--ca:var(--vi)"><div class="s-ic" style="background:var(--c-purple)"><span class="mi" style="color:var(--vi)">menu_book</span></div><div class="s-lb">Books Issued</div><div class="s-vl">${issTx.length}</div><div class="s-mt" style="color:var(--ro)">${odTx.length} overdue</div></div>
     <div class="sc" style="--ca:var(--sk)"><div class="s-ic" style="background:var(--c-sky)"><span class="mi" style="color:var(--sk)">fact_check</span></div><div class="s-lb">Attendance Today</div><div class="s-vl">${prsnt}</div><div class="s-mt" style="color:var(--em)">${s.length?Math.round(prsnt/s.length*100):0}%</div></div>
     <div class="sc" style="--ca:#7c3aed;cursor:pointer" onclick="navTo('biometric')"><div class="s-ic" style="background:#faf5ff"><span class="mi" style="color:#7c3aed">fingerprint</span></div><div class="s-lb">Biometric Check-ins</div><div class="s-vl">${Object.values(_bioToday).filter(b=>b.in).length}</div><div class="s-mt" style="color:#7c3aed">today · via device</div></div>
-    <div class="sc" style="--ca:var(--or);padding:14px;min-width:0;cursor:pointer;grid-column:span 2" onclick="navTo('expenses')">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
-        <div style="font-size:11px;font-weight:700;color:var(--tx2)">Monthly Expenses</div>
-        <div style="font-size:9px;font-weight:700;font-family:var(--fm);color:var(--tx3);background:var(--sf2);border:1px solid var(--br);border-radius:5px;padding:2px 6px">This Month</div>
-      </div>
-      <div style="font-size:20px;font-weight:800;color:var(--or);font-family:var(--fd);line-height:1;margin-bottom:2px">${fmt(totalExp)}</div>
-      <div style="margin-bottom:8px" id="scExpBadge"></div>
-      <div id="scExpGraph" style="width:100%;height:52px;position:relative;overflow:hidden"></div>
-      <div id="scExpMonths" style="display:flex;justify-content:space-between;font-size:8.5px;color:var(--tx3);font-family:var(--fm);margin-top:3px"></div>
-    </div>
-    <div class="sc" style="--ca:var(--em);padding:14px;min-width:0;grid-column:span 2">
-      <div style="font-size:11px;font-weight:700;color:var(--tx2);margin-bottom:10px">Quick Summary — Seats</div>
-      <div style="display:flex;align-items:center;gap:14px">
-        <!-- Donut chart via SVG -->
-        <div style="position:relative;flex-shrink:0;width:72px;height:72px">
-          <svg width="72" height="72" viewBox="0 0 72 72">
-            <circle cx="36" cy="36" r="28" fill="none" stroke="#e8edf5" stroke-width="10"/>
-            ${(()=>{
-              const total = totalSeats || 1;
-              const occPct = occSeats / total;
-              const circ = 2 * Math.PI * 28;
-              const occDash = occPct * circ;
-              return `<circle cx="36" cy="36" r="28" fill="none" stroke="var(--ac)" stroke-width="10"
-                stroke-dasharray="${occDash.toFixed(1)} ${circ.toFixed(1)}"
-                stroke-dashoffset="${(circ * 0.25).toFixed(1)}"
-                stroke-linecap="round"/>`;
-            })()}
-          </svg>
-          <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center">
-            <div style="font-size:14px;font-weight:800;color:var(--tx);line-height:1">${totalSeats}</div>
-            <div style="font-size:8px;color:var(--tx3);font-weight:600;margin-top:1px">Total</div>
-          </div>
-        </div>
-        <!-- Legend -->
-        <div style="display:flex;flex-direction:column;gap:6px;min-width:0">
-          <div style="display:flex;align-items:center;gap:6px;font-size:11px;font-weight:700">
-            <span style="width:8px;height:8px;border-radius:50%;background:var(--em);flex-shrink:0"></span>
-            <span style="color:var(--tx2)">Available</span>
-            <span style="margin-left:auto;color:var(--em)">${totalSeats-occSeats} <span style="font-size:9px;color:var(--tx3)">(${totalSeats?Math.round((totalSeats-occSeats)/totalSeats*100):0}%)</span></span>
-          </div>
-          <div style="display:flex;align-items:center;gap:6px;font-size:11px;font-weight:700">
-            <span style="width:8px;height:8px;border-radius:50%;background:var(--ac);flex-shrink:0"></span>
-            <span style="color:var(--tx2)">Occupied</span>
-            <span style="margin-left:auto;color:var(--ac)">${occSeats} <span style="font-size:9px;color:var(--tx3)">(${totalSeats?Math.round(occSeats/totalSeats*100):0}%)</span></span>
-          </div>
-          <div style="display:flex;align-items:center;gap:6px;font-size:11px;font-weight:700">
-            <span style="width:8px;height:8px;border-radius:50%;background:var(--gd);flex-shrink:0"></span>
-            <span style="color:var(--tx2)">Reserved</span>
-            <span style="margin-left:auto;color:var(--gd)">0 <span style="font-size:9px;color:var(--tx3)">(0%)</span></span>
-          </div>
-        </div>
-      </div>
-    </div>`;
-
-        // ── MINI EXPENSE LINE GRAPH (inside stat card) ──
-        (()=>{
-            const now3 = new Date();
-            const mLabels=[], mTotals=[];
-            for(let m=5;m>=0;m--){
-                const dt=new Date(now3.getFullYear(),now3.getMonth()-m,1);
-                mLabels.push(dt.toLocaleDateString('en-IN',{month:'short'}));
-                const yr=dt.getFullYear(),mo=dt.getMonth();
-                mTotals.push(DB.expenses.filter(e=>{const ed=new Date(e.date);return ed.getFullYear()===yr&&ed.getMonth()===mo;}).reduce((a,e)=>a+e.amount,0));
-            }
-            const thisM=mTotals[5]||0, lastM=mTotals[4]||0;
-            const pct=lastM>0?((thisM-lastM)/lastM*100).toFixed(1):0;
-            const isUp=thisM>=lastM;
-            const badge=document.getElementById('scExpBadge');
-            if(badge) badge.innerHTML=`<span style="display:inline-flex;align-items:center;gap:3px;font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;background:${isUp?'rgba(220,38,38,.1)':'rgba(22,163,74,.1)'};color:${isUp?'var(--ro)':'var(--em)'}">${isUp?'↑':'↓'}${Math.abs(pct)}% vs last month</span>`;
-            const maxV=Math.max(...mTotals,1);
-            const W=400,H=52,pX=4,pY=5;
-            const pts=mTotals.map((v,i)=>({x:pX+(i/(mTotals.length-1))*(W-pX*2),y:H-pY-(v/maxV)*(H-pY*2)}));
-            const pd=pts.map((p,i)=>`${i===0?'M':'L'}${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ');
-            const ad=pd+` L${pts[pts.length-1].x.toFixed(1)},${H} L${pts[0].x.toFixed(1)},${H} Z`;
-            const lp=pts[pts.length-1];
-            const gr=document.getElementById('scExpGraph');
-            if(gr) gr.innerHTML=`<svg width="100%" height="52" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" style="display:block">
-                <defs><linearGradient id="scExpGr" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="var(--or)" stop-opacity=".2"/><stop offset="100%" stop-color="var(--or)" stop-opacity="0"/></linearGradient></defs>
-                <path d="${ad}" fill="url(#scExpGr)"/>
-                <path d="${pd}" fill="none" stroke="var(--or)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-                ${pts.map((p,i)=>i===pts.length-1?`<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="5" fill="var(--or)" stroke="#fff" stroke-width="2"/>`:
-                  `<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="2.5" fill="var(--or)" opacity=".45"/>`).join('')}
-            </svg>`;
-            const mn=document.getElementById('scExpMonths');
-            if(mn) mn.innerHTML=mLabels.map(l=>`<span>${l}</span>`).join('');
-        })();
+    <div class="sc" style="--ca:var(--gd)"><div class="s-ic" style="background:var(--c-orange)"><span class="mi" style="color:var(--or)">trending_down</span></div><div class="s-lb">Monthly Expenses</div><div class="s-vl">${fmt(totalExp)}</div><div class="s-mt"><span class="bdn">↑ 3.1%</span></div></div>`;
 
         // ── BATCH SEAT AVAILABILITY WITH FEE STATUS ──
         // Build seat→student map
@@ -2063,86 +1962,19 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         // In the new layout the batch grid is inside a 50% column — always 2 cols
         document.getElementById('dashBatchCards').style.gridTemplateColumns = window.innerWidth<600?'1fr':'repeat(2,1fr)';
 
-        // ── EXPENSE TRACKER with Monthly Line Graph ──
+        // ── EXPENSE TRACKER ──
         const catTotals={};DB.expenses.forEach(e=>{catTotals[e.category]=(catTotals[e.category]||0)+e.amount;});
         const catColors={Staff:'var(--ro)',Utilities:'var(--gd)',Maintenance:'var(--vi)',Books:'var(--sk)',Supplies:'var(--ac)',Other:'var(--tx3)'};
-
-        // Build last 6 months expense data
-        const now2 = new Date();
-        const monthLabels = [];
-        const monthTotals = [];
-        for(let m=5;m>=0;m--){
-            const dt = new Date(now2.getFullYear(), now2.getMonth()-m, 1);
-            monthLabels.push(dt.toLocaleDateString('en-IN',{month:'short'}));
-            const yr = dt.getFullYear(), mo = dt.getMonth();
-            const sum = DB.expenses.filter(e=>{ const ed=new Date(e.date); return ed.getFullYear()===yr&&ed.getMonth()===mo; }).reduce((a,e)=>a+e.amount,0);
-            monthTotals.push(sum);
-        }
-        // Compare this month vs last month
-        const thisMonthExp = monthTotals[5] || 0;
-        const lastMonthExp = monthTotals[4] || 0;
-        const expPctChange = lastMonthExp > 0 ? ((thisMonthExp - lastMonthExp)/lastMonthExp*100).toFixed(1) : 0;
-        const expUp = thisMonthExp >= lastMonthExp;
-
-        // Build SVG line chart (same style as screenshot)
-        const svgW=500, svgH=70, padX=8, padY=6;
-        const maxV = Math.max(...monthTotals, 1);
-        const pts = monthTotals.map((v,i)=>{
-            const x = padX + (i/(monthTotals.length-1))*(svgW-padX*2);
-            const y = svgH - padY - (v/maxV)*(svgH-padY*2);
-            return {x,y,v};
-        });
-        const pathD = pts.map((p,i)=>`${i===0?'M':'L'}${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ');
-        // Area fill path
-        const areaD = pathD + ` L${pts[pts.length-1].x.toFixed(1)},${svgH} L${pts[0].x.toFixed(1)},${svgH} Z`;
-        // Y-axis grid lines
-        const gridLines = [0,.25,.5,.75,1].map(f=>{
-            const y=(svgH-padY-(f*(svgH-padY*2))).toFixed(1);
-            return `<line x1="${padX}" y1="${y}" x2="${svgW-padX}" y2="${y}" stroke="var(--br)" stroke-width="1" stroke-dasharray="3,4"/>`;
-        }).join('');
-        // Dot for current month
-        const lastPt = pts[pts.length-1];
-        const svgHTML = `<svg class="exp-graph-svg" viewBox="0 0 ${svgW} ${svgH}" preserveAspectRatio="none">
-            <defs>
-                <linearGradient id="expGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stop-color="var(--vi)" stop-opacity=".18"/>
-                    <stop offset="100%" stop-color="var(--vi)" stop-opacity="0"/>
-                </linearGradient>
-            </defs>
-            ${gridLines}
-            <path d="${areaD}" fill="url(#expGrad)"/>
-            <path d="${pathD}" fill="none" stroke="var(--vi)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-            ${pts.map((p,i)=>i===pts.length-1?`<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="5" fill="var(--vi)" stroke="#fff" stroke-width="2"/>`:'').join('')}
-        </svg>`;
-
-        document.getElementById('dashExpTracker').innerHTML=`
-        <div class="exp-graph-wrap">
-            <div class="exp-graph-header">
-                <div>
-                    <div class="exp-graph-label">Monthly Expenses</div>
-                    <div style="margin-top:2px">
-                        <span class="exp-graph-val">${fmt(thisMonthExp)}</span>
-                        <span class="exp-graph-badge ${expUp?'up':'dn'}">${expUp?'↑':'↓'}${Math.abs(expPctChange)}% vs last month</span>
-                    </div>
-                </div>
-                <select class="exp-graph-filter" title="Period">
-                    <option selected>This Month</option>
-                    <option>This Year</option>
-                </select>
-            </div>
-            ${svgHTML}
-            <div class="exp-graph-months">${monthLabels.map(l=>`<span>${l}</span>`).join('')}</div>
-        </div>
-        <div class="pb" style="padding-top:12px;border-top:1px solid var(--br)">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-          <div><div style="font-size:9.5px;color:var(--tx3);font-family:var(--fm);text-transform:uppercase">TOTAL THIS MONTH</div><div style="font-size:20px;font-weight:700;color:var(--ro);font-family:var(--fd)">${fmt(totalExp)}</div></div>
-          <div style="text-align:right"><div style="font-size:9.5px;color:var(--tx3);font-family:var(--fm);text-transform:uppercase">NET PROFIT</div><div style="font-size:20px;font-weight:700;color:var(--em);font-family:var(--fd)">${fmt(totalRev-totalExp)}</div></div>
-        </div>
-        ${Object.entries(catTotals).map(([cat,amt])=>{const pct=Math.round(amt/totalExp*100);return`<div style="margin-bottom:8px"><div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:3px"><span style="color:var(--tx2)">${cat}</span><span style="font-family:var(--fm);font-weight:700">₹${amt.toLocaleString()} (${pct}%)</span></div><div class="prg"><div class="prf" style="width:${pct}%;background:${catColors[cat]||'var(--ac)'}"></div></div></div>`;}).join('')}
-        <div style="margin-top:10px;display:flex;flex-direction:column;gap:6px">
-          ${DB.expenses.slice(0,4).map(e=>`<div class="ei2"><div class="eic" style="background:rgba(74,124,111,.1)">${e.emoji}</div><div style="flex:1"><div class="en2">${e.name}</div><div class="ed">${fmtDate(e.date)}</div></div><div class="ea ea-d">-₹${e.amount.toLocaleString()}</div></div>`).join('')}
-        </div>
-        </div>`;
+        document.getElementById('dashExpTracker').innerHTML=`<div class="pb">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+      <div><div style="font-size:9.5px;color:var(--tx3);font-family:var(--fm);text-transform:uppercase">TOTAL THIS MONTH</div><div style="font-size:22px;font-weight:700;color:var(--ro);font-family:var(--fd)">${fmt(totalExp)}</div></div>
+      <div style="text-align:right"><div style="font-size:9.5px;color:var(--tx3);font-family:var(--fm);text-transform:uppercase">NET PROFIT</div><div style="font-size:22px;font-weight:700;color:var(--em);font-family:var(--fd)">${fmt(totalRev-totalExp)}</div></div>
+    </div>
+    ${Object.entries(catTotals).map(([cat,amt])=>{const pct=Math.round(amt/totalExp*100);return`<div style="margin-bottom:8px"><div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:3px"><span style="color:var(--tx2)">${cat}</span><span style="font-family:var(--fm);font-weight:700">₹${amt.toLocaleString()} (${pct}%)</span></div><div class="prg"><div class="prf" style="width:${pct}%;background:${catColors[cat]||'var(--ac)'}"></div></div></div>`;}).join('')}
+    <div style="margin-top:10px;display:flex;flex-direction:column;gap:6px">
+      ${DB.expenses.slice(0,4).map(e=>`<div class="ei2"><div class="eic" style="background:rgba(74,124,111,.1)">${e.emoji}</div><div style="flex:1"><div class="en2">${e.name}</div><div class="ed">${fmtDate(e.date)}</div></div><div class="ea ea-d">-₹${e.amount.toLocaleString()}</div></div>`).join('')}
+    </div>
+  </div>`;
 
         // ── FEE OVERVIEW ──
         document.getElementById('dashFeeOv').innerHTML=`<div class="panel" style="margin-bottom:8px"><div class="pb" style="padding-bottom:10px">
@@ -2247,7 +2079,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         const titleEl = document.getElementById('calTitle');
         if (titleEl) titleEl.textContent = d.toLocaleDateString('en-IN',{month:'long',year:'numeric'});
         const days = ['Su','Mo','Tu','We','Th','Fr','Sa'];
-        let h = days.map((day,i)=>`<div class="cal-dl" style="${i===0?'color:var(--ro)':''}">${day}</div>`).join('');
+        let h = days.map(day=>`<div class="cal-dl">${day}</div>`).join('');
         const first = new Date(d.getFullYear(), d.getMonth(), 1).getDay();
         for(let i=0;i<first;i++) h+=`<div class="cal-d empty"></div>`;
         const dim  = new Date(d.getFullYear(), d.getMonth()+1, 0).getDate();
@@ -2268,24 +2100,22 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         for(let i=1;i<=dim;i++){
             const thisDate = new Date(d.getFullYear(), d.getMonth(), i);
             thisDate.setHours(0,0,0,0);
-            const dayOfWeek = thisDate.getDay();
             const isToday = thisDate.getTime() === today.getTime();
-            const isSun = dayOfWeek === 0;
             const hasDue  = dueMap[i] && dueMap[i].length > 0;
             const hasOD   = hasDue && dueMap[i].some(s=>s.feeStatus==='overdue');
-            let cls = isToday ? 'today' : (hasDue ? 'event' : '');
-            const sunStyle = isSun && !isToday ? 'color:var(--ro);' : '';
-            let dotHTML = '';
+            let cls = isToday ? 'today' : '';
+            let extra = '';
             if (hasDue && !isToday) {
+                cls = hasOD ? 'event' : 'event';
                 const dotColor = hasOD ? 'var(--ro)' : 'var(--gd)';
-                dotHTML = `<span style="width:5px;height:5px;border-radius:50%;background:${dotColor};flex-shrink:0"></span>`;
+                extra = `<span style="position:absolute;bottom:1px;left:50%;transform:translateX(-50%);width:4px;height:4px;border-radius:50%;background:${dotColor}"></span>`;
             }
-            h += `<div class="cal-d ${cls}" style="${sunStyle}position:relative" title="${hasDue?dueMap[i].map(s=>s.fname+' '+s.lname).join(', '):''}"><span>${i}</span>${dotHTML}</div>`;
+            h += `<div class="cal-d ${cls}" style="position:relative" title="${hasDue?dueMap[i].map(s=>s.fname+' '+s.lname).join(', '):''}">${i}${extra}</div>`;
         }
         const calEl = document.getElementById('miniCal');
         if (calEl) calEl.innerHTML = h;
 
-        // Upcoming due dates legend (next 4 students due)
+        // Upcoming due dates legend (next 5 students due this month)
         const legEl = document.getElementById('calDueLegend');
         if (legEl) {
             const upcoming = DB.students
@@ -2298,10 +2128,10 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
                 ? upcoming.map(({s,dd})=>{
                     const diff = Math.round((dd-today)/86400000);
                     const col  = diff===0?'var(--ro)':diff<=3?'var(--or)':diff<=7?'var(--gd)':'var(--tx3)';
-                    return `<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--br)">
-            <div style="width:7px;height:7px;border-radius:50%;background:${col};flex-shrink:0"></div>
-            <span style="flex:1;font-size:12px;font-weight:600;color:var(--tx2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${s.fname} ${s.lname}</span>
-            <span style="font-family:var(--fm);font-size:10px;font-weight:800;color:${col};white-space:nowrap;background:${col}18;padding:2px 7px;border-radius:5px">${diff===0?'Today':diff===1?'Tomorrow':'in '+diff+'d'}</span>
+                    return `<div style="display:flex;align-items:center;gap:7px;font-size:10.5px">
+            <div style="width:6px;height:6px;border-radius:50%;background:${col};flex-shrink:0"></div>
+            <span style="flex:1;color:var(--tx2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${s.fname} ${s.lname}</span>
+            <span style="font-family:var(--fm);font-size:9.5px;color:${col};font-weight:700;white-space:nowrap">${diff===0?'Today':diff===1?'Tomorrow':'in '+diff+'d'}</span>
           </div>`;
                 }).join('')
                 : '<div style="font-size:11px;color:var(--tx3)">No upcoming dues</div>';
