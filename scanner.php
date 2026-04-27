@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#030712">
-<title>QR Scanner — NAYI UDAAN LIBRARY</title>
+<title>QR Scanner — OPTMS Tech Study Library</title>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <!-- jsQR for QR decoding -->
 <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
@@ -284,7 +284,7 @@ html,body{
     <div class="brand-icon">📚</div>
     <div>
       <div class="brand-name">QR Scanner</div>
-      <div class="brand-sub">NAYI UDAAN LIBRARY</div>
+      <div class="brand-sub">OPTMS Tech LIBRARY</div>
     </div>
   </div>
   <button class="cam-toggle" onclick="toggleCamera()">🔄 Flip</button>
