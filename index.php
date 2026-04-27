@@ -1915,6 +1915,16 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
     <div class="al-card al-d"><span style="font-size:17px">🚨</span><div><div class="al-t">Fee Overdue Alert</div><div class="al-b">${overdue.length} students overdue — seats highlighted in red 🔴</div></div></div>
     <div class="al-card al-i"><span style="font-size:17px">🎁</span><div><div class="al-t">Discounts Applied</div><div class="al-b">${s.filter(x=>x.baseFee>x.netFee).length} students with discounts — ₹${totalDiscount.toLocaleString()} waived</div></div></div>`;
 
+        // Pre-calculate seat donut values (avoids nested template literal issues)
+        const _sTot  = totalSeats || 1;
+        const _sCirc = 2 * Math.PI * 26;
+        const _sOccD = ((occSeats / _sTot) * _sCirc).toFixed(1);
+        const _sVacD = (((totalSeats - occSeats) / _sTot) * _sCirc).toFixed(1);
+        const _sOff  = (_sCirc * 0.25).toFixed(1);
+        const _sOff2 = (_sCirc * 0.25 - (occSeats / _sTot) * _sCirc).toFixed(1);
+        const _sOccPct = totalSeats ? Math.round(occSeats / totalSeats * 100) : 0;
+        const _sVacPct = totalSeats ? Math.round((totalSeats - occSeats) / totalSeats * 100) : 0;
+        const _sVac  = totalSeats - occSeats;
         document.getElementById('dashStats').innerHTML=`
     <div class="sc" style="--ca:var(--ac)"><div class="s-ic" style="background:var(--c-blue)"><span class="mi" style="color:var(--ac)">school</span></div><div class="s-lb">Total Students</div><div class="s-vl">${s.length}</div><div class="s-mt"><span class="bup">↑ 12%</span></div></div>
     <div class="sc" style="--ca:var(--em)"><div class="s-ic" style="background:var(--c-green)"><span class="mi" style="color:var(--em)">event_seat</span></div><div class="s-lb">Seats Available</div><div class="s-vl">${totalSeats-occSeats}</div><div class="s-mt">${occSeats}/${totalSeats} occupied</div></div>
@@ -1929,51 +1939,44 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
     <div class="sc" style="--ca:var(--sk)"><div class="s-ic" style="background:var(--c-sky)"><span class="mi" style="color:var(--sk)">fact_check</span></div><div class="s-lb">Attendance Today</div><div class="s-vl">${prsnt}</div><div class="s-mt" style="color:var(--em)">${s.length?Math.round(prsnt/s.length*100):0}%</div></div>
     <div class="sc" style="--ca:#7c3aed;cursor:pointer" onclick="navTo('biometric')"><div class="s-ic" style="background:#faf5ff"><span class="mi" style="color:#7c3aed">fingerprint</span></div><div class="s-lb">Biometric Check-ins</div><div class="s-vl">${Object.values(_bioToday).filter(b=>b.in).length}</div><div class="s-mt" style="color:#7c3aed">today · via device</div></div>
     <div class="sc" style="--ca:var(--em);padding:14px">
-      <div style="font-size:11px;font-weight:700;color:var(--tx2);margin-bottom:8px;display:flex;align-items:center;gap:5px"><span class="mi sm" style="font-size:14px;color:var(--ac)">donut_large</span>Quick Summary</div>
+      <div style="font-size:11px;font-weight:700;color:var(--tx2);margin-bottom:8px">&#9711; Quick Summary</div>
       <div style="display:flex;align-items:center;gap:12px">
         <div style="position:relative;flex-shrink:0;width:68px;height:68px">
           <svg width="68" height="68" viewBox="0 0 68 68">
-            ${(()=>{
-              const tot=totalSeats||1;
-              const circ=2*Math.PI*26;
-              const occD=(occSeats/tot)*circ;
-              const vacD=((tot-occSeats)/tot)*circ;
-              const offset=circ*0.25;
-              return `<circle cx="34" cy="34" r="26" fill="none" stroke="#e8edf5" stroke-width="10"/>
-                <circle cx="34" cy="34" r="26" fill="none" stroke="var(--ac)" stroke-width="10"
-                  stroke-dasharray="${occD.toFixed(1)} ${circ.toFixed(1)}"
-                  stroke-dashoffset="${offset.toFixed(1)}"
-                  stroke-linecap="round"/>
-                <circle cx="34" cy="34" r="26" fill="none" stroke="var(--em)" stroke-width="10"
-                  stroke-dasharray="${vacD.toFixed(1)} ${circ.toFixed(1)}"
-                  stroke-dashoffset="${(offset-occD).toFixed(1)}"
-                  stroke-linecap="round" opacity=".4"/>`;
-            })()}
+            <circle cx="34" cy="34" r="26" fill="none" stroke="#e8edf5" stroke-width="10"/>
+            <circle cx="34" cy="34" r="26" fill="none" stroke="var(--em)" stroke-width="10"
+              stroke-dasharray="${_sVacD} ${_sCirc.toFixed(1)}"
+              stroke-dashoffset="${_sOff}"
+              stroke-linecap="round" opacity=".5"/>
+            <circle cx="34" cy="34" r="26" fill="none" stroke="var(--ac)" stroke-width="10"
+              stroke-dasharray="${_sOccD} ${_sCirc.toFixed(1)}"
+              stroke-dashoffset="${_sOff2}"
+              stroke-linecap="round"/>
           </svg>
           <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1">
             <div style="font-size:15px;font-weight:800;color:var(--tx)">${totalSeats}</div>
             <div style="font-size:8px;color:var(--tx3);font-weight:600">Total</div>
           </div>
         </div>
-        <div style="display:flex;flex-direction:column;gap:5px;flex:1;min-width:0">
+        <div style="display:flex;flex-direction:column;gap:6px;flex:1;min-width:0">
           <div style="display:flex;align-items:center;gap:5px;font-size:11px;font-weight:700">
             <span style="width:7px;height:7px;border-radius:50%;background:var(--em);flex-shrink:0"></span>
             <span style="color:var(--tx2);flex:1">Available</span>
-            <span style="color:var(--em)">${totalSeats-occSeats}<span style="font-size:9px;color:var(--tx3);font-weight:600"> (${totalSeats?Math.round((totalSeats-occSeats)/totalSeats*100):0}%)</span></span>
+            <span style="color:var(--em)">${_sVac} (${_sVacPct}%)</span>
           </div>
           <div style="display:flex;align-items:center;gap:5px;font-size:11px;font-weight:700">
             <span style="width:7px;height:7px;border-radius:50%;background:var(--ac);flex-shrink:0"></span>
             <span style="color:var(--tx2);flex:1">Occupied</span>
-            <span style="color:var(--ac)">${occSeats}<span style="font-size:9px;color:var(--tx3);font-weight:600"> (${totalSeats?Math.round(occSeats/totalSeats*100):0}%)</span></span>
+            <span style="color:var(--ac)">${occSeats} (${_sOccPct}%)</span>
           </div>
           <div style="display:flex;align-items:center;gap:5px;font-size:11px;font-weight:700">
             <span style="width:7px;height:7px;border-radius:50%;background:var(--gd);flex-shrink:0"></span>
             <span style="color:var(--tx2);flex:1">Reserved</span>
-            <span style="color:var(--gd)">0<span style="font-size:9px;color:var(--tx3);font-weight:600"> (0%)</span></span>
+            <span style="color:var(--gd)">0 (0%)</span>
           </div>
         </div>
       </div>
-    </div>\`;
+    </div>
 
         // ── BATCH SEAT AVAILABILITY WITH FEE STATUS ──
         // Build seat→student map
