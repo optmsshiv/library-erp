@@ -14,8 +14,11 @@
 error_reporting(0);
 @ini_set('display_errors', '0');
 
-require_once __DIR__ . '/includes/db.php';
-$db = getDB();
+require_once __DIR__ . '/core/tenant.php';  //tenant db connection use krna hai
+$db = Tenant::db();
+$info = Tenant::info();
+
+// $db = getDB();
 
 // ── Auto-create tables ──
 $db->exec("CREATE TABLE IF NOT EXISTS biometric_devices (

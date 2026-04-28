@@ -1212,7 +1212,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
             <div class="fg">
                 <div class="fgi"><label>Batch *</label><select id="en-bt" onchange="calcEnrollFee()"><option value="">-- Select --</option></select></div>
                 <div class="fgi"><label>Seat Type *</label><select id="en-ac" onchange="calcEnrollFee()"><option value="non-ac">Non-AC (Standard)</option><option value="ac">AC (Premium)</option></select></div>
-                <div class="fgi"><label>Seat Number</label><input id="en-st" placeholder="A-12 (optional)"></div>
+                <div class="fgi"><label>Seat Number</label><select id="en-st"><option value="">-- Select Batch First --</option></select></div>
                 <div class="fgi"><label>Base Fee (₹/month)</label><input id="en-fe" type="number" readonly style="background:var(--sf3);font-weight:700"></div>
             </div>
             <div class="sdiv" style="margin-top:14px">🎁 Discount (Optional)</div>
@@ -2694,13 +2694,60 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
     function fmtT(t){const[h,m]=t.split(':');const hr=+h;return`${hr===0?12:hr>12?hr-12:hr}:${m} ${hr<12?'AM':'PM'}`;}
 
     // ═══ ENROLL ═══
-    function calcEnrollFee(){
-        const bId=gv('en-bt'),acType=gv('en-ac');const b=DB.batches.find(x=>x.id===bId);
-        if(!b){document.getElementById('en-fe').value='';document.getElementById('en-net-fe').value='';document.getElementById('en-fee-note').style.display='none';return;}
-        const base=b.baseFee+(acType==='ac'?b.acExtra:0);
-        document.getElementById('en-fe').value=base;
-        applyEnrollDiscount(base);
+   // function calcEnrollFee(){
+   //     const bId=gv('en-bt'),acType=gv('en-ac');const b=DB.batches.find(x=>x.id===bId);
+   //     if(!b){document.getElementById('en-fe').value='';document.getElementById('en-net-fe').value='';document.getElementById('en-fee-note').style.display='none';return;}
+   //     const base=b.baseFee+(acType==='ac'?b.acExtra:0);
+   //     document.getElementById('en-fe').value=base;
+   //     applyEnrollDiscount(base);
+   // }
+
+   function calcEnrollFee(){
+    const bId = gv('en-bt'), acType = gv('en-ac');
+    const b = DB.batches.find(x => x.id === bId);
+
+    // ── Fee calculation (unchanged) ──
+    if(!b){
+        document.getElementById('en-fe').value = '';
+        document.getElementById('en-net-fe').value = '';
+        document.getElementById('en-fee-note').style.display = 'none';
+
+        // Reset seat dropdown
+        document.getElementById('en-st').innerHTML = '<option value="">-- Select Batch First --</option>';
+        return;
     }
+
+    const base = b.baseFee + (acType === 'ac' ? b.acExtra : 0);
+    document.getElementById('en-fe').value = base;
+    applyEnrollDiscount(base);
+
+    // ── Populate vacant seats for selected batch ──
+    const takenSeats = new Set(
+        DB.students
+            .filter(s => s.batchId === bId && s.seat)
+            .map(s => s.seat)
+    );
+
+    const totalSeats = b.total; // already mapped as b.total in your DB.batches load
+    const opts = ['<option value="">-- No Preference --</option>'];
+
+    for(let i = 1; i <= totalSeats; i++){
+        const sn = String(i);
+        if(!takenSeats.has(sn)){
+            // Show AC/Non-AC label based on current seat type selection
+            const label = acType === 'ac' ? `${sn} ❄` : `${sn}`;
+            opts.push(`<option value="${sn}">${label}</option>`);
+        }
+    }
+
+    if(opts.length === 1){
+        opts.push('<option disabled>⚠ No vacant seats in this batch</option>');
+    }
+
+    document.getElementById('en-st').innerHTML = opts.join('');
+}
+
+
     function applyEnrollDiscount(base){
         if(!base)base=+gv('en-fe');
         const dtype=gv('en-disc-type'),dval=+gv('en-disc-val')||0;
