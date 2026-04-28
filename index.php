@@ -2946,7 +2946,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         document.getElementById('b-overdue').textContent=od.length;document.getElementById('txCount').textContent=`${DB.transactions.length} transactions`;
         document.getElementById('txTable').innerHTML=DB.transactions.map(t=>{
             const s=DB.students.find(x=>x.id===t.studentId);const b=DB.books.find(x=>x.id===t.bookId);if(!s||!b)return'';
-            return `<tr><td><div class="si"><div class="sav" style="background:${s.color}">${(s.fname?.[0]||'')+(s.lname?.[0]||')}</div><span style="font-size:12.5px;font-weight:600">${s.fname} ${s.lname}</span></div></td>
+            return `<tr><td><div class="si"><div class="sav" style="background:${s.color}">${(s.fname?.[0]||'')+(s.lname?.[0]||'')}</div><span style="font-size:12.5px;font-weight:600">${s.fname} ${s.lname}</span></div></td>
     <td>${b.emoji} ${b.title}</td>
     <td><span style="font-family:var(--fm);font-size:10.5px">${fmtDate(t.issueDate)}</span></td>
     <td><span style="font-family:var(--fm);font-size:10.5px;color:${t.status==='overdue'?'var(--ro)':'inherit'}">${fmtDate(t.dueDate)}</span></td>
@@ -3197,7 +3197,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
                     :`<span class="fee-bal-badge">₹${inv.balance}</span>`)
                 :`<span style="color:var(--em);font-size:11px">✓</span>`;
             return `<tr style="${deleted?'opacity:.75;background:rgba(192,68,79,.03)':''}"><td><span style="font-family:var(--fm);font-weight:700;color:var(--ac)">${inv.id}</span></td>
-    <td>${s?`<div class="si"><div class="sav" style="background:${s.color}">${(s.fname?.[0]||'')+(s.lname?.[0]||')}</div><span>${s.fname} ${s.lname}</span></div>`:deleted?`<span style="display:inline-flex;align-items:center;gap:4px;background:rgba(192,68,79,.10);border:1px solid rgba(192,68,79,.25);color:#c0444f;font-size:10px;font-weight:600;padding:3px 8px;border-radius:5px;font-style:normal">🗑 Deleted Student</span>`:'—'}</td>
+    <td>${s?`<div class="si"><div class="sav" style="background:${s.color}">${(s.fname?.[0]||'')+(s.lname?.[0]||'')}</div><span>${s.fname} ${s.lname}</span></div>`:deleted?`<span style="display:inline-flex;align-items:center;gap:4px;background:rgba(192,68,79,.10);border:1px solid rgba(192,68,79,.25);color:#c0444f;font-size:10px;font-weight:600;padding:3px 8px;border-radius:5px;font-style:normal">🗑 Deleted Student</span>`:'—'}</td>
     <td><span class="tag tac" style="font-size:9px">${inv.type}</span></td>
     <td><span style="font-family:var(--fm)">₹${inv.baseFee||inv.amount}</span></td>
     <td>${inv.discount>0?`<span class="tag tor" style="font-size:9px">🎁 -₹${inv.discount}</span>`:'<span style="color:var(--tx3)">—</span>'}</td>
@@ -4092,7 +4092,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
                     : `<span class="ren-badge ren-ok">✓ ${diffDays}d left</span>`;
             const b = DB.batches.find(x => x.id === s.batchId);
             return `<div class="ren-card">
-      <div class="ren-av" style="background:${s.color}">${(s.fname?.[0]||'')+(s.lname?.[0]||')}</div>
+      <div class="ren-av" style="background:${s.color}">${(s.fname?.[0]||'')+(s.lname?.[0]||'')}</div>
       <div class="ren-info">
         <div class="ren-name">${s.fname} ${s.lname}</div>
         <div class="ren-meta">${b?b.name:'—'} · Seat ${s.seat||'—'} · ₹${s.netFee}/mo</div>
@@ -4115,7 +4115,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         const b = DB.batches.find(x => x.id === s.batchId);
         document.getElementById('mRenewStudentInfo').innerHTML =
             `<div style="display:flex;align-items:center;gap:10px">
-      <div style="width:36px;height:36px;border-radius:9px;background:${s.color};display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff">${(s.fname?.[0]||'')+(s.lname?.[0]||')}</div>
+      <div style="width:36px;height:36px;border-radius:9px;background:${s.color};display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff">${(s.fname?.[0]||'')+(s.lname?.[0]||'')}</div>
       <div><div style="font-weight:600;font-size:13px">${s.fname} ${s.lname}</div>
       <div style="font-size:11px;color:var(--tx3)">${b?b.name:'—'} · Current due: ${fmtDate(s.dueDate)}</div></div>
     </div>`;
