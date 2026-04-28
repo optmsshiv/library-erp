@@ -2659,7 +2659,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         }).join('');
     }
 
-    function seatLbl(n,i){const p={'Early Morning':'E','Morning':'A','Afternoon':'B','Evening':'C','Night':'D','Late Night':'F'};const prefix=p[n]||n.trim().replace(/\s+/g,' ').split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);return`${prefix}-${String(i).padStart(2,'0')}`;}
+    function seatLbl(n,i){const p={'Early Morning':'E','Morning':'A','Afternoon':'B','Evening':'C','Night':'D','Late Night':'F'};return`${p[n]||'X'}-${String(i).padStart(2,'0')}`;}
 
     function editBatch(idx){
         editBatchIdx=idx;const b=DB.batches[idx];
@@ -2694,48 +2694,48 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
     function fmtT(t){const[h,m]=t.split(':');const hr=+h;return`${hr===0?12:hr>12?hr-12:hr}:${m} ${hr<12?'AM':'PM'}`;}
 
     // ═══ ENROLL ═══
-   // function calcEnrollFee(){
-   //     const bId=gv('en-bt'),acType=gv('en-ac');const b=DB.batches.find(x=>x.id===bId);
-   //     if(!b){document.getElementById('en-fe').value='';document.getElementById('en-net-fe').value='';document.getElementById('en-fee-note').style.display='none';return;}
-   //     const base=b.baseFee+(acType==='ac'?b.acExtra:0);
-   //     document.getElementById('en-fe').value=base;
-   //     applyEnrollDiscount(base);
-   // }
-
-   function calcEnrollFee(){
+   // ═══ ENROLL FEE + SEAT DROPDOWN ═══
+   async function calcEnrollFee(){
     const bId = gv('en-bt'), acType = gv('en-ac');
     const b = DB.batches.find(x => x.id === bId);
+    const seatEl = document.getElementById('en-st');
 
-    // ── Fee calculation (unchanged) ──
+    // ── Reset if no batch selected ──
     if(!b){
         document.getElementById('en-fe').value = '';
         document.getElementById('en-net-fe').value = '';
         document.getElementById('en-fee-note').style.display = 'none';
-
-        // Reset seat dropdown
-        document.getElementById('en-st').innerHTML = '<option value="">-- Select Batch First --</option>';
+        seatEl.innerHTML = '<option value="">-- Select Batch First --</option>';
         return;
     }
 
+    // ── Fee calculation ──
     const base = b.baseFee + (acType === 'ac' ? b.acExtra : 0);
     document.getElementById('en-fe').value = base;
     applyEnrollDiscount(base);
 
-    // ── Populate vacant seats for selected batch ──
+    // ── Show loading state while fetching fresh seat data ──
+    seatEl.innerHTML = '<option value="">Loading seats…</option>';
+
+    // ── Always reload fresh data from server before building dropdown ──
+    // This guarantees seats assigned via alloc_seat or other sessions are excluded
+    try { await reloadDB(); } catch(e) { /* continue with cached data on failure */ }
+
+    // ── Build taken seats set from freshly loaded DB ──
     const takenSeats = new Set(
         DB.students
-            .filter(s => s.batchId === bId && s.seat)
-            .map(s => s.seat)
+            .filter(s => s.batchId === bId && s.seat && s.seat.trim() !== '')
+            .map(s => s.seat.trim())
     );
 
-    const totalSeats = b.total; // already mapped as b.total in your DB.batches load
+    // ── Re-find batch after reload (id is stable) ──
+    const bFresh = DB.batches.find(x => x.id === bId) || b;
     const opts = ['<option value="">-- No Preference --</option>'];
 
-    for(let i = 1; i <= totalSeats; i++){
-        const sn = String(i);
+    for(let i = 1; i <= bFresh.total; i++){
+        const sn = seatLbl(bFresh.name, i); // ✅ same format as stored in DB
         if(!takenSeats.has(sn)){
-            // Show AC/Non-AC label based on current seat type selection
-            const label = acType === 'ac' ? `${sn} ❄` : `${sn}`;
+            const label = acType === 'ac' ? `${sn} ❄` : sn;
             opts.push(`<option value="${sn}">${label}</option>`);
         }
     }
@@ -2744,7 +2744,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         opts.push('<option disabled>⚠ No vacant seats in this batch</option>');
     }
 
-    document.getElementById('en-st').innerHTML = opts.join('');
+    seatEl.innerHTML = opts.join('');
 }
 
 

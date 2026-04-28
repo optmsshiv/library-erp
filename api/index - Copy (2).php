@@ -206,28 +206,14 @@ switch ($action) {
             if (!$joinTs) $joinTs = time();
             $joinDate = date('Y-m-d', $joinTs);
             $dueDate  = date('Y-m-d', strtotime('+30 days', $joinTs));
-            // ── Duplicate seat check ──
-            $seatVal = trim($d['seat'] ?? '');
-            if ($seatVal !== '') {
-                $dupStmt = $db->prepare("SELECT COUNT(*) FROM students WHERE batch_id=? AND seat=?");
-                $dupStmt->execute([$d['batch_id'], $seatVal]);
-                if ((int)$dupStmt->fetchColumn() > 0) {
-                    jsonError("Seat {$seatVal} is already taken in this batch. Please choose another.");
-                }
-            }
             $stmt->execute([
                 $newId, $d['fname'], $d['lname'] ?? '', $d['phone'] ?? '',
                 $d['email'] ?? '', $d['addr'] ?? '',
-                $d['batch_id'], $d['seat_type'] ?? 'non-ac', $seatVal,
+                $d['batch_id'], $d['seat_type'] ?? 'non-ac', $d['seat'] ?? '',
                 $baseFee, $discType, $discVal, $d['discount_reason'] ?? '',
                 $netFee, $dueDate, $d['course'] ?? '', $color,
                 $joinDate
             ]);
-            // ── Update occupied_seats count ──
-            if ($seatVal !== '') {
-                $db->prepare("UPDATE batches SET occupied_seats = (SELECT COUNT(*) FROM students WHERE batch_id=? AND seat IS NOT NULL AND seat != '') WHERE id=?")
-                   ->execute([$d['batch_id'], $d['batch_id']]);
-            }
             addActivity($db, '👨‍🎓', 'rgba(74,124,111,.14)', "New student <strong>{$d['fname']} {$d['lname']}</strong> enrolled");
             addNotif($db, 'info', 'New Enrollment', "{$d['fname']} {$d['lname']} enrolled");
             jsonResponse(['success' => true, 'id' => $newId]);
