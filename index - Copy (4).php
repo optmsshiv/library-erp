@@ -1589,7 +1589,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
                         <option value="6">6 Months</option>
                     </select>
                 </div>
-                <div class="fgi"><label>New Due Date</label><input id="ren-newdate" type="date" style="background:var(--sf2)" title="You can override the calculated date"></div>
+                <div class="fgi"><label>New Due Date</label><input id="ren-newdate" type="date" readonly style="background:var(--sf3)"></div>
                 <div class="fgi"><label>Fee Amount (₹)</label><input id="ren-fee" type="number" placeholder="0"></div>
                 <div class="fgi"><label>Payment Mode</label>
                     <select id="ren-mode"><option>Cash</option><option>UPI</option><option>Bank Transfer</option><option>Cheque</option></select>
@@ -2347,7 +2347,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         // Header
         document.getElementById('spHeaderName').textContent = s.fname + ' ' + s.lname;
         document.getElementById('spHeaderId').textContent = '#' + s.id;
-        document.getElementById('spAv').textContent = ((s.fname?.[0]||'') + (s.lname?.[0]||'')).toUpperCase();
+        document.getElementById('spAv').textContent = (s.fname[0] + s.lname[0]).toUpperCase();
         document.getElementById('spAv').style.background = s.color || '#3d6ff0';
 
         // Fee bar
@@ -2890,7 +2890,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
             }
             const bioMark=bio.in?`<span style="font-size:9px;background:#dcfce7;border:1px solid #a3e8d4;color:#166534;padding:1px 5px;border-radius:4px;font-weight:700;font-family:var(--fm)">🖐️</span>`:'';
             return `<tr>
-            <td><div class="si"><div class="sav" style="background:${s.color}">${(s.fname?.[0]||'')+(s.lname?.[0]||')}</div><div><div style="font-weight:600;font-size:12.5px">${s.fname} ${s.lname} ${bioMark}</div><div style="font-size:10px;color:var(--tx3);font-family:var(--fm)">${s.id}</div></div></div></td>
+            <td><div class="si"><div class="sav" style="background:${s.color}">${s.fname[0]+s.lname[0]}</div><div><div style="font-weight:600;font-size:12.5px">${s.fname} ${s.lname} ${bioMark}</div><div style="font-size:10px;color:var(--tx3);font-family:var(--fm)">${s.id}</div></div></div></td>
             <td>${bTag(s.batchId)}</td>
             <td><span style="font-family:var(--fm);font-size:11px">${s.seat||'—'}</span></td>
             <td><span class="tag ${s.feeStatus==='paid'?'tpd':s.feeStatus==='partial'?'tpart':s.feeStatus==='pending'?'tpn':'tod'}">${s.feeStatus==='paid'?'✓ Paid':s.feeStatus==='partial'?'◑ Partial':s.feeStatus==='pending'?'⏳ Pending':'🚨 Overdue'}</span></td>
@@ -2946,7 +2946,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         document.getElementById('b-overdue').textContent=od.length;document.getElementById('txCount').textContent=`${DB.transactions.length} transactions`;
         document.getElementById('txTable').innerHTML=DB.transactions.map(t=>{
             const s=DB.students.find(x=>x.id===t.studentId);const b=DB.books.find(x=>x.id===t.bookId);if(!s||!b)return'';
-            return `<tr><td><div class="si"><div class="sav" style="background:${s.color}">${(s.fname?.[0]||'')+(s.lname?.[0]||')}</div><span style="font-size:12.5px;font-weight:600">${s.fname} ${s.lname}</span></div></td>
+            return `<tr><td><div class="si"><div class="sav" style="background:${s.color}">${s.fname[0]+s.lname[0]}</div><span style="font-size:12.5px;font-weight:600">${s.fname} ${s.lname}</span></div></td>
     <td>${b.emoji} ${b.title}</td>
     <td><span style="font-family:var(--fm);font-size:10.5px">${fmtDate(t.issueDate)}</span></td>
     <td><span style="font-family:var(--fm);font-size:10.5px;color:${t.status==='overdue'?'var(--ro)':'inherit'}">${fmtDate(t.dueDate)}</span></td>
@@ -3197,7 +3197,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
                     :`<span class="fee-bal-badge">₹${inv.balance}</span>`)
                 :`<span style="color:var(--em);font-size:11px">✓</span>`;
             return `<tr style="${deleted?'opacity:.75;background:rgba(192,68,79,.03)':''}"><td><span style="font-family:var(--fm);font-weight:700;color:var(--ac)">${inv.id}</span></td>
-    <td>${s?`<div class="si"><div class="sav" style="background:${s.color}">${(s.fname?.[0]||'')+(s.lname?.[0]||')}</div><span>${s.fname} ${s.lname}</span></div>`:deleted?`<span style="display:inline-flex;align-items:center;gap:4px;background:rgba(192,68,79,.10);border:1px solid rgba(192,68,79,.25);color:#c0444f;font-size:10px;font-weight:600;padding:3px 8px;border-radius:5px;font-style:normal">🗑 Deleted Student</span>`:'—'}</td>
+    <td>${s?`<div class="si"><div class="sav" style="background:${s.color}">${s.fname[0]+s.lname[0]}</div><span>${s.fname} ${s.lname}</span></div>`:deleted?`<span style="display:inline-flex;align-items:center;gap:4px;background:rgba(192,68,79,.10);border:1px solid rgba(192,68,79,.25);color:#c0444f;font-size:10px;font-weight:600;padding:3px 8px;border-radius:5px;font-style:normal">🗑 Deleted Student</span>`:'—'}</td>
     <td><span class="tag tac" style="font-size:9px">${inv.type}</span></td>
     <td><span style="font-family:var(--fm)">₹${inv.baseFee||inv.amount}</span></td>
     <td>${inv.discount>0?`<span class="tag tor" style="font-size:9px">🎁 -₹${inv.discount}</span>`:'<span style="color:var(--tx3)">—</span>'}</td>
@@ -4092,7 +4092,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
                     : `<span class="ren-badge ren-ok">✓ ${diffDays}d left</span>`;
             const b = DB.batches.find(x => x.id === s.batchId);
             return `<div class="ren-card">
-      <div class="ren-av" style="background:${s.color}">${(s.fname?.[0]||'')+(s.lname?.[0]||')}</div>
+      <div class="ren-av" style="background:${s.color}">${s.fname[0]+s.lname[0]}</div>
       <div class="ren-info">
         <div class="ren-name">${s.fname} ${s.lname}</div>
         <div class="ren-meta">${b?b.name:'—'} · Seat ${s.seat||'—'} · ₹${s.netFee}/mo</div>
@@ -4115,7 +4115,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         const b = DB.batches.find(x => x.id === s.batchId);
         document.getElementById('mRenewStudentInfo').innerHTML =
             `<div style="display:flex;align-items:center;gap:10px">
-      <div style="width:36px;height:36px;border-radius:9px;background:${s.color};display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff">${(s.fname?.[0]||'')+(s.lname?.[0]||')}</div>
+      <div style="width:36px;height:36px;border-radius:9px;background:${s.color};display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff">${s.fname[0]+s.lname[0]}</div>
       <div><div style="font-weight:600;font-size:13px">${s.fname} ${s.lname}</div>
       <div style="font-size:11px;color:var(--tx3)">${b?b.name:'—'} · Current due: ${fmtDate(s.dueDate)}</div></div>
     </div>`;
@@ -4132,22 +4132,10 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         const months = +document.getElementById('ren-extend').value;
         const base   = new Date(s.dueDate) < new Date() ? new Date() : new Date(s.dueDate);
         base.setMonth(base.getMonth() + months);
-        const dateEl = document.getElementById('ren-newdate');
-        dateEl.value = base.toISOString().split('T')[0];
-        // Prevent picking a past date
-        dateEl.min   = new Date().toISOString().split('T')[0];
-        // Live update summary when date is manually changed too
-        dateEl.onchange = () => updateRenewSummary(s);
-        updateRenewSummary(s);
-    }
-
-    function updateRenewSummary(s) {
-        const months  = +document.getElementById('ren-extend').value;
-        const dateVal = document.getElementById('ren-newdate').value;
-        const fee     = +document.getElementById('ren-fee').value || s.netFee;
-        const d       = dateVal ? new Date(dateVal).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}) : '—';
+        document.getElementById('ren-newdate').value = base.toISOString().split('T')[0];
+        const fee = +document.getElementById('ren-fee').value || s.netFee;
         document.getElementById('ren-summary').innerHTML =
-            `✅ Extending by <strong>${months} month${months>1?'s':''}</strong> · New due: <strong>${d}</strong> · Fee: <strong>₹${fee}</strong>`;
+            `✅ Extending by <strong>${months} month${months>1?'s':''}</strong> · New due: <strong>${base.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'})}</strong> · Fee: <strong>₹${fee}</strong>`;
     }
 
     async function confirmRenew() {
@@ -4158,12 +4146,6 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         const mode    = document.getElementById('ren-mode').value;
         const notes   = document.getElementById('ren-notes').value;
         const months  = +document.getElementById('ren-extend').value;
-
-        // ── Validate ──
-        if (!newDate) return toast('⚠ Please set a new due date', 'wn');
-        if (new Date(newDate) < new Date(new Date().toISOString().split('T')[0]))
-            return toast('⚠ Due date cannot be in the past', 'wn');
-        if (fee <= 0) return toast('⚠ Fee amount must be greater than 0', 'wn');
 
         // ── Save to DB ──
         try {
@@ -4253,8 +4235,8 @@ Thank you! 📚
                 });
                 if (res.success) {
                     s.dueDate   = newDue;
-                    s.paidAmt   = (s.paidAmt || 0) + s.netFee;
-                    s.feeStatus = s.paidAmt >= s.netFee ? 'paid' : 'partial';
+                    s.feeStatus = 'pending';
+                    s.paidAmt   = 0;
                     ok++;
                 } else { fail++; }
             } catch(e) { fail++; }
