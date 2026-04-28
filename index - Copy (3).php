@@ -1206,9 +1206,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
                 <div class="fgi"><label>Email</label><input id="en-em" placeholder="email@example.com"></div>
                 <div class="fgi full"><label>Address</label><input id="en-ad" placeholder="Full address…"></div>
                 <div class="fgi"><label>Course / Exam</label><input id="en-co" placeholder="UPSC / JEE"></div>
-                <div class="fgi"><label>Join Date</label><input id="en-dt" type="date" oninput="calcEnrollDueDate()"></div>
-                <div class="fgi"><label>Duration (Months)</label><select id="en-dur" onchange="calcEnrollDueDate()"><option value="1">1 Month</option><option value="2">2 Months</option><option value="3">3 Months</option><option value="6">6 Months</option><option value="12">12 Months</option></select></div>
-                <div class="fgi"><label>Due Date <span style="font-size:9px;color:var(--tx3)">(auto)</span></label><input id="en-due" type="date" style="background:var(--sf3)"></div>
+                <div class="fgi"><label>Join Date</label><input id="en-dt" type="date"></div>
             </div>
             <div class="sdiv" style="margin-top:14px">Batch & Seat</div>
             <div class="fg">
@@ -2696,68 +2694,48 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
     function fmtT(t){const[h,m]=t.split(':');const hr=+h;return`${hr===0?12:hr>12?hr-12:hr}:${m} ${hr<12?'AM':'PM'}`;}
 
     // ═══ ENROLL ═══
-
-    function calcEnrollDueDate() {
-        const joinVal = document.getElementById('en-dt').value;
-        const months  = +document.getElementById('en-dur').value || 1;
-        const base    = joinVal ? new Date(joinVal) : new Date();
-        base.setMonth(base.getMonth() + months);
-        document.getElementById('en-due').value = base.toISOString().split('T')[0];
-
-        // Update fee note to show multi-month total
-        const netFee = +(document.getElementById('en-net-fe').value) || 0;
-        const feeNote = document.getElementById('en-fee-note');
-        if (netFee > 0 && months > 1) {
-            feeNote.style.display = 'block';
-            feeNote.innerHTML = `📅 <strong>${months} months</strong> × ₹${netFee}/mo = <strong style="color:var(--em)">₹${(netFee * months).toLocaleString('en-IN')} total upfront</strong>`;
-        } else if (netFee > 0) {
-            feeNote.style.display = 'block';
-            feeNote.innerHTML = `📅 <strong>1 month</strong> · Due date: <strong style="color:var(--em)">${new Date(document.getElementById('en-due').value).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'})}</strong>`;
-        }
-    }
-
-
-   //     const bId=gv('en-bt'),acType=gv('en-ac');const b=DB.batches.find(x=>x.id===bId);
-   //     if(!b){document.getElementById('en-fe').value='';document.getElementById('en-net-fe').value='';document.getElementById('en-fee-note').style.display='none';return;}
-   //     const base=b.baseFee+(acType==='ac'?b.acExtra:0);
-   //     document.getElementById('en-fe').value=base;
-   //     applyEnrollDiscount(base);
-   // }
-
-   function calcEnrollFee(){
+   // ═══ ENROLL FEE + SEAT DROPDOWN ═══
+   async function calcEnrollFee(){
     const bId = gv('en-bt'), acType = gv('en-ac');
     const b = DB.batches.find(x => x.id === bId);
+    const seatEl = document.getElementById('en-st');
 
-    // ── Fee calculation (unchanged) ──
+    // ── Reset if no batch selected ──
     if(!b){
         document.getElementById('en-fe').value = '';
         document.getElementById('en-net-fe').value = '';
         document.getElementById('en-fee-note').style.display = 'none';
-
-        // Reset seat dropdown
-        document.getElementById('en-st').innerHTML = '<option value="">-- Select Batch First --</option>';
+        seatEl.innerHTML = '<option value="">-- Select Batch First --</option>';
         return;
     }
 
+    // ── Fee calculation ──
     const base = b.baseFee + (acType === 'ac' ? b.acExtra : 0);
     document.getElementById('en-fe').value = base;
     applyEnrollDiscount(base);
 
-    // ── Populate vacant seats for selected batch ──
+    // ── Show loading state while fetching fresh seat data ──
+    seatEl.innerHTML = '<option value="">Loading seats…</option>';
+
+    // ── Always reload fresh data from server before building dropdown ──
+    // This guarantees seats assigned via alloc_seat or other sessions are excluded
+    try { await reloadDB(); } catch(e) { /* continue with cached data on failure */ }
+
+    // ── Build taken seats set from freshly loaded DB ──
     const takenSeats = new Set(
         DB.students
-            .filter(s => s.batchId === bId && s.seat)
-            .map(s => s.seat)
+            .filter(s => s.batchId === bId && s.seat && s.seat.trim() !== '')
+            .map(s => s.seat.trim())
     );
 
-    const totalSeats = b.total; // already mapped as b.total in your DB.batches load
+    // ── Re-find batch after reload (id is stable) ──
+    const bFresh = DB.batches.find(x => x.id === bId) || b;
     const opts = ['<option value="">-- No Preference --</option>'];
 
-    for(let i = 1; i <= totalSeats; i++){
-        const sn = String(i);
+    for(let i = 1; i <= bFresh.total; i++){
+        const sn = seatLbl(bFresh.name, i); // ✅ same format as stored in DB
         if(!takenSeats.has(sn)){
-            // Show AC/Non-AC label based on current seat type selection
-            const label = acType === 'ac' ? `${sn} ❄` : `${sn}`;
+            const label = acType === 'ac' ? `${sn} ❄` : sn;
             opts.push(`<option value="${sn}">${label}</option>`);
         }
     }
@@ -2766,7 +2744,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         opts.push('<option disabled>⚠ No vacant seats in this batch</option>');
     }
 
-    document.getElementById('en-st').innerHTML = opts.join('');
+    seatEl.innerHTML = opts.join('');
 }
 
 
@@ -2781,16 +2759,11 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         const note=document.getElementById('en-fee-note');
         note.style.display='block';
         note.innerHTML=`💡 Base: ₹${base}${disc>0?` <span style="color:var(--or)">− Discount: ₹${disc}</span> = <strong style="color:var(--em)">Net: ₹${net}/month</strong>`:`= ₹${net}/month`}`;
-        // Update multi-month total note
-        calcEnrollDueDate();
     }
     document.getElementById('en-bt').addEventListener('change',calcEnrollFee);
     document.getElementById('en-ac').addEventListener('change',calcEnrollFee);
     document.getElementById('en-disc-type').addEventListener('change',()=>applyEnrollDiscount(+gv('en-fe')));
     document.getElementById('en-disc-val').addEventListener('input',()=>applyEnrollDiscount(+gv('en-fe')));
-    // Set today as default join date and calculate initial due date
-    const enDtEl = document.getElementById('en-dt');
-    if (enDtEl && !enDtEl.value) { enDtEl.value = new Date().toISOString().split('T')[0]; calcEnrollDueDate(); }
 
     function enrollStudent(){
         const fn=gv('en-fn'),ln=gv('en-ln'),ph=gv('en-ph'),bt=gv('en-bt'),fe=+gv('en-fe'),net=+gv('en-net-fe'),ac=gv('en-ac');
@@ -3620,17 +3593,10 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         if (!fn || !bt) return toast('First name and batch required', 'er');
         // join_date: use selected date or today, formatted as YYYY-MM-DD for the API
         const joinDateRaw = gv('en-dt') || new Date().toISOString().slice(0,10);
-        const months = +gv('en-dur') || 1;
-        const dueDate = gv('en-due') || (() => {
-            const d = new Date(joinDateRaw); d.setMonth(d.getMonth() + months);
-            return d.toISOString().split('T')[0];
-        })();
         const payload = {
             fname: fn, lname: ln, phone: gv('en-ph'), batch_id: bt,
             seat_type: gv('en-ac'), seat: gv('en-st'), course: gv('en-co'),
             join_date: joinDateRaw,
-            months: months,
-            due_date: dueDate,
             base_fee: +gv('en-fe'), discount_type: gv('en-disc-type'),
             discount_value: +gv('en-disc-val') || 0,
             discount_reason: gv('en-disc-reason')
@@ -3639,21 +3605,17 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         if (res.error) return toast(res.error, 'er');
         const waCheck = document.getElementById('en-wa');
         closeM('mEnroll');
-        toast(`${fn} enrolled for ${months} month${months>1?'s':''}!`, 'ok');
+        toast(`${fn} enrolled!`, 'ok');
         // ── Reset form ──
         ['en-fn','en-ln','en-ph','en-em','en-ad','en-co','en-dt','en-st',
-            'en-fe','en-net-fe','en-disc-val','en-disc-reason','en-due'].forEach(id => {
+            'en-fe','en-net-fe','en-disc-val','en-disc-reason'].forEach(id => {
             const el = document.getElementById(id); if (el) el.value = '';
         });
         const btEl = document.getElementById('en-bt'); if (btEl) btEl.value = '';
         const acEl = document.getElementById('en-ac'); if (acEl) acEl.value = 'non-ac';
         const dtEl = document.getElementById('en-disc-type'); if (dtEl) dtEl.value = 'none';
-        const durEl = document.getElementById('en-dur'); if (durEl) durEl.value = '1';
         const waEl = document.getElementById('en-wa'); if (waEl) waEl.checked = true;
         const feeNote = document.getElementById('en-fee-note'); if (feeNote) feeNote.style.display = 'none';
-        // Reset join date to today and recalculate due date
-        const enDtEl = document.getElementById('en-dt');
-        if (enDtEl) { enDtEl.value = new Date().toISOString().split('T')[0]; calcEnrollDueDate(); }
         await reloadDB();
         if (waCheck && waCheck.checked) {
             const newStu = DB.students.find(x => x.id === res.id);

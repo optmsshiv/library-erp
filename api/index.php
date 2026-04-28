@@ -200,12 +200,20 @@ switch ($action) {
             $color = $colors[array_rand($colors)];
             $sql = "INSERT INTO students (id,fname,lname,phone,email,addr,batch_id,seat_type,seat,base_fee,discount_type,discount_value,discount_reason,net_fee,paid_amt,fee_status,paid_on,due_date,course,color,join_date) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,0,'pending',NULL,?,?,?,?)";
             $stmt = $db->prepare($sql);
-            // Calculate due_date: 30 days from join date (or today)
-            $joinRaw = $d['join_date'] ?? '';
-            $joinTs  = $joinRaw ? strtotime($joinRaw) : time();
+            // ── Join date ──
+            $joinRaw  = $d['join_date'] ?? '';
+            $joinTs   = $joinRaw ? strtotime($joinRaw) : time();
             if (!$joinTs) $joinTs = time();
             $joinDate = date('Y-m-d', $joinTs);
-            $dueDate  = date('Y-m-d', strtotime('+30 days', $joinTs));
+
+            // ── Due date: use client-sent value if valid, else calculate from months ──
+            $months = max(1, (int)($d['months'] ?? 1));
+            if (!empty($d['due_date']) && strtotime($d['due_date'])) {
+                $dueDate = $d['due_date'];
+            } else {
+                $dueDate = date('Y-m-d', strtotime("+{$months} months", $joinTs));
+            }
+
             // ── Duplicate seat check ──
             $seatVal = trim($d['seat'] ?? '');
             if ($seatVal !== '') {
@@ -223,14 +231,17 @@ switch ($action) {
                 $netFee, $dueDate, $d['course'] ?? '', $color,
                 $joinDate
             ]);
+
             // ── Update occupied_seats count ──
             if ($seatVal !== '') {
                 $db->prepare("UPDATE batches SET occupied_seats = (SELECT COUNT(*) FROM students WHERE batch_id=? AND seat IS NOT NULL AND seat != '') WHERE id=?")
                    ->execute([$d['batch_id'], $d['batch_id']]);
             }
-            addActivity($db, '👨‍🎓', 'rgba(74,124,111,.14)', "New student <strong>{$d['fname']} {$d['lname']}</strong> enrolled");
-            addNotif($db, 'info', 'New Enrollment', "{$d['fname']} {$d['lname']} enrolled");
-            jsonResponse(['success' => true, 'id' => $newId]);
+
+            $monthsLabel = $months > 1 ? " ({$months} months)" : '';
+            addActivity($db, '👨‍🎓', 'rgba(74,124,111,.14)', "New student <strong>{$d['fname']} {$d['lname']}</strong> enrolled{$monthsLabel}");
+            addNotif($db, 'info', 'New Enrollment', "{$d['fname']} {$d['lname']} enrolled{$monthsLabel}. Due: {$dueDate}");
+            jsonResponse(['success' => true, 'id' => $newId, 'due_date' => $dueDate, 'months' => $months]);
         } catch (Exception $e) {
             jsonError('Failed to enroll student: ' . $e->getMessage(), 500);
         }
@@ -877,19 +888,28 @@ switch ($action) {
         $stu = $stuStmt->fetch();
         if (!$stu) jsonError('Student not found');
 
-        // Calculate new due_date: extend from current due_date (or today if expired)
+        // Calculate new due_date: use client-provided date if valid, else calculate from months
         $currentDue = $stu['due_date'] ?? null;
-        if (empty($currentDue) || $currentDue === '0000-00-00') {
-            $baseTs = time();
+        if (!empty($d['new_due_date']) && strtotime($d['new_due_date'])) {
+            $newDueDate = $d['new_due_date'];
         } else {
-            $baseTs = max(time(), strtotime($currentDue));
+            if (empty($currentDue) || $currentDue === '0000-00-00') {
+                $baseTs = time();
+            } else {
+                $baseTs = max(time(), strtotime($currentDue));
+            }
+            $newDueDate = date('Y-m-d', strtotime("+{$months} months", $baseTs));
         }
-        $newDueDate = date('Y-m-d', strtotime("+{$months} months", $baseTs));
 
-        // Update student: reset fee status, paid_amt, due_date
+        // Calculate correct fee_status based on actual paid amount
+        $newPaidAmt = (int)($stu['paid_amt'] ?? 0) + $amount;
+        $netFee     = (int)($stu['net_fee']  ?? 0);
+        $feeStatus  = ($newPaidAmt >= $netFee) ? 'paid' : (($newPaidAmt > 0) ? 'partial' : 'pending');
+
+        // Update student: extend due_date, accumulate paid_amt, set correct fee_status
         $db->prepare(
-            "UPDATE students SET due_date=?, paid_amt=paid_amt+?, fee_status='paid', paid_on=? WHERE id=?"
-        )->execute([$newDueDate, $amount, date('Y-m-d'), $studentId]);
+            "UPDATE students SET due_date=?, paid_amt=?, fee_status=?, paid_on=? WHERE id=?"
+        )->execute([$newDueDate, $newPaidAmt, $feeStatus, date('Y-m-d'), $studentId]);
 
         // Insert into renewals table
         $lastRnwId = $db->query("SELECT id FROM renewals ORDER BY created_at DESC LIMIT 1")->fetchColumn();
