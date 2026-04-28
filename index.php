@@ -2704,16 +2704,16 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         base.setMonth(base.getMonth() + months);
         document.getElementById('en-due').value = base.toISOString().split('T')[0];
 
-        // Update fee note to show multi-month total
-        const netFee = +(document.getElementById('en-net-fe').value) || 0;
-        const feeNote = document.getElementById('en-fee-note');
-        if (netFee > 0 && months > 1) {
-            feeNote.style.display = 'block';
-            feeNote.innerHTML = `📅 <strong>${months} months</strong> × ₹${netFee}/mo = <strong style="color:var(--em)">₹${(netFee * months).toLocaleString('en-IN')} total upfront</strong>`;
-        } else if (netFee > 0) {
-            feeNote.style.display = 'block';
-            feeNote.innerHTML = `📅 <strong>1 month</strong> · Due date: <strong style="color:var(--em)">${new Date(document.getElementById('en-due').value).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'})}</strong>`;
+        // If a batch is already selected, refresh the fee note (shows multi-month total)
+        const baseFee = +(document.getElementById('en-fe').value) || 0;
+        if (baseFee > 0) {
+            applyEnrollDiscount(baseFee);
+            return; // applyEnrollDiscount calls calcEnrollDueDate again internally but won't loop
         }
+
+        // No batch selected yet — nothing to show
+        const feeNote = document.getElementById('en-fee-note');
+        if (feeNote) feeNote.style.display = 'none';
     }
 
 
@@ -2747,7 +2747,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
     const takenSeats = new Set(
         DB.students
             .filter(s => s.batchId === bId && s.seat)
-            .map(s => s.seat)
+            .map(s => String(s.seat))
     );
 
     const totalSeats = b.total; // already mapped as b.total in your DB.batches load
@@ -2778,11 +2778,24 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         else if(dtype==='percent')disc=Math.round(base*dval/100);
         const net=base-disc;
         document.getElementById('en-net-fe').value=net;
+
+        // Recalculate due date directly (no recursive call)
+        const joinVal = document.getElementById('en-dt').value;
+        const months  = +document.getElementById('en-dur').value || 1;
+        const baseDate = joinVal ? new Date(joinVal) : new Date();
+        baseDate.setMonth(baseDate.getMonth() + months);
+        document.getElementById('en-due').value = baseDate.toISOString().split('T')[0];
+
         const note=document.getElementById('en-fee-note');
         note.style.display='block';
-        note.innerHTML=`💡 Base: ₹${base}${disc>0?` <span style="color:var(--or)">− Discount: ₹${disc}</span> = <strong style="color:var(--em)">Net: ₹${net}/month</strong>`:`= ₹${net}/month`}`;
-        // Update multi-month total note
-        calcEnrollDueDate();
+        const discPart = disc>0
+            ? ` <span style="color:var(--or)">− Discount: ₹${disc}</span> = <strong style="color:var(--em)">₹${net}/month</strong>`
+            : ` = ₹${net}/month`;
+        if(months > 1){
+            note.innerHTML=`💡 Base: ₹${base}${discPart} &nbsp;|&nbsp; 📅 <strong>${months} months</strong> × ₹${net}/mo = <strong style="color:var(--ac)">₹${(net*months).toLocaleString('en-IN')} total</strong>`;
+        } else {
+            note.innerHTML=`💡 Base: ₹${base}${discPart} · Due: <strong>${baseDate.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'})}</strong>`;
+        }
     }
     document.getElementById('en-bt').addEventListener('change',calcEnrollFee);
     document.getElementById('en-ac').addEventListener('change',calcEnrollFee);
