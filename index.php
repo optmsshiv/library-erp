@@ -2781,22 +2781,24 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
     const takenSeats = new Set(
         DB.students
             .filter(s => s.batchId === bId && s.seat)
-            .map(s => String(s.seat))
+            .flatMap(s => {
+                const raw = String(s.seat);
+                return /^\d+$/.test(raw) ? [raw, seatLbl(b.name, +raw)] : [raw];
+            })
     );
 
-    const totalSeats = b.total; // already mapped as b.total in your DB.batches load
+    const totalSeats = b.total;
     const opts = ['<option value="">-- No Preference --</option>'];
 
-    for(let i = 1; i <= totalSeats; i++){
-        const sn = String(i);
-        if(!takenSeats.has(sn)){
-            // Show AC/Non-AC label based on current seat type selection
-            const label = acType === 'ac' ? `${sn} ❄` : `${sn}`;
+    for (let i = 1; i <= totalSeats; i++) {
+        const sn = seatLbl(b.name, i);
+        if (!takenSeats.has(sn)) {
+            const label = acType === 'ac' ? `${sn} ❄` : sn;
             opts.push(`<option value="${sn}">${label}</option>`);
         }
     }
 
-    if(opts.length === 1){
+    if (opts.length === 1) {
         opts.push('<option disabled>⚠ No vacant seats in this batch</option>');
     }
 
