@@ -340,10 +340,22 @@ switch ($action) {
         if ($method !== 'POST') jsonError('Method not allowed', 405);
         $d = getInput();
         if (empty($d['student_id']) || empty($d['batch_id']) || empty($d['seat'])) jsonError('All fields required');
+
+        // Fetch the student's CURRENT batch before updating, so we can fix its count too
+        $prevStmt = $db->prepare("SELECT batch_id FROM students WHERE id=? LIMIT 1");
+        $prevStmt->execute([$d['student_id']]);
+        $prevBatchId = $prevStmt->fetchColumn();
+
         $db->prepare("UPDATE students SET seat=?, batch_id=? WHERE id=?")->execute([$d['seat'], $d['batch_id'], $d['student_id']]);
-        // update occupied count
+
+        // Update occupied count for the NEW batch
         $db->prepare("UPDATE batches SET occupied_seats = (SELECT COUNT(*) FROM students WHERE batch_id=? AND seat IS NOT NULL AND seat != '') WHERE id=?")->execute([$d['batch_id'], $d['batch_id']]);
-        $s = $db->prepare("SELECT fname FROM students WHERE id=?")->execute([$d['student_id']]);
+
+        // If the student moved FROM a different batch, fix that old batch's count too
+        if ($prevBatchId && $prevBatchId !== $d['batch_id']) {
+            $db->prepare("UPDATE batches SET occupied_seats = (SELECT COUNT(*) FROM students WHERE batch_id=? AND seat IS NOT NULL AND seat != '') WHERE id=?")->execute([$prevBatchId, $prevBatchId]);
+        }
+
         addActivity($db, '🪑', 'rgba(196,125,43,.14)', "Seat <strong>{$d['seat']}</strong> allocated");
         jsonResponse(['success' => true]);
 
