@@ -2659,7 +2659,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         }).join('');
     }
 
-    function seatLbl(n,i){const p={'Early Morning':'E','Morning':'A','Afternoon':'B','Evening':'C','Night':'D','Late Night':'F'};return`${p[n]||'X'}-${String(i).padStart(2,'0')}`;}
+    function seatLbl(n,i){const p={'Early Morning':'E','Morning':'A','Afternoon':'B','Evening':'C','Night':'D','Late Night':'F'};const prefix=p[n]||n.trim().replace(/\s+/g,' ').split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);return`${prefix}-${String(i).padStart(2,'0')}`;}
 
     function editBatch(idx){
         editBatchIdx=idx;const b=DB.batches[idx];
