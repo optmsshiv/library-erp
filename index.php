@@ -1596,7 +1596,8 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
                 </div>
                 <div class="fgi full"><label>Notes</label><input id="ren-notes" placeholder="Optional renewal note"></div>
             </div>
-            <div style="margin-top:12px;padding:10px 12px;background:rgba(22,163,74,.07);border:1px solid rgba(22,163,74,.2);border-radius:var(--r2);font-size:12px;color:var(--tx2)" id="ren-summary"></div>
+            <div id="ren-summary" style="margin-top:12px;padding:10px 12px;border-radius:var(--r2);font-size:12px;color:var(--tx2);border:1px solid transparent"></div>
+            <div id="ren-balance-warn" style="display:none;margin-top:6px;padding:9px 12px;background:rgba(234,88,12,.08);border:1px solid rgba(234,88,12,.3);border-radius:var(--r2);font-size:12px;color:#c2410c"></div>
         </div>
         <div class="mf">
             <button class="btn bg" onclick="closeM('mRenew')">Cancel</button>
@@ -4113,16 +4114,29 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         if (!s) return;
         renewStudentId = id;
         const b = DB.batches.find(x => x.id === s.batchId);
+
+        // Show previous unpaid balance if any
+        const prevBal = Math.max(0, s.netFee - (s.paidAmt || 0));
+        const prevBalHtml = prevBal > 0
+            ? `<div style="margin-top:4px;font-size:10px;color:#c2410c;font-weight:600">⚠ ₹${prevBal} still unpaid from previous period</div>`
+            : '';
+
         document.getElementById('mRenewStudentInfo').innerHTML =
             `<div style="display:flex;align-items:center;gap:10px">
       <div style="width:36px;height:36px;border-radius:9px;background:${s.color};display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff">${(s.fname?.[0]||'')+(s.lname?.[0]||'')}</div>
-      <div><div style="font-weight:600;font-size:13px">${s.fname} ${s.lname}</div>
-      <div style="font-size:11px;color:var(--tx3)">${b?b.name:'—'} · Current due: ${fmtDate(s.dueDate)}</div></div>
+      <div>
+        <div style="font-weight:600;font-size:13px">${s.fname} ${s.lname}</div>
+        <div style="font-size:11px;color:var(--tx3)">${b?b.name:'—'} · Current due: ${fmtDate(s.dueDate)}</div>
+        ${prevBalHtml}
+      </div>
     </div>`;
-        document.getElementById('ren-fee').value = s.netFee;
+
+        document.getElementById('ren-fee').value    = s.netFee;
         document.getElementById('ren-extend').value = '1';
+        document.getElementById('ren-balance-warn').style.display = 'none';
+        document.getElementById('ren-fee').oninput      = updateRenewDate;
+        document.getElementById('ren-extend').onchange  = updateRenewDate;
         updateRenewDate();
-        document.getElementById('ren-extend').onchange = updateRenewDate;
         openM('mRenew');
     }
 
@@ -4134,20 +4148,33 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         base.setMonth(base.getMonth() + months);
         const dateEl = document.getElementById('ren-newdate');
         dateEl.value = base.toISOString().split('T')[0];
-        // Prevent picking a past date
         dateEl.min   = new Date().toISOString().split('T')[0];
-        // Live update summary when date is manually changed too
-        dateEl.onchange = () => updateRenewSummary(s);
-        updateRenewSummary(s);
-    }
+        dateEl.onchange = updateRenewDate;
 
-    function updateRenewSummary(s) {
-        const months  = +document.getElementById('ren-extend').value;
-        const dateVal = document.getElementById('ren-newdate').value;
-        const fee     = +document.getElementById('ren-fee').value || s.netFee;
-        const d       = dateVal ? new Date(dateVal).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}) : '—';
-        document.getElementById('ren-summary').innerHTML =
-            `✅ Extending by <strong>${months} month${months>1?'s':''}</strong> · New due: <strong>${d}</strong> · Fee: <strong>₹${fee}</strong>`;
+        const fee     = +document.getElementById('ren-fee').value || 0;
+        const netFee  = s.netFee;
+        const balance = netFee - fee;
+        const d       = base.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});
+        const sumEl   = document.getElementById('ren-summary');
+        const warnEl  = document.getElementById('ren-balance-warn');
+
+        if (fee >= netFee) {
+            // Full payment
+            sumEl.style.cssText = 'margin-top:12px;padding:10px 12px;border-radius:var(--r2);font-size:12px;color:var(--tx2);background:rgba(22,163,74,.07);border:1px solid rgba(22,163,74,.2)';
+            sumEl.innerHTML     = `✅ <strong>${months} month${months>1?'s':''}</strong> extension · Due: <strong>${d}</strong> · ₹${fee} — <strong style="color:#16a34a">Fully Paid</strong>`;
+            warnEl.style.display = 'none';
+        } else if (fee > 0) {
+            // Partial payment
+            sumEl.style.cssText = 'margin-top:12px;padding:10px 12px;border-radius:var(--r2);font-size:12px;color:var(--tx2);background:rgba(234,88,12,.06);border:1px solid rgba(234,88,12,.25)';
+            sumEl.innerHTML     = `◑ <strong>${months} month${months>1?'s':''}</strong> extension · Due: <strong>${d}</strong> · ₹${fee} paid of ₹${netFee}`;
+            warnEl.style.display = 'block';
+            warnEl.innerHTML    = `⚠ <strong>₹${balance} balance remaining</strong> — student will be marked as <strong>Partial Paid</strong>. Collect the remaining amount later via Fee Collection.`;
+        } else {
+            // No amount entered yet
+            sumEl.style.cssText = 'margin-top:12px;padding:10px 12px;border-radius:var(--r2);font-size:12px;color:var(--tx2);background:rgba(22,163,74,.07);border:1px solid rgba(22,163,74,.2)';
+            sumEl.innerHTML     = `✅ <strong>${months} month${months>1?'s':''}</strong> extension · Due: <strong>${d}</strong>`;
+            warnEl.style.display = 'none';
+        }
     }
 
     async function confirmRenew() {
@@ -4180,29 +4207,33 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
                 return;
             }
             // ── Update local DB state ──
-            s.dueDate = newDate;
-            s.paidAmt = (s.paidAmt || 0) + fee;
-            if (s.paidAmt >= s.netFee) s.feeStatus = 'paid';
-            else if (s.paidAmt > 0)    s.feeStatus = 'partial';
-            s.paidOn  = new Date().toISOString().split('T')[0];
+            s.dueDate  = newDate;
+            s.paidAmt  = (s.paidAmt || 0) + fee;
+            const bal  = Math.max(0, s.netFee - s.paidAmt);
+            s.feeStatus = s.paidAmt >= s.netFee ? 'paid' : (s.paidAmt > 0 ? 'partial' : 'pending');
+            s.paidOn   = new Date().toISOString().split('T')[0];
 
-            // Push invoice into local DB so Invoices page reflects it immediately
+            // Push invoice with correct balance and status
             if (res.invoice_id) {
                 DB.invoices.unshift({
                     id: res.invoice_id, studentId: s.id,
                     type: `Renewal (${months}mo)`, amount: fee,
                     baseFee: s.baseFee, discount: s.baseFee - s.netFee,
-                    netFee: s.netFee, paidAmt: fee, balance: 0,
+                    netFee: s.netFee, paidAmt: fee,
+                    balance: bal,
                     date: new Date().toISOString().split('T')[0],
                     month: new Date().toLocaleDateString('en-IN', {month:'long', year:'numeric'}),
-                    mode, status: 'paid'
+                    mode, status: s.feeStatus
                 });
             }
 
-            auditLog('renewal', `Renewed ${s.fname} ${s.lname} — ${months}mo, ₹${fee} (${mode})${notes?' — '+notes:''}`);
-            addActivity('🔄', 'rgba(61,111,240,.14)', `Renewed <strong>${s.fname} ${s.lname}</strong> for ${months} month${months>1?'s':''}`);
+            auditLog('renewal', `Renewed ${s.fname} ${s.lname} — ${months}mo, ₹${fee} (${mode})${notes?' — '+notes:''}${bal>0?' · ₹'+bal+' balance remaining':''}`);
+            addActivity('🔄', 'rgba(61,111,240,.14)', `Renewed <strong>${s.fname} ${s.lname}</strong> for ${months} month${months>1?'s':''}${bal>0?' — ₹'+bal+' still due':''}`);
             closeM('mRenew');
-            toast(`✅ ${s.fname} renewed for ${months} month${months>1?'s':''}!`, 'ok');
+            const toastMsg = s.feeStatus === 'partial'
+                ? `◑ ${s.fname} partially renewed — ₹${bal} still due`
+                : `✅ ${s.fname} renewed for ${months} month${months>1?'s':''}!`;
+            toast(toastMsg, s.feeStatus === 'partial' ? 'wn' : 'ok');
             renderRenewal(); renderStudents(); updateBadges();
         } catch(e) {
             toast('❌ Network error: ' + e.message, 'er');
@@ -4212,11 +4243,32 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
     function sendRenewalWA() {
         const s = DB.students.find(x => x.id === renewStudentId);
         if (!s) return;
-        const newDate = document.getElementById('ren-newdate').value;
-        const fee = document.getElementById('ren-fee').value;
-        const months = document.getElementById('ren-extend').value;
-        const d = new Date(newDate).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});
-        const msg = `🔄 *Renewal Confirmation*
+        const newDate  = document.getElementById('ren-newdate').value;
+        const fee      = +document.getElementById('ren-fee').value || 0;
+        const months   = document.getElementById('ren-extend').value;
+        const d        = new Date(newDate).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});
+        const balance  = Math.max(0, s.netFee - fee);
+        const isPartial = fee > 0 && fee < s.netFee;
+
+        const msg = isPartial
+            ? `🔄 *Renewal Confirmation (Partial Payment)*
+
+Dear *${s.fname} ${s.lname}*,
+
+Your library membership has been renewed!
+
+✅ *Details:*
+• Extended By: ${months} month(s)
+• Fee Paid: ₹${fee}
+• Balance Due: ₹${balance}
+• New Due Date: ${d}
+• Seat: ${s.seat||'—'}
+
+⚠ Please pay the remaining ₹${balance} at your earliest convenience.
+
+🏫 ${DB.settings.name}
+📞 ${DB.settings.phone}`
+            : `🔄 *Renewal Confirmation*
 
 Dear *${s.fname} ${s.lname}*,
 

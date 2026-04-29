@@ -220,11 +220,13 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         .cbar .tt{display:none;position:absolute;bottom:calc(100%+4px);left:50%;transform:translateX(-50%);background:var(--tx);color:#fff;font-size:9px;padding:2px 7px;border-radius:4px;white-space:nowrap;font-family:var(--fm);z-index:10}
         .cbar:hover .tt{display:block}
 
-        .mcal{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;font-family:var(--fm)}
-        .cal-dl{text-align:center;color:var(--tx3);padding:2px 0;font-size:9px}
-        .cal-d{text-align:center;padding:5px 2px;border-radius:5px;cursor:pointer;color:var(--tx2);transition:all .15s;font-size:11px}
-        .cal-d:hover{background:var(--sf2)}.cal-d.today{background:var(--ac);color:#fff;font-weight:700}
-        .cal-d.event{color:var(--gd);font-weight:600}.cal-d.empty{color:transparent;pointer-events:none}
+        .mcal{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;font-family:var(--fm);margin-top:4px}
+        .cal-dl{text-align:center;color:var(--tx3);padding:4px 0;font-size:10px;font-weight:700;letter-spacing:.3px}
+        .cal-d{text-align:center;padding:7px 2px;border-radius:8px;cursor:pointer;color:var(--tx2);transition:all .15s;font-size:12px;font-weight:600;line-height:1;position:relative}
+        .cal-d:hover{background:var(--sf2);color:var(--ac)}
+        .cal-d.today{background:var(--ac);color:#fff;font-weight:800;box-shadow:0 2px 8px rgba(61,111,240,.3)}
+        .cal-d.event{color:var(--tx2);font-weight:700}
+        .cal-d.empty{color:transparent;pointer-events:none}
 
         .toast-wrap{position:fixed;bottom:18px;right:18px;z-index:9999;display:flex;flex-direction:column;gap:7px}
         .toast{padding:12px 16px;border-radius:var(--r2);background:var(--tx);color:#fff;font-size:12.5px;font-weight:500;box-shadow:var(--sh2);display:flex;align-items:center;gap:8px;animation:tIn .28s ease;min-width:230px}
@@ -249,7 +251,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         .g4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
         .gm{display:grid;grid-template-columns:1fr 320px;gap:16px}
 
-        .empty{text-align:center;padding:40px 16px;color:var(--tx3)}
+        .empty{text-align:center;padding:12px 16px;color:var(--tx3)}
         .empty .ei{font-size:38px;margin-bottom:8px}.empty .et{font-size:12.5px}
 
         .qa-gr{display:grid;grid-template-columns:repeat(8,1fr);gap:10px;margin-bottom:20px}
@@ -745,9 +747,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
                             </div>
                             <label style="position:relative;display:inline-block;width:44px;height:24px;flex-shrink:0;margin-left:12px">
                                 <input type="checkbox" id="feeGateToggle" onchange="toggleFeeGate(this.checked)" style="opacity:0;width:0;height:0;position:absolute">
-                                <span id="feeGateSlider" style="position:absolute;cursor:pointer;inset:0;background:#e2e8f0;border-radius:34px;transition:.3s;--thumb-x:0px">
-                                    <span style="position:absolute;content:'';height:18px;width:18px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.3s;box-shadow:0 1px 3px rgba(0,0,0,.2);transform:translateX(var(--thumb-x,0px))" id="feeGateThumb"></span>
-                                </span>
+                                <span id="feeGateSlider" style="position:absolute;cursor:pointer;inset:0;background:#e2e8f0;border-radius:34px;transition:.3s"><span id="feeGateThumb" style="position:absolute;height:18px;width:18px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.3s;box-shadow:0 1px 3px rgba(0,0,0,.2)"></span></span>
                             </label>
                         </div>
                         <div id="feeGateStatus" style="font-size:11px;font-weight:700;color:var(--tx3)">Loading…</div>
@@ -947,7 +947,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
 
         <!-- STAFF -->
         <div class="page" id="page-staff">
-            <div class="sec-hd"><div><div class="sec-t">Staff & Users</div><div class="sec-s" id="staffCount"></div></div><div style="display:flex;gap:7px;align-items:center"><button class="btn bg" style="font-size:11px" onclick="cleanupStaffIds()" title="Fix ugly IDs to SF-001, ADM-001 format"><span class="mi sm">auto_fix_high</span> Fix IDs</button><button class="btn bp" data-action="add_staff" onclick="openM('mAddStaff')"><span class="mi sm">person_add</span>Add Staff</button></div></div>
+            <div class="sec-hd"><div><div class="sec-t">Staff & Users</div><div class="sec-s" id="staffCount"></div></div><button class="btn bp" data-action="add_staff" onclick="openM('mAddStaff')"><span class="mi sm">person_add</span>Add Staff</button></div>
             <div class="panel"><div class="tw"><table>
                         <thead><tr><th>Staff</th><th>Role</th><th>Email</th><th>Phone</th><th>Permissions</th><th>Status</th><th>Action</th></tr></thead>
                         <tbody id="staffTable"></tbody>
@@ -1124,9 +1124,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
                             </div>
                             <label style="position:relative;display:inline-block;width:44px;height:24px;flex-shrink:0;cursor:pointer">
                                 <input type="checkbox" id="settFeeGate" onchange="toggleFeeGate(this.checked)" style="opacity:0;width:0;height:0;position:absolute">
-                                <span id="settFeeGateSlider" style="position:absolute;cursor:pointer;inset:0;background:#e2e8f0;border-radius:34px;transition:.3s">
-                                    <span style="position:absolute;height:18px;width:18px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.3s;box-shadow:0 1px 3px rgba(0,0,0,.2)" id="settFeeGateThumb"></span>
-                                </span>
+                                <span id="settFeeGateSlider" style="position:absolute;cursor:pointer;inset:0;background:#e2e8f0;border-radius:34px;transition:.3s"><span id="settFeeGateThumb" style="position:absolute;height:18px;width:18px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.3s;box-shadow:0 1px 3px rgba(0,0,0,.2)"></span></span>
                             </label>
                         </div>
                         <!-- ADMS URL -->
@@ -1208,13 +1206,15 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
                 <div class="fgi"><label>Email</label><input id="en-em" placeholder="email@example.com"></div>
                 <div class="fgi full"><label>Address</label><input id="en-ad" placeholder="Full address…"></div>
                 <div class="fgi"><label>Course / Exam</label><input id="en-co" placeholder="UPSC / JEE"></div>
-                <div class="fgi"><label>Join Date</label><input id="en-dt" type="date"></div>
+                <div class="fgi"><label>Join Date</label><input id="en-dt" type="date" oninput="calcEnrollDueDate()"></div>
+                <div class="fgi"><label>Duration (Months)</label><select id="en-dur" onchange="calcEnrollDueDate()"><option value="1">1 Month</option><option value="2">2 Months</option><option value="3">3 Months</option><option value="6">6 Months</option><option value="12">12 Months</option></select></div>
+                <div class="fgi"><label>Due Date <span style="font-size:9px;color:var(--tx3)">(auto)</span></label><input id="en-due" type="date" style="background:var(--sf3)"></div>
             </div>
             <div class="sdiv" style="margin-top:14px">Batch & Seat</div>
             <div class="fg">
                 <div class="fgi"><label>Batch *</label><select id="en-bt" onchange="calcEnrollFee()"><option value="">-- Select --</option></select></div>
                 <div class="fgi"><label>Seat Type *</label><select id="en-ac" onchange="calcEnrollFee()"><option value="non-ac">Non-AC (Standard)</option><option value="ac">AC (Premium)</option></select></div>
-                <div class="fgi"><label>Seat Number</label><input id="en-st" placeholder="A-12 (optional)"></div>
+                <div class="fgi"><label>Seat Number</label><select id="en-st"><option value="">-- Select Batch First --</option></select></div>
                 <div class="fgi"><label>Base Fee (₹/month)</label><input id="en-fe" type="number" readonly style="background:var(--sf3);font-weight:700"></div>
             </div>
             <div class="sdiv" style="margin-top:14px">🎁 Discount (Optional)</div>
@@ -1343,8 +1343,8 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         <div class="mh"><div class="mt"><span class="mi sm" style="vertical-align:middle;margin-right:6px">event_seat</span>Allocate Seat</div><button class="mc" onclick="closeM('mAllocSeat')"><span class="mi sm">close</span></button></div>
         <div class="mb"><div class="fg">
                 <div class="fgi full"><label>Student *</label><select id="as-stu"><option value="">-- Select --</option></select></div>
-                <div class="fgi"><label>Batch *</label><select id="as-bt"><option value="">-- Select --</option></select></div>
-                <div class="fgi"><label>Seat Number *</label><input id="as-st" placeholder="A-12"></div>
+                <div class="fgi"><label>Batch *</label><select id="as-bt" onchange="populateAllocSeats()"><option value="">-- Select --</option></select></div>
+                <div class="fgi"><label>Seat Number *</label><select id="as-st"><option value="">-- Select Batch First --</option></select></div>
             </div></div>
         <div class="mf"><button class="btn bg" onclick="closeM('mAllocSeat')">Cancel</button><button class="btn bp" onclick="allocSeat()">Allocate</button></div>
     </div></div>
@@ -1589,7 +1589,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
                         <option value="6">6 Months</option>
                     </select>
                 </div>
-                <div class="fgi"><label>New Due Date</label><input id="ren-newdate" type="date" readonly style="background:var(--sf3)"></div>
+                <div class="fgi"><label>New Due Date</label><input id="ren-newdate" type="date" style="background:var(--sf2)" title="You can override the calculated date"></div>
                 <div class="fgi"><label>Fee Amount (₹)</label><input id="ren-fee" type="number" placeholder="0"></div>
                 <div class="fgi"><label>Payment Mode</label>
                     <select id="ren-mode"><option>Cash</option><option>UPI</option><option>Bank Transfer</option><option>Cheque</option></select>
@@ -1752,47 +1752,40 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
             // Apply nav permissions for the logged-in staff member
             if (data.me) applyNavPerms(data.me);
 
-            // Build attendance map from today's data — isolated so failure doesn't kill init
-            try {
-                const attData = await apiGet('get_attendance', { date: new Date().toISOString().split('T')[0] });
-                DB.attendance = attData.attendance || {};
-            } catch(e) { console.warn('get_attendance failed:', e); }
-            DB.students.forEach(st => { if (!DB.attendance[st.id]) DB.attendance[st.id] = 'present'; });
+            // ── Fire all secondary calls IN PARALLEL (saves ~800ms vs sequential awaits) ──
+            const today = new Date().toISOString().split('T')[0];
+            const [attData, waLogRes, auditData, salData] = await Promise.all([
+                apiGet('get_attendance', { date: today }).catch(e => { console.warn('get_attendance failed:', e); return {}; }),
+                apiGet('get_wa_log').catch(e => { console.warn('get_wa_log failed:', e); return []; }),
+                apiGet('get_audit_log').catch(e => { console.warn('get_audit_log failed:', e); return {}; }),
+                apiGet('get_salary').catch(e => { console.warn('get_salary failed:', e); return {}; }),
+            ]);
+
+            // Attendance — default to absent until manually marked or saved
+            DB.attendance = attData.attendance || {};
+            DB.students.forEach(st => { if (!DB.attendance[st.id]) DB.attendance[st.id] = 'absent'; });
 
             // WA log
-            try {
-                const waLog = await apiGet('get_wa_log');
-                const waRows = Array.isArray(waLog) ? waLog : (waLog.logs || []);
-                DB.waSendLog = waRows.map(l => ({
-                    time: l.created_at ? l.created_at.slice(11,16) : '',
-                    to: l.sent_to, preview: l.preview, type: l.type
-                }));
-            } catch(e) { console.warn('get_wa_log failed:', e); }
+            const waRows = Array.isArray(waLogRes) ? waLogRes : (waLogRes.logs || []);
+            DB.waSendLog = waRows.map(l => ({
+                time: l.created_at ? l.created_at.slice(11,16) : '',
+                to: l.sent_to, preview: l.preview, type: l.type
+            }));
 
             // Audit log
-            try {
-                const auditData = await apiGet('get_audit_log');
-                const auditRows = Array.isArray(auditData) ? auditData : (auditData.logs || auditData.records || []);
-                DB.auditLog = auditRows.map(a => {
-                    const isoTs = a.created_at ? a.created_at.replace(' ', 'T') : null;
-                    return {
-                        id: a.id,
-                        who: a.who || 'Admin',
-                        type: a.type || 'other',
-                        text: a.text || '',
-                        time: timeSince(isoTs),
-                        ts: isoTs ? new Date(isoTs).getTime() : Date.now()
-                    };
-                });
-            } catch(e) { console.warn('get_audit_log failed:', e); }
+            const auditRows = Array.isArray(auditData) ? auditData : (auditData.logs || auditData.records || []);
+            DB.auditLog = auditRows.map(a => {
+                const isoTs = a.created_at ? a.created_at.replace(' ', 'T') : null;
+                return {
+                    id: a.id, who: a.who || 'Admin', type: a.type || 'other', text: a.text || '',
+                    time: timeSince(isoTs), ts: isoTs ? new Date(isoTs).getTime() : Date.now()
+                };
+            });
 
-            // Load staff salaries
-            try {
-                const salData = await apiGet('get_salary');
-                DB.staffSalary = salData.salaries || {};
-            } catch(e) { console.warn('get_salary failed:', e); }
+            // Staff salaries
+            DB.staffSalary = salData.salaries || {};
 
-            // Pre-load biometric punches so dashboard stat card shows correct count
+            // Biometric preload — after parallel block so dashboard stat card shows correct count
             try { await loadAttBiometric(); } catch(e) { console.warn('biometric preload failed:', e); }
 
         } catch(e) {
@@ -1897,7 +1890,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
     }
 
     // ═══ DASHBOARD ═══
-    let calDate=new Date(2026,2,1);
+    let calDate=new Date(new Date().getFullYear(),new Date().getMonth(),1); // always start at current month
     function renderDash(){
         const s=DB.students;
         const paid=s.filter(x=>x.feeStatus==='paid');
@@ -1916,7 +1909,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         const odTx=DB.transactions.filter(t=>t.status==='overdue');
         const totalSeats=DB.batches.reduce((a,b)=>a+b.total,0);
         const occSeats=DB.batches.reduce((a,b)=>a+b.occupied,0);
-        const prsnt=Object.values(DB.attendance).filter(v=>v==='present').length;
+        const prsnt=DB.students.filter(st=>DB.attendance[st.id]==='present').length;
         const totalDiscount=s.reduce((a,x)=>a+(x.baseFee-x.netFee),0);
         const allDue=[...pending,...overdue,...partial].reduce((a,x)=>a+(x.netFee-x.paidAmt),0);
 
@@ -1925,7 +1918,6 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
     <div class="al-card al-d"><span style="font-size:17px">🚨</span><div><div class="al-t">Fee Overdue Alert</div><div class="al-b">${overdue.length} students overdue — seats highlighted in red 🔴</div></div></div>
     <div class="al-card al-i"><span style="font-size:17px">🎁</span><div><div class="al-t">Discounts Applied</div><div class="al-b">${s.filter(x=>x.baseFee>x.netFee).length} students with discounts — ₹${totalDiscount.toLocaleString()} waived</div></div></div>`;
 
-        const bioCheckins = Object.values(_bioToday).filter(b=>b.in).length;
         document.getElementById('dashStats').innerHTML=`
     <div class="sc" style="--ca:var(--ac)"><div class="s-ic" style="background:var(--c-blue)"><span class="mi" style="color:var(--ac)">school</span></div><div class="s-lb">Total Students</div><div class="s-vl">${s.length}</div><div class="s-mt"><span class="bup">↑ 12%</span></div></div>
     <div class="sc" style="--ca:var(--em)"><div class="s-ic" style="background:var(--c-green)"><span class="mi" style="color:var(--em)">event_seat</span></div><div class="s-lb">Seats Available</div><div class="s-vl">${totalSeats-occSeats}</div><div class="s-mt">${occSeats}/${totalSeats} occupied</div></div>
@@ -1938,8 +1930,149 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
     <div class="sc" style="--ca:var(--or)"><div class="s-ic" style="background:var(--c-orange)"><span class="mi" style="color:var(--or)">redeem</span></div><div class="s-lb">Discounts Given</div><div class="s-vl">${fmt(totalDiscount)}</div><div class="s-mt">${s.filter(x=>x.baseFee>x.netFee).length} students</div></div>
     <div class="sc" style="--ca:var(--vi)"><div class="s-ic" style="background:var(--c-purple)"><span class="mi" style="color:var(--vi)">menu_book</span></div><div class="s-lb">Books Issued</div><div class="s-vl">${issTx.length}</div><div class="s-mt" style="color:var(--ro)">${odTx.length} overdue</div></div>
     <div class="sc" style="--ca:var(--sk)"><div class="s-ic" style="background:var(--c-sky)"><span class="mi" style="color:var(--sk)">fact_check</span></div><div class="s-lb">Attendance Today</div><div class="s-vl">${prsnt}</div><div class="s-mt" style="color:var(--em)">${s.length?Math.round(prsnt/s.length*100):0}%</div></div>
-    <div class="sc" style="--ca:#7c3aed;cursor:pointer" onclick="navTo('biometric')"><div class="s-ic" style="background:#faf5ff"><span class="mi" style="color:#7c3aed">fingerprint</span></div><div class="s-lb">Biometric Check-ins</div><div class="s-vl">${bioCheckins}</div><div class="s-mt" style="color:#7c3aed">today · via device</div></div>
-    <div class="sc" style="--ca:var(--gd)"><div class="s-ic" style="background:var(--c-orange)"><span class="mi" style="color:var(--or)">trending_down</span></div><div class="s-lb">Monthly Expenses</div><div class="s-vl">${fmt(totalExp)}</div><div class="s-mt"><span class="bdn">↑ 3.1%</span></div></div>`;
+    <div class="sc" style="--ca:#7c3aed;cursor:pointer" onclick="navTo('biometric')"><div class="s-ic" style="background:#faf5ff"><span class="mi" style="color:#7c3aed">fingerprint</span></div><div class="s-lb">Biometric Check-ins</div><div class="s-vl">${Object.values(_bioToday).filter(b=>b.in).length}</div><div class="s-mt" style="color:#7c3aed">today · via device</div></div>
+    ${(()=>{
+      // ── Monthly Expenses Sparkline Card ──
+      const now = new Date();
+      const curY = now.getFullYear(), curM = now.getMonth();
+
+      // Build last-6-months buckets
+      const months = [];
+      for(let i = 5; i >= 0; i--){
+        const d = new Date(curY, curM - i, 1);
+        months.push({ y: d.getFullYear(), m: d.getMonth(), total: 0,
+          label: d.toLocaleDateString('en-IN',{month:'short'}) });
+      }
+      DB.expenses.forEach(e => {
+        if(!e.date) return;
+        const d = new Date(e.date);
+        const bucket = months.find(b => b.y===d.getFullYear() && b.m===d.getMonth());
+        if(bucket) bucket.total += e.amount;
+      });
+
+      const curTotal  = months[5].total;
+      const prevTotal = months[4].total;
+      const pctChange = prevTotal > 0 ? ((curTotal - prevTotal) / prevTotal * 100) : 0;
+      const isUp      = pctChange >= 0;
+      const vals      = months.map(b => b.total);
+      const maxV      = Math.max(...vals, 1);
+
+      // SVG sparkline (area chart) — 220×60
+      const W=220, H=60, padX=6, padY=6;
+      const pts = vals.map((v,i)=>{
+        const x = padX + (i / (vals.length-1)) * (W - padX*2);
+        const y = H - padY - (v/maxV) * (H - padY*2);
+        return [x.toFixed(1), y.toFixed(1)];
+      });
+      const polyline = pts.map(p=>p.join(',')).join(' ');
+      const area = `${pts[0][0]},${H-padY} ${polyline} ${pts[pts.length-1][0]},${H-padY}`;
+
+      // Y-axis tick labels (3 levels)
+      const yTicks = [0, Math.round(maxV/2), maxV].map((v,i)=>{
+        const y = H - padY - (v/maxV)*(H-padY*2);
+        const label = v>=1000?`${(v/1000).toFixed(0)}K`:`${v}`;
+        return `<text x="0" y="${y.toFixed(1)}" font-size="5.5" fill="var(--tx3)" dominant-baseline="middle" font-family="JetBrains Mono,monospace">${label}</text>`;
+      }).join('');
+
+      const xLabels = months.map((b,i)=>{
+        const x = padX + (i/(vals.length-1))*(W-padX*2);
+        return `<text x="${x.toFixed(1)}" y="${H+1}" font-size="6" fill="var(--tx3)" text-anchor="middle" font-family="JetBrains Mono,monospace">${b.label}</text>`;
+      }).join('');
+
+      // dot on last point
+      const lastPt = pts[pts.length-1];
+      const dot = `<circle cx="${lastPt[0]}" cy="${lastPt[1]}" r="3" fill="var(--vi)" stroke="#fff" stroke-width="1.5"/>`;
+
+      return `<div class="sc" style="--ca:var(--vi);padding:14px 16px;min-width:0;grid-column:span 1">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:6px">
+          <div>
+            <div style="font-size:10px;font-weight:700;color:var(--tx3);letter-spacing:.8px;text-transform:uppercase;font-family:var(--fm)">Monthly Expenses</div>
+            <div style="font-size:22px;font-weight:800;color:var(--tx);line-height:1.15;font-family:var(--fd)">₹${curTotal.toLocaleString('en-IN')}</div>
+            <div style="display:flex;align-items:center;gap:5px;margin-top:3px">
+              <span style="display:inline-flex;align-items:center;gap:2px;padding:2px 6px;border-radius:5px;font-size:10px;font-weight:700;background:${isUp?'rgba(220,38,38,.10)':'rgba(22,163,74,.12)'};color:${isUp?'var(--ro)':'var(--em)'}">
+                ${isUp?'▲':'▼'} ${Math.abs(pctChange).toFixed(1)}%
+              </span>
+              <span style="font-size:10px;color:var(--tx3)">vs last month</span>
+            </div>
+          </div>
+          <div style="font-size:9px;color:var(--tx3);font-family:var(--fm);background:var(--sf2);border:1px solid var(--br);border-radius:6px;padding:3px 8px;white-space:nowrap">This Month</div>
+        </div>
+        <svg width="100%" viewBox="0 0 ${W} ${H+10}" preserveAspectRatio="none" style="display:block;overflow:visible">
+          <defs>
+            <linearGradient id="expGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="var(--vi)" stop-opacity="0.22"/>
+              <stop offset="100%" stop-color="var(--vi)" stop-opacity="0.02"/>
+            </linearGradient>
+          </defs>
+          ${yTicks}
+          <polygon points="${area}" fill="url(#expGrad)"/>
+          <polyline points="${polyline}" fill="none" stroke="var(--vi)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+          ${dot}
+          ${xLabels}
+        </svg>
+      </div>`;
+    })()}
+    ${(()=>{
+      // ── Quick Summary — Seats Donut Card ──
+      const total = totalSeats || 1;
+      const occPct = occSeats / total;
+      const circ = 2 * Math.PI * 28;
+      const occDash = occPct * circ;
+      const avail = totalSeats - occSeats;
+      const availPct = totalSeats ? Math.round(avail/totalSeats*100) : 0;
+      const occPctDisp = totalSeats ? Math.round(occSeats/totalSeats*100) : 0;
+
+      // Three arcs: available (green), occupied (blue), reserved (amber) — just avail+occ for now
+      const circFull = 2 * Math.PI * 28;
+      const availDash = (avail/total) * circFull;
+      const occDashV  = (occSeats/total) * circFull;
+      const offset    = circFull * 0.25; // start from top
+
+      return `<div class="sc" style="--ca:var(--em);padding:14px 16px;min-width:0">
+        <div style="font-size:10px;font-weight:700;color:var(--tx3);letter-spacing:.8px;text-transform:uppercase;font-family:var(--fm);margin-bottom:10px">Quick Summary</div>
+        <div style="display:flex;align-items:center;gap:16px">
+          <!-- Donut -->
+          <div style="position:relative;flex-shrink:0;width:80px;height:80px">
+            <svg width="80" height="80" viewBox="0 0 72 72">
+              <!-- track -->
+              <circle cx="36" cy="36" r="28" fill="none" stroke="#e8edf5" stroke-width="10"/>
+              <!-- occupied (blue) — drawn first, from top -->
+              <circle cx="36" cy="36" r="28" fill="none" stroke="var(--ac)" stroke-width="10"
+                stroke-dasharray="${occDashV.toFixed(1)} ${circFull.toFixed(1)}"
+                stroke-dashoffset="${offset.toFixed(1)}"
+                stroke-linecap="butt"/>
+              <!-- available (green) — starts after occupied arc -->
+              <circle cx="36" cy="36" r="28" fill="none" stroke="var(--em)" stroke-width="10"
+                stroke-dasharray="${availDash.toFixed(1)} ${circFull.toFixed(1)}"
+                stroke-dashoffset="${(offset - occDashV).toFixed(1)}"
+                stroke-linecap="butt"/>
+            </svg>
+            <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center">
+              <div style="font-size:15px;font-weight:800;color:var(--tx);line-height:1;font-family:var(--fd)">${totalSeats}</div>
+              <div style="font-size:8px;color:var(--tx3);font-weight:600;margin-top:2px;font-family:var(--fm)">Total Seats</div>
+            </div>
+          </div>
+          <!-- Legend -->
+          <div style="display:flex;flex-direction:column;gap:7px;flex:1;min-width:0">
+            <div style="display:flex;align-items:center;gap:6px;font-size:11px;font-weight:700">
+              <span style="width:8px;height:8px;border-radius:50%;background:var(--em);flex-shrink:0"></span>
+              <span style="color:var(--tx2);flex:1">Available</span>
+              <span style="color:var(--em)">${avail} <span style="font-size:9px;color:var(--tx3);font-weight:500">(${availPct}%)</span></span>
+            </div>
+            <div style="display:flex;align-items:center;gap:6px;font-size:11px;font-weight:700">
+              <span style="width:8px;height:8px;border-radius:50%;background:var(--ac);flex-shrink:0"></span>
+              <span style="color:var(--tx2);flex:1">Occupied</span>
+              <span style="color:var(--ac)">${occSeats} <span style="font-size:9px;color:var(--tx3);font-weight:500">(${occPctDisp}%)</span></span>
+            </div>
+            <div style="display:flex;align-items:center;gap:6px;font-size:11px;font-weight:700">
+              <span style="width:8px;height:8px;border-radius:50%;background:var(--gd);flex-shrink:0"></span>
+              <span style="color:var(--tx2);flex:1">Reserved</span>
+              <span style="color:var(--gd)">0 <span style="font-size:9px;color:var(--tx3);font-weight:500">(0%)</span></span>
+            </div>
+          </div>
+        </div>
+      </div>`;
+    })()}`;
 
         // ── BATCH SEAT AVAILABILITY WITH FEE STATUS ──
         // Build seat→student map
@@ -1972,7 +2105,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         });
         document.getElementById('dashBatchCards').innerHTML=batchHTML;
         // In the new layout the batch grid is inside a 50% column — always 2 cols
-        document.getElementById('dashBatchCards').style.gridTemplateColumns = 'repeat(2,1fr)';
+        document.getElementById('dashBatchCards').style.gridTemplateColumns = window.innerWidth<600?'1fr':'repeat(2,1fr)';
 
         // ── EXPENSE TRACKER ──
         const catTotals={};DB.expenses.forEach(e=>{catTotals[e.category]=(catTotals[e.category]||0)+e.amount;});
@@ -2005,7 +2138,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
             const bal=x.netFee-x.paidAmt;
             const rowClass=x.feeStatus==='overdue'?'fee-due-row':x.feeStatus==='partial'||x.feeStatus==='pending'?'fee-partial-row':'';
             return `<tr class="${rowClass}">
-      <td><div class="si"><div class="sav" style="background:${x.color}">${x.fname[0]+x.lname[0]}</div><div><div style="font-weight:600;font-size:12.5px;cursor:pointer;color:var(--ac)" onclick="openStudentProfile('${x.id}')">${x.fname} ${x.lname}</div><div style="font-size:10px;color:var(--tx3);font-family:var(--fm)">#${x.id}</div></div></div></td>
+      <td><div class="si"><div class="sav" style="background:${x.color}">${((x.fname||"?")[0]+((x.lname||"")[0]||"")).toUpperCase()}</div><div><div style="font-weight:600;font-size:12.5px;cursor:pointer;color:var(--ac)" onclick="openStudentProfile('${x.id}')">${x.fname||""} ${x.lname||""}</div><div style="font-size:10px;color:var(--tx3);font-family:var(--fm)">#${x.id}</div></div></div></td>
       <td>${bTag(x.batchId)}</td>
       <td>${x.seat?`<span style="font-family:var(--fm);font-size:11px;font-weight:600">${x.seat}</span>`:'<span style="color:var(--tx3)">—</span>'}${x.feeStatus==='overdue'?'<span style="font-size:9px;margin-left:3px">🔴</span>':x.feeStatus==='pending'||x.feeStatus==='partial'?'<span style="font-size:9px;margin-left:3px">🟠</span>':''}</td>
       <td><span style="font-family:var(--fm);font-weight:700">₹${x.netFee}</span>${x.baseFee>x.netFee?`<div style="font-size:9px;color:var(--or)">🎁-₹${x.baseFee-x.netFee}</div>`:''}</td>
@@ -2070,7 +2203,8 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         // ── WEEKLY CHART — last 4 weeks from invoices ──
         const now = new Date();
         const weekTotals = [0,0,0,0];
-        DB.invoices.forEach(inv => {
+        const liveStudentIds = new Set(DB.students.map(s=>s.id));
+        DB.invoices.filter(i=>liveStudentIds.has(i.studentId)).forEach(inv => {
             const d = new Date(inv.date);
             const diffDays = Math.floor((now - d) / 86400000);
             const wk = Math.floor(diffDays / 7);
@@ -2139,10 +2273,10 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
                 ? upcoming.map(({s,dd})=>{
                     const diff = Math.round((dd-today)/86400000);
                     const col  = diff===0?'var(--ro)':diff<=3?'var(--or)':diff<=7?'var(--gd)':'var(--tx3)';
-                    return `<div style="display:flex;align-items:center;gap:7px;font-size:10.5px">
-            <div style="width:6px;height:6px;border-radius:50%;background:${col};flex-shrink:0"></div>
-            <span style="flex:1;color:var(--tx2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${s.fname} ${s.lname}</span>
-            <span style="font-family:var(--fm);font-size:9.5px;color:${col};font-weight:700;white-space:nowrap">${diff===0?'Today':diff===1?'Tomorrow':'in '+diff+'d'}</span>
+                    return `<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--br)">
+            <div style="width:7px;height:7px;border-radius:50%;background:${col};flex-shrink:0"></div>
+            <span style="flex:1;font-size:12px;font-weight:600;color:var(--tx2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${s.fname} ${s.lname}</span>
+            <span style="font-family:var(--fm);font-size:10px;font-weight:800;color:${col};white-space:nowrap;background:${col}18;padding:2px 7px;border-radius:5px">${diff===0?'Today':diff===1?'Tomorrow':'in '+diff+'d'}</span>
           </div>`;
                 }).join('')
                 : '<div style="font-size:11px;color:var(--tx3)">No upcoming dues</div>';
@@ -2171,7 +2305,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
             const discTxt=x.baseFee>x.netFee?`<span class="tag tor" style="font-size:9px">🎁-₹${x.baseFee-x.netFee}</span>`:'<span style="color:var(--tx3);font-size:10px">—</span>';
             const rowClass=x.feeStatus==='overdue'?'fee-due-row':x.feeStatus==='partial'||x.feeStatus==='pending'?'fee-partial-row':'';
             return `<tr class="${rowClass}">
-      <td><div class="si"><div class="sav" style="background:${x.color}">${x.fname[0]+x.lname[0]}</div><div><div style="font-weight:600;font-size:12.5px;cursor:pointer;color:var(--ac)" onclick="openStudentProfile('${x.id}')">${x.fname} ${x.lname}</div><div style="font-size:10px;color:var(--tx3);font-family:var(--fm)">#${x.id}</div></div></div></td>
+      <td><div class="si"><div class="sav" style="background:${x.color}">${((x.fname||"?")[0]+((x.lname||"")[0]||"")).toUpperCase()}</div><div><div style="font-weight:600;font-size:12.5px;cursor:pointer;color:var(--ac)" onclick="openStudentProfile('${x.id}')">${x.fname||""} ${x.lname||""}</div><div style="font-size:10px;color:var(--tx3);font-family:var(--fm)">#${x.id}</div></div></div></td>
       <td>${bTag(x.batchId)}</td>
       <td><span style="font-family:var(--fm);font-size:11px">${x.seat||'—'}</span>${x.feeStatus==='overdue'?'🔴':x.feeStatus!=='paid'?'🟠':''}</td>
       <td>${x.seatType==='ac'?'<span class="tag tac" style="font-size:9px">❄ AC</span>':'<span style="font-size:10px;color:var(--tx3)">Non-AC</span>'}</td>
@@ -2213,7 +2347,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         // Header
         document.getElementById('spHeaderName').textContent = s.fname + ' ' + s.lname;
         document.getElementById('spHeaderId').textContent = '#' + s.id;
-        document.getElementById('spAv').textContent = (s.fname[0] + s.lname[0]).toUpperCase();
+        document.getElementById('spAv').textContent = ((s.fname?.[0]||'') + (s.lname?.[0]||'')).toUpperCase();
         document.getElementById('spAv').style.background = s.color || '#3d6ff0';
 
         // Fee bar
@@ -2343,8 +2477,10 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
             openM('mAllocSeat');
             if (s) {
                 document.getElementById('as-stu').value = s.id;
-                if (s.batchId) document.getElementById('as-bt').value = s.batchId;
-                if (s.seat) document.getElementById('as-st').value = s.seat;
+                if (s.batchId) {
+                    document.getElementById('as-bt').value = s.batchId;
+                    populateAllocSeats(s.seat || '');
+                }
             }
         }, 200);
     }
@@ -2354,7 +2490,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         openM('mAllocSeat');
         setTimeout(() => {
             document.getElementById('as-bt').value = batchId;
-            document.getElementById('as-st').value = seatNum;
+            populateAllocSeats(seatNum);
         }, 50);
     }
 
@@ -2529,6 +2665,38 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
 
     function seatLbl(n,i){const p={'Early Morning':'E','Morning':'A','Afternoon':'B','Evening':'C','Night':'D','Late Night':'F'};return`${p[n]||'X'}-${String(i).padStart(2,'0')}`;}
 
+    function populateAllocSeats(prefillSeat) {
+        const bId = gv('as-bt');
+        const stuId = gv('as-stu');
+        const sel = document.getElementById('as-st');
+        if (!bId) { sel.innerHTML = '<option value="">-- Select Batch First --</option>'; return; }
+        const b = DB.batches.find(x => x.id === bId);
+        if (!b) { sel.innerHTML = '<option value="">-- Batch not found --</option>'; return; }
+
+        // Seats taken by OTHER students in this batch (exclude current student so their current seat shows as available)
+        const takenSeats = new Set(
+            DB.students
+                .filter(s => s.batchId === bId && s.seat && s.id !== stuId)
+                .flatMap(s => {
+                    const raw = String(s.seat);
+                    return /^\d+$/.test(raw) ? [raw, seatLbl(b.name, +raw)] : [raw];
+                })
+        );
+
+        const opts = ['<option value="">-- No Preference --</option>'];
+        for (let i = 1; i <= b.total; i++) {
+            const sn = seatLbl(b.name, i);
+            if (!takenSeats.has(sn)) {
+                opts.push(`<option value="${sn}">${sn}</option>`);
+            }
+        }
+        if (opts.length === 1) opts.push('<option disabled>⚠ No vacant seats in this batch</option>');
+        sel.innerHTML = opts.join('');
+
+        // Prefill the current seat if provided (student's existing seat)
+        if (prefillSeat) sel.value = prefillSeat;
+    }
+
     function editBatch(idx){
         editBatchIdx=idx;const b=DB.batches[idx];
         document.getElementById('mAddBatchTitle').textContent='✏ Edit Batch';
@@ -2562,13 +2730,82 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
     function fmtT(t){const[h,m]=t.split(':');const hr=+h;return`${hr===0?12:hr>12?hr-12:hr}:${m} ${hr<12?'AM':'PM'}`;}
 
     // ═══ ENROLL ═══
-    function calcEnrollFee(){
-        const bId=gv('en-bt'),acType=gv('en-ac');const b=DB.batches.find(x=>x.id===bId);
-        if(!b){document.getElementById('en-fe').value='';document.getElementById('en-net-fe').value='';document.getElementById('en-fee-note').style.display='none';return;}
-        const base=b.baseFee+(acType==='ac'?b.acExtra:0);
-        document.getElementById('en-fe').value=base;
-        applyEnrollDiscount(base);
+
+    function calcEnrollDueDate() {
+        const joinVal = document.getElementById('en-dt').value;
+        const months  = +document.getElementById('en-dur').value || 1;
+        const base    = joinVal ? new Date(joinVal) : new Date();
+        base.setMonth(base.getMonth() + months);
+        document.getElementById('en-due').value = base.toISOString().split('T')[0];
+
+        // If a batch is already selected, refresh the fee note (shows multi-month total)
+        const baseFee = +(document.getElementById('en-fe').value) || 0;
+        if (baseFee > 0) {
+            applyEnrollDiscount(baseFee);
+            return; // applyEnrollDiscount calls calcEnrollDueDate again internally but won't loop
+        }
+
+        // No batch selected yet — nothing to show
+        const feeNote = document.getElementById('en-fee-note');
+        if (feeNote) feeNote.style.display = 'none';
     }
+
+
+   //     const bId=gv('en-bt'),acType=gv('en-ac');const b=DB.batches.find(x=>x.id===bId);
+   //     if(!b){document.getElementById('en-fe').value='';document.getElementById('en-net-fe').value='';document.getElementById('en-fee-note').style.display='none';return;}
+   //     const base=b.baseFee+(acType==='ac'?b.acExtra:0);
+   //     document.getElementById('en-fe').value=base;
+   //     applyEnrollDiscount(base);
+   // }
+
+   function calcEnrollFee(){
+    const bId = gv('en-bt'), acType = gv('en-ac');
+    const b = DB.batches.find(x => x.id === bId);
+
+    // ── Fee calculation (unchanged) ──
+    if(!b){
+        document.getElementById('en-fe').value = '';
+        document.getElementById('en-net-fe').value = '';
+        document.getElementById('en-fee-note').style.display = 'none';
+
+        // Reset seat dropdown
+        document.getElementById('en-st').innerHTML = '<option value="">-- Select Batch First --</option>';
+        return;
+    }
+
+    const base = b.baseFee + (acType === 'ac' ? b.acExtra : 0);
+    document.getElementById('en-fe').value = base;
+    applyEnrollDiscount(base);
+
+    // ── Populate vacant seats for selected batch ──
+    const takenSeats = new Set(
+        DB.students
+            .filter(s => s.batchId === bId && s.seat)
+            .flatMap(s => {
+                const raw = String(s.seat);
+                return /^\d+$/.test(raw) ? [raw, seatLbl(b.name, +raw)] : [raw];
+            })
+    );
+
+    const totalSeats = b.total;
+    const opts = ['<option value="">-- No Preference --</option>'];
+
+    for (let i = 1; i <= totalSeats; i++) {
+        const sn = seatLbl(b.name, i);
+        if (!takenSeats.has(sn)) {
+            const label = acType === 'ac' ? `${sn} ❄` : sn;
+            opts.push(`<option value="${sn}">${label}</option>`);
+        }
+    }
+
+    if (opts.length === 1) {
+        opts.push('<option disabled>⚠ No vacant seats in this batch</option>');
+    }
+
+    document.getElementById('en-st').innerHTML = opts.join('');
+}
+
+
     function applyEnrollDiscount(base){
         if(!base)base=+gv('en-fe');
         const dtype=gv('en-disc-type'),dval=+gv('en-disc-val')||0;
@@ -2577,14 +2814,32 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         else if(dtype==='percent')disc=Math.round(base*dval/100);
         const net=base-disc;
         document.getElementById('en-net-fe').value=net;
+
+        // Recalculate due date directly (no recursive call)
+        const joinVal = document.getElementById('en-dt').value;
+        const months  = +document.getElementById('en-dur').value || 1;
+        const baseDate = joinVal ? new Date(joinVal) : new Date();
+        baseDate.setMonth(baseDate.getMonth() + months);
+        document.getElementById('en-due').value = baseDate.toISOString().split('T')[0];
+
         const note=document.getElementById('en-fee-note');
         note.style.display='block';
-        note.innerHTML=`💡 Base: ₹${base}${disc>0?` <span style="color:var(--or)">− Discount: ₹${disc}</span> = <strong style="color:var(--em)">Net: ₹${net}/month</strong>`:`= ₹${net}/month`}`;
+        const discPart = disc>0
+            ? ` <span style="color:var(--or)">− Discount: ₹${disc}</span> = <strong style="color:var(--em)">₹${net}/month</strong>`
+            : ` = ₹${net}/month`;
+        if(months > 1){
+            note.innerHTML=`💡 Base: ₹${base}${discPart} &nbsp;|&nbsp; 📅 <strong>${months} months</strong> × ₹${net}/mo = <strong style="color:var(--ac)">₹${(net*months).toLocaleString('en-IN')} total</strong>`;
+        } else {
+            note.innerHTML=`💡 Base: ₹${base}${discPart} · Due: <strong>${baseDate.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'})}</strong>`;
+        }
     }
     document.getElementById('en-bt').addEventListener('change',calcEnrollFee);
     document.getElementById('en-ac').addEventListener('change',calcEnrollFee);
     document.getElementById('en-disc-type').addEventListener('change',()=>applyEnrollDiscount(+gv('en-fe')));
     document.getElementById('en-disc-val').addEventListener('input',()=>applyEnrollDiscount(+gv('en-fe')));
+    // Set today as default join date and calculate initial due date
+    const enDtEl = document.getElementById('en-dt');
+    if (enDtEl && !enDtEl.value) { enDtEl.value = new Date().toISOString().split('T')[0]; calcEnrollDueDate(); }
 
     function enrollStudent(){
         const fn=gv('en-fn'),ln=gv('en-ln'),ph=gv('en-ph'),bt=gv('en-bt'),fe=+gv('en-fe'),net=+gv('en-net-fe'),ac=gv('en-ac');
@@ -2635,7 +2890,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
             }
             const bioMark=bio.in?`<span style="font-size:9px;background:#dcfce7;border:1px solid #a3e8d4;color:#166534;padding:1px 5px;border-radius:4px;font-weight:700;font-family:var(--fm)">🖐️</span>`:'';
             return `<tr>
-            <td><div class="si"><div class="sav" style="background:${s.color}">${s.fname[0]+s.lname[0]}</div><div><div style="font-weight:600;font-size:12.5px">${s.fname} ${s.lname} ${bioMark}</div><div style="font-size:10px;color:var(--tx3);font-family:var(--fm)">${s.id}</div></div></div></td>
+            <td><div class="si"><div class="sav" style="background:${s.color}">${(s.fname?.[0]||'')+(s.lname?.[0]||'')}</div><div><div style="font-weight:600;font-size:12.5px">${s.fname} ${s.lname} ${bioMark}</div><div style="font-size:10px;color:var(--tx3);font-family:var(--fm)">${s.id}</div></div></div></td>
             <td>${bTag(s.batchId)}</td>
             <td><span style="font-family:var(--fm);font-size:11px">${s.seat||'—'}</span></td>
             <td><span class="tag ${s.feeStatus==='paid'?'tpd':s.feeStatus==='partial'?'tpart':s.feeStatus==='pending'?'tpn':'tod'}">${s.feeStatus==='paid'?'✓ Paid':s.feeStatus==='partial'?'◑ Partial':s.feeStatus==='pending'?'⏳ Pending':'🚨 Overdue'}</span></td>
@@ -2651,7 +2906,6 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
     }
     function togAtt(id){DB.attendance[id]=DB.attendance[id]==='present'?'absent':'present';renderAtt();}
     function markAll(p){DB.students.forEach(s=>{DB.attendance[s.id]=p?'present':'absent';});renderAtt();toast(p?'All present':'All absent',p?'ok':'wn');}
-    function saveAtt(){const p=Object.values(DB.attendance).filter(v=>v==='present').length;addActivity('<span class="mi sm">fact_check</span>','rgba(2,132,199,.12)',`Attendance: <strong>${p}/${DB.students.length}</strong> present`);toast(`Saved! ${p} present`,'ok');updateBadges();}
 
     // ═══ BOOKS ═══
     let bkPage=1,bkSearch='';
@@ -2692,7 +2946,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         document.getElementById('b-overdue').textContent=od.length;document.getElementById('txCount').textContent=`${DB.transactions.length} transactions`;
         document.getElementById('txTable').innerHTML=DB.transactions.map(t=>{
             const s=DB.students.find(x=>x.id===t.studentId);const b=DB.books.find(x=>x.id===t.bookId);if(!s||!b)return'';
-            return `<tr><td><div class="si"><div class="sav" style="background:${s.color}">${s.fname[0]+s.lname[0]}</div><span style="font-size:12.5px;font-weight:600">${s.fname} ${s.lname}</span></div></td>
+            return `<tr><td><div class="si"><div class="sav" style="background:${s.color}">${(s.fname?.[0]||'')+(s.lname?.[0]||'')}</div><span style="font-size:12.5px;font-weight:600">${s.fname} ${s.lname}</span></div></td>
     <td>${b.emoji} ${b.title}</td>
     <td><span style="font-family:var(--fm);font-size:10.5px">${fmtDate(t.issueDate)}</span></td>
     <td><span style="font-family:var(--fm);font-size:10.5px;color:${t.status==='overdue'?'var(--ro)':'inherit'}">${fmtDate(t.dueDate)}</span></td>
@@ -2748,9 +3002,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         const s=DB.students;
         const paid=s.filter(x=>x.feeStatus==='paid');const partial=s.filter(x=>x.feeStatus==='partial');
         const pend=s.filter(x=>x.feeStatus==='pending');const od=s.filter(x=>x.feeStatus==='overdue');
-        const activeIds = new Set(s.map(x=>x.id));
-        const activeInvs = DB.invoices.filter(i => activeIds.has(i.studentId));
-        document.getElementById('fc-c').textContent=fmt(activeInvs.reduce((a,i)=>a+i.paidAmt,0));document.getElementById('fc-cm').textContent=`${paid.length} fully paid`;
+        const activeIds=new Set(s.map(x=>x.id));const activeInvs=DB.invoices.filter(i=>activeIds.has(i.studentId));document.getElementById('fc-c').textContent=fmt(activeInvs.reduce((a,i)=>a+i.paidAmt,0));document.getElementById('fc-cm').textContent=`${paid.length} fully paid`;
         document.getElementById('fc-pp').textContent=partial.length;document.getElementById('fc-ppm').textContent=`₹${partial.reduce((a,x)=>a+(x.netFee-x.paidAmt),0).toLocaleString()} balance due`;
         document.getElementById('fc-p').textContent=fmt(pend.reduce((a,x)=>a+x.netFee,0));document.getElementById('fc-pm').textContent=`${pend.length} students`;
         document.getElementById('fc-o').textContent=fmt(od.reduce((a,x)=>a+x.netFee,0));document.getElementById('fc-om').textContent=`${od.length} students (>7 days)`;
@@ -2797,7 +3049,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
       <td style="padding:4px 13px 6px"><span style="font-size:9px;color:var(--tx3)">—</span></td>
     </tr>`:'';
             return `<tr class="${rowClass}">
-      <td><div class="si"><div class="sav" style="background:${x.color}">${x.fname[0]+x.lname[0]}</div><div><div style="font-weight:600;font-size:12.5px;cursor:pointer;color:var(--ac)" onclick="openStudentProfile('${x.id}')">${x.fname} ${x.lname}</div><div style="font-size:10px;color:var(--tx3);font-family:var(--fm)">${x.id}</div></div></div></td>
+      <td><div class="si"><div class="sav" style="background:${x.color}">${((x.fname||"?")[0]+((x.lname||"")[0]||"")).toUpperCase()}</div><div><div style="font-weight:600;font-size:12.5px;cursor:pointer;color:var(--ac)" onclick="openStudentProfile('${x.id}')">${x.fname||""} ${x.lname||""}</div><div style="font-size:10px;color:var(--tx3);font-family:var(--fm)">${x.id}</div></div></div></td>
       <td>${bTag(x.batchId)}</td>
       <td><span style="font-family:var(--fm)">₹${x.baseFee}</span></td>
       <td>${discTxt}</td>
@@ -2945,7 +3197,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
                     :`<span class="fee-bal-badge">₹${inv.balance}</span>`)
                 :`<span style="color:var(--em);font-size:11px">✓</span>`;
             return `<tr style="${deleted?'opacity:.75;background:rgba(192,68,79,.03)':''}"><td><span style="font-family:var(--fm);font-weight:700;color:var(--ac)">${inv.id}</span></td>
-    <td>${s?`<div class="si"><div class="sav" style="background:${s.color}">${s.fname[0]+s.lname[0]}</div><span>${s.fname} ${s.lname}</span></div>`:deleted?`<span style="display:inline-flex;align-items:center;gap:4px;background:rgba(192,68,79,.10);border:1px solid rgba(192,68,79,.25);color:#c0444f;font-size:10px;font-weight:600;padding:3px 8px;border-radius:5px;font-style:normal">🗑 Deleted Student</span>`:'—'}</td>
+    <td>${s?`<div class="si"><div class="sav" style="background:${s.color}">${(s.fname?.[0]||'')+(s.lname?.[0]||'')}</div><span>${s.fname} ${s.lname}</span></div>`:deleted?`<span style="display:inline-flex;align-items:center;gap:4px;background:rgba(192,68,79,.10);border:1px solid rgba(192,68,79,.25);color:#c0444f;font-size:10px;font-weight:600;padding:3px 8px;border-radius:5px;font-style:normal">🗑 Deleted Student</span>`:'—'}</td>
     <td><span class="tag tac" style="font-size:9px">${inv.type}</span></td>
     <td><span style="font-family:var(--fm)">₹${inv.baseFee||inv.amount}</span></td>
     <td>${inv.discount>0?`<span class="tag tor" style="font-size:9px">🎁 -₹${inv.discount}</span>`:'<span style="color:var(--tx3)">—</span>'}</td>
@@ -3184,12 +3436,12 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
     function renderStaff(){
         document.getElementById('staffCount').textContent=`${DB.staff.length} staff`;
         document.getElementById('staffTable').innerHTML=DB.staff.map((sf,i)=>{const pc=Object.values(sf.perms).filter(Boolean).length;
-            return `<tr><td><div class="si"><div class="sav" style="background:linear-gradient(135deg,var(--ac),var(--vi))">${sf.name.split(' ').map(n=>n[0]).join('').slice(0,2)}</div><div><div style="font-weight:600;font-size:12.5px">${sf.name}</div><div style="font-size:10px;color:var(--tx3);font-family:var(--fm)">${sf.id}</div></div></div></td>
+            return `<tr><td><div class="si"><div class="sav" style="background:linear-gradient(135deg,var(--ac),var(--vi))">${(sf.name||"?").split(' ').filter(Boolean).map(n=>n[0]).join('').slice(0,2).toUpperCase()||"?"}</div><div><div style="font-weight:600;font-size:12.5px">${sf.name||""}</div><div style="font-size:10px;color:var(--tx3);font-family:var(--fm)">${sf.id}</div></div></div></td>
     <td><span class="tag tac" style="text-transform:capitalize">${sf.role}</span></td><td>${sf.email}</td><td>${sf.phone}</td>
     <td><div style="display:flex;flex-direction:column;gap:4px">
       <div style="display:flex;flex-wrap:wrap;gap:3px">${PERMS.filter(p=>sf.perms[p.key]).map(p=>`<span title="Page: ${p.label}" style="display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;background:rgba(61,111,240,.09);border:1px solid rgba(61,111,240,.2);border-radius:6px"><span class="mi" style="font-size:12px;color:var(--ac)">${p.icon}</span></span>`).join('')}${pc===0?'<span style="font-size:10px;color:var(--tx3);font-style:italic">No pages</span>':''}</div>
       <div style="display:flex;flex-wrap:wrap;gap:3px">${ACTION_PERMS.filter(a=>(sf.actPerms||{})[a.key]).map(a=>`<span title="Action: ${a.label}" style="display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;background:rgba(124,58,237,.08);border:1px solid rgba(124,58,237,.2);border-radius:6px"><span class="mi" style="font-size:12px;color:var(--vi)">${a.icon}</span></span>`).join('')||'<span style="font-size:9px;color:var(--tx3);font-style:italic">No actions</span>'}</div>
-    </div></td><td><span class="tag tpd">Active</span></td>
+    </div></td><td><span class="tag ${sf.status==='active'?'tpd':'tod'}">${sf.status==='active'?'Active':'Inactive'}</span></td>
     <td><div style="display:flex;gap:4px"><button class="btn bg" style="font-size:10px;padding:3px 7px" onclick="editStaff(${i})">✏</button>${i>0?`<button class="btn bd" style="font-size:10px;padding:3px 6px" onclick="delStaff(${i})"><span class="mi sm">close</span></button>`:''}</div></td></tr>`;
         }).join('')||'<tr><td colspan="7"><div class="empty"><div class="ei">👥</div><div class="et">No staff</div></div></td></tr>';
     }
@@ -3323,7 +3575,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
             mReturnBook:populateReturnModal,
             mAddStaff:buildPermList,
             mGenInv:()=>{document.getElementById('gi-stu').innerHTML='<option value="">-- Select --</option>'+DB.students.map(s=>`<option value="${s.id}">${s.fname} ${s.lname}</option>`).join('');},
-            mAllocSeat:()=>{document.getElementById('as-stu').innerHTML='<option value="">-- Select --</option>'+DB.students.map(s=>`<option value="${s.id}">${s.fname} ${s.lname}</option>`).join('');document.getElementById('as-bt').innerHTML='<option value="">-- Select --</option>'+DB.batches.map(b=>`<option value="${b.id}">${b.name}</option>`).join('');},
+            mAllocSeat:()=>{document.getElementById('as-stu').innerHTML='<option value="">-- Select --</option>'+DB.students.map(s=>`<option value="${s.id}">${s.fname} ${s.lname}</option>`).join('');document.getElementById('as-bt').innerHTML='<option value="">-- Select --</option>'+DB.batches.map(b=>`<option value="${b.id}">${b.name}</option>`).join('');document.getElementById('as-st').innerHTML='<option value="">-- Select Batch First --</option>';},
             mWaQR:()=>{setTimeout(initWaQR,100);},
             mEnroll:()=>{document.getElementById('en-dt').value=new Date().toISOString().split('T')[0];populateBatchSelects();}
         };
@@ -3417,10 +3669,17 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         if (!fn || !bt) return toast('First name and batch required', 'er');
         // join_date: use selected date or today, formatted as YYYY-MM-DD for the API
         const joinDateRaw = gv('en-dt') || new Date().toISOString().slice(0,10);
+        const months = +gv('en-dur') || 1;
+        const dueDate = gv('en-due') || (() => {
+            const d = new Date(joinDateRaw); d.setMonth(d.getMonth() + months);
+            return d.toISOString().split('T')[0];
+        })();
         const payload = {
             fname: fn, lname: ln, phone: gv('en-ph'), batch_id: bt,
             seat_type: gv('en-ac'), seat: gv('en-st'), course: gv('en-co'),
             join_date: joinDateRaw,
+            months: months,
+            due_date: dueDate,
             base_fee: +gv('en-fe'), discount_type: gv('en-disc-type'),
             discount_value: +gv('en-disc-val') || 0,
             discount_reason: gv('en-disc-reason')
@@ -3429,17 +3688,21 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         if (res.error) return toast(res.error, 'er');
         const waCheck = document.getElementById('en-wa');
         closeM('mEnroll');
-        toast(`${fn} enrolled!`, 'ok');
+        toast(`${fn} enrolled for ${months} month${months>1?'s':''}!`, 'ok');
         // ── Reset form ──
         ['en-fn','en-ln','en-ph','en-em','en-ad','en-co','en-dt','en-st',
-            'en-fe','en-net-fe','en-disc-val','en-disc-reason'].forEach(id => {
+            'en-fe','en-net-fe','en-disc-val','en-disc-reason','en-due'].forEach(id => {
             const el = document.getElementById(id); if (el) el.value = '';
         });
         const btEl = document.getElementById('en-bt'); if (btEl) btEl.value = '';
         const acEl = document.getElementById('en-ac'); if (acEl) acEl.value = 'non-ac';
         const dtEl = document.getElementById('en-disc-type'); if (dtEl) dtEl.value = 'none';
+        const durEl = document.getElementById('en-dur'); if (durEl) durEl.value = '1';
         const waEl = document.getElementById('en-wa'); if (waEl) waEl.checked = true;
         const feeNote = document.getElementById('en-fee-note'); if (feeNote) feeNote.style.display = 'none';
+        // Reset join date to today and recalculate due date
+        const enDtEl = document.getElementById('en-dt');
+        if (enDtEl) { enDtEl.value = new Date().toISOString().split('T')[0]; calcEnrollDueDate(); }
         await reloadDB();
         if (waCheck && waCheck.checked) {
             const newStu = DB.students.find(x => x.id === res.id);
@@ -3602,6 +3865,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         });
         if (res.error) return toast(res.error, 'er');
         const p = Object.values(DB.attendance).filter(v=>v==='present').length;
+        addActivity('<span class="mi sm">fact_check</span>','rgba(2,132,199,.12)',`Attendance: <strong>${p}/${DB.students.length}</strong> present`);
         toast(`Saved! ${p} present`, 'ok');
         updateBadges();
     }
@@ -3614,28 +3878,17 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         PERMS.forEach(p => { const el=document.getElementById('perm-'+p.key); perms[p.key]=el?el.checked:false; });
         const actPerms = {};
         ACTION_PERMS.forEach(a => { const el=document.getElementById('act-'+a.key); actPerms[a.key]=el?el.checked:false; });
-        // Generate clean sequential ID: SF-001, ADM-001, MGR-001
-        let _newStaffId = null;
-        if (editStaffIdx < 0) {
-            const _prefix = rl === 'admin' ? 'ADM' : rl === 'manager' ? 'MGR' : 'SF';
-            const _nums = DB.staff
-                .filter(x => x.id && x.id.startsWith(_prefix + '-') && /^\d+$/.test(x.id.slice(_prefix.length + 1)))
-                .map(x => parseInt(x.id.slice(_prefix.length + 1)) || 0);
-            const _next = _nums.length ? Math.max(..._nums) + 1 : 1;
-            _newStaffId = _prefix + '-' + String(_next).padStart(3, '0');
-        }
-
         const payload = {
             name: nm, role: rl, email: em,
-            phone: gv('sf-ph'), username: gv('sf-un'), password: gv('sf-pw'), perms, actPerms,
-            id: editStaffIdx >= 0 ? DB.staff[editStaffIdx].id : _newStaffId
+            phone: gv('sf-ph'), username: gv('sf-un'), password: gv('sf-pw'), perms, actPerms
         };
+        if (editStaffIdx >= 0) payload.id = DB.staff[editStaffIdx].id;
 
         // Optimistically update local DB first so table shows immediately
         if (editStaffIdx >= 0) {
             Object.assign(DB.staff[editStaffIdx], { name: nm, role: rl, email: em, phone: gv('sf-ph'), username: gv('sf-un'), perms, actPerms });
         } else {
-            DB.staff.push({ id: _newStaffId, name: nm, role: rl, email: em, phone: gv('sf-ph'), username: gv('sf-un') || nm.split(' ')[0].toLowerCase(), perms, actPerms, status: 'active' });
+            DB.staff.push({ id: 'SF-' + Date.now(), name: nm, role: rl, email: em, phone: gv('sf-ph'), username: gv('sf-un') || nm.split(' ')[0].toLowerCase(), perms, actPerms, status: 'active' });
         }
         toast(editStaffIdx >= 0 ? `${nm} updated!` : `${nm} added!`, 'ok');
         editStaffIdx = -1;
@@ -3839,7 +4092,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
                     : `<span class="ren-badge ren-ok">✓ ${diffDays}d left</span>`;
             const b = DB.batches.find(x => x.id === s.batchId);
             return `<div class="ren-card">
-      <div class="ren-av" style="background:${s.color}">${s.fname[0]+s.lname[0]}</div>
+      <div class="ren-av" style="background:${s.color}">${(s.fname?.[0]||'')+(s.lname?.[0]||'')}</div>
       <div class="ren-info">
         <div class="ren-name">${s.fname} ${s.lname}</div>
         <div class="ren-meta">${b?b.name:'—'} · Seat ${s.seat||'—'} · ₹${s.netFee}/mo</div>
@@ -3862,7 +4115,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         const b = DB.batches.find(x => x.id === s.batchId);
         document.getElementById('mRenewStudentInfo').innerHTML =
             `<div style="display:flex;align-items:center;gap:10px">
-      <div style="width:36px;height:36px;border-radius:9px;background:${s.color};display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff">${s.fname[0]+s.lname[0]}</div>
+      <div style="width:36px;height:36px;border-radius:9px;background:${s.color};display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff">${(s.fname?.[0]||'')+(s.lname?.[0]||'')}</div>
       <div><div style="font-weight:600;font-size:13px">${s.fname} ${s.lname}</div>
       <div style="font-size:11px;color:var(--tx3)">${b?b.name:'—'} · Current due: ${fmtDate(s.dueDate)}</div></div>
     </div>`;
@@ -3879,10 +4132,22 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         const months = +document.getElementById('ren-extend').value;
         const base   = new Date(s.dueDate) < new Date() ? new Date() : new Date(s.dueDate);
         base.setMonth(base.getMonth() + months);
-        document.getElementById('ren-newdate').value = base.toISOString().split('T')[0];
-        const fee = +document.getElementById('ren-fee').value || s.netFee;
+        const dateEl = document.getElementById('ren-newdate');
+        dateEl.value = base.toISOString().split('T')[0];
+        // Prevent picking a past date
+        dateEl.min   = new Date().toISOString().split('T')[0];
+        // Live update summary when date is manually changed too
+        dateEl.onchange = () => updateRenewSummary(s);
+        updateRenewSummary(s);
+    }
+
+    function updateRenewSummary(s) {
+        const months  = +document.getElementById('ren-extend').value;
+        const dateVal = document.getElementById('ren-newdate').value;
+        const fee     = +document.getElementById('ren-fee').value || s.netFee;
+        const d       = dateVal ? new Date(dateVal).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}) : '—';
         document.getElementById('ren-summary').innerHTML =
-            `✅ Extending by <strong>${months} month${months>1?'s':''}</strong> · New due: <strong>${base.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'})}</strong> · Fee: <strong>₹${fee}</strong>`;
+            `✅ Extending by <strong>${months} month${months>1?'s':''}</strong> · New due: <strong>${d}</strong> · Fee: <strong>₹${fee}</strong>`;
     }
 
     async function confirmRenew() {
@@ -3893,6 +4158,12 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         const mode    = document.getElementById('ren-mode').value;
         const notes   = document.getElementById('ren-notes').value;
         const months  = +document.getElementById('ren-extend').value;
+
+        // ── Validate ──
+        if (!newDate) return toast('⚠ Please set a new due date', 'wn');
+        if (new Date(newDate) < new Date(new Date().toISOString().split('T')[0]))
+            return toast('⚠ Due date cannot be in the past', 'wn');
+        if (fee <= 0) return toast('⚠ Fee amount must be greater than 0', 'wn');
 
         // ── Save to DB ──
         try {
@@ -3982,8 +4253,8 @@ Thank you! 📚
                 });
                 if (res.success) {
                     s.dueDate   = newDue;
-                    s.feeStatus = 'pending';
-                    s.paidAmt   = 0;
+                    s.paidAmt   = (s.paidAmt || 0) + s.netFee;
+                    s.feeStatus = s.paidAmt >= s.netFee ? 'paid' : 'partial';
                     ok++;
                 } else { fail++; }
             } catch(e) { fail++; }
@@ -4026,7 +4297,7 @@ Thank you! 📚
 
         document.getElementById('staffAttList').innerHTML = DB.staff.map(sf => {
             const cur = DB.staffAtt[date][sf.id] !== undefined ? DB.staffAtt[date][sf.id] : 'present';
-            const av  = sf.name.split(' ').map(p=>p[0]).join('').toUpperCase().slice(0,2);
+            const av  = (sf.name||'?').split(' ').filter(Boolean).map(p=>p[0]).join('').toUpperCase().slice(0,2)||'?';
             return `<div class="att-row">
       <div class="att-av" style="background:${sf.color||'var(--ac)'}">${av}</div>
       <div style="flex:1">
@@ -4709,7 +4980,7 @@ Thank you! 📚
                     const stu = DB.students.find(s => s.id === p.student_id);
                     const name = stu ? stu.fname+' '+(stu.lname||'') : (p.fname ? p.fname+' '+(p.lname||'') : 'ID: '+p.user_id);
                     const col = stu?.color || '#9aa3b8';
-                    const av = stu ? (stu.fname[0]+(stu.lname?.[0]||'')).toUpperCase() : '?';
+                    const av = stu ? (((stu.fname||'?')[0])+((stu.lname||'')[0]||'')).toUpperCase() : '?';
                     const isIn = p.punch_type === 'check_in';
                     const vIcon = (p.verify_type||'').includes('finger')||(p.verify_type||'').includes('fp') ? '🖐️' : '💳';
                     const t = (p.punch_time||'').split(' ')[1]?.slice(0,5)||'';
@@ -4721,8 +4992,9 @@ Thank you! 📚
                 }).join('') : '<div style="text-align:center;padding:28px;color:var(--tx3);font-size:13px">No biometric punches today</div>';
             }
 
-            // Fee Gate toggle — apply value from API response
+            // Fee Gate toggle — restore saved state from API
             const feeGateOn = !!res.fee_gate;
+            DB.settings = DB.settings || {};
             DB.settings.feeGate = feeGateOn;
             const fgPairs = [
                 { cb:'feeGateToggle', sl:'feeGateSlider',    th:'feeGateThumb'     },
@@ -4734,9 +5006,7 @@ Thank you! 📚
                 const thEl = document.getElementById(th);  if (thEl) thEl.style.transform = feeGateOn ? 'translateX(20px)' : 'translateX(0)';
             });
             const fgs = document.getElementById('feeGateStatus');
-            if (fgs) fgs.textContent = feeGateOn
-                ? '🔒 Active — overdue students will be blocked at door'
-                : '🔓 Inactive — all students can enter regardless of fee status';
+            if (fgs) fgs.textContent = feeGateOn ? '🔒 Active — overdue students will be blocked at door' : '🔓 Inactive — all students can enter regardless of fee status';
 
             // Sidebar badge
             const bioB = document.getElementById('b-bio');
@@ -4772,7 +5042,7 @@ Thank you! 📚
                     const stu = DB.students.find(s => s.id === p.student_id);
                     const name = stu ? stu.fname+' '+(stu.lname||'') : 'ID: '+p.user_id;
                     const col = stu?.color || '#9aa3b8';
-                    const av = stu ? (stu.fname[0]+(stu.lname?.[0]||'')).toUpperCase() : '?';
+                    const av = stu ? (((stu.fname||'?')[0])+((stu.lname||'')[0]||'')).toUpperCase() : '?';
                     const isIn = p.punch_type === 'check_in';
                     const vIcon = (p.verify_type||'').includes('finger') ? '🖐️' : '💳';
                     const t = (p.punch_time||'').split(' ')[1]?.slice(0,5)||'';
@@ -4810,18 +5080,14 @@ Thank you! 📚
     }
 
     async function toggleFeeGate(enabled) {
-        // Sync both toggles + sliders + thumbs
         const pairs = [
             { cb:'feeGateToggle',  sl:'feeGateSlider',     th:'feeGateThumb'     },
             { cb:'settFeeGate',    sl:'settFeeGateSlider',  th:'settFeeGateThumb' }
         ];
         pairs.forEach(({cb,sl,th}) => {
-            const cbEl = document.getElementById(cb);
-            if (cbEl) cbEl.checked = enabled;
-            const slEl = document.getElementById(sl);
-            if (slEl) slEl.style.background = enabled ? 'var(--ac)' : '#e2e8f0';
-            const thEl = document.getElementById(th);
-            if (thEl) thEl.style.transform = enabled ? 'translateX(20px)' : 'translateX(0)';
+            const cbEl = document.getElementById(cb); if (cbEl) cbEl.checked = enabled;
+            const slEl = document.getElementById(sl);  if (slEl) slEl.style.background = enabled ? 'var(--ac)' : '#e2e8f0';
+            const thEl = document.getElementById(th);  if (thEl) thEl.style.transform = enabled ? 'translateX(20px)' : 'translateX(0)';
         });
         const fgs = document.getElementById('feeGateStatus');
         if (fgs) fgs.textContent = enabled ? '🔒 Active — overdue students will be blocked at door' : '🔓 Inactive — all students can enter regardless of fee status';
@@ -4833,22 +5099,6 @@ Thank you! 📚
     }
 
     // ═══ BOOT ═══
-    // ── Clean up ugly staff IDs (one-time migration) ──
-    async function cleanupStaffIds() {
-        if (!confirm('This will rename all staff IDs to clean format (SF-001, ADM-001 etc).\nThis cannot be undone. Continue?')) return;
-        try {
-            const res = await apiPost('cleanup_staff_ids', {});
-            if (res.ok) {
-                toast('✅ ' + (res.message || 'Staff IDs cleaned!'), 'ok');
-                await reloadDB();
-                renderStaff();
-            } else {
-                toast(res.error || 'Cleanup failed', 'er');
-            }
-        } catch(e) { toast('Error: ' + e.message, 'er'); }
-    }
-
-
     document.getElementById('todayChip').textContent = new Date().toLocaleDateString('en-IN',{month:'long',year:'numeric'});
     initData();
     loadMyDP();

@@ -947,14 +947,16 @@ switch ($action) {
         ]);
 
         // Create invoice record for this renewal
-        $lastInvIdR = $db->query("SELECT id FROM invoices ORDER BY created_at DESC LIMIT 1")->fetchColumn();
+        $lastInvIdR  = $db->query("SELECT id FROM invoices ORDER BY created_at DESC LIMIT 1")->fetchColumn();
         $lastInvNumR = $lastInvIdR ? (int)substr($lastInvIdR, 4) : 0;
-        $invId = 'INV-' . str_pad($lastInvNumR + 1, 4, '0', STR_PAD_LEFT);
+        $invId       = 'INV-' . str_pad($lastInvNumR + 1, 4, '0', STR_PAD_LEFT);
+        $invBalance  = max(0, $netFee - $amount);
+        $invStatus   = ($amount >= $netFee) ? 'paid' : (($amount > 0) ? 'partial' : 'pending');
         $db->prepare(
             "INSERT INTO invoices
                 (id, student_id, type, amount, base_fee, discount, net_fee, paid_amt, balance,
                  invoice_date, month, mode, status)
-             VALUES (?, ?, 'Renewal', ?, ?, 0, ?, ?, 0, ?, ?, ?, 'paid')"
+             VALUES (?, ?, 'Renewal', ?, ?, 0, ?, ?, ?, ?, ?, ?, ?)"
         )->execute([
             $invId,
             $studentId,
@@ -962,20 +964,23 @@ switch ($action) {
             $stu['base_fee'] ?? $amount,
             $stu['net_fee']  ?? $amount,
             $amount,
+            $invBalance,
             date('Y-m-d'),
             date('F Y'),
             $mode,
+            $invStatus,
         ]);
 
         // Log activity & notification
-        $stuName = trim(($stu['fname'] ?? '') . ' ' . ($stu['lname'] ?? ''));
+        $stuName    = trim(($stu['fname'] ?? '') . ' ' . ($stu['lname'] ?? ''));
+        $payLabel   = ($feeStatus === 'partial') ? " (Partial — ₹{$invBalance} due)" : '';
         addActivity(
             $db, '🔄', 'rgba(61,111,240,.14)',
-            "<strong>{$stuName}</strong> renewed for {$months} month(s) — ₹{$amount} via {$mode}. Due: {$newDueDate}"
+            "<strong>{$stuName}</strong> renewed for {$months} month(s) — ₹{$amount} via {$mode}{$payLabel}. Due: {$newDueDate}"
         );
         addNotif(
-            $db, 'success', 'Renewal Successful',
-            "{$stuName} renewed for {$months} month(s). New due date: {$newDueDate}"
+            $db, ($feeStatus === 'partial' ? 'warning' : 'success'), 'Renewal' . ($feeStatus === 'partial' ? ' (Partial)' : ' Successful'),
+            "{$stuName} renewed for {$months} month(s). New due date: {$newDueDate}" . ($feeStatus === 'partial' ? " — ₹{$invBalance} still pending." : '')
         );
 
         jsonResponse([
