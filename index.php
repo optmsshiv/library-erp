@@ -108,12 +108,12 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         .page{display:none}.page.active{display:block}
 
         .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
-        .sc{background:var(--sf);border:1px solid var(--br);border-left:3px solid var(--ca,var(--ac));border-radius:var(--r);padding:13px 15px;position:relative;overflow:hidden;transition:all .22s;box-shadow:var(--sh)}
-        .sc:hover{transform:translateY(-2px);box-shadow:var(--sh2);border-color:var(--ca,var(--ac))}
-        .s-row{display:flex;align-items:center;gap:10px;margin-bottom:7px}
-        .s-ic{width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-        .s-lb{font-size:10px;color:var(--tx3);text-transform:uppercase;letter-spacing:.7px;font-family:var(--fm);font-weight:600}
-        .s-vl{font-size:22px;font-weight:700;color:var(--tx);line-height:1;margin-bottom:4px;font-family:var(--fd)}
+        .sc{background:var(--sf);border:0.5px solid var(--br);border-left:3px solid var(--ca,var(--ac));border-radius:var(--r);padding:12px 14px;position:relative;overflow:hidden;transition:all .22s;box-shadow:var(--sh)}
+        .sc:hover{transform:translateY(-2px);box-shadow:var(--sh2)}
+        .s-row{display:flex;align-items:center;gap:9px;margin-bottom:6px}
+        .s-ic{width:32px;height:32px;min-width:32px;border-radius:8px;display:flex;align-items:center;justify-content:center}
+        .s-lb{font-size:10px;color:var(--tx3);text-transform:uppercase;letter-spacing:.7px;font-family:var(--fm);font-weight:600;line-height:1.2}
+        .s-vl{font-size:22px;font-weight:700;color:var(--tx);line-height:1;margin-bottom:3px;font-family:var(--fd)}
         .s-mt{font-size:10px;color:var(--tx3)}
         .bup{background:rgba(22,163,74,.12);color:var(--em);font-size:10px;font-weight:600;padding:2px 6px;border-radius:5px}
         .bdn{background:rgba(220,38,38,.10);color:var(--ro);font-size:10px;font-weight:600;padding:2px 6px;border-radius:5px}
