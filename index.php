@@ -4134,7 +4134,12 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         document.getElementById('ren-fee').value    = s.netFee;
         document.getElementById('ren-extend').value = '1';
         document.getElementById('ren-balance-warn').style.display = 'none';
-        document.getElementById('ren-fee').oninput      = updateRenewDate;
+        // Clear manual edit flag so fee auto-updates with months on fresh open
+        delete document.getElementById('ren-fee').dataset.manualEdit;
+        document.getElementById('ren-fee').oninput = function() {
+            this.dataset.manualEdit = '1'; // staff typed — stop auto-updating fee
+            updateRenewDate();
+        };
         document.getElementById('ren-extend').onchange  = updateRenewDate;
         updateRenewDate();
         openM('mRenew');
@@ -4151,8 +4156,12 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         dateEl.min   = new Date().toISOString().split('T')[0];
         dateEl.onchange = updateRenewDate;
 
-        const fee     = +document.getElementById('ren-fee').value || 0;
-        const netFee  = s.netFee;
+        // Auto-update fee = netFee x months (skip if staff manually edited the fee)
+        const feeEl   = document.getElementById('ren-fee');
+        if (!feeEl.dataset.manualEdit) feeEl.value = s.netFee * months;
+
+        const fee    = +feeEl.value || 0;
+        const netFee = s.netFee * months;
         const balance = netFee - fee;
         const d       = base.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});
         const sumEl   = document.getElementById('ren-summary');
