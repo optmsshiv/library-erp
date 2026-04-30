@@ -108,13 +108,13 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         .page{display:none}.page.active{display:block}
 
         .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
-        .sc{background:var(--sf);border:1px solid var(--br);border-radius:var(--r);padding:18px;position:relative;overflow:hidden;transition:all .22s;box-shadow:var(--sh)}
-        .sc:hover{transform:translateY(-2px);box-shadow:var(--sh2);border-color:var(--br2)}
-        .sc::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--ca,var(--ac));border-radius:var(--r) var(--r) 0 0}
-        .s-ic{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;margin-bottom:12px}
-        .s-lb{font-size:14px;color:var(--tx3);text-transform:uppercase;letter-spacing:.8px;font-family:var(--fm);font-weight:600;margin-bottom:4px}
-        .s-vl{font-size:26px;font-weight:700;color:var(--tx);line-height:1;margin-bottom:5px;font-family:var(--fd)}
-        .s-mt{font-size:11px;color:var(--tx3)}
+        .sc{background:var(--sf);border:1px solid var(--br);border-left:3px solid var(--ca,var(--ac));border-radius:var(--r);padding:13px 15px;position:relative;overflow:hidden;transition:all .22s;box-shadow:var(--sh)}
+        .sc:hover{transform:translateY(-2px);box-shadow:var(--sh2);border-color:var(--ca,var(--ac))}
+        .s-row{display:flex;align-items:center;gap:10px;margin-bottom:7px}
+        .s-ic{width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+        .s-lb{font-size:10px;color:var(--tx3);text-transform:uppercase;letter-spacing:.7px;font-family:var(--fm);font-weight:600}
+        .s-vl{font-size:22px;font-weight:700;color:var(--tx);line-height:1;margin-bottom:4px;font-family:var(--fd)}
+        .s-mt{font-size:10px;color:var(--tx3)}
         .bup{background:rgba(22,163,74,.12);color:var(--em);font-size:10px;font-weight:600;padding:2px 6px;border-radius:5px}
         .bdn{background:rgba(220,38,38,.10);color:var(--ro);font-size:10px;font-weight:600;padding:2px 6px;border-radius:5px}
 
@@ -652,9 +652,9 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
                 <div style="display:flex;gap:7px"><button class="btn bp" data-action="add_batch" onclick="openM('mAddBatch')">+ Add Batch</button><button class="btn bg" data-action="alloc_seat" onclick="openM('mAllocSeat')">Allocate Seat</button></div>
             </div>
             <div class="stats-grid" style="grid-template-columns:repeat(3,1fr)">
-                <div class="sc" style="--ca:var(--ac)"><div class="s-ic" style="background:var(--c-blue)"><span class="mi" style="color:var(--ac)">event_seat</span></div><div class="s-lb">Total Seats</div><div class="s-vl" id="st-total">0</div></div>
-                <div class="sc" style="--ca:var(--em)"><div class="s-ic" style="background:var(--c-green)"><span class="mi" style="color:var(--em)">check_circle</span></div><div class="s-lb">Vacant</div><div class="s-vl" id="st-vacant">0</div></div>
-                <div class="sc" style="--ca:var(--ro)"><div class="s-ic" style="background:var(--c-rose)"><span class="mi" style="color:var(--ro)">person</span></div><div class="s-lb">Occupied</div><div class="s-vl" id="st-occupied">0</div></div>
+                <div class="sc" style="--ca:var(--ac)"><div class="s-row"><div class="s-ic" style="background:var(--c-blue)"><span class="mi" style="color:var(--ac);font-size:17px">event_seat</span></div><span class="s-lb">Total Seats</span></div><div class="s-vl" id="st-total">0</div></div>
+                <div class="sc" style="--ca:var(--em)"><div class="s-row"><div class="s-ic" style="background:var(--c-green)"><span class="mi" style="color:var(--em);font-size:17px">check_circle</span></div><span class="s-lb">Vacant</span></div><div class="s-vl" id="st-vacant">0</div></div>
+                <div class="sc" style="--ca:var(--ro)"><div class="s-row"><div class="s-ic" style="background:var(--c-rose)"><span class="mi" style="color:var(--ro);font-size:17px">person</span></div><span class="s-lb">Occupied</span></div><div class="s-vl" id="st-occupied">0</div></div>
             </div>
             <div style="margin-bottom:10px">
                 <div class="seat-legend">
@@ -826,10 +826,10 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
                 </div>
             </div>
             <div class="stats-grid">
-                <div class="sc" style="--ca:var(--em)"><div class="s-ic" style="background:var(--c-green)"><span class="mi" style="color:var(--em)">check_circle</span></div><div class="s-lb">Collected</div><div class="s-vl" id="fc-c">₹0</div><div class="s-mt" id="fc-cm"></div></div>
-                <div class="sc" style="--ca:var(--sk)"><div class="s-ic" style="background:var(--c-sky)"><span class="mi" style="color:var(--sk)">timelapse</span></div><div class="s-lb">Partial Payments</div><div class="s-vl" id="fc-pp">0</div><div class="s-mt" id="fc-ppm"></div></div>
-                <div class="sc" style="--ca:var(--gd)"><div class="s-ic" style="background:var(--c-amber)"><span class="mi" style="color:var(--gd)">pending</span></div><div class="s-lb">Pending</div><div class="s-vl" id="fc-p">₹0</div><div class="s-mt" id="fc-pm"></div></div>
-                <div class="sc" style="--ca:var(--ro)"><div class="s-ic" style="background:var(--c-rose)"><span class="mi" style="color:var(--ro)">warning</span></div><div class="s-lb">Overdue</div><div class="s-vl" id="fc-o">₹0</div><div class="s-mt" id="fc-om"></div></div>
+                <div class="sc" style="--ca:var(--em)"><div class="s-row"><div class="s-ic" style="background:var(--c-green)"><span class="mi" style="color:var(--em);font-size:17px">check_circle</span></div><span class="s-lb">Collected</span></div><div class="s-vl" id="fc-c">₹0</div><div class="s-mt" id="fc-cm"></div></div>
+                <div class="sc" style="--ca:var(--sk)"><div class="s-row"><div class="s-ic" style="background:var(--c-sky)"><span class="mi" style="color:var(--sk);font-size:17px">timelapse</span></div><span class="s-lb">Partial Payments</span></div><div class="s-vl" id="fc-pp">0</div><div class="s-mt" id="fc-ppm"></div></div>
+                <div class="sc" style="--ca:var(--gd)"><div class="s-row"><div class="s-ic" style="background:var(--c-amber)"><span class="mi" style="color:var(--gd);font-size:17px">pending</span></div><span class="s-lb">Pending</span></div><div class="s-vl" id="fc-p">₹0</div><div class="s-mt" id="fc-pm"></div></div>
+                <div class="sc" style="--ca:var(--ro)"><div class="s-row"><div class="s-ic" style="background:var(--c-rose)"><span class="mi" style="color:var(--ro);font-size:17px">warning</span></div><span class="s-lb">Overdue</span></div><div class="s-vl" id="fc-o">₹0</div><div class="s-mt" id="fc-om"></div></div>
             </div>
             <div class="panel">
                 <div class="ph"><div class="pt">Fee Records</div>
@@ -1920,18 +1920,18 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
     <div class="al-card al-i"><span style="font-size:17px">🎁</span><div><div class="al-t">Discounts Applied</div><div class="al-b">${s.filter(x=>x.baseFee>x.netFee).length} students with discounts — ₹${totalDiscount.toLocaleString()} waived</div></div></div>`;
 
         document.getElementById('dashStats').innerHTML=`
-    <div class="sc" style="--ca:var(--ac)"><div class="s-ic" style="background:var(--c-blue)"><span class="mi" style="color:var(--ac)">school</span></div><div class="s-lb">Total Students</div><div class="s-vl">${s.length}</div><div class="s-mt"><span class="bup">↑ 12%</span></div></div>
-    <div class="sc" style="--ca:var(--em)"><div class="s-ic" style="background:var(--c-green)"><span class="mi" style="color:var(--em)">event_seat</span></div><div class="s-lb">Seats Available</div><div class="s-vl">${totalSeats-occSeats}</div><div class="s-mt">${occSeats}/${totalSeats} occupied</div></div>
-    <div class="sc" style="--ca:var(--gd)"><div class="s-ic" style="background:var(--c-amber)"><span class="mi" style="color:var(--gd)">payments</span></div><div class="s-lb">Revenue Collected</div><div class="s-vl">${fmt(activeStudentRev)}</div><div class="s-mt" style="display:flex;flex-direction:column;gap:3px;margin-top:6px">
+    <div class="sc" style="--ca:var(--ac)"><div class="s-row"><div class="s-ic" style="background:var(--c-blue)"><span class="mi" style="color:var(--ac);font-size:17px">school</span></div><span class="s-lb">Total Students</span></div><div class="s-vl">${s.length}</div><div class="s-mt"><span class="bup">↑ 12%</span> this month</div></div>
+    <div class="sc" style="--ca:var(--em)"><div class="s-row"><div class="s-ic" style="background:var(--c-green)"><span class="mi" style="color:var(--em);font-size:17px">event_seat</span></div><span class="s-lb">Seats Available</span></div><div class="s-vl">${totalSeats-occSeats}</div><div class="s-mt">${occSeats}/${totalSeats} occupied</div></div>
+    <div class="sc" style="--ca:var(--gd)"><div class="s-row"><div class="s-ic" style="background:var(--c-amber)"><span class="mi" style="color:var(--gd);font-size:17px">payments</span></div><span class="s-lb">Revenue Collected</span></div><div class="s-vl">${fmt(activeStudentRev)}</div><div class="s-mt" style="display:flex;flex-direction:column;gap:3px;margin-top:4px">
       <span style="display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:600;color:#166534"><span style="width:6px;height:6px;border-radius:50%;background:#16a34a;flex-shrink:0"></span>₹${revLivePaid.toLocaleString('en-IN')} live · fully paid</span>
       ${revLivePartial>0?`<span style="display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:600;color:#92400e"><span style="width:6px;height:6px;border-radius:50%;background:#d97706;flex-shrink:0"></span>₹${revLivePartial.toLocaleString('en-IN')} live · partial</span>`:''}
       ${revFromDeleted>0?`<span style="display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:600;color:#9f1239;opacity:.75"><span style="width:6px;height:6px;border-radius:50%;background:#e11d48;flex-shrink:0"></span>₹${revFromDeleted.toLocaleString('en-IN')} deleted students</span>`:''}
     </div></div>
-    <div class="sc" style="--ca:var(--ro)"><div class="s-ic" style="background:var(--c-rose)"><span class="mi" style="color:var(--ro)">pending</span></div><div class="s-lb">Total Due</div><div class="s-vl">${fmt(allDue)}</div><div class="s-mt" style="color:var(--ro)">${[...pending,...overdue,...partial].length} students</div></div>
-    <div class="sc" style="--ca:var(--or)"><div class="s-ic" style="background:var(--c-orange)"><span class="mi" style="color:var(--or)">redeem</span></div><div class="s-lb">Discounts Given</div><div class="s-vl">${fmt(totalDiscount)}</div><div class="s-mt">${s.filter(x=>x.baseFee>x.netFee).length} students</div></div>
-    <div class="sc" style="--ca:var(--vi)"><div class="s-ic" style="background:var(--c-purple)"><span class="mi" style="color:var(--vi)">menu_book</span></div><div class="s-lb">Books Issued</div><div class="s-vl">${issTx.length}</div><div class="s-mt" style="color:var(--ro)">${odTx.length} overdue</div></div>
-    <div class="sc" style="--ca:var(--sk)"><div class="s-ic" style="background:var(--c-sky)"><span class="mi" style="color:var(--sk)">fact_check</span></div><div class="s-lb">Attendance Today</div><div class="s-vl">${prsnt}</div><div class="s-mt" style="color:var(--em)">${s.length?Math.round(prsnt/s.length*100):0}%</div></div>
-    <div class="sc" style="--ca:#7c3aed;cursor:pointer" onclick="navTo('biometric')"><div class="s-ic" style="background:#faf5ff"><span class="mi" style="color:#7c3aed">fingerprint</span></div><div class="s-lb">Biometric Check-ins</div><div class="s-vl">${Object.values(_bioToday).filter(b=>b.in).length}</div><div class="s-mt" style="color:#7c3aed">today · via device</div></div>
+    <div class="sc" style="--ca:var(--ro)"><div class="s-row"><div class="s-ic" style="background:var(--c-rose)"><span class="mi" style="color:var(--ro);font-size:17px">pending</span></div><span class="s-lb">Total Due</span></div><div class="s-vl">${fmt(allDue)}</div><div class="s-mt" style="color:var(--ro)">${[...pending,...overdue,...partial].length} students</div></div>
+    <div class="sc" style="--ca:var(--or)"><div class="s-row"><div class="s-ic" style="background:var(--c-orange)"><span class="mi" style="color:var(--or);font-size:17px">redeem</span></div><span class="s-lb">Discounts Given</span></div><div class="s-vl">${fmt(totalDiscount)}</div><div class="s-mt">${s.filter(x=>x.baseFee>x.netFee).length} students</div></div>
+    <div class="sc" style="--ca:var(--vi)"><div class="s-row"><div class="s-ic" style="background:var(--c-purple)"><span class="mi" style="color:var(--vi);font-size:17px">menu_book</span></div><span class="s-lb">Books Issued</span></div><div class="s-vl">${issTx.length}</div><div class="s-mt" style="color:var(--ro)">${odTx.length} overdue</div></div>
+    <div class="sc" style="--ca:var(--sk)"><div class="s-row"><div class="s-ic" style="background:var(--c-sky)"><span class="mi" style="color:var(--sk);font-size:17px">fact_check</span></div><span class="s-lb">Attendance Today</span></div><div class="s-vl">${prsnt}</div><div class="s-mt" style="color:var(--em)">${s.length?Math.round(prsnt/s.length*100):0}%</div></div>
+    <div class="sc" style="--ca:#7c3aed;cursor:pointer" onclick="navTo('biometric')"><div class="s-row"><div class="s-ic" style="background:#faf5ff"><span class="mi" style="color:#7c3aed;font-size:17px">fingerprint</span></div><span class="s-lb">Biometric Check-ins</span></div><div class="s-vl">${Object.values(_bioToday).filter(b=>b.in).length}</div><div class="s-mt" style="color:#7c3aed">today · via device</div></div>
     ${(()=>{
       // ── Monthly Expenses Sparkline Card ──
       const now = new Date();
