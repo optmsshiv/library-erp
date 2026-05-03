@@ -420,13 +420,45 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         .sal-days{font-size:11px;color:var(--tx3);font-family:var(--fm)}
         .sal-amt{font-size:14px;font-weight:700;font-family:var(--fm);color:var(--em)}
         /* ── AUDIT LOG ──────────────────────────────────────── */
-        .audit-row{display:flex;gap:10px;padding:9px 0;border-bottom:1px solid var(--br);font-size:12px}
-        .audit-row:last-child{border-bottom:none}
-        .audit-ic{width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0}
-        .audit-who{font-weight:600;color:var(--tx)}
-        .audit-what{color:var(--tx2);margin-top:1px}
-        .audit-time{font-size:10px;color:var(--tx3);font-family:var(--fm);margin-top:2px}
-        .audit-tag{font-size:9px;font-weight:700;padding:2px 6px;border-radius:4px;font-family:var(--fm);white-space:nowrap}
+        .audit-search-row{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;align-items:center}
+        .audit-search-wrap{flex:1;min-width:180px;position:relative}
+        .audit-search-wrap input{width:100%;padding:7px 11px 7px 32px;border:1px solid var(--br);border-radius:var(--r2);background:var(--sf);color:var(--tx);font-size:12px;font-family:var(--fb);outline:none;transition:all .18s}
+        .audit-search-wrap input:focus{border-color:var(--ac);box-shadow:0 0 0 3px rgba(61,111,240,.08)}
+        .audit-search-ic{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--tx3);pointer-events:none;font-size:13px}
+        .audit-chips{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:8px;margin-bottom:14px}
+        .audit-chip{background:var(--sf);border:1px solid var(--br);border-radius:var(--r);padding:10px 12px;cursor:pointer;transition:all .18s;position:relative;overflow:hidden}
+        .audit-chip::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--chip-cl,var(--br2))}
+        .audit-chip:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(0,0,0,.07)}
+        .audit-chip.on{border-color:var(--chip-cl,var(--ac));background:var(--chip-bg,var(--c-blue))}
+        .audit-chip.on::before{height:3px}
+        .ac-count{font-size:20px;font-weight:700;color:var(--chip-cl,var(--tx));line-height:1;font-family:var(--fd)}
+        .ac-label{font-size:9px;font-weight:600;color:var(--tx3);text-transform:uppercase;letter-spacing:1px;margin-top:2px;font-family:var(--fm)}
+        .ac-icon{font-size:14px;margin-bottom:3px}
+        .audit-entry{display:flex;gap:12px;padding:12px 18px;border-bottom:1px solid var(--br);transition:background .12s;align-items:flex-start;position:relative}
+        .audit-entry:last-child{border-bottom:none}
+        .audit-entry:hover{background:var(--sf2)}
+        .audit-entry:hover .audit-del{opacity:1}
+        .ae-timeline{display:flex;flex-direction:column;align-items:center;flex-shrink:0;padding-top:2px}
+        .ae-dot{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;font-weight:700;font-family:var(--fm)}
+        .ae-line{width:1px;flex:1;min-height:14px;margin-top:4px;background:repeating-linear-gradient(to bottom,var(--br) 0,var(--br) 3px,transparent 3px,transparent 7px)}
+        .audit-entry:last-child .ae-line{display:none}
+        .ae-body{flex:1;min-width:0}
+        .ae-top{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-bottom:2px}
+        .ae-who{font-size:12.5px;font-weight:700;color:var(--tx);font-family:var(--fb)}
+        .ae-tag{font-size:9px;font-weight:600;padding:2px 7px;border-radius:4px;font-family:var(--fm);letter-spacing:.6px;text-transform:uppercase;border:1px solid transparent}
+        .ae-text{font-size:12px;color:var(--tx2);line-height:1.5}
+        .ae-time{font-size:10px;color:var(--tx3);font-family:var(--fm);margin-top:3px;display:flex;align-items:center;gap:4px}
+        .audit-del{opacity:0;transition:opacity .15s;width:24px;height:24px;border-radius:6px;border:1px solid var(--br);background:var(--sf);color:var(--tx3);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0;align-self:center}
+        .audit-del:hover{background:var(--c-rose);color:var(--ro);border-color:var(--cr)}
+        .audit-date-div{padding:6px 18px;background:var(--sf2);border-bottom:1px solid var(--br);font-family:var(--fm);font-size:9.5px;font-weight:600;color:var(--tx3);letter-spacing:1.4px;text-transform:uppercase;display:flex;align-items:center;gap:8px}
+        .audit-date-div::after{content:'';flex:1;height:1px;background:var(--br)}
+        .audit-pg{padding:10px 18px;border-top:1px solid var(--br);display:flex;align-items:center;justify-content:space-between;background:var(--sf2)}
+        .audit-pg-info{font-family:var(--fm);font-size:10px;color:var(--tx3)}
+        .audit-pg-btns{display:flex;gap:4px}
+        .audit-pg-btn{width:26px;height:26px;border-radius:6px;border:1px solid var(--br);background:var(--sf);color:var(--tx2);cursor:pointer;font-size:11px;font-family:var(--fm);display:flex;align-items:center;justify-content:center;transition:all .12s}
+        .audit-pg-btn:hover{background:var(--sf2);border-color:var(--br2)}
+        .audit-pg-btn.on{background:var(--tx);color:#fff;border-color:var(--tx)}
+        .audit-pg-btn:disabled{opacity:.3;cursor:default;pointer-events:none}
         /* ── PWA ─────────────────────────────────────────────── */
         .pwa-banner{display:none;position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:var(--ac);color:#fff;border-radius:12px;padding:12px 20px;font-size:13px;font-weight:600;gap:10px;align-items:center;box-shadow:0 4px 20px rgba(61,111,240,.35);z-index:9999;cursor:pointer;max-width:340px;width:90%}
         .pwa-banner.show{display:flex}
@@ -1011,23 +1043,49 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         <!-- AUDIT LOG -->
         <div class="page" id="page-audit">
             <div class="sec-hd">
-                <div><div class="sec-t">🔍 Audit Log</div><div class="sec-s">Every action logged — who did what and when</div></div>
+                <div>
+                    <div class="sec-t">Audit Log</div>
+                    <div class="sec-s">Every action recorded — who did what, and when</div>
+                </div>
                 <div style="display:flex;gap:8px">
-                    <select id="auditFilter" onchange="renderAudit()" style="font-size:11px;padding:5px 9px">
-                        <option value="all">All Actions</option>
-                        <option value="fee">Fee</option>
-                        <option value="student">Student</option>
-                        <option value="book">Book</option>
-                        <option value="staff">Staff</option>
-                        <option value="whatsapp">WhatsApp</option>
-                        <option value="settings">Settings</option>
-                    </select>
-                    <button class="btn bg" style="font-size:11px" onclick="clearAudit()">🗑 Clear Log</button>
+                    <button class="btn bg" style="font-size:11px" onclick="auditExportCSV()"><span class="mi sm">download</span> Export CSV</button>
+                    <button class="btn" style="font-size:11px;background:var(--c-rose);color:var(--ro);border:1px solid var(--cr)" onclick="clearAudit()"><span class="mi sm">delete_sweep</span> Clear Log</button>
                 </div>
             </div>
-            <div class="g2" style="margin-bottom:14px" id="auditStats"></div>
-            <div class="panel"><div class="ph"><div class="pt">Activity History</div><span id="auditCount" style="font-size:11px;color:var(--tx3)"></span></div>
-                <div class="pb" id="auditList" style="max-height:600px;overflow-y:auto"></div>
+            <!-- stat chips -->
+            <div class="audit-chips" id="auditStats"></div>
+            <!-- search + staff filter -->
+            <div class="audit-search-row">
+                <div class="audit-search-wrap">
+                    <span class="audit-search-ic mi sm">search</span>
+                    <input type="text" id="auditSearch" placeholder="Search actions, staff, or type…" oninput="renderAudit()">
+                </div>
+                <select id="auditFilter" onchange="renderAudit()" style="font-size:11px;padding:7px 10px;border:1px solid var(--br);border-radius:var(--r2);background:var(--sf);color:var(--tx2);font-family:var(--fm);outline:none">
+                    <option value="all">All types</option>
+                    <option value="fee">Fee</option>
+                    <option value="student">Student</option>
+                    <option value="book">Book</option>
+                    <option value="staff">Staff</option>
+                    <option value="renewal">Renewal</option>
+                    <option value="whatsapp">WhatsApp</option>
+                    <option value="settings">Settings</option>
+                    <option value="other">Other</option>
+                </select>
+                <select id="auditWhoFilter" onchange="renderAudit()" style="font-size:11px;padding:7px 10px;border:1px solid var(--br);border-radius:var(--r2);background:var(--sf);color:var(--tx2);font-family:var(--fm);outline:none">
+                    <option value="all">All staff</option>
+                </select>
+            </div>
+            <!-- log panel -->
+            <div class="panel">
+                <div class="ph">
+                    <div class="pt">Activity History</div>
+                    <span id="auditCount" style="font-size:10px;color:var(--tx3);font-family:var(--fm);background:var(--sf2);border:1px solid var(--br);border-radius:20px;padding:2px 10px"></span>
+                </div>
+                <div id="auditList"></div>
+                <div class="audit-pg" id="auditPg" style="display:none">
+                    <span class="audit-pg-info" id="auditPgInfo"></span>
+                    <div class="audit-pg-btns" id="auditPgBtns"></div>
+                </div>
             </div>
         </div>
 
@@ -4633,37 +4691,156 @@ Thank you! 📚
         apiPost('save_audit_log', { type, text: cleanText, who: '<?= $staffName ?>' }).catch(() => {});
     };
 
+    // ── AUDIT PAGE STATE ──
+    let _auditPage = 1;
+    const _AUDIT_PER = 10;
+    const _AUDIT_TYPE_CFG = {
+        fee:      {label:'Fee',      icon:'₹', ac:'#1a8c4e', bg:'rgba(22,163,74,.10)',  bd:'rgba(22,163,74,.25)'},
+        student:  {label:'Student',  icon:'◉', ac:'#2d5be3', bg:'rgba(45,91,227,.10)',  bd:'rgba(45,91,227,.25)'},
+        book:     {label:'Book',     icon:'▣', ac:'#6435c9', bg:'rgba(100,53,201,.10)', bd:'rgba(100,53,201,.25)'},
+        staff:    {label:'Staff',    icon:'⬡', ac:'#b5620f', bg:'rgba(181,98,15,.10)',  bd:'rgba(181,98,15,.25)'},
+        renewal:  {label:'Renewal',  icon:'↺', ac:'#0e7ab5', bg:'rgba(14,122,181,.10)', bd:'rgba(14,122,181,.25)'},
+        whatsapp: {label:'WhatsApp', icon:'◆', ac:'#1a8c4e', bg:'rgba(22,163,74,.10)',  bd:'rgba(22,163,74,.25)'},
+        settings: {label:'Settings', icon:'◈', ac:'#64748b', bg:'rgba(100,116,139,.10)',bd:'rgba(100,116,139,.25)'},
+        other:    {label:'Other',    icon:'●', ac:'#64748b', bg:'rgba(100,116,139,.10)',bd:'rgba(100,116,139,.25)'},
+    };
+
+    function _auditGetFiltered() {
+        const type = document.getElementById('auditFilter')?.value || 'all';
+        const who  = document.getElementById('auditWhoFilter')?.value || 'all';
+        const q    = (document.getElementById('auditSearch')?.value || '').toLowerCase();
+        return (DB.auditLog||[]).filter(a => {
+            if (type !== 'all' && a.type !== type) return false;
+            if (who  !== 'all' && a.who  !== who)  return false;
+            if (q && !a.text?.toLowerCase().includes(q) && !a.who?.toLowerCase().includes(q) && !a.type?.toLowerCase().includes(q)) return false;
+            return true;
+        });
+    }
+
+    function _auditPopulateWho() {
+        const sel = document.getElementById('auditWhoFilter');
+        if (!sel) return;
+        const cur = sel.value;
+        const whoSet = [...new Set((DB.auditLog||[]).map(a=>a.who).filter(Boolean))];
+        sel.innerHTML = '<option value="all">All staff</option>' + whoSet.map(w=>`<option value="${w}">${w}</option>`).join('');
+        if (whoSet.includes(cur)) sel.value = cur;
+    }
+
     function renderAudit() {
-        const filter = document.getElementById('auditFilter')?.value || 'all';
-        let log = filter === 'all' ? DB.auditLog : DB.auditLog.filter(a => a.type === filter);
+        _auditPopulateWho();
+        // ── Stats chips ──
+        const statsEl = document.getElementById('auditStats');
+        const total = (DB.auditLog||[]).length;
+        const curType = document.getElementById('auditFilter')?.value || 'all';
+        const allActive = curType === 'all';
+        let chips = `<div class="audit-chip ${allActive?'on':''}" style="--chip-cl:var(--tx);--chip-bg:var(--sf2)" onclick="document.getElementById('auditFilter').value='all';_auditPage=1;renderAudit()">
+            <div class="ac-icon" style="color:var(--tx3)">◎</div>
+            <div class="ac-count" style="color:var(--tx)">${total}</div>
+            <div class="ac-label">Total</div>
+        </div>`;
+        Object.entries(_AUDIT_TYPE_CFG).forEach(([t,c]) => {
+            const cnt = (DB.auditLog||[]).filter(a=>a.type===t).length;
+            if (!cnt) return;
+            const on = curType === t;
+            chips += `<div class="audit-chip ${on?'on':''}" style="--chip-cl:${c.ac};--chip-bg:${c.bg}" onclick="document.getElementById('auditFilter').value='${t}';_auditPage=1;renderAudit()">
+                <div class="ac-icon" style="color:${c.ac};font-family:var(--fm)">${c.icon}</div>
+                <div class="ac-count">${cnt}</div>
+                <div class="ac-label">${c.label}</div>
+            </div>`;
+        });
+        if (statsEl) statsEl.innerHTML = chips;
 
-        // Stats
-        const types = ['fee','student','book','staff','whatsapp','settings','renewal','other'];
-        const typeLabels = {fee:'💰 Fee',student:'👤 Student',book:'📚 Book',staff:'👥 Staff',whatsapp:'💬 WhatsApp',settings:'⚙ Settings',renewal:'🔄 Renewal',other:'📌 Other'};
-        const typeBg = {fee:'rgba(22,163,74,.1)',student:'rgba(61,111,240,.1)',book:'rgba(124,58,237,.1)',staff:'rgba(217,119,6,.1)',whatsapp:'rgba(37,211,102,.1)',settings:'rgba(100,116,139,.1)',renewal:'rgba(61,111,240,.1)',other:'rgba(100,116,139,.1)'};
-        document.getElementById('auditStats').innerHTML = types.filter(t=>DB.auditLog.filter(a=>a.type===t).length>0).map(t => {
-            const cnt = DB.auditLog.filter(a => a.type===t).length;
-            return `<div class="sc" style="--ca:var(--ac);padding:12px"><div class="s-lb" style="font-size:9px">${typeLabels[t]||t}</div><div class="s-vl" style="font-size:20px">${cnt}</div></div>`;
-        }).join('');
+        // ── Filter + paginate ──
+        const filtered = _auditGetFiltered();
+        const totalF   = filtered.length;
+        const pages    = Math.ceil(totalF / _AUDIT_PER);
+        if (_auditPage > pages) _auditPage = 1;
+        const start = (_auditPage - 1) * _AUDIT_PER;
+        const slice = filtered.slice(start, start + _AUDIT_PER);
 
-        document.getElementById('auditCount').textContent = log.length + ' entries';
-        const iconMap = {fee:'💰',student:'👤',book:'📚',staff:'👥',whatsapp:'💬',settings:'⚙️',renewal:'🔄',other:'📌'};
-        const bgMap   = {fee:'rgba(22,163,74,.12)',student:'rgba(61,111,240,.12)',book:'rgba(124,58,237,.12)',staff:'rgba(217,119,6,.12)',whatsapp:'rgba(37,211,102,.12)',settings:'rgba(100,116,139,.12)',renewal:'rgba(61,111,240,.12)',other:'rgba(100,116,139,.12)'};
+        const countEl = document.getElementById('auditCount');
+        if (countEl) countEl.textContent = totalF + (totalF===1?' entry':' entries');
 
-        document.getElementById('auditList').innerHTML = log.length
-            ? log.map(a => `<div class="audit-row">
-        <div class="audit-ic" style="background:${bgMap[a.type]||bgMap.other}">${iconMap[a.type]||'📌'}</div>
-        <div style="flex:1">
-          <div class="audit-who">${a.who} <span class="audit-tag" style="background:${bgMap[a.type]||bgMap.other}">${a.type}</span></div>
-          <div class="audit-what">${a.text}</div>
-          <div class="audit-time">${a.time}</div>
-        </div>
-      </div>`).join('')
-            : '<div class="empty"><div class="et">No audit entries yet — actions will appear here</div></div>';
+        const listEl = document.getElementById('auditList');
+        if (!listEl) return;
+
+        if (!totalF) {
+            listEl.innerHTML = `<div class="empty" style="padding:40px 0"><div class="et">No entries match — try adjusting filters</div></div>`;
+            const pg = document.getElementById('auditPg'); if (pg) pg.style.display='none';
+            return;
+        }
+
+        // Group by date
+        let html = ''; let lastDate = null;
+        slice.forEach((a, i) => {
+            const dateLabel = (a.time||'').split(',')[0] || 'Unknown date';
+            if (dateLabel !== lastDate) {
+                html += `<div class="audit-date-div">${dateLabel}</div>`;
+                lastDate = dateLabel;
+            }
+            const c = _AUDIT_TYPE_CFG[a.type] || _AUDIT_TYPE_CFG.other;
+            html += `<div class="audit-entry">
+                <div class="ae-timeline">
+                    <div class="ae-dot" style="background:${c.bg};color:${c.ac}">${c.icon}</div>
+                    <div class="ae-line"></div>
+                </div>
+                <div class="ae-body">
+                    <div class="ae-top">
+                        <span class="ae-who">${a.who||'System'}</span>
+                        <span class="ae-tag" style="background:${c.bg};color:${c.ac};border-color:${c.bd}">${c.label}</span>
+                    </div>
+                    <div class="ae-text">${a.text||''}</div>
+                    <div class="ae-time"><span class="mi sm" style="font-size:10px">schedule</span>${a.time||''}</div>
+                </div>
+                <button class="audit-del" title="Remove entry" onclick="auditDeleteEntry(${a.id})"><span class="mi sm">delete</span></button>
+            </div>`;
+        });
+        listEl.innerHTML = html;
+
+        // Pagination
+        const pgRow = document.getElementById('auditPg');
+        const pgInfo = document.getElementById('auditPgInfo');
+        const pgBtns = document.getElementById('auditPgBtns');
+        if (pages > 1) {
+            if (pgRow) pgRow.style.display = 'flex';
+            if (pgInfo) pgInfo.textContent = `${start+1}–${Math.min(start+_AUDIT_PER,totalF)} of ${totalF}`;
+            if (pgBtns) {
+                let b = `<button class="audit-pg-btn" onclick="_auditGoPage(${_auditPage-1})" ${_auditPage===1?'disabled':''}>‹</button>`;
+                for (let p=1;p<=pages;p++) b+=`<button class="audit-pg-btn ${p===_auditPage?'on':''}" onclick="_auditGoPage(${p})">${p}</button>`;
+                b+=`<button class="audit-pg-btn" onclick="_auditGoPage(${_auditPage+1})" ${_auditPage===pages?'disabled':''}>›</button>`;
+                pgBtns.innerHTML = b;
+            }
+        } else {
+            if (pgRow) pgRow.style.display = 'none';
+        }
+    }
+
+    function _auditGoPage(p) {
+        _auditPage = p;
+        renderAudit();
+        document.getElementById('page-audit')?.scrollIntoView({behavior:'smooth',block:'start'});
+    }
+
+    function auditDeleteEntry(id) {
+        DB.auditLog = (DB.auditLog||[]).filter(a => a.id !== id);
+        renderAudit();
+        toast('Entry removed', 'wn');
+    }
+
+    function auditExportCSV() {
+        const filtered = _auditGetFiltered();
+        const rows = [['ID','Who','Type','Action','Time']];
+        filtered.forEach(a => rows.push([a.id, a.who, a.type, '"'+(a.text||'').replace(/"/g,'""')+'"', a.time]));
+        const csv = rows.map(r=>r.join(',')).join('\n');
+        const url = URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
+        const lnk = document.createElement('a');
+        lnk.href=url; lnk.download='audit-log.csv'; lnk.click();
+        URL.revokeObjectURL(url);
+        toast('CSV exported', 'ok');
     }
 
     function clearAudit() {
-        if (!confirm('Clear all audit log entries?')) return;
+        if (!confirm('Clear all audit log entries? This cannot be undone.')) return;
         DB.auditLog = [];
         renderAudit();
         toast('Audit log cleared', 'wn');

@@ -108,13 +108,13 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         .page{display:none}.page.active{display:block}
 
         .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
-        .sc{background:var(--sf);border:1px solid var(--br);border-radius:var(--r);padding:18px;position:relative;overflow:hidden;transition:all .22s;box-shadow:var(--sh)}
-        .sc:hover{transform:translateY(-2px);box-shadow:var(--sh2);border-color:var(--br2)}
-        .sc::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--ca,var(--ac));border-radius:var(--r) var(--r) 0 0}
-        .s-ic{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;margin-bottom:12px}
-        .s-lb{font-size:14px;color:var(--tx3);text-transform:uppercase;letter-spacing:.8px;font-family:var(--fm);font-weight:600;margin-bottom:4px}
-        .s-vl{font-size:26px;font-weight:700;color:var(--tx);line-height:1;margin-bottom:5px;font-family:var(--fd)}
-        .s-mt{font-size:11px;color:var(--tx3)}
+        .sc{background:var(--sf);border:0.5px solid var(--br);border-left:3px solid var(--ca,var(--ac));border-radius:var(--r);padding:12px 14px;position:relative;overflow:hidden;transition:all .22s;box-shadow:var(--sh)}
+        .sc:hover{transform:translateY(-2px);box-shadow:var(--sh2)}
+        .s-row{display:flex;align-items:center;gap:9px;margin-bottom:6px}
+        .s-ic{width:32px;height:32px;min-width:32px;border-radius:8px;display:flex;align-items:center;justify-content:center}
+        .s-lb{font-size:10px;color:var(--tx3);text-transform:uppercase;letter-spacing:.7px;font-family:var(--fm);font-weight:600;line-height:1.2}
+        .s-vl{font-size:22px;font-weight:700;color:var(--tx);line-height:1;margin-bottom:3px;font-family:var(--fd)}
+        .s-mt{font-size:10px;color:var(--tx3)}
         .bup{background:rgba(22,163,74,.12);color:var(--em);font-size:10px;font-weight:600;padding:2px 6px;border-radius:5px}
         .bdn{background:rgba(220,38,38,.10);color:var(--ro);font-size:10px;font-weight:600;padding:2px 6px;border-radius:5px}
 
@@ -652,9 +652,9 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
                 <div style="display:flex;gap:7px"><button class="btn bp" data-action="add_batch" onclick="openM('mAddBatch')">+ Add Batch</button><button class="btn bg" data-action="alloc_seat" onclick="openM('mAllocSeat')">Allocate Seat</button></div>
             </div>
             <div class="stats-grid" style="grid-template-columns:repeat(3,1fr)">
-                <div class="sc" style="--ca:var(--ac)"><div class="s-ic" style="background:var(--c-blue)"><span class="mi" style="color:var(--ac)">event_seat</span></div><div class="s-lb">Total Seats</div><div class="s-vl" id="st-total">0</div></div>
-                <div class="sc" style="--ca:var(--em)"><div class="s-ic" style="background:var(--c-green)"><span class="mi" style="color:var(--em)">check_circle</span></div><div class="s-lb">Vacant</div><div class="s-vl" id="st-vacant">0</div></div>
-                <div class="sc" style="--ca:var(--ro)"><div class="s-ic" style="background:var(--c-rose)"><span class="mi" style="color:var(--ro)">person</span></div><div class="s-lb">Occupied</div><div class="s-vl" id="st-occupied">0</div></div>
+                <div class="sc" style="--ca:var(--ac)"><div class="s-row"><div class="s-ic" style="background:var(--c-blue)"><span class="mi" style="color:var(--ac);font-size:17px">event_seat</span></div><span class="s-lb">Total Seats</span></div><div class="s-vl" id="st-total">0</div></div>
+                <div class="sc" style="--ca:var(--em)"><div class="s-row"><div class="s-ic" style="background:var(--c-green)"><span class="mi" style="color:var(--em);font-size:17px">check_circle</span></div><span class="s-lb">Vacant</span></div><div class="s-vl" id="st-vacant">0</div></div>
+                <div class="sc" style="--ca:var(--ro)"><div class="s-row"><div class="s-ic" style="background:var(--c-rose)"><span class="mi" style="color:var(--ro);font-size:17px">person</span></div><span class="s-lb">Occupied</span></div><div class="s-vl" id="st-occupied">0</div></div>
             </div>
             <div style="margin-bottom:10px">
                 <div class="seat-legend">
@@ -826,10 +826,10 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
                 </div>
             </div>
             <div class="stats-grid">
-                <div class="sc" style="--ca:var(--em)"><div class="s-ic" style="background:var(--c-green)"><span class="mi" style="color:var(--em)">check_circle</span></div><div class="s-lb">Collected</div><div class="s-vl" id="fc-c">₹0</div><div class="s-mt" id="fc-cm"></div></div>
-                <div class="sc" style="--ca:var(--sk)"><div class="s-ic" style="background:var(--c-sky)"><span class="mi" style="color:var(--sk)">timelapse</span></div><div class="s-lb">Partial Payments</div><div class="s-vl" id="fc-pp">0</div><div class="s-mt" id="fc-ppm"></div></div>
-                <div class="sc" style="--ca:var(--gd)"><div class="s-ic" style="background:var(--c-amber)"><span class="mi" style="color:var(--gd)">pending</span></div><div class="s-lb">Pending</div><div class="s-vl" id="fc-p">₹0</div><div class="s-mt" id="fc-pm"></div></div>
-                <div class="sc" style="--ca:var(--ro)"><div class="s-ic" style="background:var(--c-rose)"><span class="mi" style="color:var(--ro)">warning</span></div><div class="s-lb">Overdue</div><div class="s-vl" id="fc-o">₹0</div><div class="s-mt" id="fc-om"></div></div>
+                <div class="sc" style="--ca:var(--em)"><div class="s-row"><div class="s-ic" style="background:var(--c-green)"><span class="mi" style="color:var(--em);font-size:17px">check_circle</span></div><span class="s-lb">Collected</span></div><div class="s-vl" id="fc-c">₹0</div><div class="s-mt" id="fc-cm"></div></div>
+                <div class="sc" style="--ca:var(--sk)"><div class="s-row"><div class="s-ic" style="background:var(--c-sky)"><span class="mi" style="color:var(--sk);font-size:17px">timelapse</span></div><span class="s-lb">Partial Payments</span></div><div class="s-vl" id="fc-pp">0</div><div class="s-mt" id="fc-ppm"></div></div>
+                <div class="sc" style="--ca:var(--gd)"><div class="s-row"><div class="s-ic" style="background:var(--c-amber)"><span class="mi" style="color:var(--gd);font-size:17px">pending</span></div><span class="s-lb">Pending</span></div><div class="s-vl" id="fc-p">₹0</div><div class="s-mt" id="fc-pm"></div></div>
+                <div class="sc" style="--ca:var(--ro)"><div class="s-row"><div class="s-ic" style="background:var(--c-rose)"><span class="mi" style="color:var(--ro);font-size:17px">warning</span></div><span class="s-lb">Overdue</span></div><div class="s-vl" id="fc-o">₹0</div><div class="s-mt" id="fc-om"></div></div>
             </div>
             <div class="panel">
                 <div class="ph"><div class="pt">Fee Records</div>
@@ -1589,14 +1589,15 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
                         <option value="6">6 Months</option>
                     </select>
                 </div>
-                <div class="fgi"><label>New Due Date</label><input id="ren-newdate" type="date" readonly style="background:var(--sf3)"></div>
+                <div class="fgi"><label>New Due Date</label><input id="ren-newdate" type="date" style="background:var(--sf2)" title="You can override the calculated date"></div>
                 <div class="fgi"><label>Fee Amount (₹)</label><input id="ren-fee" type="number" placeholder="0"></div>
                 <div class="fgi"><label>Payment Mode</label>
                     <select id="ren-mode"><option>Cash</option><option>UPI</option><option>Bank Transfer</option><option>Cheque</option></select>
                 </div>
                 <div class="fgi full"><label>Notes</label><input id="ren-notes" placeholder="Optional renewal note"></div>
             </div>
-            <div style="margin-top:12px;padding:10px 12px;background:rgba(22,163,74,.07);border:1px solid rgba(22,163,74,.2);border-radius:var(--r2);font-size:12px;color:var(--tx2)" id="ren-summary"></div>
+            <div id="ren-summary" style="margin-top:12px;padding:10px 12px;border-radius:var(--r2);font-size:12px;color:var(--tx2);border:1px solid transparent"></div>
+            <div id="ren-balance-warn" style="display:none;margin-top:6px;padding:9px 12px;background:rgba(234,88,12,.08);border:1px solid rgba(234,88,12,.3);border-radius:var(--r2);font-size:12px;color:#c2410c"></div>
         </div>
         <div class="mf">
             <button class="btn bg" onclick="closeM('mRenew')">Cancel</button>
@@ -1919,18 +1920,18 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
     <div class="al-card al-i"><span style="font-size:17px">🎁</span><div><div class="al-t">Discounts Applied</div><div class="al-b">${s.filter(x=>x.baseFee>x.netFee).length} students with discounts — ₹${totalDiscount.toLocaleString()} waived</div></div></div>`;
 
         document.getElementById('dashStats').innerHTML=`
-    <div class="sc" style="--ca:var(--ac)"><div class="s-ic" style="background:var(--c-blue)"><span class="mi" style="color:var(--ac)">school</span></div><div class="s-lb">Total Students</div><div class="s-vl">${s.length}</div><div class="s-mt"><span class="bup">↑ 12%</span></div></div>
-    <div class="sc" style="--ca:var(--em)"><div class="s-ic" style="background:var(--c-green)"><span class="mi" style="color:var(--em)">event_seat</span></div><div class="s-lb">Seats Available</div><div class="s-vl">${totalSeats-occSeats}</div><div class="s-mt">${occSeats}/${totalSeats} occupied</div></div>
-    <div class="sc" style="--ca:var(--gd)"><div class="s-ic" style="background:var(--c-amber)"><span class="mi" style="color:var(--gd)">payments</span></div><div class="s-lb">Revenue Collected</div><div class="s-vl">${fmt(activeStudentRev)}</div><div class="s-mt" style="display:flex;flex-direction:column;gap:3px;margin-top:6px">
+    <div class="sc" style="--ca:var(--ac)"><div class="s-row"><div class="s-ic" style="background:var(--c-blue)"><span class="mi" style="color:var(--ac);font-size:17px">school</span></div><span class="s-lb">Total Students</span></div><div class="s-vl">${s.length}</div><div class="s-mt"><span class="bup">↑ 12%</span> this month</div></div>
+    <div class="sc" style="--ca:var(--em)"><div class="s-row"><div class="s-ic" style="background:var(--c-green)"><span class="mi" style="color:var(--em);font-size:17px">event_seat</span></div><span class="s-lb">Seats Available</span></div><div class="s-vl">${totalSeats-occSeats}</div><div class="s-mt">${occSeats}/${totalSeats} occupied</div></div>
+    <div class="sc" style="--ca:var(--gd)"><div class="s-row"><div class="s-ic" style="background:var(--c-amber)"><span class="mi" style="color:var(--gd);font-size:17px">payments</span></div><span class="s-lb">Revenue Collected</span></div><div class="s-vl">${fmt(activeStudentRev)}</div><div class="s-mt" style="display:flex;flex-direction:column;gap:3px;margin-top:4px">
       <span style="display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:600;color:#166534"><span style="width:6px;height:6px;border-radius:50%;background:#16a34a;flex-shrink:0"></span>₹${revLivePaid.toLocaleString('en-IN')} live · fully paid</span>
       ${revLivePartial>0?`<span style="display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:600;color:#92400e"><span style="width:6px;height:6px;border-radius:50%;background:#d97706;flex-shrink:0"></span>₹${revLivePartial.toLocaleString('en-IN')} live · partial</span>`:''}
       ${revFromDeleted>0?`<span style="display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:600;color:#9f1239;opacity:.75"><span style="width:6px;height:6px;border-radius:50%;background:#e11d48;flex-shrink:0"></span>₹${revFromDeleted.toLocaleString('en-IN')} deleted students</span>`:''}
     </div></div>
-    <div class="sc" style="--ca:var(--ro)"><div class="s-ic" style="background:var(--c-rose)"><span class="mi" style="color:var(--ro)">pending</span></div><div class="s-lb">Total Due</div><div class="s-vl">${fmt(allDue)}</div><div class="s-mt" style="color:var(--ro)">${[...pending,...overdue,...partial].length} students</div></div>
-    <div class="sc" style="--ca:var(--or)"><div class="s-ic" style="background:var(--c-orange)"><span class="mi" style="color:var(--or)">redeem</span></div><div class="s-lb">Discounts Given</div><div class="s-vl">${fmt(totalDiscount)}</div><div class="s-mt">${s.filter(x=>x.baseFee>x.netFee).length} students</div></div>
-    <div class="sc" style="--ca:var(--vi)"><div class="s-ic" style="background:var(--c-purple)"><span class="mi" style="color:var(--vi)">menu_book</span></div><div class="s-lb">Books Issued</div><div class="s-vl">${issTx.length}</div><div class="s-mt" style="color:var(--ro)">${odTx.length} overdue</div></div>
-    <div class="sc" style="--ca:var(--sk)"><div class="s-ic" style="background:var(--c-sky)"><span class="mi" style="color:var(--sk)">fact_check</span></div><div class="s-lb">Attendance Today</div><div class="s-vl">${prsnt}</div><div class="s-mt" style="color:var(--em)">${s.length?Math.round(prsnt/s.length*100):0}%</div></div>
-    <div class="sc" style="--ca:#7c3aed;cursor:pointer" onclick="navTo('biometric')"><div class="s-ic" style="background:#faf5ff"><span class="mi" style="color:#7c3aed">fingerprint</span></div><div class="s-lb">Biometric Check-ins</div><div class="s-vl">${Object.values(_bioToday).filter(b=>b.in).length}</div><div class="s-mt" style="color:#7c3aed">today · via device</div></div>
+    <div class="sc" style="--ca:var(--ro)"><div class="s-row"><div class="s-ic" style="background:var(--c-rose)"><span class="mi" style="color:var(--ro);font-size:17px">pending</span></div><span class="s-lb">Total Due</span></div><div class="s-vl">${fmt(allDue)}</div><div class="s-mt" style="color:var(--ro)">${[...pending,...overdue,...partial].length} students</div></div>
+    <div class="sc" style="--ca:var(--or)"><div class="s-row"><div class="s-ic" style="background:var(--c-orange)"><span class="mi" style="color:var(--or);font-size:17px">redeem</span></div><span class="s-lb">Discounts Given</span></div><div class="s-vl">${fmt(totalDiscount)}</div><div class="s-mt">${s.filter(x=>x.baseFee>x.netFee).length} students</div></div>
+    <div class="sc" style="--ca:var(--vi)"><div class="s-row"><div class="s-ic" style="background:var(--c-purple)"><span class="mi" style="color:var(--vi);font-size:17px">menu_book</span></div><span class="s-lb">Books Issued</span></div><div class="s-vl">${issTx.length}</div><div class="s-mt" style="color:var(--ro)">${odTx.length} overdue</div></div>
+    <div class="sc" style="--ca:var(--sk)"><div class="s-row"><div class="s-ic" style="background:var(--c-sky)"><span class="mi" style="color:var(--sk);font-size:17px">fact_check</span></div><span class="s-lb">Attendance Today</span></div><div class="s-vl">${prsnt}</div><div class="s-mt" style="color:var(--em)">${s.length?Math.round(prsnt/s.length*100):0}%</div></div>
+    <div class="sc" style="--ca:#7c3aed;cursor:pointer" onclick="navTo('biometric')"><div class="s-row"><div class="s-ic" style="background:#faf5ff"><span class="mi" style="color:#7c3aed;font-size:17px">fingerprint</span></div><span class="s-lb">Biometric Check-ins</span></div><div class="s-vl">${Object.values(_bioToday).filter(b=>b.in).length}</div><div class="s-mt" style="color:#7c3aed">today · via device</div></div>
     ${(()=>{
       // ── Monthly Expenses Sparkline Card ──
       const now = new Date();
@@ -2347,7 +2348,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         // Header
         document.getElementById('spHeaderName').textContent = s.fname + ' ' + s.lname;
         document.getElementById('spHeaderId').textContent = '#' + s.id;
-        document.getElementById('spAv').textContent = (s.fname[0] + s.lname[0]).toUpperCase();
+        document.getElementById('spAv').textContent = ((s.fname?.[0]||'') + (s.lname?.[0]||'')).toUpperCase();
         document.getElementById('spAv').style.background = s.color || '#3d6ff0';
 
         // Fee bar
@@ -2890,7 +2891,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
             }
             const bioMark=bio.in?`<span style="font-size:9px;background:#dcfce7;border:1px solid #a3e8d4;color:#166534;padding:1px 5px;border-radius:4px;font-weight:700;font-family:var(--fm)">🖐️</span>`:'';
             return `<tr>
-            <td><div class="si"><div class="sav" style="background:${s.color}">${s.fname[0]+s.lname[0]}</div><div><div style="font-weight:600;font-size:12.5px">${s.fname} ${s.lname} ${bioMark}</div><div style="font-size:10px;color:var(--tx3);font-family:var(--fm)">${s.id}</div></div></div></td>
+            <td><div class="si"><div class="sav" style="background:${s.color}">${(s.fname?.[0]||'')+(s.lname?.[0]||'')}</div><div><div style="font-weight:600;font-size:12.5px">${s.fname} ${s.lname} ${bioMark}</div><div style="font-size:10px;color:var(--tx3);font-family:var(--fm)">${s.id}</div></div></div></td>
             <td>${bTag(s.batchId)}</td>
             <td><span style="font-family:var(--fm);font-size:11px">${s.seat||'—'}</span></td>
             <td><span class="tag ${s.feeStatus==='paid'?'tpd':s.feeStatus==='partial'?'tpart':s.feeStatus==='pending'?'tpn':'tod'}">${s.feeStatus==='paid'?'✓ Paid':s.feeStatus==='partial'?'◑ Partial':s.feeStatus==='pending'?'⏳ Pending':'🚨 Overdue'}</span></td>
@@ -2946,7 +2947,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         document.getElementById('b-overdue').textContent=od.length;document.getElementById('txCount').textContent=`${DB.transactions.length} transactions`;
         document.getElementById('txTable').innerHTML=DB.transactions.map(t=>{
             const s=DB.students.find(x=>x.id===t.studentId);const b=DB.books.find(x=>x.id===t.bookId);if(!s||!b)return'';
-            return `<tr><td><div class="si"><div class="sav" style="background:${s.color}">${s.fname[0]+s.lname[0]}</div><span style="font-size:12.5px;font-weight:600">${s.fname} ${s.lname}</span></div></td>
+            return `<tr><td><div class="si"><div class="sav" style="background:${s.color}">${(s.fname?.[0]||'')+(s.lname?.[0]||'')}</div><span style="font-size:12.5px;font-weight:600">${s.fname} ${s.lname}</span></div></td>
     <td>${b.emoji} ${b.title}</td>
     <td><span style="font-family:var(--fm);font-size:10.5px">${fmtDate(t.issueDate)}</span></td>
     <td><span style="font-family:var(--fm);font-size:10.5px;color:${t.status==='overdue'?'var(--ro)':'inherit'}">${fmtDate(t.dueDate)}</span></td>
@@ -3197,7 +3198,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
                     :`<span class="fee-bal-badge">₹${inv.balance}</span>`)
                 :`<span style="color:var(--em);font-size:11px">✓</span>`;
             return `<tr style="${deleted?'opacity:.75;background:rgba(192,68,79,.03)':''}"><td><span style="font-family:var(--fm);font-weight:700;color:var(--ac)">${inv.id}</span></td>
-    <td>${s?`<div class="si"><div class="sav" style="background:${s.color}">${s.fname[0]+s.lname[0]}</div><span>${s.fname} ${s.lname}</span></div>`:deleted?`<span style="display:inline-flex;align-items:center;gap:4px;background:rgba(192,68,79,.10);border:1px solid rgba(192,68,79,.25);color:#c0444f;font-size:10px;font-weight:600;padding:3px 8px;border-radius:5px;font-style:normal">🗑 Deleted Student</span>`:'—'}</td>
+    <td>${s?`<div class="si"><div class="sav" style="background:${s.color}">${(s.fname?.[0]||'')+(s.lname?.[0]||'')}</div><span>${s.fname} ${s.lname}</span></div>`:deleted?`<span style="display:inline-flex;align-items:center;gap:4px;background:rgba(192,68,79,.10);border:1px solid rgba(192,68,79,.25);color:#c0444f;font-size:10px;font-weight:600;padding:3px 8px;border-radius:5px;font-style:normal">🗑 Deleted Student</span>`:'—'}</td>
     <td><span class="tag tac" style="font-size:9px">${inv.type}</span></td>
     <td><span style="font-family:var(--fm)">₹${inv.baseFee||inv.amount}</span></td>
     <td>${inv.discount>0?`<span class="tag tor" style="font-size:9px">🎁 -₹${inv.discount}</span>`:'<span style="color:var(--tx3)">—</span>'}</td>
@@ -4092,7 +4093,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
                     : `<span class="ren-badge ren-ok">✓ ${diffDays}d left</span>`;
             const b = DB.batches.find(x => x.id === s.batchId);
             return `<div class="ren-card">
-      <div class="ren-av" style="background:${s.color}">${s.fname[0]+s.lname[0]}</div>
+      <div class="ren-av" style="background:${s.color}">${(s.fname?.[0]||'')+(s.lname?.[0]||'')}</div>
       <div class="ren-info">
         <div class="ren-name">${s.fname} ${s.lname}</div>
         <div class="ren-meta">${b?b.name:'—'} · Seat ${s.seat||'—'} · ₹${s.netFee}/mo</div>
@@ -4113,16 +4114,34 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         if (!s) return;
         renewStudentId = id;
         const b = DB.batches.find(x => x.id === s.batchId);
+
+        // Show previous unpaid balance if any
+        const prevBal = Math.max(0, s.netFee - (s.paidAmt || 0));
+        const prevBalHtml = prevBal > 0
+            ? `<div style="margin-top:4px;font-size:10px;color:#c2410c;font-weight:600">⚠ ₹${prevBal} still unpaid from previous period</div>`
+            : '';
+
         document.getElementById('mRenewStudentInfo').innerHTML =
             `<div style="display:flex;align-items:center;gap:10px">
-      <div style="width:36px;height:36px;border-radius:9px;background:${s.color};display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff">${s.fname[0]+s.lname[0]}</div>
-      <div><div style="font-weight:600;font-size:13px">${s.fname} ${s.lname}</div>
-      <div style="font-size:11px;color:var(--tx3)">${b?b.name:'—'} · Current due: ${fmtDate(s.dueDate)}</div></div>
+      <div style="width:36px;height:36px;border-radius:9px;background:${s.color};display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff">${(s.fname?.[0]||'')+(s.lname?.[0]||'')}</div>
+      <div>
+        <div style="font-weight:600;font-size:13px">${s.fname} ${s.lname}</div>
+        <div style="font-size:11px;color:var(--tx3)">${b?b.name:'—'} · Current due: ${fmtDate(s.dueDate)}</div>
+        ${prevBalHtml}
+      </div>
     </div>`;
-        document.getElementById('ren-fee').value = s.netFee;
+
+        document.getElementById('ren-fee').value    = s.netFee;
         document.getElementById('ren-extend').value = '1';
+        document.getElementById('ren-balance-warn').style.display = 'none';
+        // Clear manual edit flag so fee auto-updates with months on fresh open
+        delete document.getElementById('ren-fee').dataset.manualEdit;
+        document.getElementById('ren-fee').oninput = function() {
+            this.dataset.manualEdit = '1'; // staff typed — stop auto-updating fee
+            updateRenewDate();
+        };
+        document.getElementById('ren-extend').onchange  = updateRenewDate;
         updateRenewDate();
-        document.getElementById('ren-extend').onchange = updateRenewDate;
         openM('mRenew');
     }
 
@@ -4132,10 +4151,39 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         const months = +document.getElementById('ren-extend').value;
         const base   = new Date(s.dueDate) < new Date() ? new Date() : new Date(s.dueDate);
         base.setMonth(base.getMonth() + months);
-        document.getElementById('ren-newdate').value = base.toISOString().split('T')[0];
-        const fee = +document.getElementById('ren-fee').value || s.netFee;
-        document.getElementById('ren-summary').innerHTML =
-            `✅ Extending by <strong>${months} month${months>1?'s':''}</strong> · New due: <strong>${base.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'})}</strong> · Fee: <strong>₹${fee}</strong>`;
+        const dateEl = document.getElementById('ren-newdate');
+        dateEl.value = base.toISOString().split('T')[0];
+        dateEl.min   = new Date().toISOString().split('T')[0];
+        dateEl.onchange = updateRenewDate;
+
+        // Auto-update fee = netFee x months (skip if staff manually edited the fee)
+        const feeEl   = document.getElementById('ren-fee');
+        if (!feeEl.dataset.manualEdit) feeEl.value = s.netFee * months;
+
+        const fee    = +feeEl.value || 0;
+        const netFee = s.netFee * months;
+        const balance = netFee - fee;
+        const d       = base.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});
+        const sumEl   = document.getElementById('ren-summary');
+        const warnEl  = document.getElementById('ren-balance-warn');
+
+        if (fee >= netFee) {
+            // Full payment
+            sumEl.style.cssText = 'margin-top:12px;padding:10px 12px;border-radius:var(--r2);font-size:12px;color:var(--tx2);background:rgba(22,163,74,.07);border:1px solid rgba(22,163,74,.2)';
+            sumEl.innerHTML     = `✅ <strong>${months} month${months>1?'s':''}</strong> extension · Due: <strong>${d}</strong> · ₹${fee} — <strong style="color:#16a34a">Fully Paid</strong>`;
+            warnEl.style.display = 'none';
+        } else if (fee > 0) {
+            // Partial payment
+            sumEl.style.cssText = 'margin-top:12px;padding:10px 12px;border-radius:var(--r2);font-size:12px;color:var(--tx2);background:rgba(234,88,12,.06);border:1px solid rgba(234,88,12,.25)';
+            sumEl.innerHTML     = `◑ <strong>${months} month${months>1?'s':''}</strong> extension · Due: <strong>${d}</strong> · ₹${fee} paid of ₹${netFee}`;
+            warnEl.style.display = 'block';
+            warnEl.innerHTML    = `⚠ <strong>₹${balance} balance remaining</strong> — student will be marked as <strong>Partial Paid</strong>. Collect the remaining amount later via Fee Collection.`;
+        } else {
+            // No amount entered yet
+            sumEl.style.cssText = 'margin-top:12px;padding:10px 12px;border-radius:var(--r2);font-size:12px;color:var(--tx2);background:rgba(22,163,74,.07);border:1px solid rgba(22,163,74,.2)';
+            sumEl.innerHTML     = `✅ <strong>${months} month${months>1?'s':''}</strong> extension · Due: <strong>${d}</strong>`;
+            warnEl.style.display = 'none';
+        }
     }
 
     async function confirmRenew() {
@@ -4146,6 +4194,12 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         const mode    = document.getElementById('ren-mode').value;
         const notes   = document.getElementById('ren-notes').value;
         const months  = +document.getElementById('ren-extend').value;
+
+        // ── Validate ──
+        if (!newDate) return toast('⚠ Please set a new due date', 'wn');
+        if (new Date(newDate) < new Date(new Date().toISOString().split('T')[0]))
+            return toast('⚠ Due date cannot be in the past', 'wn');
+        if (fee <= 0) return toast('⚠ Fee amount must be greater than 0', 'wn');
 
         // ── Save to DB ──
         try {
@@ -4162,29 +4216,33 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
                 return;
             }
             // ── Update local DB state ──
-            s.dueDate = newDate;
-            s.paidAmt = (s.paidAmt || 0) + fee;
-            if (s.paidAmt >= s.netFee) s.feeStatus = 'paid';
-            else if (s.paidAmt > 0)    s.feeStatus = 'partial';
-            s.paidOn  = new Date().toISOString().split('T')[0];
+            s.dueDate  = newDate;
+            s.paidAmt  = (s.paidAmt || 0) + fee;
+            const bal  = Math.max(0, s.netFee - s.paidAmt);
+            s.feeStatus = s.paidAmt >= s.netFee ? 'paid' : (s.paidAmt > 0 ? 'partial' : 'pending');
+            s.paidOn   = new Date().toISOString().split('T')[0];
 
-            // Push invoice into local DB so Invoices page reflects it immediately
+            // Push invoice with correct balance and status
             if (res.invoice_id) {
                 DB.invoices.unshift({
                     id: res.invoice_id, studentId: s.id,
                     type: `Renewal (${months}mo)`, amount: fee,
                     baseFee: s.baseFee, discount: s.baseFee - s.netFee,
-                    netFee: s.netFee, paidAmt: fee, balance: 0,
+                    netFee: s.netFee, paidAmt: fee,
+                    balance: bal,
                     date: new Date().toISOString().split('T')[0],
                     month: new Date().toLocaleDateString('en-IN', {month:'long', year:'numeric'}),
-                    mode, status: 'paid'
+                    mode, status: s.feeStatus
                 });
             }
 
-            auditLog('renewal', `Renewed ${s.fname} ${s.lname} — ${months}mo, ₹${fee} (${mode})${notes?' — '+notes:''}`);
-            addActivity('🔄', 'rgba(61,111,240,.14)', `Renewed <strong>${s.fname} ${s.lname}</strong> for ${months} month${months>1?'s':''}`);
+            auditLog('renewal', `Renewed ${s.fname} ${s.lname} — ${months}mo, ₹${fee} (${mode})${notes?' — '+notes:''}${bal>0?' · ₹'+bal+' balance remaining':''}`);
+            addActivity('🔄', 'rgba(61,111,240,.14)', `Renewed <strong>${s.fname} ${s.lname}</strong> for ${months} month${months>1?'s':''}${bal>0?' — ₹'+bal+' still due':''}`);
             closeM('mRenew');
-            toast(`✅ ${s.fname} renewed for ${months} month${months>1?'s':''}!`, 'ok');
+            const toastMsg = s.feeStatus === 'partial'
+                ? `◑ ${s.fname} partially renewed — ₹${bal} still due`
+                : `✅ ${s.fname} renewed for ${months} month${months>1?'s':''}!`;
+            toast(toastMsg, s.feeStatus === 'partial' ? 'wn' : 'ok');
             renderRenewal(); renderStudents(); updateBadges();
         } catch(e) {
             toast('❌ Network error: ' + e.message, 'er');
@@ -4194,11 +4252,32 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
     function sendRenewalWA() {
         const s = DB.students.find(x => x.id === renewStudentId);
         if (!s) return;
-        const newDate = document.getElementById('ren-newdate').value;
-        const fee = document.getElementById('ren-fee').value;
-        const months = document.getElementById('ren-extend').value;
-        const d = new Date(newDate).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});
-        const msg = `🔄 *Renewal Confirmation*
+        const newDate  = document.getElementById('ren-newdate').value;
+        const fee      = +document.getElementById('ren-fee').value || 0;
+        const months   = document.getElementById('ren-extend').value;
+        const d        = new Date(newDate).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});
+        const balance  = Math.max(0, s.netFee - fee);
+        const isPartial = fee > 0 && fee < s.netFee;
+
+        const msg = isPartial
+            ? `🔄 *Renewal Confirmation (Partial Payment)*
+
+Dear *${s.fname} ${s.lname}*,
+
+Your library membership has been renewed!
+
+✅ *Details:*
+• Extended By: ${months} month(s)
+• Fee Paid: ₹${fee}
+• Balance Due: ₹${balance}
+• New Due Date: ${d}
+• Seat: ${s.seat||'—'}
+
+⚠ Please pay the remaining ₹${balance} at your earliest convenience.
+
+🏫 ${DB.settings.name}
+📞 ${DB.settings.phone}`
+            : `🔄 *Renewal Confirmation*
 
 Dear *${s.fname} ${s.lname}*,
 
@@ -4235,8 +4314,8 @@ Thank you! 📚
                 });
                 if (res.success) {
                     s.dueDate   = newDue;
-                    s.feeStatus = 'pending';
-                    s.paidAmt   = 0;
+                    s.paidAmt   = (s.paidAmt || 0) + s.netFee;
+                    s.feeStatus = s.paidAmt >= s.netFee ? 'paid' : 'partial';
                     ok++;
                 } else { fail++; }
             } catch(e) { fail++; }
