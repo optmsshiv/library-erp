@@ -143,6 +143,13 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         .tpart{background:var(--c-sky);color:#075985;border:1px solid var(--cs)}
         .tor{background:var(--c-orange);color:#9a3412;border:1px solid var(--co)}
 
+        /* ── REPORT CARDS ── */
+        .rpt-card{background:var(--sf);border:1px solid var(--br);border-top:3px solid var(--rc,var(--ac));border-radius:var(--r);padding:18px 16px;cursor:pointer;transition:all .2s;box-shadow:var(--sh);display:flex;flex-direction:column;align-items:center;text-align:center;gap:8px}
+        .rpt-card:hover{transform:translateY(-3px);box-shadow:var(--sh2)}
+        .rpt-ic{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;margin-bottom:2px}
+        .rpt-lb{font-weight:700;font-size:13px;color:var(--tx)}
+        .rpt-ds{font-size:10.5px;color:var(--tx3)}
+
         .mo{display:none;position:fixed;inset:0;background:rgba(15,23,42,.45);z-index:500;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(4px)}
         .mo.open{display:flex}
         .md{background:var(--sf);border-radius:var(--r);width:100%;max-width:540px;max-height:94vh;overflow-y:auto;box-shadow:var(--sh2);animation:mIn .22s ease;border:1px solid var(--br)}
@@ -936,16 +943,112 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
 
         <!-- REPORTS -->
         <div class="page" id="page-reports">
-            <div class="sec-hd"><div><div class="sec-t">Reports</div></div></div>
-            <div class="g3">
-                <div class="panel" style="cursor:pointer" onclick="genReport('monthly')"><div class="pb" style="text-align:center;padding:22px"><div style="margin-bottom:8px"><span class="mi xl" style="color:var(--ac)">description</span></div><div style="font-weight:600;margin-bottom:3px">Monthly Summary</div><button class="btn bp" style="margin-top:10px">Generate</button></div></div>
-                <div class="panel" style="cursor:pointer" onclick="genReport('fee')"><div class="pb" style="text-align:center;padding:22px"><div style="margin-bottom:8px"><span class="mi xl" style="color:var(--em)">payments</span></div><div style="font-weight:600;margin-bottom:3px">Fee Report</div><button class="btn bp" style="margin-top:10px">Generate</button></div></div>
-                <div class="panel" style="cursor:pointer" onclick="genReport('books')"><div class="pb" style="text-align:center;padding:22px"><div style="margin-bottom:8px"><span class="mi xl" style="color:var(--gd)">menu_book</span></div><div style="font-weight:600;margin-bottom:3px">Book Inventory</div><button class="btn bp" style="margin-top:10px">Generate</button></div></div>
-                <div class="panel" style="cursor:pointer" onclick="genReport('attendance')"><div class="pb" style="text-align:center;padding:22px"><div style="margin-bottom:8px"><span class="mi xl" style="color:var(--vi)">fact_check</span></div><div style="font-weight:600;margin-bottom:3px">Attendance</div><button class="btn bp" style="margin-top:10px">Generate</button></div></div>
-                <div class="panel" style="cursor:pointer" onclick="genReport('expense')"><div class="pb" style="text-align:center;padding:22px"><div style="margin-bottom:8px"><span class="mi xl" style="color:var(--or)">account_balance_wallet</span></div><div style="font-weight:600;margin-bottom:3px">Expense Report</div><button class="btn bp" style="margin-top:10px">Generate</button></div></div>
-                <div class="panel" style="cursor:pointer" onclick="genReport('student')"><div class="pb" style="text-align:center;padding:22px"><div style="margin-bottom:8px"><span class="mi xl" style="color:var(--sk)">groups</span></div><div style="font-weight:600;margin-bottom:3px">Student Directory</div><button class="btn bp" style="margin-top:10px">Generate</button></div></div>
+            <div class="sec-hd">
+                <div><div class="sec-t">📊 Reports & Analytics</div><div class="sec-s">Generate, filter and export detailed reports</div></div>
             </div>
-            <div class="panel" id="rptOut" style="display:none"><div class="ph"><div class="pt" id="rptTitle">Report</div><button class="btn bg" onclick="window.print()"><span class="mi sm">print</span>Print</button></div><div class="pb" id="rptBody"></div></div>
+
+            <!-- Report Cards Grid -->
+            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px">
+                <div class="rpt-card" onclick="openReport('monthly')" style="--rc:var(--ac)">
+                    <div class="rpt-ic" style="background:var(--c-blue)"><span class="mi xl" style="color:var(--ac)">description</span></div>
+                    <div class="rpt-lb">Monthly Summary</div>
+                    <div class="rpt-ds">Revenue, expenses & profit</div>
+                </div>
+                <div class="rpt-card" onclick="openReport('fee')" style="--rc:var(--em)">
+                    <div class="rpt-ic" style="background:var(--c-green)"><span class="mi xl" style="color:var(--em)">payments</span></div>
+                    <div class="rpt-lb">Fee Report</div>
+                    <div class="rpt-ds">Paid, pending & overdue</div>
+                </div>
+                <div class="rpt-card" onclick="openReport('outstanding')" style="--rc:var(--ro)">
+                    <div class="rpt-ic" style="background:var(--c-rose)"><span class="mi xl" style="color:var(--ro)">warning</span></div>
+                    <div class="rpt-lb">Outstanding Dues</div>
+                    <div class="rpt-ds">Unpaid balances only</div>
+                </div>
+                <div class="rpt-card" onclick="openReport('batch')" style="--rc:var(--vi)">
+                    <div class="rpt-ic" style="background:var(--c-purple)"><span class="mi xl" style="color:var(--vi)">groups</span></div>
+                    <div class="rpt-lb">Batch-wise Summary</div>
+                    <div class="rpt-ds">Revenue & headcount by batch</div>
+                </div>
+                <div class="rpt-card" onclick="openReport('books')" style="--rc:var(--gd)">
+                    <div class="rpt-ic" style="background:var(--c-amber)"><span class="mi xl" style="color:var(--gd)">menu_book</span></div>
+                    <div class="rpt-lb">Book Inventory</div>
+                    <div class="rpt-ds">Stock & availability</div>
+                </div>
+                <div class="rpt-card" onclick="openReport('attendance')" style="--rc:var(--sk)">
+                    <div class="rpt-ic" style="background:var(--c-sky)"><span class="mi xl" style="color:var(--sk)">fact_check</span></div>
+                    <div class="rpt-lb">Attendance</div>
+                    <div class="rpt-ds">Student presence today</div>
+                </div>
+                <div class="rpt-card" onclick="openReport('expense')" style="--rc:var(--or)">
+                    <div class="rpt-ic" style="background:var(--c-orange)"><span class="mi xl" style="color:var(--or)">account_balance_wallet</span></div>
+                    <div class="rpt-lb">Expense Report</div>
+                    <div class="rpt-ds">All expenses by category</div>
+                </div>
+                <div class="rpt-card" onclick="openReport('student')" style="--rc:var(--tx2)">
+                    <div class="rpt-ic" style="background:var(--sf2)"><span class="mi xl" style="color:var(--tx2)">badge</span></div>
+                    <div class="rpt-lb">Student Directory</div>
+                    <div class="rpt-ds">Full student list</div>
+                </div>
+            </div>
+
+            <!-- Filters Bar (shown when a report is active) -->
+            <div id="rptFilters" style="display:none;margin-bottom:14px">
+                <div class="panel" style="margin-bottom:0">
+                    <div class="pb" style="padding:12px 16px;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+                        <span style="font-size:11px;font-weight:700;color:var(--tx3);font-family:var(--fm);text-transform:uppercase;letter-spacing:.8px">Filters:</span>
+                        <!-- Month filter -->
+                        <div id="flt-month-wrap" style="display:none;align-items:center;gap:6px">
+                            <label style="font-size:11px;color:var(--tx3)">Month</label>
+                            <select id="flt-month" onchange="applyRptFilters()" style="font-size:11px;padding:4px 8px;width:auto">
+                                <option value="">All Months</option>
+                            </select>
+                        </div>
+                        <!-- Fee status filter -->
+                        <div id="flt-status-wrap" style="display:none;align-items:center;gap:6px">
+                            <label style="font-size:11px;color:var(--tx3)">Status</label>
+                            <select id="flt-status" onchange="applyRptFilters()" style="font-size:11px;padding:4px 8px;width:auto">
+                                <option value="">All</option>
+                                <option value="paid">Paid</option>
+                                <option value="pending">Pending</option>
+                                <option value="partial">Partial</option>
+                                <option value="overdue">Overdue</option>
+                            </select>
+                        </div>
+                        <!-- Batch filter -->
+                        <div id="flt-batch-wrap" style="display:none;align-items:center;gap:6px">
+                            <label style="font-size:11px;color:var(--tx3)">Batch</label>
+                            <select id="flt-batch" onchange="applyRptFilters()" style="font-size:11px;padding:4px 8px;width:auto">
+                                <option value="">All Batches</option>
+                            </select>
+                        </div>
+                        <!-- Expense category filter -->
+                        <div id="flt-cat-wrap" style="display:none;align-items:center;gap:6px">
+                            <label style="font-size:11px;color:var(--tx3)">Category</label>
+                            <select id="flt-cat" onchange="applyRptFilters()" style="font-size:11px;padding:4px 8px;width:auto">
+                                <option value="">All Categories</option>
+                            </select>
+                        </div>
+                        <div style="margin-left:auto;display:flex;gap:8px">
+                            <button class="btn bg" onclick="exportRptCSV()" style="font-size:11px"><span class="mi sm">download</span> CSV</button>
+                            <button class="btn bg" onclick="window.print()" style="font-size:11px"><span class="mi sm">print</span> Print</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Report Output Panel -->
+            <div class="panel" id="rptOut" style="display:none">
+                <div class="ph">
+                    <div style="display:flex;align-items:center;gap:10px">
+                        <button class="btn bg" onclick="closeReport()" style="font-size:11px;padding:5px 9px"><span class="mi sm">arrow_back</span></button>
+                        <div class="pt" id="rptTitle">Report</div>
+                        <span id="rptMeta" style="font-size:11px;color:var(--tx3)"></span>
+                    </div>
+                </div>
+                <!-- Summary stat row for the report -->
+                <div id="rptStatsWrap" style="padding:0 0 0 0"></div>
+                <div class="pb" id="rptBody"></div>
+            </div>
         </div>
 
         <!-- WHATSAPP -->
@@ -3359,19 +3462,300 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
     }
 
     // ═══ REPORTS ═══
-    function genReport(type){
-        const titles={monthly:'Monthly Summary',fee:'Fee Report',books:'Book Inventory',attendance:'Attendance',expense:'Expense Report',student:'Student Directory'};
-        document.getElementById('rptTitle').textContent=titles[type];
-        const s=DB.students;const paid=s.filter(x=>x.feeStatus==='paid');
-        let html='';
-        if(type==='monthly'){const rev=DB.invoices.reduce((a,i)=>a+i.paidAmt,0);const exp=DB.expenses.reduce((a,e)=>a+e.amount,0);html=`<div class="g3" style="margin-bottom:16px"><div class="sc" style="--ca:var(--em)"><div class="s-lb">Revenue</div><div class="s-vl" style="color:var(--em)">${fmt(rev)}</div></div><div class="sc" style="--ca:var(--ro)"><div class="s-lb">Expenses</div><div class="s-vl" style="color:var(--ro)">${fmt(exp)}</div></div><div class="sc" style="--ca:var(--ac)"><div class="s-lb">Profit</div><div class="s-vl">${fmt(rev-exp)}</div></div></div>`;}
-        else{
-            const map={fee:['Student','Batch','Base Fee','Discount','Net Fee','Paid','Balance','Status'],student:['ID','Name','Batch','Seat','Type','Course'],attendance:['Student','Batch','Status'],expense:['Name','Category','Amount','Date'],books:['Book','Author','Category','Available']};
-            const rows={fee:s.map(x=>[`${x.fname} ${x.lname}`,batchName(x.batchId),`₹${x.baseFee}`,x.baseFee>x.netFee?`₹${x.baseFee-x.netFee} (${x.discount?.reason||''})`:'-',`₹${x.netFee}`,`₹${x.paidAmt}`,`₹${x.netFee-x.paidAmt}`,x.feeStatus]),student:s.map(x=>[x.id,`${x.fname} ${x.lname}`,batchName(x.batchId),x.seat||'—',x.seatType.toUpperCase(),x.course]),attendance:s.map(x=>[`${x.fname} ${x.lname}`,batchName(x.batchId),DB.attendance[x.id]||'absent']),expense:DB.expenses.map(e=>[e.name,e.category,`₹${e.amount.toLocaleString()}`,e.date]),books:DB.books.map(b=>[b.title,b.author,b.category,`${b.available}/${b.copies}`])};
-            html=`<table style="width:100%;border-collapse:collapse;font-size:12px"><thead><tr>${map[type].map(c=>`<th style="padding:7px 11px;text-align:left;background:var(--sf2);color:var(--tx3);font-size:9px;text-transform:uppercase;font-family:var(--fm);border-bottom:1px solid var(--br)">${c}</th>`).join('')}</tr></thead><tbody>${rows[type].map(r=>`<tr style="border-bottom:1px solid var(--br)">${r.map(c=>`<td style="padding:7px 11px">${c}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
-        }
-        document.getElementById('rptBody').innerHTML=html;document.getElementById('rptOut').style.display='block';document.getElementById('rptOut').scrollIntoView({behavior:'smooth'});toast('Report generated!','ok');
+    // ═══ ENHANCED REPORTS ENGINE ═══
+    let _rptType = '';
+    let _rptData = []; // holds current filtered export data
+
+    function openReport(type) {
+        _rptType = type;
+        // populate filter dropdowns
+        _buildFilterOptions(type);
+        // show/hide relevant filters
+        _configureFilters(type);
+        document.getElementById('rptFilters').style.display = 'block';
+        document.getElementById('rptOut').style.display = 'block';
+        applyRptFilters();
+        document.getElementById('rptOut').scrollIntoView({ behavior: 'smooth' });
     }
+
+    function closeReport() {
+        _rptType = '';
+        document.getElementById('rptOut').style.display = 'none';
+        document.getElementById('rptFilters').style.display = 'none';
+    }
+
+    function _buildFilterOptions(type) {
+        // Month dropdown from invoices/expenses dates
+        const monthSel = document.getElementById('flt-month');
+        const monthsSet = new Set();
+        DB.invoices.forEach(i => { if (i.month) monthsSet.add(i.month); else if (i.date) monthsSet.add(i.date.slice(0,7)); });
+        DB.expenses.forEach(e => { if (e.date) monthsSet.add(e.date.slice(0,7)); });
+        DB.students.forEach(s => { if (s.joinDate) monthsSet.add(s.joinDate.slice(0,7)); });
+        const months = [...monthsSet].sort().reverse();
+        monthSel.innerHTML = '<option value="">All Months</option>' + months.map(m => {
+            const [y, mo] = m.split('-');
+            const label = new Date(+y, +mo-1).toLocaleString('en-IN', { month: 'long', year: 'numeric' });
+            return `<option value="${m}">${label}</option>`;
+        }).join('');
+
+        // Batch dropdown
+        const batchSel = document.getElementById('flt-batch');
+        batchSel.innerHTML = '<option value="">All Batches</option>' + DB.batches.map(b => `<option value="${b.id}">${b.name}</option>`).join('');
+
+        // Expense category
+        const catSel = document.getElementById('flt-cat');
+        const cats = [...new Set(DB.expenses.map(e => e.category).filter(Boolean))];
+        catSel.innerHTML = '<option value="">All Categories</option>' + cats.map(c => `<option value="${c}">${c}</option>`).join('');
+    }
+
+    function _configureFilters(type) {
+        const show = (id, visible) => { const el=document.getElementById(id); if(el) el.style.display=visible?'flex':'none'; };
+        show('flt-month-wrap',  ['monthly','expense','fee','outstanding'].includes(type));
+        show('flt-status-wrap', ['fee','outstanding','student'].includes(type));
+        show('flt-batch-wrap',  ['fee','outstanding','attendance','student','batch'].includes(type));
+        show('flt-cat-wrap',    type==='expense');
+    }
+
+    function applyRptFilters() {
+        if (!_rptType) return;
+        const month  = document.getElementById('flt-month')?.value  || '';
+        const status = document.getElementById('flt-status')?.value || '';
+        const batch  = document.getElementById('flt-batch')?.value  || '';
+        const cat    = document.getElementById('flt-cat')?.value    || '';
+
+        const titles = { monthly:'Monthly Summary', fee:'Fee Report', outstanding:'Outstanding Dues',
+            batch:'Batch-wise Summary', books:'Book Inventory', attendance:'Attendance',
+            expense:'Expense Report', student:'Student Directory' };
+        document.getElementById('rptTitle').textContent = titles[_rptType] || 'Report';
+
+        let html = '', statsHtml = '', metaTxt = '';
+        const tbl = (cols, rows, totals) => {
+            const head = `<thead><tr>${cols.map(c=>`<th style="padding:8px 12px;text-align:left;background:var(--sf2);color:var(--tx3);font-size:9px;text-transform:uppercase;font-family:var(--fm);border-bottom:1px solid var(--br);white-space:nowrap">${c}</th>`).join('')}</tr></thead>`;
+            const body = `<tbody>${rows.map((r,i)=>`<tr style="border-bottom:1px solid var(--br);background:${i%2?'var(--sf2)':'var(--sf)'}">${r.map(c=>`<td style="padding:8px 12px;font-size:12px;vertical-align:middle">${c??'—'}</td>`).join('')}</tr>`).join('')}</tbody>`;
+            const foot = totals ? `<tfoot><tr style="background:var(--sf3);font-weight:700">${totals.map(c=>`<td style="padding:8px 12px;font-size:12px;border-top:2px solid var(--br)">${c??''}</td>`).join('')}</tr></tfoot>` : '';
+            return `<div class="tw"><table style="width:100%;border-collapse:collapse">${head}${foot}${body}</table></div>`;
+        };
+        const statCard = (lb,vl,col) => `<div class="sc" style="--ca:${col};margin-bottom:0"><div class="s-lb">${lb}</div><div class="s-vl" style="color:${col}">${vl}</div></div>`;
+        const feeTag = st => {const m={paid:'tpd',pending:'tpn',partial:'tpart',overdue:'tod'};return `<span class="tag ${m[st]||'tac'}">${st}</span>`;};
+        const inMonth = (dateStr) => !month || (dateStr||'').startsWith(month);
+
+        if (_rptType === 'monthly') {
+            // group invoices by month
+            const byMonth = {};
+            DB.invoices.forEach(inv => {
+                const m = inv.month || (inv.date||'').slice(0,7);
+                if (!m || (month && m !== month)) return;
+                if (!byMonth[m]) byMonth[m] = { rev: 0, count: 0 };
+                byMonth[m].rev += inv.paidAmt;
+                byMonth[m].count++;
+            });
+            const byMonthExp = {};
+            DB.expenses.forEach(e => {
+                const m = (e.date||'').slice(0,7);
+                if (!m || (month && m !== month)) return;
+                if (!byMonthExp[m]) byMonthExp[m] = 0;
+                byMonthExp[m] += e.amount;
+            });
+            const allMonths = [...new Set([...Object.keys(byMonth),...Object.keys(byMonthExp)])].sort().reverse();
+            const totalRev = allMonths.reduce((a,m) => a+(byMonth[m]?.rev||0), 0);
+            const totalExp = allMonths.reduce((a,m) => a+(byMonthExp[m]||0), 0);
+            const totalPft = totalRev - totalExp;
+            statsHtml = `<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:14px 16px 0">
+                ${statCard('Total Revenue', fmt(totalRev), 'var(--em)')}
+                ${statCard('Total Expenses', fmt(totalExp), 'var(--ro)')}
+                ${statCard('Net Profit', fmt(totalPft), totalPft>=0?'var(--ac)':'var(--ro)')}
+            </div>`;
+            _rptData = allMonths.map(m => {
+                const [y,mo] = m.split('-');
+                const label = new Date(+y,+mo-1).toLocaleString('en-IN',{month:'long',year:'numeric'});
+                const rev = byMonth[m]?.rev||0, exp = byMonthExp[m]||0;
+                return [label, fmt(rev), fmt(exp), fmt(rev-exp), byMonth[m]?.count||0];
+            });
+            html = tbl(['Month','Revenue','Expenses','Profit / Loss','Invoices'], _rptData,
+                ['TOTAL', fmt(totalRev), fmt(totalExp), fmt(totalPft), '']);
+            metaTxt = `${allMonths.length} month(s)`;
+        }
+
+        else if (_rptType === 'fee') {
+            let students = DB.students;
+            if (batch)  students = students.filter(s => s.batchId == batch);
+            if (status) students = students.filter(s => s.feeStatus === status);
+            if (month)  students = students.filter(s => (s.joinDate||'').startsWith(month) || (s.dueDate||'').startsWith(month));
+            const totalNet = students.reduce((a,s)=>a+s.netFee,0);
+            const totalPaid = students.reduce((a,s)=>a+s.paidAmt,0);
+            const totalBal = students.reduce((a,s)=>a+(s.netFee-s.paidAmt),0);
+            statsHtml = `<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;padding:14px 16px 0">
+                ${statCard('Students', students.length, 'var(--ac)')}
+                ${statCard('Net Fee Total', fmt(totalNet), 'var(--tx)')}
+                ${statCard('Collected', fmt(totalPaid), 'var(--em)')}
+                ${statCard('Outstanding', fmt(totalBal), 'var(--ro)')}
+            </div>`;
+            _rptData = students.map(s => [`${s.fname} ${s.lname}`, batchName(s.batchId), `₹${s.baseFee}`,
+                s.baseFee>s.netFee?`₹${s.baseFee-s.netFee}`:'—', `₹${s.netFee}`, `₹${s.paidAmt}`,
+                `₹${s.netFee-s.paidAmt}`, s.feeStatus, s.dueDate||'—']);
+            html = tbl(['Student','Batch','Base Fee','Discount','Net Fee','Paid','Balance','Status','Due Date'],
+                students.map(s => [`${s.fname} ${s.lname}`, batchName(s.batchId), fmt(s.baseFee),
+                    s.baseFee>s.netFee?fmt(s.baseFee-s.netFee):'—', fmt(s.netFee), fmt(s.paidAmt),
+                    `<strong style="color:${s.netFee-s.paidAmt>0?'var(--ro)':'var(--em)'}">₹${s.netFee-s.paidAmt}</strong>`,
+                    feeTag(s.feeStatus), s.dueDate||'—']),
+                ['', '', '', '', fmt(totalNet), fmt(totalPaid), fmt(totalBal), '', '']);
+            metaTxt = `${students.length} students`;
+        }
+
+        else if (_rptType === 'outstanding') {
+            let students = DB.students.filter(s => s.feeStatus !== 'paid' && s.netFee - s.paidAmt > 0);
+            if (batch)  students = students.filter(s => s.batchId == batch);
+            if (month)  students = students.filter(s => (s.dueDate||'').startsWith(month));
+            students = students.sort((a,b) => (b.netFee-b.paidAmt)-(a.netFee-a.paidAmt));
+            const totalBal = students.reduce((a,s)=>a+(s.netFee-s.paidAmt),0);
+            const overdueCnt = students.filter(s=>s.feeStatus==='overdue').length;
+            statsHtml = `<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:14px 16px 0">
+                ${statCard('With Balance', students.length, 'var(--or)')}
+                ${statCard('Overdue', overdueCnt, 'var(--ro)')}
+                ${statCard('Total Outstanding', fmt(totalBal), 'var(--ro)')}
+            </div>`;
+            const today = new Date();
+            _rptData = students.map(s => {
+                const daysOD = s.dueDate ? Math.max(0, Math.floor((today-new Date(s.dueDate))/86400000)) : 0;
+                return [`${s.fname} ${s.lname}`, s.phone, batchName(s.batchId), `₹${s.netFee-s.paidAmt}`, s.feeStatus, s.dueDate||'—', daysOD];
+            });
+            html = tbl(['Student','Phone','Batch','Balance Due','Status','Due Date','Days Overdue'],
+                students.map(s => {
+                    const bal = s.netFee-s.paidAmt;
+                    const daysOD = s.dueDate ? Math.max(0, Math.floor((today-new Date(s.dueDate))/86400000)) : 0;
+                    return [`${s.fname} ${s.lname}`, s.phone, batchName(s.batchId),
+                        `<strong style="color:var(--ro)">₹${bal}</strong>`,
+                        feeTag(s.feeStatus), s.dueDate||'—',
+                        daysOD>0?`<span style="color:var(--ro);font-weight:700">${daysOD}d</span>`:'0d'];
+                }), ['','','',fmt(totalBal),'','','']);
+            metaTxt = `${students.length} students · ₹${totalBal.toLocaleString('en-IN')} outstanding`;
+        }
+
+        else if (_rptType === 'batch') {
+            const blist = batch ? DB.batches.filter(b=>b.id==batch) : DB.batches;
+            _rptData = blist.map(b => {
+                const stus = DB.students.filter(s=>s.batchId==b.id);
+                const rev = stus.reduce((a,s)=>a+s.paidAmt,0);
+                const outstanding = stus.reduce((a,s)=>a+(s.netFee-s.paidAmt),0);
+                const paid = stus.filter(s=>s.feeStatus==='paid').length;
+                const overdue = stus.filter(s=>s.feeStatus==='overdue').length;
+                return [b.name, `${b.startTime}–${b.endTime}`, stus.length, paid, overdue,
+                    `₹${rev}`, `₹${outstanding}`, `${b.occupied}/${b.total}`];
+            });
+            const totalRev = DB.students.reduce((a,s)=>a+s.paidAmt,0);
+            html = tbl(['Batch','Timing','Students','Paid','Overdue','Revenue Collected','Outstanding','Seats'],
+                blist.map(b => {
+                    const stus = DB.students.filter(s=>s.batchId==b.id);
+                    const rev = stus.reduce((a,s)=>a+s.paidAmt,0);
+                    const outstanding = stus.reduce((a,s)=>a+(s.netFee-s.paidAmt),0);
+                    const paid = stus.filter(s=>s.feeStatus==='paid').length;
+                    const overdue = stus.filter(s=>s.feeStatus==='overdue').length;
+                    const pct = stus.length ? Math.round(paid/stus.length*100) : 0;
+                    return [b.name, `${b.startTime}–${b.endTime}`, stus.length,
+                        `<span style="color:var(--em);font-weight:700">${paid}</span>`,
+                        overdue>0?`<span style="color:var(--ro);font-weight:700">${overdue}</span>`:'0',
+                        fmt(rev), outstanding>0?`<span style="color:var(--or)">₹${outstanding}</span>`:'₹0',
+                        `${b.occupied}/${b.total}`];
+                }));
+            metaTxt = `${blist.length} batch(es)`;
+        }
+
+        else if (_rptType === 'books') {
+            let books = DB.books;
+            const lowStock = books.filter(b=>b.available===0).length;
+            statsHtml = `<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:14px 16px 0">
+                ${statCard('Total Titles', books.length, 'var(--ac)')}
+                ${statCard('Total Copies', books.reduce((a,b)=>a+b.copies,0), 'var(--gd)')}
+                ${statCard('Unavailable', lowStock, 'var(--ro)')}
+            </div>`;
+            _rptData = books.map(b => [b.title, b.author, b.category, b.isbn||'—', b.shelf||'—', b.available, b.copies]);
+            html = tbl(['Title','Author','Category','ISBN','Shelf','Available','Total'],
+                books.map(b => [b.emoji+' '+b.title, b.author, b.category, b.isbn||'—', b.shelf||'—',
+                    b.available===0?`<span style="color:var(--ro);font-weight:700">0</span>`:b.available, b.copies]));
+            metaTxt = `${books.length} books`;
+        }
+
+        else if (_rptType === 'attendance') {
+            let students = DB.students;
+            if (batch) students = students.filter(s=>s.batchId==batch);
+            const presentList = students.filter(s=>DB.attendance[s.id]==='present');
+            const absentList  = students.filter(s=>DB.attendance[s.id]!=='present');
+            statsHtml = `<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:14px 16px 0">
+                ${statCard('Present', presentList.length, 'var(--em)')}
+                ${statCard('Absent', absentList.length, 'var(--ro)')}
+                ${statCard('Attendance %', students.length?Math.round(presentList.length/students.length*100)+'%':'—', 'var(--ac)')}
+            </div>`;
+            _rptData = students.map(s=>[`${s.fname} ${s.lname}`, batchName(s.batchId), DB.attendance[s.id]||'absent']);
+            const attTag = st => st==='present'?`<span class="tag tpd">✔ Present</span>`:`<span class="tag tod">✘ Absent</span>`;
+            html = tbl(['Student','Batch','Status'],
+                students.map(s=>[`${s.fname} ${s.lname}`, batchName(s.batchId), attTag(DB.attendance[s.id]||'absent')]));
+            metaTxt = `${students.length} students · Today`;
+        }
+
+        else if (_rptType === 'expense') {
+            let expenses = DB.expenses;
+            if (month) expenses = expenses.filter(e=>inMonth(e.date));
+            if (cat)   expenses = expenses.filter(e=>e.category===cat);
+            const total = expenses.reduce((a,e)=>a+e.amount,0);
+            const byCat = {};
+            expenses.forEach(e=>{ byCat[e.category]=(byCat[e.category]||0)+e.amount; });
+            const topCat = Object.entries(byCat).sort((a,b)=>b[1]-a[1])[0];
+            statsHtml = `<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:14px 16px 0">
+                ${statCard('Total Expenses', fmt(total), 'var(--ro)')}
+                ${statCard('# Entries', expenses.length, 'var(--or)')}
+                ${statCard('Top Category', topCat?topCat[0]:'—', 'var(--vi)')}
+            </div>`;
+            _rptData = expenses.map(e=>[e.name, e.category, `₹${e.amount}`, e.date, e.notes||'']);
+            html = tbl(['Name','Category','Amount','Date','Notes'],
+                expenses.map(e=>[e.emoji+' '+e.name, e.category, fmt(e.amount), e.date, e.notes||'—']),
+                ['TOTAL','',fmt(total),'','']);
+            metaTxt = `${expenses.length} entries`;
+        }
+
+        else if (_rptType === 'student') {
+            let students = DB.students;
+            if (batch)  students = students.filter(s=>s.batchId==batch);
+            if (status) students = students.filter(s=>s.feeStatus===status);
+            _rptData = students.map(s=>[s.id, `${s.fname} ${s.lname}`, s.phone, s.email||'', batchName(s.batchId), s.seat||'—', s.seatType.toUpperCase(), s.course, s.feeStatus, s.joinDate||'—']);
+            html = tbl(['ID','Name','Phone','Email','Batch','Seat','Type','Course','Fee Status','Join Date'],
+                students.map(s=>[s.id,`${s.fname} ${s.lname}`,s.phone,s.email||'—',batchName(s.batchId),
+                    s.seat||'—',s.seatType.toUpperCase(),s.course,feeTag(s.feeStatus),s.joinDate||'—']));
+            metaTxt = `${students.length} students`;
+        }
+
+        document.getElementById('rptMeta').textContent = metaTxt;
+        const statsWrap = document.getElementById('rptStatsWrap');
+        if (statsWrap) statsWrap.innerHTML = statsHtml;
+        document.getElementById('rptBody').innerHTML = html;
+        toast('Report generated!', 'ok');
+    }
+
+    function exportRptCSV() {
+        if (!_rptData || !_rptData.length) { toast('No data to export', 'wn'); return; }
+        const titles = { monthly:'Monthly_Summary', fee:'Fee_Report', outstanding:'Outstanding_Dues',
+            batch:'Batch_Summary', books:'Book_Inventory', attendance:'Attendance',
+            expense:'Expense_Report', student:'Student_Directory' };
+        const headers = {
+            monthly: ['Month','Revenue','Expenses','Profit','Invoices'],
+            fee: ['Student','Batch','Base Fee','Discount','Net Fee','Paid','Balance','Status','Due Date'],
+            outstanding: ['Student','Phone','Batch','Balance','Status','Due Date','Days Overdue'],
+            batch: ['Batch','Timing','Students','Paid','Overdue','Revenue','Outstanding','Seats'],
+            books: ['Title','Author','Category','ISBN','Shelf','Available','Total'],
+            attendance: ['Student','Batch','Status'],
+            expense: ['Name','Category','Amount','Date','Notes'],
+            student: ['ID','Name','Phone','Email','Batch','Seat','Type','Course','Fee Status','Join Date']
+        };
+        const stripHtml = v => String(v).replace(/<[^>]+>/g,'').replace(/₹/g,'Rs ');
+        const rows = [headers[_rptType], ..._rptData.map(r=>r.map(stripHtml))];
+        const csv = rows.map(r=>r.map(c=>`"${(c+'').replace(/"/g,'""')}"`).join(',')).join('\n');
+        const blob = new Blob(['\uFEFF'+csv], { type: 'text/csv;charset=utf-8;' });
+        const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+        a.download = `${titles[_rptType]}_${new Date().toISOString().slice(0,10)}.csv`;
+        a.click(); toast('CSV downloaded!', 'ok');
+    }
+
+    // legacy stub kept for any old calls
+    function genReport(type) { openReport(type); }
 
     // ═══ WHATSAPP ═══
     const WA_TEMPLATES={

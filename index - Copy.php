@@ -29,6 +29,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
     <meta name="apple-mobile-web-app-title" content="LibraryERP">
     <title>OPTMS Tech ERP v6</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=DM+Serif+Display&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&family=Lora:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>
@@ -108,13 +109,13 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         .page{display:none}.page.active{display:block}
 
         .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
-        .sc{background:var(--sf);border:1px solid var(--br);border-radius:var(--r);padding:18px;position:relative;overflow:hidden;transition:all .22s;box-shadow:var(--sh)}
-        .sc:hover{transform:translateY(-2px);box-shadow:var(--sh2);border-color:var(--br2)}
-        .sc::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--ca,var(--ac));border-radius:var(--r) var(--r) 0 0}
-        .s-ic{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;margin-bottom:12px}
-        .s-lb{font-size:14px;color:var(--tx3);text-transform:uppercase;letter-spacing:.8px;font-family:var(--fm);font-weight:600;margin-bottom:4px}
-        .s-vl{font-size:26px;font-weight:700;color:var(--tx);line-height:1;margin-bottom:5px;font-family:var(--fd)}
-        .s-mt{font-size:11px;color:var(--tx3)}
+        .sc{background:var(--sf);border:0.5px solid var(--br);border-left:3px solid var(--ca,var(--ac));border-radius:var(--r);padding:12px 14px;position:relative;overflow:hidden;transition:all .22s;box-shadow:var(--sh)}
+        .sc:hover{transform:translateY(-2px);box-shadow:var(--sh2)}
+        .s-row{display:flex;align-items:center;gap:9px;margin-bottom:6px}
+        .s-ic{width:32px;height:32px;min-width:32px;border-radius:8px;display:flex;align-items:center;justify-content:center}
+        .s-lb{font-size:10px;color:var(--tx3);text-transform:uppercase;letter-spacing:.7px;font-family:var(--fm);font-weight:600;line-height:1.2}
+        .s-vl{font-size:22px;font-weight:700;color:var(--tx);line-height:1;margin-bottom:3px;font-family:var(--fd)}
+        .s-mt{font-size:10px;color:var(--tx3)}
         .bup{background:rgba(22,163,74,.12);color:var(--em);font-size:10px;font-weight:600;padding:2px 6px;border-radius:5px}
         .bdn{background:rgba(220,38,38,.10);color:var(--ro);font-size:10px;font-weight:600;padding:2px 6px;border-radius:5px}
 
@@ -420,13 +421,67 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         .sal-days{font-size:11px;color:var(--tx3);font-family:var(--fm)}
         .sal-amt{font-size:14px;font-weight:700;font-family:var(--fm);color:var(--em)}
         /* ── AUDIT LOG ──────────────────────────────────────── */
-        .audit-row{display:flex;gap:10px;padding:9px 0;border-bottom:1px solid var(--br);font-size:12px}
-        .audit-row:last-child{border-bottom:none}
-        .audit-ic{width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0}
-        .audit-who{font-weight:600;color:var(--tx)}
-        .audit-what{color:var(--tx2);margin-top:1px}
-        .audit-time{font-size:10px;color:var(--tx3);font-family:var(--fm);margin-top:2px}
-        .audit-tag{font-size:9px;font-weight:700;padding:2px 6px;border-radius:4px;font-family:var(--fm);white-space:nowrap}
+        #page-audit{--audit-head:'Syne',sans-serif;--audit-mono:'DM Mono',monospace;--audit-body:'Lora',serif}
+        .audit-page-hd{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:22px;gap:12px;flex-wrap:wrap}
+        .audit-hd-left{}
+        .audit-eyebrow{font-family:var(--audit-mono,'JetBrains Mono',monospace);font-size:10px;font-weight:500;color:var(--tx3);letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;display:flex;align-items:center;gap:6px}
+        .audit-eyebrow-dot{width:6px;height:6px;border-radius:50%;background:var(--ac);display:inline-block;flex-shrink:0}
+        .audit-page-title{font-family:var(--audit-head,var(--fd));font-size:26px;font-weight:800;color:var(--tx);line-height:1.1;letter-spacing:-.5px}
+        .audit-page-sub{font-size:12px;color:var(--tx3);margin-top:5px;font-style:italic;font-family:var(--audit-body,var(--fb))}
+        .audit-hd-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+        .audit-btn-export{display:inline-flex;align-items:center;gap:5px;padding:7px 13px;border-radius:var(--r2);font-size:12px;font-weight:600;cursor:pointer;border:1px solid var(--br);background:var(--sf);color:var(--tx2);font-family:var(--fb);transition:all .15s;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+        .audit-btn-export:hover{background:var(--sf2);border-color:var(--br2)}
+        .audit-btn-clear{display:inline-flex;align-items:center;gap:5px;padding:7px 13px;border-radius:var(--r2);font-size:12px;font-weight:600;cursor:pointer;border:1px solid var(--cr);background:var(--c-rose);color:var(--ro);font-family:var(--fb);transition:all .15s}
+        .audit-btn-clear:hover{background:#f9d8d5}
+        .audit-stats-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:9px;margin-bottom:18px}
+        .audit-stat-chip{background:var(--sf);border:1px solid var(--br);border-radius:var(--r);padding:11px 13px;cursor:pointer;transition:all .18s;position:relative;overflow:hidden}
+        .audit-stat-chip::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--asc-cl,var(--br2))}
+        .audit-stat-chip:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(0,0,0,.08)}
+        .audit-stat-chip.asc-on{border-color:var(--asc-cl,var(--ac));background:var(--asc-bg,var(--c-blue))}
+        .audit-stat-chip.asc-on::before{height:3px}
+        .asc-icon{font-size:14px;margin-bottom:3px;font-family:monospace}
+        .asc-count{font-family:var(--audit-head,var(--fd));font-size:20px;font-weight:800;color:var(--asc-cl,var(--tx));line-height:1}
+        .asc-label{font-family:var(--audit-mono,'JetBrains Mono',monospace);font-size:9px;font-weight:500;color:var(--tx3);text-transform:uppercase;letter-spacing:1.2px;margin-top:2px}
+        .audit-search-bar{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;align-items:center}
+        .audit-srch-wrap{flex:1;min-width:180px;position:relative}
+        .audit-srch-wrap input{width:100%;padding:8px 12px 8px 34px;border:1px solid var(--br);border-radius:var(--r2);background:var(--sf);color:var(--tx);font-size:12.5px;font-family:var(--audit-body,var(--fb));outline:none;transition:all .18s}
+        .audit-srch-wrap input:focus{border-color:var(--ac);box-shadow:0 0 0 3px rgba(61,111,240,.08)}
+        .audit-srch-ico{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--tx3);pointer-events:none}
+        .audit-flt-sel{padding:8px 11px;border:1px solid var(--br);border-radius:var(--r2);background:var(--sf);color:var(--tx2);font-size:11.5px;font-family:var(--audit-mono,'JetBrains Mono',monospace);font-weight:500;outline:none;cursor:pointer;transition:border-color .15s}
+        .audit-flt-sel:focus{border-color:var(--ac)}
+        .audit-panel{background:var(--sf);border:1px solid var(--br);border-radius:var(--r);overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.04)}
+        .audit-panel-hd{padding:13px 20px;border-bottom:1px solid var(--br);display:flex;align-items:center;justify-content:space-between;background:var(--sf2)}
+        .audit-panel-title{font-family:var(--audit-head,var(--fd));font-size:13px;font-weight:700;color:var(--tx);letter-spacing:.2px}
+        .audit-count-pill{font-family:var(--audit-mono,'JetBrains Mono',monospace);font-size:10px;color:var(--tx3);background:var(--bg);border:1px solid var(--br);border-radius:20px;padding:2px 10px}
+        .audit-date-sep{padding:7px 20px;background:var(--sf2);border-bottom:1px solid var(--br);font-family:var(--audit-mono,'JetBrains Mono',monospace);font-size:9.5px;font-weight:500;color:var(--tx3);letter-spacing:1.5px;text-transform:uppercase;display:flex;align-items:center;gap:8px}
+        .audit-date-sep::after{content:'';flex:1;height:1px;background:var(--br)}
+        .audit-log-entry{display:flex;gap:13px;padding:13px 20px;border-bottom:1px solid var(--br);transition:background .12s;align-items:flex-start;position:relative}
+        .audit-log-entry:last-child{border-bottom:none}
+        .audit-log-entry:hover{background:var(--sf2)}
+        .audit-log-entry:hover .ale-del{opacity:1}
+        .ale-timeline{display:flex;flex-direction:column;align-items:center;flex-shrink:0;padding-top:2px}
+        .ale-dot{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;font-family:monospace;font-weight:700}
+        .ale-line{width:1px;flex:1;min-height:14px;margin-top:4px;background:repeating-linear-gradient(to bottom,var(--br) 0,var(--br) 3px,transparent 3px,transparent 7px)}
+        .audit-log-entry:last-child .ale-line{display:none}
+        .ale-body{flex:1;min-width:0}
+        .ale-top{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-bottom:2px}
+        .ale-who{font-family:var(--audit-head,var(--fd));font-size:12.5px;font-weight:700;color:var(--tx)}
+        .ale-tag{font-family:var(--audit-mono,'JetBrains Mono',monospace);font-size:9px;font-weight:500;padding:2px 8px;border-radius:4px;text-transform:uppercase;letter-spacing:.8px;border:1px solid transparent}
+        .ale-text{font-family:var(--audit-body,var(--fb));font-size:12.5px;font-style:italic;color:var(--tx2);line-height:1.5}
+        .ale-time{font-family:var(--audit-mono,'JetBrains Mono',monospace);font-size:10px;color:var(--tx3);margin-top:4px;display:flex;align-items:center;gap:4px}
+        .ale-del{opacity:0;transition:opacity .15s;width:25px;height:25px;border-radius:6px;border:1px solid var(--br);background:var(--sf);color:var(--tx3);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;align-self:center;padding:0}
+        .ale-del:hover{background:var(--c-rose);color:var(--ro);border-color:var(--cr)}
+        .audit-empty{text-align:center;padding:56px 20px}
+        .audit-empty-ico{font-size:36px;margin-bottom:10px;opacity:.35}
+        .audit-empty-t{font-family:var(--audit-head,var(--fd));font-size:15px;font-weight:700;color:var(--tx2);margin-bottom:4px}
+        .audit-empty-s{font-size:12px;color:var(--tx3);font-style:italic;font-family:var(--audit-body,var(--fb))}
+        .audit-pagination{padding:11px 20px;border-top:1px solid var(--br);display:flex;align-items:center;justify-content:space-between;background:var(--sf2)}
+        .audit-pg-info{font-family:var(--audit-mono,'JetBrains Mono',monospace);font-size:10px;color:var(--tx3)}
+        .audit-pg-btns{display:flex;gap:4px}
+        .audit-pg-btn{width:27px;height:27px;border-radius:6px;border:1px solid var(--br);background:var(--sf);color:var(--tx2);cursor:pointer;font-size:11px;font-family:var(--audit-mono,'JetBrains Mono',monospace);display:flex;align-items:center;justify-content:center;transition:all .12s}
+        .audit-pg-btn:hover{background:var(--sf2);border-color:var(--br2)}
+        .audit-pg-btn.apg-on{background:var(--tx);color:#fff;border-color:var(--tx)}
+        .audit-pg-btn:disabled{opacity:.3;cursor:default;pointer-events:none}
         /* ── PWA ─────────────────────────────────────────────── */
         .pwa-banner{display:none;position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:var(--ac);color:#fff;border-radius:12px;padding:12px 20px;font-size:13px;font-weight:600;gap:10px;align-items:center;box-shadow:0 4px 20px rgba(61,111,240,.35);z-index:9999;cursor:pointer;max-width:340px;width:90%}
         .pwa-banner.show{display:flex}
@@ -652,9 +707,9 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
                 <div style="display:flex;gap:7px"><button class="btn bp" data-action="add_batch" onclick="openM('mAddBatch')">+ Add Batch</button><button class="btn bg" data-action="alloc_seat" onclick="openM('mAllocSeat')">Allocate Seat</button></div>
             </div>
             <div class="stats-grid" style="grid-template-columns:repeat(3,1fr)">
-                <div class="sc" style="--ca:var(--ac)"><div class="s-ic" style="background:var(--c-blue)"><span class="mi" style="color:var(--ac)">event_seat</span></div><div class="s-lb">Total Seats</div><div class="s-vl" id="st-total">0</div></div>
-                <div class="sc" style="--ca:var(--em)"><div class="s-ic" style="background:var(--c-green)"><span class="mi" style="color:var(--em)">check_circle</span></div><div class="s-lb">Vacant</div><div class="s-vl" id="st-vacant">0</div></div>
-                <div class="sc" style="--ca:var(--ro)"><div class="s-ic" style="background:var(--c-rose)"><span class="mi" style="color:var(--ro)">person</span></div><div class="s-lb">Occupied</div><div class="s-vl" id="st-occupied">0</div></div>
+                <div class="sc" style="--ca:var(--ac)"><div class="s-row"><div class="s-ic" style="background:var(--c-blue)"><span class="mi" style="color:var(--ac);font-size:17px">event_seat</span></div><span class="s-lb">Total Seats</span></div><div class="s-vl" id="st-total">0</div></div>
+                <div class="sc" style="--ca:var(--em)"><div class="s-row"><div class="s-ic" style="background:var(--c-green)"><span class="mi" style="color:var(--em);font-size:17px">check_circle</span></div><span class="s-lb">Vacant</span></div><div class="s-vl" id="st-vacant">0</div></div>
+                <div class="sc" style="--ca:var(--ro)"><div class="s-row"><div class="s-ic" style="background:var(--c-rose)"><span class="mi" style="color:var(--ro);font-size:17px">person</span></div><span class="s-lb">Occupied</span></div><div class="s-vl" id="st-occupied">0</div></div>
             </div>
             <div style="margin-bottom:10px">
                 <div class="seat-legend">
@@ -826,10 +881,10 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
                 </div>
             </div>
             <div class="stats-grid">
-                <div class="sc" style="--ca:var(--em)"><div class="s-ic" style="background:var(--c-green)"><span class="mi" style="color:var(--em)">check_circle</span></div><div class="s-lb">Collected</div><div class="s-vl" id="fc-c">₹0</div><div class="s-mt" id="fc-cm"></div></div>
-                <div class="sc" style="--ca:var(--sk)"><div class="s-ic" style="background:var(--c-sky)"><span class="mi" style="color:var(--sk)">timelapse</span></div><div class="s-lb">Partial Payments</div><div class="s-vl" id="fc-pp">0</div><div class="s-mt" id="fc-ppm"></div></div>
-                <div class="sc" style="--ca:var(--gd)"><div class="s-ic" style="background:var(--c-amber)"><span class="mi" style="color:var(--gd)">pending</span></div><div class="s-lb">Pending</div><div class="s-vl" id="fc-p">₹0</div><div class="s-mt" id="fc-pm"></div></div>
-                <div class="sc" style="--ca:var(--ro)"><div class="s-ic" style="background:var(--c-rose)"><span class="mi" style="color:var(--ro)">warning</span></div><div class="s-lb">Overdue</div><div class="s-vl" id="fc-o">₹0</div><div class="s-mt" id="fc-om"></div></div>
+                <div class="sc" style="--ca:var(--em)"><div class="s-row"><div class="s-ic" style="background:var(--c-green)"><span class="mi" style="color:var(--em);font-size:17px">check_circle</span></div><span class="s-lb">Collected</span></div><div class="s-vl" id="fc-c">₹0</div><div class="s-mt" id="fc-cm"></div></div>
+                <div class="sc" style="--ca:var(--sk)"><div class="s-row"><div class="s-ic" style="background:var(--c-sky)"><span class="mi" style="color:var(--sk);font-size:17px">timelapse</span></div><span class="s-lb">Partial Payments</span></div><div class="s-vl" id="fc-pp">0</div><div class="s-mt" id="fc-ppm"></div></div>
+                <div class="sc" style="--ca:var(--gd)"><div class="s-row"><div class="s-ic" style="background:var(--c-amber)"><span class="mi" style="color:var(--gd);font-size:17px">pending</span></div><span class="s-lb">Pending</span></div><div class="s-vl" id="fc-p">₹0</div><div class="s-mt" id="fc-pm"></div></div>
+                <div class="sc" style="--ca:var(--ro)"><div class="s-row"><div class="s-ic" style="background:var(--c-rose)"><span class="mi" style="color:var(--ro);font-size:17px">warning</span></div><span class="s-lb">Overdue</span></div><div class="s-vl" id="fc-o">₹0</div><div class="s-mt" id="fc-om"></div></div>
             </div>
             <div class="panel">
                 <div class="ph"><div class="pt">Fee Records</div>
@@ -1010,24 +1065,58 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
 
         <!-- AUDIT LOG -->
         <div class="page" id="page-audit">
-            <div class="sec-hd">
-                <div><div class="sec-t">🔍 Audit Log</div><div class="sec-s">Every action logged — who did what and when</div></div>
-                <div style="display:flex;gap:8px">
-                    <select id="auditFilter" onchange="renderAudit()" style="font-size:11px;padding:5px 9px">
-                        <option value="all">All Actions</option>
-                        <option value="fee">Fee</option>
-                        <option value="student">Student</option>
-                        <option value="book">Book</option>
-                        <option value="staff">Staff</option>
-                        <option value="whatsapp">WhatsApp</option>
-                        <option value="settings">Settings</option>
-                    </select>
-                    <button class="btn bg" style="font-size:11px" onclick="clearAudit()">🗑 Clear Log</button>
+            <!-- Page header -->
+            <div class="audit-page-hd">
+                <div class="audit-hd-left">
+                    <div class="audit-eyebrow"><span class="audit-eyebrow-dot"></span>OPTMS ERP &nbsp;/&nbsp; System</div>
+                    <div class="audit-page-title">Audit Log</div>
+                    <div class="audit-page-sub">Every action recorded — who did what, and when</div>
+                </div>
+                <div class="audit-hd-actions">
+                    <button class="audit-btn-export" onclick="auditExportCSV()">
+                        <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M6 1v7M3 5l3 3 3-3M2 10h8" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        Export CSV
+                    </button>
+                    <button class="audit-btn-clear" onclick="clearAudit()">
+                        <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 3h8M5 1h2M4.5 3v7M7.5 3v7M2.5 3l.5 7h6l.5-7" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        Clear Log
+                    </button>
                 </div>
             </div>
-            <div class="g2" style="margin-bottom:14px" id="auditStats"></div>
-            <div class="panel"><div class="ph"><div class="pt">Activity History</div><span id="auditCount" style="font-size:11px;color:var(--tx3)"></span></div>
-                <div class="pb" id="auditList" style="max-height:600px;overflow-y:auto"></div>
+            <!-- Stat chips -->
+            <div class="audit-stats-row" id="auditStats"></div>
+            <!-- Search + filters -->
+            <div class="audit-search-bar">
+                <div class="audit-srch-wrap">
+                    <svg class="audit-srch-ico" width="13" height="13" viewBox="0 0 14 14" fill="none"><circle cx="6" cy="6" r="4.5" stroke="currentColor" stroke-width="1.3"/><path d="M10 10l2.5 2.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+                    <input type="text" id="auditSearch" placeholder="Search actions, staff, or type…" oninput="renderAudit()">
+                </div>
+                <select class="audit-flt-sel" id="auditFilter" onchange="renderAudit()">
+                    <option value="all">All types</option>
+                    <option value="fee">Fee</option>
+                    <option value="student">Student</option>
+                    <option value="book">Book</option>
+                    <option value="staff">Staff</option>
+                    <option value="renewal">Renewal</option>
+                    <option value="whatsapp">WhatsApp</option>
+                    <option value="settings">Settings</option>
+                    <option value="other">Other</option>
+                </select>
+                <select class="audit-flt-sel" id="auditWhoFilter" onchange="renderAudit()">
+                    <option value="all">All staff</option>
+                </select>
+            </div>
+            <!-- Log panel -->
+            <div class="audit-panel">
+                <div class="audit-panel-hd">
+                    <div class="audit-panel-title">Activity History</div>
+                    <span class="audit-count-pill" id="auditCount">0 entries</span>
+                </div>
+                <div id="auditList"></div>
+                <div class="audit-pagination" id="auditPg" style="display:none">
+                    <span class="audit-pg-info" id="auditPgInfo"></span>
+                    <div class="audit-pg-btns" id="auditPgBtns"></div>
+                </div>
             </div>
         </div>
 
@@ -1596,7 +1685,8 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
                 </div>
                 <div class="fgi full"><label>Notes</label><input id="ren-notes" placeholder="Optional renewal note"></div>
             </div>
-            <div style="margin-top:12px;padding:10px 12px;background:rgba(22,163,74,.07);border:1px solid rgba(22,163,74,.2);border-radius:var(--r2);font-size:12px;color:var(--tx2)" id="ren-summary"></div>
+            <div id="ren-summary" style="margin-top:12px;padding:10px 12px;border-radius:var(--r2);font-size:12px;color:var(--tx2);border:1px solid transparent"></div>
+            <div id="ren-balance-warn" style="display:none;margin-top:6px;padding:9px 12px;background:rgba(234,88,12,.08);border:1px solid rgba(234,88,12,.3);border-radius:var(--r2);font-size:12px;color:#c2410c"></div>
         </div>
         <div class="mf">
             <button class="btn bg" onclick="closeM('mRenew')">Cancel</button>
@@ -1919,18 +2009,18 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
     <div class="al-card al-i"><span style="font-size:17px">🎁</span><div><div class="al-t">Discounts Applied</div><div class="al-b">${s.filter(x=>x.baseFee>x.netFee).length} students with discounts — ₹${totalDiscount.toLocaleString()} waived</div></div></div>`;
 
         document.getElementById('dashStats').innerHTML=`
-    <div class="sc" style="--ca:var(--ac)"><div class="s-ic" style="background:var(--c-blue)"><span class="mi" style="color:var(--ac)">school</span></div><div class="s-lb">Total Students</div><div class="s-vl">${s.length}</div><div class="s-mt"><span class="bup">↑ 12%</span></div></div>
-    <div class="sc" style="--ca:var(--em)"><div class="s-ic" style="background:var(--c-green)"><span class="mi" style="color:var(--em)">event_seat</span></div><div class="s-lb">Seats Available</div><div class="s-vl">${totalSeats-occSeats}</div><div class="s-mt">${occSeats}/${totalSeats} occupied</div></div>
-    <div class="sc" style="--ca:var(--gd)"><div class="s-ic" style="background:var(--c-amber)"><span class="mi" style="color:var(--gd)">payments</span></div><div class="s-lb">Revenue Collected</div><div class="s-vl">${fmt(activeStudentRev)}</div><div class="s-mt" style="display:flex;flex-direction:column;gap:3px;margin-top:6px">
+    <div class="sc" style="--ca:var(--ac)"><div class="s-row"><div class="s-ic" style="background:var(--c-blue)"><span class="mi" style="color:var(--ac);font-size:17px">school</span></div><span class="s-lb">Total Students</span></div><div class="s-vl">${s.length}</div><div class="s-mt"><span class="bup">↑ 12%</span> this month</div></div>
+    <div class="sc" style="--ca:var(--em)"><div class="s-row"><div class="s-ic" style="background:var(--c-green)"><span class="mi" style="color:var(--em);font-size:17px">event_seat</span></div><span class="s-lb">Seats Available</span></div><div class="s-vl">${totalSeats-occSeats}</div><div class="s-mt">${occSeats}/${totalSeats} occupied</div></div>
+    <div class="sc" style="--ca:var(--gd)"><div class="s-row"><div class="s-ic" style="background:var(--c-amber)"><span class="mi" style="color:var(--gd);font-size:17px">payments</span></div><span class="s-lb">Revenue Collected</span></div><div class="s-vl">${fmt(activeStudentRev)}</div><div class="s-mt" style="display:flex;flex-direction:column;gap:3px;margin-top:4px">
       <span style="display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:600;color:#166534"><span style="width:6px;height:6px;border-radius:50%;background:#16a34a;flex-shrink:0"></span>₹${revLivePaid.toLocaleString('en-IN')} live · fully paid</span>
       ${revLivePartial>0?`<span style="display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:600;color:#92400e"><span style="width:6px;height:6px;border-radius:50%;background:#d97706;flex-shrink:0"></span>₹${revLivePartial.toLocaleString('en-IN')} live · partial</span>`:''}
       ${revFromDeleted>0?`<span style="display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:600;color:#9f1239;opacity:.75"><span style="width:6px;height:6px;border-radius:50%;background:#e11d48;flex-shrink:0"></span>₹${revFromDeleted.toLocaleString('en-IN')} deleted students</span>`:''}
     </div></div>
-    <div class="sc" style="--ca:var(--ro)"><div class="s-ic" style="background:var(--c-rose)"><span class="mi" style="color:var(--ro)">pending</span></div><div class="s-lb">Total Due</div><div class="s-vl">${fmt(allDue)}</div><div class="s-mt" style="color:var(--ro)">${[...pending,...overdue,...partial].length} students</div></div>
-    <div class="sc" style="--ca:var(--or)"><div class="s-ic" style="background:var(--c-orange)"><span class="mi" style="color:var(--or)">redeem</span></div><div class="s-lb">Discounts Given</div><div class="s-vl">${fmt(totalDiscount)}</div><div class="s-mt">${s.filter(x=>x.baseFee>x.netFee).length} students</div></div>
-    <div class="sc" style="--ca:var(--vi)"><div class="s-ic" style="background:var(--c-purple)"><span class="mi" style="color:var(--vi)">menu_book</span></div><div class="s-lb">Books Issued</div><div class="s-vl">${issTx.length}</div><div class="s-mt" style="color:var(--ro)">${odTx.length} overdue</div></div>
-    <div class="sc" style="--ca:var(--sk)"><div class="s-ic" style="background:var(--c-sky)"><span class="mi" style="color:var(--sk)">fact_check</span></div><div class="s-lb">Attendance Today</div><div class="s-vl">${prsnt}</div><div class="s-mt" style="color:var(--em)">${s.length?Math.round(prsnt/s.length*100):0}%</div></div>
-    <div class="sc" style="--ca:#7c3aed;cursor:pointer" onclick="navTo('biometric')"><div class="s-ic" style="background:#faf5ff"><span class="mi" style="color:#7c3aed">fingerprint</span></div><div class="s-lb">Biometric Check-ins</div><div class="s-vl">${Object.values(_bioToday).filter(b=>b.in).length}</div><div class="s-mt" style="color:#7c3aed">today · via device</div></div>
+    <div class="sc" style="--ca:var(--ro)"><div class="s-row"><div class="s-ic" style="background:var(--c-rose)"><span class="mi" style="color:var(--ro);font-size:17px">pending</span></div><span class="s-lb">Total Due</span></div><div class="s-vl">${fmt(allDue)}</div><div class="s-mt" style="color:var(--ro)">${[...pending,...overdue,...partial].length} students</div></div>
+    <div class="sc" style="--ca:var(--or)"><div class="s-row"><div class="s-ic" style="background:var(--c-orange)"><span class="mi" style="color:var(--or);font-size:17px">redeem</span></div><span class="s-lb">Discounts Given</span></div><div class="s-vl">${fmt(totalDiscount)}</div><div class="s-mt">${s.filter(x=>x.baseFee>x.netFee).length} students</div></div>
+    <div class="sc" style="--ca:var(--vi)"><div class="s-row"><div class="s-ic" style="background:var(--c-purple)"><span class="mi" style="color:var(--vi);font-size:17px">menu_book</span></div><span class="s-lb">Books Issued</span></div><div class="s-vl">${issTx.length}</div><div class="s-mt" style="color:var(--ro)">${odTx.length} overdue</div></div>
+    <div class="sc" style="--ca:var(--sk)"><div class="s-row"><div class="s-ic" style="background:var(--c-sky)"><span class="mi" style="color:var(--sk);font-size:17px">fact_check</span></div><span class="s-lb">Attendance Today</span></div><div class="s-vl">${prsnt}</div><div class="s-mt" style="color:var(--em)">${s.length?Math.round(prsnt/s.length*100):0}%</div></div>
+    <div class="sc" style="--ca:#7c3aed;cursor:pointer" onclick="navTo('biometric')"><div class="s-row"><div class="s-ic" style="background:#faf5ff"><span class="mi" style="color:#7c3aed;font-size:17px">fingerprint</span></div><span class="s-lb">Biometric Check-ins</span></div><div class="s-vl">${Object.values(_bioToday).filter(b=>b.in).length}</div><div class="s-mt" style="color:#7c3aed">today · via device</div></div>
     ${(()=>{
       // ── Monthly Expenses Sparkline Card ──
       const now = new Date();
@@ -4113,16 +4203,34 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         if (!s) return;
         renewStudentId = id;
         const b = DB.batches.find(x => x.id === s.batchId);
+
+        // Show previous unpaid balance if any
+        const prevBal = Math.max(0, s.netFee - (s.paidAmt || 0));
+        const prevBalHtml = prevBal > 0
+            ? `<div style="margin-top:4px;font-size:10px;color:#c2410c;font-weight:600">⚠ ₹${prevBal} still unpaid from previous period</div>`
+            : '';
+
         document.getElementById('mRenewStudentInfo').innerHTML =
             `<div style="display:flex;align-items:center;gap:10px">
       <div style="width:36px;height:36px;border-radius:9px;background:${s.color};display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff">${(s.fname?.[0]||'')+(s.lname?.[0]||'')}</div>
-      <div><div style="font-weight:600;font-size:13px">${s.fname} ${s.lname}</div>
-      <div style="font-size:11px;color:var(--tx3)">${b?b.name:'—'} · Current due: ${fmtDate(s.dueDate)}</div></div>
+      <div>
+        <div style="font-weight:600;font-size:13px">${s.fname} ${s.lname}</div>
+        <div style="font-size:11px;color:var(--tx3)">${b?b.name:'—'} · Current due: ${fmtDate(s.dueDate)}</div>
+        ${prevBalHtml}
+      </div>
     </div>`;
-        document.getElementById('ren-fee').value = s.netFee;
+
+        document.getElementById('ren-fee').value    = s.netFee;
         document.getElementById('ren-extend').value = '1';
+        document.getElementById('ren-balance-warn').style.display = 'none';
+        // Clear manual edit flag so fee auto-updates with months on fresh open
+        delete document.getElementById('ren-fee').dataset.manualEdit;
+        document.getElementById('ren-fee').oninput = function() {
+            this.dataset.manualEdit = '1'; // staff typed — stop auto-updating fee
+            updateRenewDate();
+        };
+        document.getElementById('ren-extend').onchange  = updateRenewDate;
         updateRenewDate();
-        document.getElementById('ren-extend').onchange = updateRenewDate;
         openM('mRenew');
     }
 
@@ -4134,20 +4242,37 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         base.setMonth(base.getMonth() + months);
         const dateEl = document.getElementById('ren-newdate');
         dateEl.value = base.toISOString().split('T')[0];
-        // Prevent picking a past date
         dateEl.min   = new Date().toISOString().split('T')[0];
-        // Live update summary when date is manually changed too
-        dateEl.onchange = () => updateRenewSummary(s);
-        updateRenewSummary(s);
-    }
+        dateEl.onchange = updateRenewDate;
 
-    function updateRenewSummary(s) {
-        const months  = +document.getElementById('ren-extend').value;
-        const dateVal = document.getElementById('ren-newdate').value;
-        const fee     = +document.getElementById('ren-fee').value || s.netFee;
-        const d       = dateVal ? new Date(dateVal).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}) : '—';
-        document.getElementById('ren-summary').innerHTML =
-            `✅ Extending by <strong>${months} month${months>1?'s':''}</strong> · New due: <strong>${d}</strong> · Fee: <strong>₹${fee}</strong>`;
+        // Auto-update fee = netFee x months (skip if staff manually edited the fee)
+        const feeEl   = document.getElementById('ren-fee');
+        if (!feeEl.dataset.manualEdit) feeEl.value = s.netFee * months;
+
+        const fee    = +feeEl.value || 0;
+        const netFee = s.netFee * months;
+        const balance = netFee - fee;
+        const d       = base.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});
+        const sumEl   = document.getElementById('ren-summary');
+        const warnEl  = document.getElementById('ren-balance-warn');
+
+        if (fee >= netFee) {
+            // Full payment
+            sumEl.style.cssText = 'margin-top:12px;padding:10px 12px;border-radius:var(--r2);font-size:12px;color:var(--tx2);background:rgba(22,163,74,.07);border:1px solid rgba(22,163,74,.2)';
+            sumEl.innerHTML     = `✅ <strong>${months} month${months>1?'s':''}</strong> extension · Due: <strong>${d}</strong> · ₹${fee} — <strong style="color:#16a34a">Fully Paid</strong>`;
+            warnEl.style.display = 'none';
+        } else if (fee > 0) {
+            // Partial payment
+            sumEl.style.cssText = 'margin-top:12px;padding:10px 12px;border-radius:var(--r2);font-size:12px;color:var(--tx2);background:rgba(234,88,12,.06);border:1px solid rgba(234,88,12,.25)';
+            sumEl.innerHTML     = `◑ <strong>${months} month${months>1?'s':''}</strong> extension · Due: <strong>${d}</strong> · ₹${fee} paid of ₹${netFee}`;
+            warnEl.style.display = 'block';
+            warnEl.innerHTML    = `⚠ <strong>₹${balance} balance remaining</strong> — student will be marked as <strong>Partial Paid</strong>. Collect the remaining amount later via Fee Collection.`;
+        } else {
+            // No amount entered yet
+            sumEl.style.cssText = 'margin-top:12px;padding:10px 12px;border-radius:var(--r2);font-size:12px;color:var(--tx2);background:rgba(22,163,74,.07);border:1px solid rgba(22,163,74,.2)';
+            sumEl.innerHTML     = `✅ <strong>${months} month${months>1?'s':''}</strong> extension · Due: <strong>${d}</strong>`;
+            warnEl.style.display = 'none';
+        }
     }
 
     async function confirmRenew() {
@@ -4180,29 +4305,33 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
                 return;
             }
             // ── Update local DB state ──
-            s.dueDate = newDate;
-            s.paidAmt = (s.paidAmt || 0) + fee;
-            if (s.paidAmt >= s.netFee) s.feeStatus = 'paid';
-            else if (s.paidAmt > 0)    s.feeStatus = 'partial';
-            s.paidOn  = new Date().toISOString().split('T')[0];
+            s.dueDate  = newDate;
+            s.paidAmt  = (s.paidAmt || 0) + fee;
+            const bal  = Math.max(0, s.netFee - s.paidAmt);
+            s.feeStatus = s.paidAmt >= s.netFee ? 'paid' : (s.paidAmt > 0 ? 'partial' : 'pending');
+            s.paidOn   = new Date().toISOString().split('T')[0];
 
-            // Push invoice into local DB so Invoices page reflects it immediately
+            // Push invoice with correct balance and status
             if (res.invoice_id) {
                 DB.invoices.unshift({
                     id: res.invoice_id, studentId: s.id,
                     type: `Renewal (${months}mo)`, amount: fee,
                     baseFee: s.baseFee, discount: s.baseFee - s.netFee,
-                    netFee: s.netFee, paidAmt: fee, balance: 0,
+                    netFee: s.netFee, paidAmt: fee,
+                    balance: bal,
                     date: new Date().toISOString().split('T')[0],
                     month: new Date().toLocaleDateString('en-IN', {month:'long', year:'numeric'}),
-                    mode, status: 'paid'
+                    mode, status: s.feeStatus
                 });
             }
 
-            auditLog('renewal', `Renewed ${s.fname} ${s.lname} — ${months}mo, ₹${fee} (${mode})${notes?' — '+notes:''}`);
-            addActivity('🔄', 'rgba(61,111,240,.14)', `Renewed <strong>${s.fname} ${s.lname}</strong> for ${months} month${months>1?'s':''}`);
+            auditLog('renewal', `Renewed ${s.fname} ${s.lname} — ${months}mo, ₹${fee} (${mode})${notes?' — '+notes:''}${bal>0?' · ₹'+bal+' balance remaining':''}`);
+            addActivity('🔄', 'rgba(61,111,240,.14)', `Renewed <strong>${s.fname} ${s.lname}</strong> for ${months} month${months>1?'s':''}${bal>0?' — ₹'+bal+' still due':''}`);
             closeM('mRenew');
-            toast(`✅ ${s.fname} renewed for ${months} month${months>1?'s':''}!`, 'ok');
+            const toastMsg = s.feeStatus === 'partial'
+                ? `◑ ${s.fname} partially renewed — ₹${bal} still due`
+                : `✅ ${s.fname} renewed for ${months} month${months>1?'s':''}!`;
+            toast(toastMsg, s.feeStatus === 'partial' ? 'wn' : 'ok');
             renderRenewal(); renderStudents(); updateBadges();
         } catch(e) {
             toast('❌ Network error: ' + e.message, 'er');
@@ -4212,11 +4341,32 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
     function sendRenewalWA() {
         const s = DB.students.find(x => x.id === renewStudentId);
         if (!s) return;
-        const newDate = document.getElementById('ren-newdate').value;
-        const fee = document.getElementById('ren-fee').value;
-        const months = document.getElementById('ren-extend').value;
-        const d = new Date(newDate).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});
-        const msg = `🔄 *Renewal Confirmation*
+        const newDate  = document.getElementById('ren-newdate').value;
+        const fee      = +document.getElementById('ren-fee').value || 0;
+        const months   = document.getElementById('ren-extend').value;
+        const d        = new Date(newDate).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});
+        const balance  = Math.max(0, s.netFee - fee);
+        const isPartial = fee > 0 && fee < s.netFee;
+
+        const msg = isPartial
+            ? `🔄 *Renewal Confirmation (Partial Payment)*
+
+Dear *${s.fname} ${s.lname}*,
+
+Your library membership has been renewed!
+
+✅ *Details:*
+• Extended By: ${months} month(s)
+• Fee Paid: ₹${fee}
+• Balance Due: ₹${balance}
+• New Due Date: ${d}
+• Seat: ${s.seat||'—'}
+
+⚠ Please pay the remaining ₹${balance} at your earliest convenience.
+
+🏫 ${DB.settings.name}
+📞 ${DB.settings.phone}`
+            : `🔄 *Renewal Confirmation*
 
 Dear *${s.fname} ${s.lname}*,
 
@@ -4572,37 +4722,170 @@ Thank you! 📚
         apiPost('save_audit_log', { type, text: cleanText, who: '<?= $staffName ?>' }).catch(() => {});
     };
 
+    // ═══ AUDIT LOG — REDESIGN ═══════════════════════════════════
+    const _AUDIT_TYPE_CFG = {
+        fee:      { label:'Fee',       icon:'₹', ac:'#1a8c4e', bg:'#e8f7ef', border:'#a3d9b8' },
+        student:  { label:'Student',   icon:'◉', ac:'#2d5be3', bg:'#eef2fd', border:'#a8baff' },
+        book:     { label:'Book',      icon:'▣', ac:'#6435c9', bg:'#f0eaff', border:'#c9b0ff' },
+        staff:    { label:'Staff',     icon:'⬡', ac:'#b5620f', bg:'#fdf2e3', border:'#f5c97a' },
+        renewal:  { label:'Renewal',   icon:'↺', ac:'#0e7ab5', bg:'#e6f4fc', border:'#88c9ef' },
+        whatsapp: { label:'WhatsApp',  icon:'◆', ac:'#1a8c4e', bg:'#e8f7ef', border:'#a3d9b8' },
+        settings: { label:'Settings',  icon:'◈', ac:'#8a847a', bg:'#f0ede8', border:'#c9c3b8' },
+        other:    { label:'Other',     icon:'●', ac:'#8a847a', bg:'#f0ede8', border:'#c9c3b8' },
+    };
+    let _auditPage = 1;
+    const _AUDIT_PER = 10;
+
+    function _auditGetFiltered() {
+        const type = document.getElementById('auditFilter')?.value || 'all';
+        const who  = document.getElementById('auditWhoFilter')?.value || 'all';
+        const q    = (document.getElementById('auditSearch')?.value || '').toLowerCase();
+        return (DB.auditLog || []).filter(a => {
+            if (type !== 'all' && a.type !== type) return false;
+            if (who  !== 'all' && a.who  !== who)  return false;
+            if (q && !a.text?.toLowerCase().includes(q) && !a.who?.toLowerCase().includes(q) && !a.type?.toLowerCase().includes(q)) return false;
+            return true;
+        });
+    }
+
+    function _auditPopulateWho() {
+        const sel = document.getElementById('auditWhoFilter');
+        if (!sel) return;
+        const cur = sel.value;
+        const whoSet = [...new Set((DB.auditLog || []).map(a => a.who).filter(Boolean))];
+        sel.innerHTML = '<option value="all">All staff</option>' + whoSet.map(w => `<option value="${w}">${w}</option>`).join('');
+        if (whoSet.includes(cur)) sel.value = cur;
+    }
+
     function renderAudit() {
-        const filter = document.getElementById('auditFilter')?.value || 'all';
-        let log = filter === 'all' ? DB.auditLog : DB.auditLog.filter(a => a.type === filter);
+        _auditPopulateWho();
 
-        // Stats
-        const types = ['fee','student','book','staff','whatsapp','settings','renewal','other'];
-        const typeLabels = {fee:'💰 Fee',student:'👤 Student',book:'📚 Book',staff:'👥 Staff',whatsapp:'💬 WhatsApp',settings:'⚙ Settings',renewal:'🔄 Renewal',other:'📌 Other'};
-        const typeBg = {fee:'rgba(22,163,74,.1)',student:'rgba(61,111,240,.1)',book:'rgba(124,58,237,.1)',staff:'rgba(217,119,6,.1)',whatsapp:'rgba(37,211,102,.1)',settings:'rgba(100,116,139,.1)',renewal:'rgba(61,111,240,.1)',other:'rgba(100,116,139,.1)'};
-        document.getElementById('auditStats').innerHTML = types.filter(t=>DB.auditLog.filter(a=>a.type===t).length>0).map(t => {
-            const cnt = DB.auditLog.filter(a => a.type===t).length;
-            return `<div class="sc" style="--ca:var(--ac);padding:12px"><div class="s-lb" style="font-size:9px">${typeLabels[t]||t}</div><div class="s-vl" style="font-size:20px">${cnt}</div></div>`;
-        }).join('');
+        // ── Stat chips ──
+        const statsEl = document.getElementById('auditStats');
+        const total   = (DB.auditLog || []).length;
+        const curType = document.getElementById('auditFilter')?.value || 'all';
+        const allOn   = curType === 'all';
+        let chips = `<div class="audit-stat-chip ${allOn ? 'asc-on' : ''}" style="--asc-cl:var(--tx);--asc-bg:var(--sf2)" onclick="document.getElementById('auditFilter').value='all';_auditPage=1;renderAudit()">
+            <div class="asc-icon" style="color:var(--tx3)">◎</div>
+            <div class="asc-count" style="color:var(--tx)">${total}</div>
+            <div class="asc-label">Total</div>
+        </div>`;
+        Object.entries(_AUDIT_TYPE_CFG).forEach(([t, c]) => {
+            const cnt = (DB.auditLog || []).filter(a => a.type === t).length;
+            if (!cnt) return;
+            const on = curType === t;
+            chips += `<div class="audit-stat-chip ${on ? 'asc-on' : ''}" style="--asc-cl:${c.ac};--asc-bg:${c.bg}" onclick="document.getElementById('auditFilter').value='${t}';_auditPage=1;renderAudit()">
+                <div class="asc-icon" style="color:${c.ac}">${c.icon}</div>
+                <div class="asc-count">${cnt}</div>
+                <div class="asc-label">${c.label}</div>
+            </div>`;
+        });
+        if (statsEl) statsEl.innerHTML = chips;
 
-        document.getElementById('auditCount').textContent = log.length + ' entries';
-        const iconMap = {fee:'💰',student:'👤',book:'📚',staff:'👥',whatsapp:'💬',settings:'⚙️',renewal:'🔄',other:'📌'};
-        const bgMap   = {fee:'rgba(22,163,74,.12)',student:'rgba(61,111,240,.12)',book:'rgba(124,58,237,.12)',staff:'rgba(217,119,6,.12)',whatsapp:'rgba(37,211,102,.12)',settings:'rgba(100,116,139,.12)',renewal:'rgba(61,111,240,.12)',other:'rgba(100,116,139,.12)'};
+        // ── Filter + paginate ──
+        const filtered   = _auditGetFiltered();
+        const totalF     = filtered.length;
+        const totalPages = Math.ceil(totalF / _AUDIT_PER);
+        if (_auditPage > totalPages) _auditPage = 1;
+        const start = (_auditPage - 1) * _AUDIT_PER;
+        const slice = filtered.slice(start, start + _AUDIT_PER);
 
-        document.getElementById('auditList').innerHTML = log.length
-            ? log.map(a => `<div class="audit-row">
-        <div class="audit-ic" style="background:${bgMap[a.type]||bgMap.other}">${iconMap[a.type]||'📌'}</div>
-        <div style="flex:1">
-          <div class="audit-who">${a.who} <span class="audit-tag" style="background:${bgMap[a.type]||bgMap.other}">${a.type}</span></div>
-          <div class="audit-what">${a.text}</div>
-          <div class="audit-time">${a.time}</div>
-        </div>
-      </div>`).join('')
-            : '<div class="empty"><div class="et">No audit entries yet — actions will appear here</div></div>';
+        const countEl = document.getElementById('auditCount');
+        if (countEl) countEl.textContent = totalF + (totalF === 1 ? ' entry' : ' entries');
+
+        const listEl = document.getElementById('auditList');
+        if (!listEl) return;
+
+        if (!totalF) {
+            listEl.innerHTML = `<div class="audit-empty">
+                <div class="audit-empty-ico">◎</div>
+                <div class="audit-empty-t">No entries found</div>
+                <div class="audit-empty-s">Try adjusting your filters or search query</div>
+            </div>`;
+            const pg = document.getElementById('auditPg');
+            if (pg) pg.style.display = 'none';
+            return;
+        }
+
+        // Group by date
+        let html = '';
+        let lastDate = null;
+        slice.forEach(a => {
+            const dateLabel = (a.time || '').split(',')[0] || 'Unknown';
+            if (dateLabel !== lastDate) {
+                html += `<div class="audit-date-sep">${dateLabel}</div>`;
+                lastDate = dateLabel;
+            }
+            const c = _AUDIT_TYPE_CFG[a.type] || _AUDIT_TYPE_CFG.other;
+            html += `<div class="audit-log-entry">
+                <div class="ale-timeline">
+                    <div class="ale-dot" style="background:${c.bg};color:${c.ac}">${c.icon}</div>
+                    <div class="ale-line"></div>
+                </div>
+                <div class="ale-body">
+                    <div class="ale-top">
+                        <span class="ale-who">${a.who || 'System'}</span>
+                        <span class="ale-tag" style="background:${c.bg};color:${c.ac};border-color:${c.border}">${c.label}</span>
+                    </div>
+                    <div class="ale-text">${a.text || ''}</div>
+                    <div class="ale-time">
+                        <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><circle cx="5" cy="5" r="4" stroke="currentColor" stroke-width="1"/><path d="M5 3v2l1.5 1.5" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
+                        ${a.time || ''}
+                    </div>
+                </div>
+                <button class="ale-del" title="Remove entry" onclick="auditDeleteEntry(${a.id})">
+                    <svg width="11" height="11" viewBox="0 0 11 11" fill="none"><path d="M1.5 2.5h8M4 2.5V1.5h3v1M3.5 2.5L4 9.5h3l.5-7" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </button>
+            </div>`;
+        });
+        listEl.innerHTML = html;
+
+        // ── Pagination ──
+        const pgRow  = document.getElementById('auditPg');
+        const pgInfo = document.getElementById('auditPgInfo');
+        const pgBtns = document.getElementById('auditPgBtns');
+        if (totalPages > 1) {
+            if (pgRow)  pgRow.style.display = 'flex';
+            if (pgInfo) pgInfo.textContent = `${start + 1}–${Math.min(start + _AUDIT_PER, totalF)} of ${totalF}`;
+            if (pgBtns) {
+                let b = `<button class="audit-pg-btn" onclick="_auditGoPage(${_auditPage - 1})" ${_auditPage === 1 ? 'disabled' : ''}>‹</button>`;
+                for (let p = 1; p <= totalPages; p++) {
+                    b += `<button class="audit-pg-btn ${p === _auditPage ? 'apg-on' : ''}" onclick="_auditGoPage(${p})">${p}</button>`;
+                }
+                b += `<button class="audit-pg-btn" onclick="_auditGoPage(${_auditPage + 1})" ${_auditPage === totalPages ? 'disabled' : ''}>›</button>`;
+                pgBtns.innerHTML = b;
+            }
+        } else {
+            if (pgRow) pgRow.style.display = 'none';
+        }
+    }
+
+    function _auditGoPage(p) {
+        _auditPage = p;
+        renderAudit();
+        document.getElementById('page-audit')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function auditDeleteEntry(id) {
+        DB.auditLog = (DB.auditLog || []).filter(a => a.id !== id);
+        renderAudit();
+        toast('Entry removed', 'wn');
+    }
+
+    function auditExportCSV() {
+        const filtered = _auditGetFiltered();
+        const rows = [['ID', 'Who', 'Type', 'Action', 'Time']];
+        filtered.forEach(a => rows.push([a.id, a.who, a.type, '"' + (a.text || '').replace(/"/g, '""') + '"', a.time]));
+        const csv = rows.map(r => r.join(',')).join('\n');
+        const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }));
+        const lnk = document.createElement('a');
+        lnk.href = url; lnk.download = 'audit-log.csv'; lnk.click();
+        URL.revokeObjectURL(url);
+        toast('CSV exported', 'ok');
     }
 
     function clearAudit() {
-        if (!confirm('Clear all audit log entries?')) return;
+        if (!confirm('Clear all audit log entries? This cannot be undone.')) return;
         DB.auditLog = [];
         renderAudit();
         toast('Audit log cleared', 'wn');
