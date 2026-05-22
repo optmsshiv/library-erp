@@ -3578,207 +3578,56 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         const inMonth = (dateStr) => !month || (dateStr||'').startsWith(month);
 
         if (_rptType === 'monthly') {
-            const toYYYYMM = (val, fb) => {
+            // Normalize any month string to YYYY-MM format
+            // Handles: "2026-05" (already good), "May 2026" / "March 2026" (PHP date('F Y')),
+            // "2026-05-01" (full date), or empty/null
+            const toYYYYMM = (val, fallbackDate) => {
+                if (!val && !fallbackDate) return '';
+                // Already YYYY-MM or YYYY-MM-DD
                 if (/^\d{4}-\d{2}/.test(val||'')) return (val||'').slice(0,7);
-                if (/^[A-Za-z]+ \d{4}$/.test(val||'')) { const d=new Date(val); if(!isNaN(d)) return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`; }
-                if (/^\d{4}-\d{2}/.test(fb||'')) return (fb||'').slice(0,7);
+                // "May 2026" / "March 2026" format (PHP date('F Y'))
+                if (/^[A-Za-z]+ \d{4}$/.test(val||'')) {
+                    const d = new Date(val);
+                    if (!isNaN(d)) return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+                }
+                // Fallback: use invoice_date
+                if (fallbackDate && /^\d{4}-\d{2}/.test(fallbackDate)) return fallbackDate.slice(0,7);
                 return '';
             };
-            const mLabel = ym => { const [y,mo]=ym.split('-'); return new Date(+y,+mo-1).toLocaleString('en-IN',{month:'long',year:'numeric'}); };
-            const fmtD   = d => d ? new Date(d).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}) : '—';
-            const mIcon  = m => ({'cash':'💵','upi':'📱','card':'💳','online':'🌐','cheque':'🏦'}[((m)||'').toLowerCase()]||'💰');
 
-            // Build maps (all months, no filter here)
-            const byMonth = {}, byMonthExp = {};
+            const byMonth = {};
             DB.invoices.forEach(inv => {
-                const m = toYYYYMM(inv.month, inv.date); if (!m) return;
-                if (!byMonth[m]) byMonth[m] = { rev:0, count:0, invoices:[] };
-                byMonth[m].rev += inv.paidAmt; byMonth[m].count++; byMonth[m].invoices.push(inv);
+                const m = toYYYYMM(inv.month, inv.date);
+                if (!m || (month && m !== month)) return;
+                if (!byMonth[m]) byMonth[m] = { rev: 0, count: 0 };
+                byMonth[m].rev += inv.paidAmt;
+                byMonth[m].count++;
             });
+            const byMonthExp = {};
             DB.expenses.forEach(e => {
-                const m = toYYYYMM(null, e.date); if (!m) return;
-                if (!byMonthExp[m]) byMonthExp[m] = { total:0, items:[] };
-                byMonthExp[m].total += e.amount; byMonthExp[m].items.push(e);
+                const m = toYYYYMM(null, e.date);
+                if (!m || (month && m !== month)) return;
+                if (!byMonthExp[m]) byMonthExp[m] = 0;
+                byMonthExp[m] += e.amount;
             });
             const allMonths = [...new Set([...Object.keys(byMonth),...Object.keys(byMonthExp)])].sort().reverse();
-
-            if (month) {
-                // ── DRILL-DOWN: full detail for selected month ──
-                const invs = (byMonth[month]?.invoices||[]).sort((a,b)=>(a.date||'').localeCompare(b.date||''));
-                const exps = (byMonthExp[month]?.items||[]).sort((a,b)=>(a.date||'').localeCompare(b.date||''));
-                const rev  = byMonth[month]?.rev||0;
-                const exp  = byMonthExp[month]?.total||0;
-                const pft  = rev - exp;
-                const paidCnt = invs.filter(i=>i.status==='paid').length;
-                const partCnt = invs.filter(i=>i.status==='partial').length;
-
-                statsHtml = `<div style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px;padding:14px 16px 0">
-                    ${statCard('Revenue Collected', fmt(rev), 'var(--em)')}
-                    ${statCard('Total Expenses', fmt(exp), 'var(--ro)')}
-                    ${statCard('Net '+(pft>=0?'Profit':'Loss'), fmt(Math.abs(pft)), pft>=0?'var(--ac)':'var(--ro)')}
-                    ${statCard('Payments', invs.length, 'var(--vi)')}
-                    ${statCard('Expense Entries', exps.length, 'var(--or)')}
-                </div>`;
-
-                // payment mode chips
-                const byMode = {};
-                invs.forEach(i => { byMode[i.mode||'Cash']=(byMode[i.mode||'Cash']||0)+i.paidAmt; });
-                const modeChips = Object.entries(byMode).map(([k,v])=>
-                    `<span style="display:inline-flex;align-items:center;gap:4px;padding:4px 11px;background:var(--c-blue);border:1px solid var(--cb);border-radius:20px;font-size:11px;font-weight:600;margin:2px">${mIcon(k)} ${k} — ${fmt(v)}</span>`
-                ).join('') || '<span style="font-size:11px;color:var(--tx3)">No payments</span>';
-
-                // fee rows
-                const feeRows = invs.length ? invs.map((inv,i) => {
-                    const stu = DB.students.find(s=>s.id===inv.studentId);
-                    const nm  = stu ? `<strong>${stu.fname} ${stu.lname}</strong>` : `<span style="font-size:10px;color:var(--ro)">Archived/Deleted</span>`;
-                    const bat = stu ? batchName(stu.batchId) : '—';
-                    const stTag = {paid:`<span class="tag tpd">✔ Paid</span>`,partial:`<span class="tag tpart">◑ Partial</span>`}[inv.status]||`<span class="tag tpn">${inv.status}</span>`;
-                    return `<tr style="border-bottom:1px solid var(--br);background:${i%2?'var(--sf2)':'var(--sf)'}">
-                        <td style="padding:9px 12px;font-size:11px;font-family:var(--fm);color:var(--ac)">${inv.id}</td>
-                        <td style="padding:9px 12px;font-size:12px">${nm}</td>
-                        <td style="padding:9px 12px;font-size:11px;color:var(--tx3)">${bat}</td>
-                        <td style="padding:9px 12px;font-size:11px">${inv.type||'Monthly Fee'}</td>
-                        <td style="padding:9px 12px;font-size:12px">${fmt(inv.baseFee||inv.amount)}</td>
-                        <td style="padding:9px 12px;font-size:12px;color:var(--or)">${inv.discount>0?fmt(inv.discount):'—'}</td>
-                        <td style="padding:9px 12px;font-size:13px;font-weight:700;color:var(--em)">${fmt(inv.paidAmt)}</td>
-                        <td style="padding:9px 12px;font-size:12px;color:${inv.balance>0?'var(--ro)':'var(--tx3)'}">${inv.balance>0?fmt(inv.balance):'—'}</td>
-                        <td style="padding:9px 12px">${stTag}</td>
-                        <td style="padding:9px 12px;font-size:11px">${mIcon(inv.mode)} ${inv.mode||'Cash'}</td>
-                        <td style="padding:9px 12px;font-size:11px;color:var(--tx3);white-space:nowrap">${fmtD(inv.date)}</td>
-                    </tr>`;
-                }).join('')
-                : `<tr><td colspan="11" style="padding:22px;text-align:center;color:var(--tx3)">No payments recorded this month</td></tr>`;
-
-                const feeFoot = `<tr style="background:var(--sf3);font-weight:700">
-                    <td colspan="6" style="padding:9px 12px;font-size:11px">${invs.length} payment(s) · ${paidCnt} fully paid · ${partCnt} partial</td>
-                    <td style="padding:9px 12px;font-size:13px;color:var(--em)">${fmt(rev)}</td>
-                    <td colspan="4"></td></tr>`;
-
-                // expense rows
-                const expRows = exps.length ? exps.map((e,i)=>`<tr style="border-bottom:1px solid var(--br);background:${i%2?'var(--sf2)':'var(--sf)'}">
-                    <td style="padding:9px 12px;font-size:18px">${e.emoji||'💰'}</td>
-                    <td style="padding:9px 12px;font-size:12px;font-weight:600">${e.name}</td>
-                    <td style="padding:9px 12px"><span class="tag tor">${e.category||'Other'}</span></td>
-                    <td style="padding:9px 12px;font-size:13px;font-weight:700;color:var(--ro)">${fmt(e.amount)}</td>
-                    <td style="padding:9px 12px;font-size:11px;color:var(--tx3);white-space:nowrap">${fmtD(e.date)}</td>
-                    <td style="padding:9px 12px;font-size:11px;color:var(--tx3)">${e.notes||'—'}</td>
-                </tr>`).join('')
-                : `<tr><td colspan="6" style="padding:22px;text-align:center;color:var(--tx3)">No expenses recorded this month</td></tr>`;
-
-                const expFoot = `<tr style="background:var(--sf3);font-weight:700">
-                    <td colspan="3" style="padding:9px 12px;font-size:11px">${exps.length} expense(s)</td>
-                    <td style="padding:9px 12px;font-size:13px;color:var(--ro)">${fmt(exp)}</td>
-                    <td colspan="2"></td></tr>`;
-
-                // category bars
-                const catMap = {};
-                exps.forEach(e => { catMap[e.category||'Other']=(catMap[e.category||'Other']||0)+e.amount; });
-                const catBars = exp>0 ? Object.entries(catMap).sort((a,b)=>b[1]-a[1]).map(([cat,amt])=>{
-                    const pct=Math.round(amt/exp*100);
-                    return `<div style="margin-bottom:10px">
-                        <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:3px"><span style="font-weight:600">${cat}</span><span style="color:var(--tx3)">${fmt(amt)} (${pct}%)</span></div>
-                        <div style="height:6px;background:var(--sf3);border-radius:3px"><div style="height:6px;background:var(--ro);border-radius:3px;width:${pct}%"></div></div>
-                    </div>`;
-                }).join('') : '<div style="font-size:12px;color:var(--tx3)">No expenses this month</div>';
-
-                _rptData = invs.map(inv => {
-                    const stu=DB.students.find(s=>s.id===inv.studentId);
-                    return [inv.id, stu?`${stu.fname} ${stu.lname}`:'Archived', inv.type||'Monthly Fee', inv.paidAmt, inv.balance||0, inv.status, inv.mode||'Cash', inv.date||''];
-                });
-
-                const th = cols => cols.map(c=>`<th style="padding:8px 12px;text-align:left;background:var(--sf2);color:var(--tx3);font-size:9px;text-transform:uppercase;font-family:var(--fm);border-bottom:1px solid var(--br);white-space:nowrap">${c}</th>`).join('');
-
-                html = `
-                <div style="padding:10px 16px 0;display:flex;flex-wrap:wrap;gap:4px;align-items:center">
-                    <span style="font-size:10px;font-weight:700;color:var(--tx3);font-family:var(--fm);text-transform:uppercase;letter-spacing:.8px;margin-right:4px">By Mode:</span>
-                    ${modeChips}
-                </div>
-                <div style="padding:16px 16px 8px">
-                    <div style="font-size:14px;font-weight:700;color:var(--tx);margin-bottom:10px;display:flex;align-items:center;gap:8px">
-                        <span style="width:4px;height:18px;background:var(--em);border-radius:2px;display:inline-block"></span>
-                        💳 Fee Payments — ${mLabel(month)}
-                    </div>
-                    <div class="tw"><table style="width:100%;border-collapse:collapse">
-                        <thead><tr>${th(['Invoice #','Student','Batch','Type','Fee','Discount','Paid','Balance','Status','Mode','Date'])}</tr></thead>
-                        <tfoot>${feeFoot}</tfoot>
-                        <tbody>${feeRows}</tbody>
-                    </table></div>
-                </div>
-                <div style="padding:8px 16px 16px;border-top:2px solid var(--br)">
-                    <div style="font-size:14px;font-weight:700;color:var(--tx);margin-bottom:10px;display:flex;align-items:center;gap:8px">
-                        <span style="width:4px;height:18px;background:var(--ro);border-radius:2px;display:inline-block"></span>
-                        🧾 Expenses — ${mLabel(month)}
-                    </div>
-                    <div style="display:grid;grid-template-columns:1fr 260px;gap:14px;align-items:start">
-                        <div class="tw"><table style="width:100%;border-collapse:collapse">
-                            <thead><tr>${th(['','Name','Category','Amount','Date','Notes'])}</tr></thead>
-                            <tfoot>${expFoot}</tfoot>
-                            <tbody>${expRows}</tbody>
-                        </table></div>
-                        <div style="background:var(--sf2);border:1px solid var(--br);border-radius:var(--r);padding:14px">
-                            <div style="font-size:10px;font-weight:700;color:var(--tx3);font-family:var(--fm);text-transform:uppercase;letter-spacing:.8px;margin-bottom:12px">By Category</div>
-                            ${catBars}
-                        </div>
-                    </div>
-                </div>
-                <div style="margin:0 16px 16px;padding:14px 18px;background:${pft>=0?'var(--c-green)':'var(--c-rose)'};border:1px solid ${pft>=0?'var(--cb)':'var(--cr)'};border-radius:var(--r);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
-                    <div style="font-size:13px;font-weight:600;color:var(--tx)">${mLabel(month)} — Net Result</div>
-                    <div style="display:flex;gap:22px;align-items:center;flex-wrap:wrap">
-                        <span style="font-size:12px;color:var(--em)">Revenue: <strong>${fmt(rev)}</strong></span>
-                        <span style="font-size:12px;color:var(--ro)">Expenses: <strong>${fmt(exp)}</strong></span>
-                        <span style="font-size:17px;font-weight:800;color:${pft>=0?'var(--em)':'var(--ro)'}">${pft>=0?'Profit':'Loss'}: ${fmt(Math.abs(pft))}</span>
-                    </div>
-                </div>`;
-
-                metaTxt = `${mLabel(month)} · ${invs.length} payment(s) · ${exps.length} expense(s)`;
-
-            } else {
-                // ── OVERVIEW: all months summary, click to drill down ──
-                const totalRev = allMonths.reduce((a,m)=>a+(byMonth[m]?.rev||0),0);
-                const totalExp = allMonths.reduce((a,m)=>a+(byMonthExp[m]?.total||0),0);
-                const totalPft = totalRev - totalExp;
-
-                statsHtml = `<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:14px 16px 0">
-                    ${statCard('Total Revenue', fmt(totalRev), 'var(--em)')}
-                    ${statCard('Total Expenses', fmt(totalExp), 'var(--ro)')}
-                    ${statCard('Net '+(totalPft>=0?'Profit':'Loss'), fmt(Math.abs(totalPft)), totalPft>=0?'var(--ac)':'var(--ro)')}
-                </div>`;
-
-                _rptData = allMonths.map(m => {
-                    const rev=byMonth[m]?.rev||0, exp=byMonthExp[m]?.total||0;
-                    return [mLabel(m), fmt(rev), fmt(exp), fmt(rev-exp), byMonth[m]?.count||0, byMonthExp[m]?.items?.length||0];
-                });
-
-                const rows = allMonths.map((m,i) => {
-                    const rev=byMonth[m]?.rev||0, exp=byMonthExp[m]?.total||0, pft=rev-exp;
-                    return `<tr style="border-bottom:1px solid var(--br);background:${i%2?'var(--sf2)':'var(--sf)'};cursor:pointer" onclick="document.getElementById('flt-month').value='${m}';applyRptFilters()">
-                        <td style="padding:10px 12px;font-size:13px;font-weight:600;color:var(--ac)">${mLabel(m)} <span style="font-size:9px;color:var(--tx3)">↗ click for detail</span></td>
-                        <td style="padding:10px 12px;font-size:13px;font-weight:700;color:var(--em)">${fmt(rev)}</td>
-                        <td style="padding:10px 12px;font-size:13px;font-weight:700;color:var(--ro)">${fmt(exp)}</td>
-                        <td style="padding:10px 12px;font-size:13px;font-weight:700;color:${pft>=0?'var(--em)':'var(--ro)'}">${fmt(pft)}</td>
-                        <td style="padding:10px 12px;font-size:11px;color:var(--tx3)">${byMonth[m]?.count||0} invoice(s)</td>
-                        <td style="padding:10px 12px;font-size:11px;color:var(--tx3)">${byMonthExp[m]?.items?.length||0} expense(s)</td>
-                    </tr>`;
-                }).join('') || `<tr><td colspan="6" style="padding:22px;text-align:center;color:var(--tx3)">No data found</td></tr>`;
-
-                const th = cols => cols.map(c=>`<th style="padding:8px 12px;text-align:left;background:var(--sf2);color:var(--tx3);font-size:9px;text-transform:uppercase;font-family:var(--fm);border-bottom:1px solid var(--br)">${c}</th>`).join('');
-
-                html = `
-                <div style="padding:10px 16px 4px;font-size:11px;color:var(--tx3)">👆 Click any month row to see full payment & expense detail</div>
-                <div class="tw"><table style="width:100%;border-collapse:collapse">
-                    <thead><tr>${th(['Month','Revenue','Expenses','Profit / Loss','Payments','Expenses'])}</tr></thead>
-                    <tfoot><tr style="background:var(--sf3);font-weight:700">
-                        <td style="padding:9px 12px">TOTAL</td>
-                        <td style="padding:9px 12px;color:var(--em)">${fmt(totalRev)}</td>
-                        <td style="padding:9px 12px;color:var(--ro)">${fmt(totalExp)}</td>
-                        <td style="padding:9px 12px;color:${totalPft>=0?'var(--em)':'var(--ro)'}">${fmt(totalPft)}</td>
-                        <td colspan="2"></td>
-                    </tr></tfoot>
-                    <tbody>${rows}</tbody>
-                </table></div>`;
-
-                metaTxt = `${allMonths.length} month(s) · select a month to drill down`;
-            }
+            const totalRev = allMonths.reduce((a,m) => a+(byMonth[m]?.rev||0), 0);
+            const totalExp = allMonths.reduce((a,m) => a+(byMonthExp[m]||0), 0);
+            const totalPft = totalRev - totalExp;
+            statsHtml = `<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:14px 16px 0">
+                ${statCard('Total Revenue', fmt(totalRev), 'var(--em)')}
+                ${statCard('Total Expenses', fmt(totalExp), 'var(--ro)')}
+                ${statCard('Net Profit', fmt(totalPft), totalPft>=0?'var(--ac)':'var(--ro)')}
+            </div>`;
+            _rptData = allMonths.map(m => {
+                const [y,mo] = m.split('-');
+                const label = new Date(+y, +mo-1).toLocaleString('en-IN',{month:'long',year:'numeric'});
+                const rev = byMonth[m]?.rev||0, exp = byMonthExp[m]||0;
+                return [label, fmt(rev), fmt(exp), fmt(rev-exp), byMonth[m]?.count||0];
+            });
+            html = tbl(['Month','Revenue','Expenses','Profit / Loss','Invoices'], _rptData,
+                ['TOTAL', fmt(totalRev), fmt(totalExp), fmt(totalPft), '']);
+            metaTxt = `${allMonths.length} month(s)`;
         }
 
         else if (_rptType === 'fee') {
