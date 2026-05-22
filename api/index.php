@@ -86,7 +86,7 @@ switch ($action) {
     // DASHBOARD
     // ══════════════════════════════════
     case 'get_dashboard':
-        $students = $db->query("SELECT * FROM students")->fetchAll();
+        $students = $db->query("SELECT * FROM students WHERE is_deleted=0 OR is_deleted IS NULL")->fetchAll();
         // Auto-heal bad date values
         foreach ($students as &$row) {
             if (empty($row['due_date']) || $row['due_date'] === '0000-00-00') {
@@ -155,7 +155,7 @@ switch ($action) {
     // STUDENTS
     // ══════════════════════════════════
     case 'get_students':
-        $rows = $db->query("SELECT s.*, b.name as batch_name FROM students s LEFT JOIN batches b ON s.batch_id=b.id ORDER BY s.created_at DESC")->fetchAll();
+        $rows = $db->query("SELECT s.*, b.name as batch_name FROM students s LEFT JOIN batches b ON s.batch_id=b.id WHERE s.is_deleted=0 OR s.is_deleted IS NULL ORDER BY s.created_at DESC")->fetchAll();
         // Auto-heal bad date values so frontend always gets valid data
         foreach ($rows as &$row) {
             // due_date: if NULL or 0000-00-00, calculate from join_date or created_at
@@ -264,32 +264,105 @@ switch ($action) {
         ]);
         jsonResponse(['success' => true]);
 
+    case 'archive_student':
+        if ($method !== 'POST') jsonError('Method not allowed', 405);
+        $d = getInput();
+        $id = $d['id'] ?? '';
+        if (!$id) jsonError('ID required');
+
+        // Fetch student before archiving
+        $stuRow = $db->prepare("SELECT fname, lname, batch_id FROM students WHERE id=? AND is_deleted=0 LIMIT 1");
+        $stuRow->execute([$id]);
+        $stuData = $stuRow->fetch();
+        if (!$stuData) jsonError('Student not found');
+
+        $deletedName = trim($stuData['fname'].' '.$stuData['lname']);
+        $batchId = $stuData['batch_id'] ?? null;
+        $archivedBy = $_SESSION['staff_name'] ?? 'Admin';
+
+        // Soft delete: mark as archived
+        $db->prepare("UPDATE students SET is_deleted=1, archived_at=NOW(), archived_by=? WHERE id=?")
+           ->execute([$archivedBy, $id]);
+
+        // Recalculate occupied seats
+        if ($batchId) {
+            $cntStmt = $db->prepare("SELECT COUNT(*) as cnt FROM students WHERE batch_id=? AND seat IS NOT NULL AND seat != '' AND is_deleted=0");
+            $cntStmt->execute([$batchId]);
+            $newOcc = (int)($cntStmt->fetch()['cnt'] ?? 0);
+            $db->prepare("UPDATE batches SET occupied_seats=? WHERE id=?")->execute([$newOcc, $batchId]);
+        }
+
+        jsonResponse(['success' => true]);
+
+    case 'get_archived_students':
+        $rows = $db->query("SELECT * FROM students WHERE is_deleted=1 ORDER BY archived_at DESC")->fetchAll();
+        jsonResponse(['students' => $rows]);
+
+    case 'restore_student':
+        if ($method !== 'POST') jsonError('Method not allowed', 405);
+        $d = getInput();
+        $id = $d['id'] ?? '';
+        if (!$id) jsonError('ID required');
+
+        $db->prepare("UPDATE students SET is_deleted=0, archived_at=NULL, archived_by=NULL WHERE id=?")
+           ->execute([$id]);
+
+        // Recalculate occupied seats after restore
+        $stuRow2 = $db->prepare("SELECT batch_id FROM students WHERE id=? LIMIT 1");
+        $stuRow2->execute([$id]);
+        $stuData2 = $stuRow2->fetch();
+        if (!empty($stuData2['batch_id'])) {
+            $bid = $stuData2['batch_id'];
+            $cntStmt2 = $db->prepare("SELECT COUNT(*) as cnt FROM students WHERE batch_id=? AND seat IS NOT NULL AND seat != '' AND is_deleted=0");
+            $cntStmt2->execute([$bid]);
+            $newOcc2 = (int)($cntStmt2->fetch()['cnt'] ?? 0);
+            $db->prepare("UPDATE batches SET occupied_seats=? WHERE id=?")->execute([$newOcc2, $bid]);
+        }
+
+        jsonResponse(['success' => true]);
+
+    case 'perm_delete_student':
+        if ($method !== 'POST') jsonError('Method not allowed', 405);
+        $d = getInput();
+        $id = $d['id'] ?? '';
+        if (!$id) jsonError('ID required');
+
+        // Only allow permanent delete of already-archived students
+        $check = $db->prepare("SELECT id, batch_id FROM students WHERE id=? AND is_deleted=1 LIMIT 1");
+        $check->execute([$id]);
+        $chkData = $check->fetch();
+        if (!$chkData) jsonError('Student must be archived first before permanent deletion');
+
+        $db->prepare("DELETE FROM students WHERE id=?")->execute([$id]);
+
+        if (!empty($chkData['batch_id'])) {
+            $cntP = $db->prepare("SELECT COUNT(*) as cnt FROM students WHERE batch_id=? AND seat IS NOT NULL AND seat != '' AND is_deleted=0");
+            $cntP->execute([$chkData['batch_id']]);
+            $newOccP = (int)($cntP->fetch()['cnt'] ?? 0);
+            $db->prepare("UPDATE batches SET occupied_seats=? WHERE id=?")->execute([$newOccP, $chkData['batch_id']]);
+        }
+
+        jsonResponse(['success' => true]);
+
+    // Legacy alias — kept for safety but now does soft archive
     case 'delete_student':
         if ($method !== 'POST') jsonError('Method not allowed', 405);
         $d = getInput();
         $id = $d['id'] ?? '';
         if (!$id) jsonError('ID required');
-        // $db->prepare("DELETE FROM students WHERE id=?")->execute([$id]);
-        // jsonResponse(['success' => true]);
 
-        // Store student name + batch_id before deleting
         $stuRow = $db->prepare("SELECT fname, lname, batch_id FROM students WHERE id=? LIMIT 1");
         $stuRow->execute([$id]);
         $stuData = $stuRow->fetch();
-        $deletedName = $stuData ? trim($stuData['fname'].' '.$stuData['lname']) : 'Deleted Student';
+        $deletedName = $stuData ? trim($stuData['fname'].' '.$stuData['lname']) : 'Unknown';
         $batchId = $stuData['batch_id'] ?? null;
+        $archivedBy = $_SESSION['staff_name'] ?? 'Admin';
 
-        // Keep student_id in invoices intact — just mark with deleted name
-        // Remove foreign key risk by nullifying only non-critical references
-        $db->prepare("UPDATE attendance SET student_id=student_id WHERE student_id=?")->execute([$id]);
+        $db->prepare("UPDATE students SET is_deleted=1, archived_at=NOW(), archived_by=? WHERE id=?")
+           ->execute([$archivedBy, $id]);
 
-        // Delete student
-        $db->prepare("DELETE FROM students WHERE id=?")->execute([$id]);
-
-        // ✅ FIX: recalculate occupied_seats from real data after deletion
         if ($batchId) {
-            $newOcc = (int)$db->prepare("SELECT COUNT(*) FROM students WHERE batch_id=? AND seat IS NOT NULL AND seat != ''")->execute([$batchId]) ? 0 : 0;
-            $cntStmt = $db->prepare("SELECT COUNT(*) as cnt FROM students WHERE batch_id=? AND seat IS NOT NULL AND seat != ''");
+            $cntStmt = $db->prepare("SELECT COUNT(*) as cnt FROM students WHERE batch_id=? AND seat IS NOT NULL AND seat != '' AND is_deleted=0");
             $cntStmt->execute([$batchId]);
             $newOcc = (int)($cntStmt->fetch()['cnt'] ?? 0);
             $db->prepare("UPDATE batches SET occupied_seats=? WHERE id=?")->execute([$newOcc, $batchId]);

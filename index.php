@@ -509,13 +509,14 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
 <div class="sb">
     <div class="sb-logo"><div class="logo-row"><div class="logo-ic" id="sidebar-logo-wrap"><span class="mi" style="color:#fff;font-size:20px" id="sidebar-logo-icon">auto_stories</span><img id="sidebar-logo-img" src="" alt="" style="display:none;width:36px;height:36px;object-fit:contain;border-radius:8px"></div><div><div class="logo-tx" id="sidebar-lib-name">OPTMS Tech</div><div class="logo-sb">ERP v6.0</div></div></div></div>
     <nav class="sb-nav">
-        <div class="ns"><div class="nl">Overview</div>
+        <div class="ns"><div class="nl">Students</div>
             <div class="ni active" data-page="dashboard"><span class="ni-ic mi">dashboard</span> Dashboard</div>
             <div class="ni" data-page="analytics"><span class="ni-ic mi">insights</span> Analytics</div>
         </div>
         <div class="ns"><div class="nl">Students</div>
             <div class="ni" data-page="students"><span class="ni-ic mi">school</span> All Students</div>
             <div class="ni" data-page="enroll" id="ni-enroll"><span class="ni-ic mi">person_add</span> Enroll Student</div>
+            <div class="ni" data-page="archived"><span class="ni-ic mi">archive</span> Archived <span class="nbadge y" id="b-archived" style="display:none">0</span></div>
             <div class="ni" data-page="seats"><span class="ni-ic mi">event_seat</span> Seat Allocation</div>
             <div class="ni" data-page="attendance"><span class="ni-ic mi">fact_check</span> Attendance <span class="nbadge" id="b-absent">0</span></div>
         </div>
@@ -1048,6 +1049,37 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
                 <!-- Summary stat row for the report -->
                 <div id="rptStatsWrap" style="padding:0 0 0 0"></div>
                 <div class="pb" id="rptBody"></div>
+            </div>
+        </div>
+
+        <!-- ARCHIVED STUDENTS -->
+        <div class="page" id="page-archived">
+            <div class="sec-hd">
+                <div>
+                    <div class="sec-t">🗄️ Archived Students</div>
+                    <div class="sec-s">Students removed from active list — can be restored or permanently deleted</div>
+                </div>
+                <div style="display:flex;gap:8px;align-items:center">
+                    <input id="archSrch" placeholder="Search archived…" oninput="renderArchived(this.value)" style="font-size:12px;padding:6px 11px;width:200px">
+                </div>
+            </div>
+            <!-- Stats -->
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px">
+                <div class="sc" style="--ca:var(--or)"><div class="s-lb">Archived Students</div><div class="s-vl" id="arch-count">0</div><div class="s-mt">Removed from active list</div></div>
+                <div class="sc" style="--ca:var(--ro)"><div class="s-lb">Total Dues Left</div><div class="s-vl" id="arch-dues">₹0</div><div class="s-mt">Outstanding at time of archive</div></div>
+                <div class="sc" style="--ca:var(--em)"><div class="s-lb">Total Collected</div><div class="s-vl" id="arch-paid">₹0</div><div class="s-mt">Fees collected from archived</div></div>
+            </div>
+            <div class="panel">
+                <div class="ph"><div class="pt">Archived List</div><span id="archMeta" style="font-size:11px;color:var(--tx3)"></span></div>
+                <div class="tw">
+                    <table>
+                        <thead><tr>
+                            <th>Student</th><th>Batch</th><th>Course</th><th>Phone</th>
+                            <th>Fee Status</th><th>Balance</th><th>Archived On</th><th>Archived By</th><th>Actions</th>
+                        </tr></thead>
+                        <tbody id="archTable"><tr><td colspan="9" style="text-align:center;padding:28px;color:var(--tx3)">Loading…</td></tr></tbody>
+                    </table>
+                </div>
             </div>
         </div>
 
@@ -2065,7 +2097,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
     }
 
     // ═══ NAVIGATION ═══
-    const PAGE_TITLES={dashboard:'Dashboard',students:'All Students',seats:'Seat Allocation',attendance:'Attendance',books:'Books Catalog',transactions:'Issue & Returns',fees:'Fee Management',invoices:'Invoices',expenses:'Expenses',reports:'Reports',analytics:'Analytics',whatsapp:'WhatsApp Messaging',staff:'Staff & Users',staff_attendance:'Staff Attendance & Salary',renewal:'Student Renewals',audit:'Audit Log',notifications:'Notifications',settings:'Settings'};
+    const PAGE_TITLES={dashboard:'Dashboard',students:'All Students',archived:'Archived Students',seats:'Seat Allocation',attendance:'Attendance',books:'Books Catalog',transactions:'Issue & Returns',fees:'Fee Management',invoices:'Invoices',expenses:'Expenses',reports:'Reports',analytics:'Analytics',whatsapp:'WhatsApp Messaging',staff:'Staff & Users',staff_attendance:'Staff Attendance & Salary',renewal:'Student Renewals',audit:'Audit Log',notifications:'Notifications',settings:'Settings'};
     function navTo(page){
         document.querySelectorAll('.ni').forEach(n=>n.classList.remove('active'));
         const ni=document.querySelector(`.ni[data-page="${page}"]`);if(ni)ni.classList.add('active');
@@ -2078,7 +2110,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         el.addEventListener('click',()=>{if(el.dataset.page==='enroll'){openM('mEnroll');return;}navTo(el.dataset.page);});
     });
     function renderPage(p){
-        const map={dashboard:renderDash,students:renderStudents,seats:renderSeats,attendance:renderAtt,books:renderBooks,transactions:renderTx,fees:renderFees,invoices:renderInv,expenses:renderExp,analytics:renderAnal,whatsapp:renderWA,staff:renderStaff,staff_attendance:renderStaffAtt,renewal:renderRenewal,audit:renderAudit,notifications:renderNotifs,settings:renderSettings,biometric:renderBiometric};
+        const map={dashboard:renderDash,students:renderStudents,archived:loadArchived,seats:renderSeats,attendance:renderAtt,books:renderBooks,transactions:renderTx,fees:renderFees,invoices:renderInv,expenses:renderExp,analytics:renderAnal,whatsapp:renderWA,staff:renderStaff,staff_attendance:renderStaffAtt,renewal:renderRenewal,audit:renderAudit,notifications:renderNotifs,settings:renderSettings,biometric:renderBiometric};
         if(map[p])map[p]();
     }
 
@@ -4206,13 +4238,112 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         }
     }
 
-    // ── DELETE STUDENT ──
+    // ── ARCHIVE STUDENT (soft delete) ──
     async function delStu(id) {
-        if (!confirm('Remove this student?')) return;
-        const res = await apiPost('delete_student', { id });
+        const s = DB.students.find(x => x.id === id);
+        const name = s ? `${s.fname} ${s.lname}` : 'this student';
+        if (!confirm(`Archive "${name}"?\n\nThis will move them to Archived Students — their invoices and history are preserved. You can restore them anytime.`)) return;
+        const res = await apiPost('archive_student', { id });
         if (res.error) return toast(res.error, 'er');
-        toast('Removed', 'wn');
+        toast(`"${name}" archived`, 'wn');
+        auditLog('archive_student', `Archived student <strong>${name}</strong>`);
         await reloadDB();
+        // update archived badge
+        loadArchivedBadge();
+    }
+
+    // ── LOAD ARCHIVED BADGE COUNT ──
+    async function loadArchivedBadge() {
+        try {
+            const res = await apiGet('get_archived_students');
+            const count = (res.students || []).length;
+            const badge = document.getElementById('b-archived');
+            if (badge) { badge.textContent = count; badge.style.display = count > 0 ? '' : 'none'; }
+        } catch(e) {}
+    }
+
+    // ── LOAD & RENDER ARCHIVED STUDENTS ──
+    let _archivedList = [];
+    async function loadArchived() {
+        document.getElementById('archTable').innerHTML = '<tr><td colspan="9" style="text-align:center;padding:28px;color:var(--tx3)">Loading…</td></tr>';
+        try {
+            const res = await apiGet('get_archived_students');
+            _archivedList = res.students || [];
+            renderArchived('');
+        } catch(e) {
+            document.getElementById('archTable').innerHTML = '<tr><td colspan="9" style="text-align:center;padding:28px;color:var(--ro)">Failed to load archived students.</td></tr>';
+        }
+    }
+
+    function renderArchived(srch) {
+        const list = srch ? _archivedList.filter(s =>
+            `${s.fname} ${s.lname} ${s.phone} ${s.course||''}`.toLowerCase().includes(srch.toLowerCase())
+        ) : _archivedList;
+
+        // Update stats
+        const totalDues = _archivedList.reduce((a,s) => a + (+s.net_fee - +s.paid_amt), 0);
+        const totalPaid = _archivedList.reduce((a,s) => a + +s.paid_amt, 0);
+        document.getElementById('arch-count').textContent = _archivedList.length;
+        document.getElementById('arch-dues').textContent = fmt(Math.max(0, totalDues));
+        document.getElementById('arch-paid').textContent = fmt(totalPaid);
+        document.getElementById('archMeta').textContent = `${list.length} student(s)`;
+
+        const feeTag = st => { const m={paid:'tpd',pending:'tpn',partial:'tpart',overdue:'tod'}; return `<span class="tag ${m[st]||'tac'}">${st}</span>`; };
+        const bName = bid => DB.batches.find(b=>b.id==bid)?.name || '—';
+
+        if (!list.length) {
+            document.getElementById('archTable').innerHTML = `<tr><td colspan="9" style="text-align:center;padding:32px;color:var(--tx3)">${srch ? 'No matches found.' : '🎉 No archived students.'}</td></tr>`;
+            return;
+        }
+
+        document.getElementById('archTable').innerHTML = list.map(s => {
+            const bal = +s.net_fee - +s.paid_amt;
+            const archivedOn = s.archived_at ? new Date(s.archived_at).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}) : '—';
+            const initials = ((s.fname||'?')[0] + (s.lname||'')[0]).toUpperCase();
+            return `<tr>
+                <td>
+                    <div style="display:flex;align-items:center;gap:9px">
+                        <div style="width:30px;height:30px;border-radius:8px;background:${s.color||'#9aa3b8'};display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;flex-shrink:0">${initials}</div>
+                        <div><div style="font-weight:600;font-size:12px">${s.fname} ${s.lname||''}</div><div style="font-size:10px;color:var(--tx3);font-family:var(--fm)">${s.id}</div></div>
+                    </div>
+                </td>
+                <td style="font-size:12px">${bName(s.batch_id)}</td>
+                <td style="font-size:12px">${s.course||'—'}</td>
+                <td style="font-size:12px;font-family:var(--fm)">${s.phone||'—'}</td>
+                <td>${feeTag(s.fee_status||'pending')}</td>
+                <td style="font-size:12px;color:${bal>0?'var(--ro)':'var(--em)'};font-weight:${bal>0?'700':'400'}">₹${bal}</td>
+                <td style="font-size:11px;color:var(--tx3)">${archivedOn}</td>
+                <td style="font-size:11px;color:var(--tx3)">${s.archived_by||'—'}</td>
+                <td>
+                    <div style="display:flex;gap:6px">
+                        <button class="btn" style="background:var(--em);color:#fff;font-size:10px;padding:4px 9px" onclick="restoreStudent('${s.id}','${s.fname} ${s.lname||''}')"><span class="mi sm">restore</span> Restore</button>
+                        <button class="btn bd" style="font-size:10px;padding:4px 9px" onclick="permDeleteStudent('${s.id}','${s.fname} ${s.lname||''}')"><span class="mi sm">delete_forever</span></button>
+                    </div>
+                </td>
+            </tr>`;
+        }).join('');
+    }
+
+    async function restoreStudent(id, name) {
+        if (!confirm(`Restore "${name}" back to active students?`)) return;
+        const res = await apiPost('restore_student', { id });
+        if (res.error) return toast(res.error, 'er');
+        toast(`"${name}" restored!`, 'ok');
+        auditLog('restore_student', `Restored student <strong>${name}</strong>`);
+        await reloadDB();
+        await loadArchived();
+        loadArchivedBadge();
+    }
+
+    async function permDeleteStudent(id, name) {
+        if (!confirm(`⚠️ PERMANENTLY delete "${name}"?\n\nThis CANNOT be undone. All their data will be lost forever.`)) return;
+        if (!confirm(`Are you absolutely sure? Type-check: this will delete all records for "${name}".`)) return;
+        const res = await apiPost('perm_delete_student', { id });
+        if (res.error) return toast(res.error, 'er');
+        toast(`"${name}" permanently deleted`, 'er');
+        auditLog('perm_delete_student', `Permanently deleted student <strong>${name}</strong>`);
+        await loadArchived();
+        loadArchivedBadge();
     }
 
     // ── SAVE BATCH (add/edit) ──
@@ -5792,6 +5923,7 @@ Thank you! 📚
     initData();
     loadMyDP();
     loadLogo();
+    loadArchivedBadge();
 </script>
 </body>
 </html>
