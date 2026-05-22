@@ -455,7 +455,7 @@ switch ($action) {
         $mode = $d['mode'] ?? 'Cash';
         if (!empty($d['split_mode'])) $mode = $d['split_mode'];
         $db->prepare("INSERT INTO invoices (id,student_id,type,amount,base_fee,discount,net_fee,paid_amt,balance,invoice_date,month,mode,status) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)")
-            ->execute([$invId,$d['student_id'],'Monthly Fee',$amt,$s['base_fee'],$s['base_fee']-$s['net_fee'],$s['net_fee'],$newPaid,$balance,date('Y-m-d'),$d['month'] ?? date('Y-m'),$mode,$feeStatus]);
+            ->execute([$invId,$d['student_id'],'Monthly Fee',$amt,$s['base_fee'],$s['base_fee']-$s['net_fee'],$s['net_fee'],$newPaid,$balance,date('Y-m-d'),$d['month'] ?? date('F Y'),$mode,$feeStatus]);
         addActivity($db, '💳', 'rgba(58,125,94,.14)', "<strong>{$s['fname']}</strong> paid ₹{$amt} via {$mode}" . ($feeStatus==='partial' ? " (₹{$balance} pending)" : ' (full)'));
         addNotif($db, 'success', 'Fee Collected', "{$s['fname']} paid ₹{$amt}" . ($feeStatus==='partial' ? " — partial" : ''));
         jsonResponse(['success' => true, 'invoice_id' => $invId, 'fee_status' => $feeStatus, 'balance' => $balance]);
@@ -477,7 +477,7 @@ switch ($action) {
         $type = $typeMap[$d['type'] ?? 'fee'] ?? 'Monthly Fee';
         $amt = (int)$d['amount'];
         $db->prepare("INSERT INTO invoices (id,student_id,type,amount,base_fee,discount,net_fee,paid_amt,balance,invoice_date,month,mode,status) VALUES (?,?,?,?,?,?,?,?,0,?,?,?,?)")
-            ->execute([$invId,$d['student_id'],$type,$amt,$s['base_fee'] ?? $amt,$s['base_fee'] - $s['net_fee'] ?? 0,$s['net_fee'] ?? $amt,$amt,date('Y-m-d'),$d['month'] ?? date('Y-m'),'Manual','paid']);
+            ->execute([$invId,$d['student_id'],$type,$amt,$s['base_fee'] ?? $amt,$s['base_fee'] - $s['net_fee'] ?? 0,$s['net_fee'] ?? $amt,$amt,date('Y-m-d'),$d['month'] ?? date('F Y'),'Manual','paid']);
         jsonResponse(['success' => true, 'id' => $invId]);
 
     case 'get_invoices':
@@ -966,7 +966,7 @@ switch ($action) {
             $amount,
             $invBalance,
             date('Y-m-d'),
-            date('Y-m'),
+            date('F Y'),
             $mode,
             $invStatus,
         ]);

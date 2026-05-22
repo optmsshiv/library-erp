@@ -3488,9 +3488,15 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         // Month dropdown from invoices/expenses dates
         const monthSel = document.getElementById('flt-month');
         const monthsSet = new Set();
-        DB.invoices.forEach(i => { if (i.month) monthsSet.add(i.month); else if (i.date) monthsSet.add(i.date.slice(0,7)); });
-        DB.expenses.forEach(e => { if (e.date) monthsSet.add(e.date.slice(0,7)); });
-        DB.students.forEach(s => { if (s.joinDate) monthsSet.add(s.joinDate.slice(0,7)); });
+        const _normM = (val, fallback) => {
+            if (/^\d{4}-\d{2}/.test(val||'')) return (val||'').slice(0,7);
+            if (/^[A-Za-z]+ \d{4}$/.test(val||'')) { const d=new Date(val); if(!isNaN(d)) return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`; }
+            if (/^\d{4}-\d{2}/.test(fallback||'')) return (fallback||'').slice(0,7);
+            return '';
+        };
+        DB.invoices.forEach(i => { const m=_normM(i.month,i.date); if(m) monthsSet.add(m); });
+        DB.expenses.forEach(e => { const m=_normM(null,e.date); if(m) monthsSet.add(m); });
+        DB.students.forEach(s => { const m=_normM(null,s.joinDate); if(m) monthsSet.add(m); });
         const months = [...monthsSet].sort().reverse();
         monthSel.innerHTML = '<option value="">All Months</option>' + months.map(m => {
             const [y, mo] = m.split('-');
@@ -3540,10 +3546,26 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         const inMonth = (dateStr) => !month || (dateStr||'').startsWith(month);
 
         if (_rptType === 'monthly') {
-            // group invoices by month
+            // Normalize any month string to YYYY-MM format
+            // Handles: "2026-05" (already good), "May 2026" / "March 2026" (PHP date('F Y')),
+            // "2026-05-01" (full date), or empty/null
+            const toYYYYMM = (val, fallbackDate) => {
+                if (!val && !fallbackDate) return '';
+                // Already YYYY-MM or YYYY-MM-DD
+                if (/^\d{4}-\d{2}/.test(val||'')) return (val||'').slice(0,7);
+                // "May 2026" / "March 2026" format (PHP date('F Y'))
+                if (/^[A-Za-z]+ \d{4}$/.test(val||'')) {
+                    const d = new Date(val);
+                    if (!isNaN(d)) return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+                }
+                // Fallback: use invoice_date
+                if (fallbackDate && /^\d{4}-\d{2}/.test(fallbackDate)) return fallbackDate.slice(0,7);
+                return '';
+            };
+
             const byMonth = {};
             DB.invoices.forEach(inv => {
-                const m = inv.month || (inv.date||'').slice(0,7);
+                const m = toYYYYMM(inv.month, inv.date);
                 if (!m || (month && m !== month)) return;
                 if (!byMonth[m]) byMonth[m] = { rev: 0, count: 0 };
                 byMonth[m].rev += inv.paidAmt;
@@ -3551,7 +3573,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
             });
             const byMonthExp = {};
             DB.expenses.forEach(e => {
-                const m = (e.date||'').slice(0,7);
+                const m = toYYYYMM(null, e.date);
                 if (!m || (month && m !== month)) return;
                 if (!byMonthExp[m]) byMonthExp[m] = 0;
                 byMonthExp[m] += e.amount;
@@ -3567,7 +3589,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
             </div>`;
             _rptData = allMonths.map(m => {
                 const [y,mo] = m.split('-');
-                const label = new Date(+y,+mo-1).toLocaleString('en-IN',{month:'long',year:'numeric'});
+                const label = new Date(+y, +mo-1).toLocaleString('en-IN',{month:'long',year:'numeric'});
                 const rev = byMonth[m]?.rev||0, exp = byMonthExp[m]||0;
                 return [label, fmt(rev), fmt(exp), fmt(rev-exp), byMonth[m]?.count||0];
             });
