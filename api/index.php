@@ -511,27 +511,87 @@ switch ($action) {
         if ($method !== 'POST') jsonError('Method not allowed', 405);
         $d = getInput();
         if (empty($d['student_id']) || empty($d['amount'])) jsonError('Student and amount required');
+
+        // ── Auto-migrate: add new columns if they don't exist yet ──
+        try { $db->exec("ALTER TABLE invoices ADD COLUMN IF NOT EXISTS paid_date DATE NULL"); } catch(Exception $e) {}
+        try { $db->exec("ALTER TABLE invoices ADD COLUMN IF NOT EXISTS remarks VARCHAR(500) DEFAULT ''"); } catch(Exception $e) {}
+        try { $db->exec("ALTER TABLE invoices ADD COLUMN IF NOT EXISTS payment_discount INT DEFAULT 0"); } catch(Exception $e) {}
+        try { $db->exec("ALTER TABLE students ADD COLUMN IF NOT EXISTS leave_date DATE NULL"); } catch(Exception $e) {}
+        try { $db->exec("ALTER TABLE students ADD COLUMN IF NOT EXISTS leave_reason VARCHAR(300) DEFAULT ''"); } catch(Exception $e) {}
+
         $stuStmt = $db->prepare("SELECT * FROM students WHERE id=?");
         $stuStmt->execute([$d['student_id']]);
         $s = $stuStmt->fetch();
         if (!$s) jsonError('Student not found');
-        $amt = (int)$d['amount'];
-        $newPaid = min($s['net_fee'], $s['paid_amt'] + $amt);
-        $feeStatus = $newPaid >= $s['net_fee'] ? 'paid' : 'partial';
-        $paidOn = date('Y-m-d');
-        $db->prepare("UPDATE students SET paid_amt=?,fee_status=?,paid_on=? WHERE id=?")->execute([$newPaid,$feeStatus,$paidOn,$d['student_id']]);
-        $balance = $s['net_fee'] - $newPaid;
-        // Create invoice
-        $lastInvId = $db->query("SELECT id FROM invoices ORDER BY created_at DESC LIMIT 1")->fetchColumn();
-        $lastInvNum = $lastInvId ? (int)substr($lastInvId, 4) : 0;
-        $invId = 'INV-' . str_pad($lastInvNum + 1, 4, '0', STR_PAD_LEFT);
-        $mode = $d['mode'] ?? 'Cash';
+
+        $amt             = (int)$d['amount'];
+        $mode            = $d['mode'] ?? 'Cash';
         if (!empty($d['split_mode'])) $mode = $d['split_mode'];
-        $db->prepare("INSERT INTO invoices (id,student_id,type,amount,base_fee,discount,net_fee,paid_amt,balance,invoice_date,month,mode,status) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)")
-            ->execute([$invId,$d['student_id'],'Monthly Fee',$amt,$s['base_fee'],$s['base_fee']-$s['net_fee'],$s['net_fee'],$newPaid,$balance,date('Y-m-d'),$d['month'] ?? date('Y-m'),$mode,$feeStatus]);
-        addActivity($db, '💳', 'rgba(58,125,94,.14)', "<strong>{$s['fname']}</strong> paid ₹{$amt} via {$mode}" . ($feeStatus==='partial' ? " (₹{$balance} pending)" : ' (full)'));
-        addNotif($db, 'success', 'Fee Collected', "{$s['fname']} paid ₹{$amt}" . ($feeStatus==='partial' ? " — partial" : ''));
-        jsonResponse(['success' => true, 'invoice_id' => $invId, 'fee_status' => $feeStatus, 'balance' => $balance]);
+        $remarks         = trim($d['remarks'] ?? '');
+        $paymentDiscount = max(0, (int)($d['payment_discount'] ?? 0));
+
+        // Effective amount after one-time discount on this payment
+        $effectiveAmt = max(0, $amt - $paymentDiscount);
+
+        $newPaid   = min($s['net_fee'], $s['paid_amt'] + $effectiveAmt);
+        $feeStatus = $newPaid >= $s['net_fee'] ? 'paid' : 'partial';
+        $paidOn    = date('Y-m-d');
+
+        $db->prepare("UPDATE students SET paid_amt=?,fee_status=?,paid_on=? WHERE id=?")
+           ->execute([$newPaid, $feeStatus, $paidOn, $d['student_id']]);
+
+        $balance = $s['net_fee'] - $newPaid;
+
+        // ── Create invoice ──
+        $lastInvId  = $db->query("SELECT id FROM invoices ORDER BY created_at DESC LIMIT 1")->fetchColumn();
+        $lastInvNum = $lastInvId ? (int)substr($lastInvId, 4) : 0;
+        $invId      = 'INV-' . str_pad($lastInvNum + 1, 4, '0', STR_PAD_LEFT);
+
+        // Structural discount = enrollment-time difference between base_fee and net_fee
+        $structuralDiscount = $s['base_fee'] - $s['net_fee'];
+
+        $db->prepare(
+            "INSERT INTO invoices
+             (id, student_id, type, amount, base_fee, discount, net_fee,
+              paid_amt, balance, invoice_date, paid_date, month, mode,
+              status, remarks, payment_discount)
+             VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
+        )->execute([
+            $invId,
+            $d['student_id'],
+            'Monthly Fee',
+            $effectiveAmt,
+            $s['base_fee'],
+            $structuralDiscount,
+            $s['net_fee'],
+            $newPaid,
+            $balance,
+            date('Y-m-d'),
+            $paidOn,
+            $d['month'] ?? date('Y-m'),
+            $mode,
+            $feeStatus,
+            $remarks,
+            $paymentDiscount,
+        ]);
+
+        $discNote = $paymentDiscount > 0 ? " (₹{$paymentDiscount} discount applied)" : '';
+        addActivity($db, '💳', 'rgba(58,125,94,.14)',
+            "<strong>{$s['fname']}</strong> paid ₹{$effectiveAmt} via {$mode}{$discNote}" .
+            ($feeStatus === 'partial' ? " (₹{$balance} pending)" : ' (full)')
+        );
+        addNotif($db, 'success', 'Fee Collected',
+            "{$s['fname']} paid ₹{$effectiveAmt}" .
+            ($paymentDiscount > 0 ? " (disc ₹{$paymentDiscount})" : '') .
+            ($feeStatus === 'partial' ? " — partial" : '')
+        );
+        jsonResponse([
+            'success'    => true,
+            'invoice_id' => $invId,
+            'fee_status' => $feeStatus,
+            'balance'    => $balance,
+            'paid_date'  => $paidOn,
+        ]);
 
     // ══════════════════════════════════
     // INVOICES
@@ -554,12 +614,28 @@ switch ($action) {
         jsonResponse(['success' => true, 'id' => $invId]);
 
     case 'get_invoices':
-        $rows = $db->query("SELECT i.*, s.fname, s.lname, s.color FROM invoices i LEFT JOIN students s ON i.student_id=s.id ORDER BY i.created_at DESC")->fetchAll();
+        // Ensure new columns exist before SELECT (safe for existing tenants)
+        try { $db->exec("ALTER TABLE invoices ADD COLUMN IF NOT EXISTS paid_date DATE NULL"); } catch(Exception $e) {}
+        try { $db->exec("ALTER TABLE invoices ADD COLUMN IF NOT EXISTS remarks VARCHAR(500) DEFAULT ''"); } catch(Exception $e) {}
+        try { $db->exec("ALTER TABLE invoices ADD COLUMN IF NOT EXISTS payment_discount INT DEFAULT 0"); } catch(Exception $e) {}
+
+        $rows = $db->query(
+            "SELECT i.*, s.fname, s.lname, s.color
+             FROM invoices i
+             LEFT JOIN students s ON i.student_id = s.id
+             ORDER BY i.created_at DESC"
+        )->fetchAll();
+
         foreach ($rows as &$row) {
+            // Heal invoice_date
             if (empty($row['invoice_date']) || $row['invoice_date'] === '0000-00-00') {
                 $fixed = date('Y-m-d', strtotime($row['created_at'] ?? 'now'));
                 $row['invoice_date'] = $fixed;
                 $db->prepare("UPDATE invoices SET invoice_date=? WHERE id=?")->execute([$fixed, $row['id']]);
+            }
+            // Back-fill paid_date from invoice_date for old rows that predate this column
+            if (empty($row['paid_date']) || $row['paid_date'] === '0000-00-00') {
+                $row['paid_date'] = $row['invoice_date'];
             }
         }
         unset($row);
@@ -1887,6 +1963,96 @@ switch ($action) {
         }
         addActivity($db, '🔒', 'rgba(220,38,38,.12)', $enabled ? 'Fee Gate <strong>activated</strong> — overdue students blocked' : 'Fee Gate <strong>deactivated</strong>');
         jsonResponse(['success' => true, 'fee_gate' => $enabled]);
+
+    // ══════════════════════════════════
+    // MARK STUDENT LEFT (non-destructive)
+    // ══════════════════════════════════
+    case 'mark_student_left':
+        if ($method !== 'POST') jsonError('Method not allowed', 405);
+        $d  = getInput();
+        $id = trim($d['id'] ?? '');
+        if (!$id) jsonError('Student ID required');
+
+        try { $db->exec("ALTER TABLE students ADD COLUMN IF NOT EXISTS leave_date DATE NULL"); } catch(Exception $e) {}
+        try { $db->exec("ALTER TABLE students ADD COLUMN IF NOT EXISTS leave_reason VARCHAR(300) DEFAULT ''"); } catch(Exception $e) {}
+
+        $leaveDate   = !empty($d['leave_date']) ? $d['leave_date'] : date('Y-m-d');
+        $leaveReason = trim($d['leave_reason'] ?? '');
+
+        $stuStmt = $db->prepare("SELECT fname, lname FROM students WHERE id=? LIMIT 1");
+        $stuStmt->execute([$id]);
+        $stuRow = $stuStmt->fetch();
+        if (!$stuRow) jsonError('Student not found');
+
+        $db->prepare("UPDATE students SET leave_date=?, leave_reason=? WHERE id=?")
+           ->execute([$leaveDate, $leaveReason, $id]);
+
+        $name = trim($stuRow['fname'] . ' ' . $stuRow['lname']);
+        addActivity($db, '🚪', 'rgba(220,38,38,.12)',
+            "<strong>{$name}</strong> left on {$leaveDate}" .
+            ($leaveReason ? " — {$leaveReason}" : '')
+        );
+        jsonResponse(['success' => true, 'leave_date' => $leaveDate]);
+
+    // ══════════════════════════════════
+    // MONTHLY DRILL-DOWN DETAIL
+    // ══════════════════════════════════
+    case 'get_monthly_detail':
+        $ym = $_GET['month'] ?? date('Y-m');
+        if (!preg_match('/^\d{4}-\d{2}$/', $ym)) jsonError('Invalid month format. Use YYYY-MM');
+
+        try { $db->exec("ALTER TABLE invoices ADD COLUMN IF NOT EXISTS paid_date DATE NULL"); } catch(Exception $e) {}
+        try { $db->exec("ALTER TABLE invoices ADD COLUMN IF NOT EXISTS remarks VARCHAR(500) DEFAULT ''"); } catch(Exception $e) {}
+        try { $db->exec("ALTER TABLE invoices ADD COLUMN IF NOT EXISTS payment_discount INT DEFAULT 0"); } catch(Exception $e) {}
+
+        $monthLabel = date('F Y', strtotime($ym . '-01'));
+
+        $invStmt = $db->prepare(
+            "SELECT i.id, i.student_id, i.type, i.amount, i.base_fee, i.discount,
+                    i.net_fee, i.paid_amt, i.balance, i.invoice_date,
+                    COALESCE(i.paid_date, i.invoice_date) AS paid_date,
+                    i.month, i.mode, i.status,
+                    COALESCE(i.remarks, '') AS remarks,
+                    COALESCE(i.payment_discount, 0) AS payment_discount,
+                    s.fname, s.lname, s.batch_id, b.name AS batch_name
+             FROM invoices i
+             LEFT JOIN students s ON i.student_id = s.id
+             LEFT JOIN batches  b ON s.batch_id   = b.id
+             WHERE DATE_FORMAT(COALESCE(i.paid_date, i.invoice_date), '%Y-%m') = ?
+                OR i.month = ?
+                OR i.month = ?
+             ORDER BY COALESCE(i.paid_date, i.invoice_date) ASC"
+        );
+        $invStmt->execute([$ym, $ym, $monthLabel]);
+        $invoices = $invStmt->fetchAll();
+
+        // Deduplicate by invoice ID
+        $seen = []; $invoices = array_values(array_filter($invoices, function($r) use (&$seen) {
+            if (isset($seen[$r['id']])) return false;
+            return $seen[$r['id']] = true;
+        }));
+
+        $expStmt = $db->prepare(
+            "SELECT id, name, amount, category, expense_date, notes, emoji
+             FROM expenses
+             WHERE DATE_FORMAT(expense_date, '%Y-%m') = ?
+             ORDER BY expense_date ASC"
+        );
+        $expStmt->execute([$ym]);
+        $expenses = $expStmt->fetchAll();
+
+        $totalRevenue  = array_sum(array_column($invoices, 'paid_amt'));
+        $totalExpenses = array_sum(array_column($expenses, 'amount'));
+
+        jsonResponse([
+            'month'          => $ym,
+            'month_label'    => $monthLabel,
+            'invoices'       => $invoices,
+            'expenses'       => $expenses,
+            'total_revenue'  => $totalRevenue,
+            'total_expenses' => $totalExpenses,
+            'net_profit'     => $totalRevenue - $totalExpenses,
+        ]);
 
     default:
         jsonError('Unknown action', 404);

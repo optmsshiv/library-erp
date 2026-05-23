@@ -1482,6 +1482,8 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
                 <div id="payNormal" class="fg" style="margin-top:10px">
                     <div class="fgi"><label>Amount Paying (₹)</label><input id="cf-amt" type="number" placeholder="0" oninput="cfCalcBalance()"></div>
                     <div class="fgi"><label>Transaction Ref</label><input id="cf-ref" placeholder="Auto-generated"></div>
+                    <div class="fgi"><label>One-time Discount (₹) <span style="font-size:9px;color:var(--tx3);font-weight:400">optional</span></label><input id="cf-disc" type="number" placeholder="0" min="0" oninput="cfCalcBalance()"></div>
+                    <div class="fgi"><label>Payment Date</label><input id="cf-paid-date" type="date"></div>
                 </div>
                 <div id="paySplit" style="display:none;margin-top:10px">
                     <div class="fg">
@@ -1710,6 +1712,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
                 <button class="btn bwa" style="font-size:11px" id="spWaBtn">💬 Send WhatsApp</button>
                 <button class="btn bg" style="font-size:11px;color:var(--ac);border-color:var(--ac)" id="spUpiBtn">📱 UPI Link</button>
                 <button class="btn bg" style="font-size:11px" onclick="openAllocFromProfile()"><span class="mi sm">event_seat</span>Change Seat</button>
+                <button class="btn bg" style="font-size:11px;color:var(--ro);border-color:var(--ro)" id="spMarkLeftBtn" onclick="openMarkLeft(currentStu?.id)"><span class="mi sm">logout</span>Mark Left</button>
                 <button class="btn bd" data-action="delete_student" style="font-size:11px" id="spDelBtn">🗑 Remove</button>
             </div>
         </div>
@@ -1901,7 +1904,9 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
                 netFee: +s.net_fee, paidAmt: +s.paid_amt,
                 feeStatus: s.fee_status, paidOn: s.paid_on,
                 dueDate: s.due_date, course: s.course,
-                color: s.color || '#3d6ff0', joinDate: s.join_date
+                color: s.color || '#3d6ff0', joinDate: s.join_date,
+                leaveDate: s.leave_date || null,
+                leaveReason: s.leave_reason || '',
             }));
 
             DB.books = (data.books || []).map(b => ({
@@ -1926,7 +1931,11 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
                 id: i.id, studentId: i.student_id, type: i.type,
                 amount: +i.amount, baseFee: +i.base_fee, discount: +i.discount,
                 netFee: +i.net_fee, paidAmt: +i.paid_amt, balance: +i.balance,
-                date: i.invoice_date, month: i.month, mode: i.mode, status: i.status
+                date: i.invoice_date,
+                paidDate: i.paid_date || i.invoice_date || null,
+                month: i.month, mode: i.mode, status: i.status,
+                remarks: i.remarks || '',
+                paymentDiscount: +i.payment_discount || 0,
             }));
 
             DB.activities = (data.activities || []).map(a => ({
@@ -2557,7 +2566,12 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
     }
     function stuSrch(v){stuSearchVal=v;stuPage=1;renderStudents();}
     function stuFilt(f,el){stuFilterVal=f;stuPage=1;document.querySelectorAll('#stuTabs .tab').forEach(t=>t.classList.remove('active'));el.classList.add('active');renderStudents();}
-    function qCollect(id){populateFeeModal(id);openM('mCollectFee');}
+    function qCollect(id) {
+        populateFeeModal(id);
+        const pdEl = document.getElementById('cf-paid-date');
+        if (pdEl) pdEl.value = new Date().toISOString().slice(0, 10);
+        openM('mCollectFee');
+    }
     function delStu(id){if(!confirm('Remove?'))return;DB.students=DB.students.filter(x=>x.id!==id);toast('Removed','wn');renderStudents();updateBadges();}
     // ═══ STUDENT PROFILE ═══
     let profileStudentId = null;
@@ -3306,6 +3320,9 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
     function populateModal_cf(){
         document.getElementById('cf-stu').innerHTML='<option value="">-- Select --</option>'+DB.students.filter(s=>s.feeStatus!=='paid').map(s=>`<option value="${s.id}">${s.fname} ${s.lname} — Net ₹${s.netFee} (${s.feeStatus})</option>`).join('');
         document.getElementById('cf-stu').onchange=cfLoadStudent;
+        // Pre-fill paid date with today; reset discount
+        const pdEl = document.getElementById('cf-paid-date'); if (pdEl && !pdEl.value) pdEl.value = new Date().toISOString().slice(0,10);
+        const dEl  = document.getElementById('cf-disc');      if (dEl) dEl.value = '';
     }
     function cfLoadStudent(){
         const s=DB.students.find(x=>x.id===gv('cf-stu'));if(!s)return;
@@ -3578,207 +3595,82 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         const inMonth = (dateStr) => !month || (dateStr||'').startsWith(month);
 
         if (_rptType === 'monthly') {
-            const toYYYYMM = (val, fb) => {
+            // Normalize any month string to YYYY-MM format
+            const toYYYYMM = (val, fallbackDate) => {
+                if (!val && !fallbackDate) return '';
                 if (/^\d{4}-\d{2}/.test(val||'')) return (val||'').slice(0,7);
-                if (/^[A-Za-z]+ \d{4}$/.test(val||'')) { const d=new Date(val); if(!isNaN(d)) return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`; }
-                if (/^\d{4}-\d{2}/.test(fb||'')) return (fb||'').slice(0,7);
+                if (/^[A-Za-z]+ \d{4}$/.test(val||'')) {
+                    const d = new Date(val);
+                    if (!isNaN(d)) return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+                }
+                if (fallbackDate && /^\d{4}-\d{2}/.test(fallbackDate)) return fallbackDate.slice(0,7);
                 return '';
             };
-            const mLabel = ym => { const [y,mo]=ym.split('-'); return new Date(+y,+mo-1).toLocaleString('en-IN',{month:'long',year:'numeric'}); };
-            const fmtD   = d => d ? new Date(d).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}) : '—';
-            const mIcon  = m => ({'cash':'💵','upi':'📱','card':'💳','online':'🌐','cheque':'🏦'}[((m)||'').toLowerCase()]||'💰');
 
-            // Build maps (all months, no filter here)
-            const byMonth = {}, byMonthExp = {};
+            const byMonth = {};
             DB.invoices.forEach(inv => {
-                const m = toYYYYMM(inv.month, inv.date); if (!m) return;
-                if (!byMonth[m]) byMonth[m] = { rev:0, count:0, invoices:[] };
-                byMonth[m].rev += inv.paidAmt; byMonth[m].count++; byMonth[m].invoices.push(inv);
+                const m = toYYYYMM(inv.month, inv.date);
+                if (!m || (month && m !== month)) return;
+                if (!byMonth[m]) byMonth[m] = { rev: 0, count: 0 };
+                byMonth[m].rev += inv.paidAmt;
+                byMonth[m].count++;
             });
+            const byMonthExp = {};
             DB.expenses.forEach(e => {
-                const m = toYYYYMM(null, e.date); if (!m) return;
-                if (!byMonthExp[m]) byMonthExp[m] = { total:0, items:[] };
-                byMonthExp[m].total += e.amount; byMonthExp[m].items.push(e);
+                const m = toYYYYMM(null, e.date);
+                if (!m || (month && m !== month)) return;
+                if (!byMonthExp[m]) byMonthExp[m] = 0;
+                byMonthExp[m] += e.amount;
             });
             const allMonths = [...new Set([...Object.keys(byMonth),...Object.keys(byMonthExp)])].sort().reverse();
+            const totalRev  = allMonths.reduce((a,m) => a+(byMonth[m]?.rev||0), 0);
+            const totalExp  = allMonths.reduce((a,m) => a+(byMonthExp[m]||0), 0);
+            const totalPft  = totalRev - totalExp;
+            statsHtml = `<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:14px 16px 0">
+                ${statCard('Total Revenue', fmt(totalRev), 'var(--em)')}
+                ${statCard('Total Expenses', fmt(totalExp), 'var(--ro)')}
+                ${statCard('Net Profit', fmt(totalPft), totalPft>=0?'var(--ac)':'var(--ro)')}
+            </div>`;
+            _rptData = allMonths.map(m => {
+                const [y,mo] = m.split('-');
+                const label = new Date(+y, +mo-1).toLocaleString('en-IN',{month:'long',year:'numeric'});
+                const rev = byMonth[m]?.rev||0, exp = byMonthExp[m]||0;
+                return [label, fmt(rev), fmt(exp), fmt(rev-exp), byMonth[m]?.count||0];
+            });
 
-            if (month) {
-                // ── DRILL-DOWN: full detail for selected month ──
-                const invs = (byMonth[month]?.invoices||[]).sort((a,b)=>(a.date||'').localeCompare(b.date||''));
-                const exps = (byMonthExp[month]?.items||[]).sort((a,b)=>(a.date||'').localeCompare(b.date||''));
-                const rev  = byMonth[month]?.rev||0;
-                const exp  = byMonthExp[month]?.total||0;
-                const pft  = rev - exp;
-                const paidCnt = invs.filter(i=>i.status==='paid').length;
-                const partCnt = invs.filter(i=>i.status==='partial').length;
-
-                statsHtml = `<div style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px;padding:14px 16px 0">
-                    ${statCard('Revenue Collected', fmt(rev), 'var(--em)')}
-                    ${statCard('Total Expenses', fmt(exp), 'var(--ro)')}
-                    ${statCard('Net '+(pft>=0?'Profit':'Loss'), fmt(Math.abs(pft)), pft>=0?'var(--ac)':'var(--ro)')}
-                    ${statCard('Payments', invs.length, 'var(--vi)')}
-                    ${statCard('Expense Entries', exps.length, 'var(--or)')}
+            // Build clickable summary table
+            const thS = 'padding:8px 12px;text-align:left;background:var(--sf2);color:var(--tx3);font-size:9px;text-transform:uppercase;font-family:var(--fm);border-bottom:1px solid var(--br);white-space:nowrap';
+            const head = `<thead><tr>
+                <th style="${thS}">Month</th><th style="${thS}">Revenue</th>
+                <th style="${thS}">Expenses</th><th style="${thS}">Profit / Loss</th>
+                <th style="${thS}">Invoices</th><th style="${thS}">Detail</th>
+            </tr></thead>`;
+            const foot = `<tfoot><tr style="background:var(--sf3);font-weight:700">
+                <td style="padding:8px 12px;font-size:12px;border-top:2px solid var(--br)">TOTAL</td>
+                <td style="padding:8px 12px;font-size:12px;border-top:2px solid var(--br);color:var(--em)">${fmt(totalRev)}</td>
+                <td style="padding:8px 12px;font-size:12px;border-top:2px solid var(--br);color:var(--ro)">${fmt(totalExp)}</td>
+                <td style="padding:8px 12px;font-size:12px;font-weight:700;border-top:2px solid var(--br)">${fmt(totalPft)}</td>
+                <td colspan="2" style="border-top:2px solid var(--br)"></td>
+            </tr></tfoot>`;
+            const bodyRows = allMonths.map((m,i) => {
+                const [y,mo] = m.split('-');
+                const label = new Date(+y,+mo-1).toLocaleString('en-IN',{month:'long',year:'numeric'});
+                const rev = byMonth[m]?.rev||0, exp = byMonthExp[m]||0, pft = rev-exp;
+                const cnt = byMonth[m]?.count||0;
+                return `<tr style="border-bottom:1px solid var(--br);background:${i%2?'var(--sf2)':'var(--sf)'};cursor:pointer" onclick="drillDownMonth('${m}')" title="View all invoices for ${label}">
+                    <td style="padding:8px 12px;font-size:12px;font-weight:600">${label}</td>
+                    <td style="padding:8px 12px;font-size:12px;color:var(--em);font-weight:700">₹${rev.toLocaleString('en-IN')}</td>
+                    <td style="padding:8px 12px;font-size:12px;color:var(--ro)">₹${exp.toLocaleString('en-IN')}</td>
+                    <td style="padding:8px 12px;font-size:12px;font-weight:700;color:${pft>=0?'var(--ac)':'var(--ro)'}">₹${Math.abs(pft).toLocaleString('en-IN')} ${pft<0?'▼':'▲'}</td>
+                    <td style="padding:8px 12px;font-size:12px">${cnt}</td>
+                    <td style="padding:8px 12px"><button class="btn bg" style="font-size:10px;padding:3px 9px" onclick="event.stopPropagation();drillDownMonth('${m}')"><span class="mi sm">open_in_new</span> View</button></td>
+                </tr>`;
+            }).join('');
+            html = `<div class="tw"><table style="width:100%;border-collapse:collapse">${head}${foot}<tbody>${bodyRows}</tbody></table></div>
+                <div style="margin-top:8px;padding:8px 14px;font-size:11px;color:var(--tx3);background:var(--sf2);border-radius:var(--r2);border:1px solid var(--br)">
+                    💡 Click any row or <strong>View</strong> to see every invoice, payment date, discount and expense breakdown for that month.
                 </div>`;
-
-                // payment mode chips
-                const byMode = {};
-                invs.forEach(i => { byMode[i.mode||'Cash']=(byMode[i.mode||'Cash']||0)+i.paidAmt; });
-                const modeChips = Object.entries(byMode).map(([k,v])=>
-                    `<span style="display:inline-flex;align-items:center;gap:4px;padding:4px 11px;background:var(--c-blue);border:1px solid var(--cb);border-radius:20px;font-size:11px;font-weight:600;margin:2px">${mIcon(k)} ${k} — ${fmt(v)}</span>`
-                ).join('') || '<span style="font-size:11px;color:var(--tx3)">No payments</span>';
-
-                // fee rows
-                const feeRows = invs.length ? invs.map((inv,i) => {
-                    const stu = DB.students.find(s=>s.id===inv.studentId);
-                    const nm  = stu ? `<strong>${stu.fname} ${stu.lname}</strong>` : `<span style="font-size:10px;color:var(--ro)">Archived/Deleted</span>`;
-                    const bat = stu ? batchName(stu.batchId) : '—';
-                    const stTag = {paid:`<span class="tag tpd">✔ Paid</span>`,partial:`<span class="tag tpart">◑ Partial</span>`}[inv.status]||`<span class="tag tpn">${inv.status}</span>`;
-                    return `<tr style="border-bottom:1px solid var(--br);background:${i%2?'var(--sf2)':'var(--sf)'}">
-                        <td style="padding:9px 12px;font-size:11px;font-family:var(--fm);color:var(--ac)">${inv.id}</td>
-                        <td style="padding:9px 12px;font-size:12px">${nm}</td>
-                        <td style="padding:9px 12px;font-size:11px;color:var(--tx3)">${bat}</td>
-                        <td style="padding:9px 12px;font-size:11px">${inv.type||'Monthly Fee'}</td>
-                        <td style="padding:9px 12px;font-size:12px">${fmt(inv.baseFee||inv.amount)}</td>
-                        <td style="padding:9px 12px;font-size:12px;color:var(--or)">${inv.discount>0?fmt(inv.discount):'—'}</td>
-                        <td style="padding:9px 12px;font-size:13px;font-weight:700;color:var(--em)">${fmt(inv.paidAmt)}</td>
-                        <td style="padding:9px 12px;font-size:12px;color:${inv.balance>0?'var(--ro)':'var(--tx3)'}">${inv.balance>0?fmt(inv.balance):'—'}</td>
-                        <td style="padding:9px 12px">${stTag}</td>
-                        <td style="padding:9px 12px;font-size:11px">${mIcon(inv.mode)} ${inv.mode||'Cash'}</td>
-                        <td style="padding:9px 12px;font-size:11px;color:var(--tx3);white-space:nowrap">${fmtD(inv.date)}</td>
-                    </tr>`;
-                }).join('')
-                : `<tr><td colspan="11" style="padding:22px;text-align:center;color:var(--tx3)">No payments recorded this month</td></tr>`;
-
-                const feeFoot = `<tr style="background:var(--sf3);font-weight:700">
-                    <td colspan="6" style="padding:9px 12px;font-size:11px">${invs.length} payment(s) · ${paidCnt} fully paid · ${partCnt} partial</td>
-                    <td style="padding:9px 12px;font-size:13px;color:var(--em)">${fmt(rev)}</td>
-                    <td colspan="4"></td></tr>`;
-
-                // expense rows
-                const expRows = exps.length ? exps.map((e,i)=>`<tr style="border-bottom:1px solid var(--br);background:${i%2?'var(--sf2)':'var(--sf)'}">
-                    <td style="padding:9px 12px;font-size:18px">${e.emoji||'💰'}</td>
-                    <td style="padding:9px 12px;font-size:12px;font-weight:600">${e.name}</td>
-                    <td style="padding:9px 12px"><span class="tag tor">${e.category||'Other'}</span></td>
-                    <td style="padding:9px 12px;font-size:13px;font-weight:700;color:var(--ro)">${fmt(e.amount)}</td>
-                    <td style="padding:9px 12px;font-size:11px;color:var(--tx3);white-space:nowrap">${fmtD(e.date)}</td>
-                    <td style="padding:9px 12px;font-size:11px;color:var(--tx3)">${e.notes||'—'}</td>
-                </tr>`).join('')
-                : `<tr><td colspan="6" style="padding:22px;text-align:center;color:var(--tx3)">No expenses recorded this month</td></tr>`;
-
-                const expFoot = `<tr style="background:var(--sf3);font-weight:700">
-                    <td colspan="3" style="padding:9px 12px;font-size:11px">${exps.length} expense(s)</td>
-                    <td style="padding:9px 12px;font-size:13px;color:var(--ro)">${fmt(exp)}</td>
-                    <td colspan="2"></td></tr>`;
-
-                // category bars
-                const catMap = {};
-                exps.forEach(e => { catMap[e.category||'Other']=(catMap[e.category||'Other']||0)+e.amount; });
-                const catBars = exp>0 ? Object.entries(catMap).sort((a,b)=>b[1]-a[1]).map(([cat,amt])=>{
-                    const pct=Math.round(amt/exp*100);
-                    return `<div style="margin-bottom:10px">
-                        <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:3px"><span style="font-weight:600">${cat}</span><span style="color:var(--tx3)">${fmt(amt)} (${pct}%)</span></div>
-                        <div style="height:6px;background:var(--sf3);border-radius:3px"><div style="height:6px;background:var(--ro);border-radius:3px;width:${pct}%"></div></div>
-                    </div>`;
-                }).join('') : '<div style="font-size:12px;color:var(--tx3)">No expenses this month</div>';
-
-                _rptData = invs.map(inv => {
-                    const stu=DB.students.find(s=>s.id===inv.studentId);
-                    return [inv.id, stu?`${stu.fname} ${stu.lname}`:'Archived', inv.type||'Monthly Fee', inv.paidAmt, inv.balance||0, inv.status, inv.mode||'Cash', inv.date||''];
-                });
-
-                const th = cols => cols.map(c=>`<th style="padding:8px 12px;text-align:left;background:var(--sf2);color:var(--tx3);font-size:9px;text-transform:uppercase;font-family:var(--fm);border-bottom:1px solid var(--br);white-space:nowrap">${c}</th>`).join('');
-
-                html = `
-                <div style="padding:10px 16px 0;display:flex;flex-wrap:wrap;gap:4px;align-items:center">
-                    <span style="font-size:10px;font-weight:700;color:var(--tx3);font-family:var(--fm);text-transform:uppercase;letter-spacing:.8px;margin-right:4px">By Mode:</span>
-                    ${modeChips}
-                </div>
-                <div style="padding:16px 16px 8px">
-                    <div style="font-size:14px;font-weight:700;color:var(--tx);margin-bottom:10px;display:flex;align-items:center;gap:8px">
-                        <span style="width:4px;height:18px;background:var(--em);border-radius:2px;display:inline-block"></span>
-                        💳 Fee Payments — ${mLabel(month)}
-                    </div>
-                    <div class="tw"><table style="width:100%;border-collapse:collapse">
-                        <thead><tr>${th(['Invoice #','Student','Batch','Type','Fee','Discount','Paid','Balance','Status','Mode','Date'])}</tr></thead>
-                        <tfoot>${feeFoot}</tfoot>
-                        <tbody>${feeRows}</tbody>
-                    </table></div>
-                </div>
-                <div style="padding:8px 16px 16px;border-top:2px solid var(--br)">
-                    <div style="font-size:14px;font-weight:700;color:var(--tx);margin-bottom:10px;display:flex;align-items:center;gap:8px">
-                        <span style="width:4px;height:18px;background:var(--ro);border-radius:2px;display:inline-block"></span>
-                        🧾 Expenses — ${mLabel(month)}
-                    </div>
-                    <div style="display:grid;grid-template-columns:1fr 260px;gap:14px;align-items:start">
-                        <div class="tw"><table style="width:100%;border-collapse:collapse">
-                            <thead><tr>${th(['','Name','Category','Amount','Date','Notes'])}</tr></thead>
-                            <tfoot>${expFoot}</tfoot>
-                            <tbody>${expRows}</tbody>
-                        </table></div>
-                        <div style="background:var(--sf2);border:1px solid var(--br);border-radius:var(--r);padding:14px">
-                            <div style="font-size:10px;font-weight:700;color:var(--tx3);font-family:var(--fm);text-transform:uppercase;letter-spacing:.8px;margin-bottom:12px">By Category</div>
-                            ${catBars}
-                        </div>
-                    </div>
-                </div>
-                <div style="margin:0 16px 16px;padding:14px 18px;background:${pft>=0?'var(--c-green)':'var(--c-rose)'};border:1px solid ${pft>=0?'var(--cb)':'var(--cr)'};border-radius:var(--r);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
-                    <div style="font-size:13px;font-weight:600;color:var(--tx)">${mLabel(month)} — Net Result</div>
-                    <div style="display:flex;gap:22px;align-items:center;flex-wrap:wrap">
-                        <span style="font-size:12px;color:var(--em)">Revenue: <strong>${fmt(rev)}</strong></span>
-                        <span style="font-size:12px;color:var(--ro)">Expenses: <strong>${fmt(exp)}</strong></span>
-                        <span style="font-size:17px;font-weight:800;color:${pft>=0?'var(--em)':'var(--ro)'}">${pft>=0?'Profit':'Loss'}: ${fmt(Math.abs(pft))}</span>
-                    </div>
-                </div>`;
-
-                metaTxt = `${mLabel(month)} · ${invs.length} payment(s) · ${exps.length} expense(s)`;
-
-            } else {
-                // ── OVERVIEW: all months summary, click to drill down ──
-                const totalRev = allMonths.reduce((a,m)=>a+(byMonth[m]?.rev||0),0);
-                const totalExp = allMonths.reduce((a,m)=>a+(byMonthExp[m]?.total||0),0);
-                const totalPft = totalRev - totalExp;
-
-                statsHtml = `<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:14px 16px 0">
-                    ${statCard('Total Revenue', fmt(totalRev), 'var(--em)')}
-                    ${statCard('Total Expenses', fmt(totalExp), 'var(--ro)')}
-                    ${statCard('Net '+(totalPft>=0?'Profit':'Loss'), fmt(Math.abs(totalPft)), totalPft>=0?'var(--ac)':'var(--ro)')}
-                </div>`;
-
-                _rptData = allMonths.map(m => {
-                    const rev=byMonth[m]?.rev||0, exp=byMonthExp[m]?.total||0;
-                    return [mLabel(m), fmt(rev), fmt(exp), fmt(rev-exp), byMonth[m]?.count||0, byMonthExp[m]?.items?.length||0];
-                });
-
-                const rows = allMonths.map((m,i) => {
-                    const rev=byMonth[m]?.rev||0, exp=byMonthExp[m]?.total||0, pft=rev-exp;
-                    return `<tr style="border-bottom:1px solid var(--br);background:${i%2?'var(--sf2)':'var(--sf)'};cursor:pointer" onclick="document.getElementById('flt-month').value='${m}';applyRptFilters()">
-                        <td style="padding:10px 12px;font-size:13px;font-weight:600;color:var(--ac)">${mLabel(m)} <span style="font-size:9px;color:var(--tx3)">↗ click for detail</span></td>
-                        <td style="padding:10px 12px;font-size:13px;font-weight:700;color:var(--em)">${fmt(rev)}</td>
-                        <td style="padding:10px 12px;font-size:13px;font-weight:700;color:var(--ro)">${fmt(exp)}</td>
-                        <td style="padding:10px 12px;font-size:13px;font-weight:700;color:${pft>=0?'var(--em)':'var(--ro)'}">${fmt(pft)}</td>
-                        <td style="padding:10px 12px;font-size:11px;color:var(--tx3)">${byMonth[m]?.count||0} invoice(s)</td>
-                        <td style="padding:10px 12px;font-size:11px;color:var(--tx3)">${byMonthExp[m]?.items?.length||0} expense(s)</td>
-                    </tr>`;
-                }).join('') || `<tr><td colspan="6" style="padding:22px;text-align:center;color:var(--tx3)">No data found</td></tr>`;
-
-                const th = cols => cols.map(c=>`<th style="padding:8px 12px;text-align:left;background:var(--sf2);color:var(--tx3);font-size:9px;text-transform:uppercase;font-family:var(--fm);border-bottom:1px solid var(--br)">${c}</th>`).join('');
-
-                html = `
-                <div style="padding:10px 16px 4px;font-size:11px;color:var(--tx3)">👆 Click any month row to see full payment & expense detail</div>
-                <div class="tw"><table style="width:100%;border-collapse:collapse">
-                    <thead><tr>${th(['Month','Revenue','Expenses','Profit / Loss','Payments','Expenses'])}</tr></thead>
-                    <tfoot><tr style="background:var(--sf3);font-weight:700">
-                        <td style="padding:9px 12px">TOTAL</td>
-                        <td style="padding:9px 12px;color:var(--em)">${fmt(totalRev)}</td>
-                        <td style="padding:9px 12px;color:var(--ro)">${fmt(totalExp)}</td>
-                        <td style="padding:9px 12px;color:${totalPft>=0?'var(--em)':'var(--ro)'}">${fmt(totalPft)}</td>
-                        <td colspan="2"></td>
-                    </tr></tfoot>
-                    <tbody>${rows}</tbody>
-                </table></div>`;
-
-                metaTxt = `${allMonths.length} month(s) · select a month to drill down`;
-            }
+            metaTxt = `${allMonths.length} month(s) — click a row to drill down`;
         }
 
         else if (_rptType === 'fee') {
@@ -3786,24 +3678,45 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
             if (batch)  students = students.filter(s => s.batchId == batch);
             if (status) students = students.filter(s => s.feeStatus === status);
             if (month)  students = students.filter(s => (s.joinDate||'').startsWith(month) || (s.dueDate||'').startsWith(month));
-            const totalNet = students.reduce((a,s)=>a+s.netFee,0);
-            const totalPaid = students.reduce((a,s)=>a+s.paidAmt,0);
-            const totalBal = students.reduce((a,s)=>a+(s.netFee-s.paidAmt),0);
+            const totalNet  = students.reduce((a,s) => a + s.netFee, 0);
+            const totalPaid = students.reduce((a,s) => a + s.paidAmt, 0);
+            const totalBal  = students.reduce((a,s) => a + (s.netFee - s.paidAmt), 0);
             statsHtml = `<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;padding:14px 16px 0">
                 ${statCard('Students', students.length, 'var(--ac)')}
                 ${statCard('Net Fee Total', fmt(totalNet), 'var(--tx)')}
                 ${statCard('Collected', fmt(totalPaid), 'var(--em)')}
                 ${statCard('Outstanding', fmt(totalBal), 'var(--ro)')}
             </div>`;
-            _rptData = students.map(s => [`${s.fname} ${s.lname}`, batchName(s.batchId), `₹${s.baseFee}`,
-                s.baseFee>s.netFee?`₹${s.baseFee-s.netFee}`:'—', `₹${s.netFee}`, `₹${s.paidAmt}`,
-                `₹${s.netFee-s.paidAmt}`, s.feeStatus, s.dueDate||'—']);
-            html = tbl(['Student','Batch','Base Fee','Discount','Net Fee','Paid','Balance','Status','Due Date'],
-                students.map(s => [`${s.fname} ${s.lname}`, batchName(s.batchId), fmt(s.baseFee),
-                    s.baseFee>s.netFee?fmt(s.baseFee-s.netFee):'—', fmt(s.netFee), fmt(s.paidAmt),
-                    `<strong style="color:${s.netFee-s.paidAmt>0?'var(--ro)':'var(--em)'}">₹${s.netFee-s.paidAmt}</strong>`,
-                    feeTag(s.feeStatus), s.dueDate||'—']),
-                ['', '', '', '', fmt(totalNet), fmt(totalPaid), fmt(totalBal), '', '']);
+            // Get most recent paid_date from invoices for each student
+            const latestPaidDate = sid => {
+                const matches = DB.invoices.filter(i => i.studentId === sid && i.paidDate)
+                    .sort((a,b) => (b.paidDate||'').localeCompare(a.paidDate||''));
+                return matches.length ? matches[0].paidDate : null;
+            };
+            const fmtD = d => d ? new Date(d).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}) : '—';
+            _rptData = students.map(s => {
+                const pd = latestPaidDate(s.id) || s.paidOn || '';
+                return [`${s.fname} ${s.lname}`, batchName(s.batchId), `₹${s.baseFee}`,
+                    s.baseFee>s.netFee?`₹${s.baseFee-s.netFee}`:'—', `₹${s.netFee}`,
+                    `₹${s.paidAmt}`, `₹${s.netFee-s.paidAmt}`, s.feeStatus, pd||'—', s.dueDate||'—'];
+            });
+            html = tbl(
+                ['Student','Batch','Base Fee','Discount','Net Fee','Paid','Balance','Status','Paid On','Due Date'],
+                students.map(s => {
+                    const bal = s.netFee - s.paidAmt;
+                    const pd  = latestPaidDate(s.id) || s.paidOn;
+                    return [
+                        `${s.fname} ${s.lname}`, batchName(s.batchId), fmt(s.baseFee),
+                        s.baseFee>s.netFee ? fmt(s.baseFee-s.netFee) : '—',
+                        fmt(s.netFee), fmt(s.paidAmt),
+                        `<strong style="color:${bal>0?'var(--ro)':'var(--em)'}">₹${bal}</strong>`,
+                        feeTag(s.feeStatus),
+                        pd ? `<span style="color:var(--ac)">${fmtD(pd)}</span>` : '<span style="color:var(--tx3)">—</span>',
+                        s.dueDate||'—'
+                    ];
+                }),
+                ['','','','',fmt(totalNet),fmt(totalPaid),fmt(totalBal),'','','']
+            );
             metaTxt = `${students.length} students`;
         }
 
@@ -3919,12 +3832,26 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
 
         else if (_rptType === 'student') {
             let students = DB.students;
-            if (batch)  students = students.filter(s=>s.batchId==batch);
-            if (status) students = students.filter(s=>s.feeStatus===status);
-            _rptData = students.map(s=>[s.id, `${s.fname} ${s.lname}`, s.phone, s.email||'', batchName(s.batchId), s.seat||'—', s.seatType.toUpperCase(), s.course, s.feeStatus, s.joinDate||'—']);
-            html = tbl(['ID','Name','Phone','Email','Batch','Seat','Type','Course','Fee Status','Join Date'],
-                students.map(s=>[s.id,`${s.fname} ${s.lname}`,s.phone,s.email||'—',batchName(s.batchId),
-                    s.seat||'—',s.seatType.toUpperCase(),s.course,feeTag(s.feeStatus),s.joinDate||'—']));
+            if (batch)  students = students.filter(s => s.batchId == batch);
+            if (status) students = students.filter(s => s.feeStatus === status);
+            const fmtD = d => d ? new Date(d).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}) : '—';
+            _rptData = students.map(s => [
+                s.id, `${s.fname} ${s.lname}`, s.phone, s.email||'',
+                batchName(s.batchId), s.seat||'—', s.seatType.toUpperCase(),
+                s.course, s.feeStatus, s.joinDate||'—', s.leaveDate||'—', s.leaveReason||''
+            ]);
+            html = tbl(
+                ['ID','Name','Phone','Email','Batch','Seat','Type','Course','Fee Status','Join Date','Leave Date','Leave Reason'],
+                students.map(s => [
+                    s.id, `${s.fname} ${s.lname}`, s.phone, s.email||'—',
+                    batchName(s.batchId), s.seat||'—', s.seatType.toUpperCase(), s.course,
+                    feeTag(s.feeStatus), fmtD(s.joinDate),
+                    s.leaveDate
+                        ? `<span style="color:var(--ro);font-weight:600">${fmtD(s.leaveDate)}</span>`
+                        : '<span style="color:var(--ac);font-size:10px">Active</span>',
+                    s.leaveReason || '—'
+                ])
+            );
             metaTxt = `${students.length} students`;
         }
 
@@ -3935,6 +3862,151 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         toast('Report generated!', 'ok');
     }
 
+    // ── MONTHLY DRILL-DOWN ────────────────────────────────────────────────
+    async function drillDownMonth(ym) {
+        const body   = document.getElementById('rptBody');
+        const title  = document.getElementById('rptTitle');
+        const meta   = document.getElementById('rptMeta');
+        const statsW = document.getElementById('rptStatsWrap');
+        body.innerHTML = `<div style="text-align:center;padding:40px;color:var(--tx3)">
+            <span class="mi" style="font-size:36px;display:block;margin-bottom:10px;color:var(--ac)">hourglass_top</span>
+            Loading detail for ${ym}…</div>`;
+        try {
+            const res = await apiGet('get_monthly_detail', { month: ym });
+            const [y,mo] = ym.split('-');
+            const label = new Date(+y,+mo-1).toLocaleString('en-IN',{month:'long',year:'numeric'});
+            if (title) title.textContent = `📅 ${label} — Detailed Breakdown`;
+            if (meta)  meta.textContent  = `${res.invoices.length} invoice(s) · ${res.expenses.length} expense(s)`;
+
+            const pft = +res.net_profit;
+            if (statsW) statsW.innerHTML = `<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;padding:14px 16px 0">
+                <div class="sc" style="margin-bottom:0"><div class="s-lb">Revenue Collected</div><div class="s-vl" style="color:var(--em)">₹${(+res.total_revenue).toLocaleString('en-IN')}</div></div>
+                <div class="sc" style="margin-bottom:0"><div class="s-lb">Total Expenses</div><div class="s-vl" style="color:var(--ro)">₹${(+res.total_expenses).toLocaleString('en-IN')}</div></div>
+                <div class="sc" style="margin-bottom:0"><div class="s-lb">Net Profit</div><div class="s-vl" style="color:${pft>=0?'var(--ac)':'var(--ro)'}">₹${Math.abs(pft).toLocaleString('en-IN')} ${pft<0?'▼':'▲'}</div></div>
+                <div class="sc" style="margin-bottom:0"><div class="s-lb">Invoices</div><div class="s-vl">${res.invoices.length}</div></div>
+            </div>`;
+
+            const fmtD  = d => d ? new Date(d).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}) : '—';
+            const fmt2  = v => `₹${(+v||0).toLocaleString('en-IN')}`;
+            const ftag  = st => { const m={paid:'tpd',pending:'tpn',partial:'tpart',overdue:'tod'}; return `<span class="tag ${m[st]||'tac'}">${st}</span>`; };
+            const thS   = 'padding:8px 12px;text-align:left;background:var(--sf2);color:var(--tx3);font-size:9px;text-transform:uppercase;font-family:var(--fm);border-bottom:1px solid var(--br);white-space:nowrap';
+
+            // ── Invoice table ──────────────────────────────────────────────
+            const invTotalPaid = res.invoices.reduce((a,i) => a+(+i.paid_amt||0), 0);
+            const invRows = res.invoices.map((inv,i) => {
+                const name     = `${inv.fname||''} ${inv.lname||''}`.trim() || inv.student_id;
+                const totalDisc = (+inv.discount||0) + (+inv.payment_discount||0);
+                return `<tr style="border-bottom:1px solid var(--br);background:${i%2?'var(--sf2)':'var(--sf)'}">
+                    <td style="padding:8px 12px;font-size:10px;color:var(--tx3);font-family:var(--fm)">${inv.id}</td>
+                    <td style="padding:8px 12px;font-size:12px;font-weight:600">${name}</td>
+                    <td style="padding:8px 12px;font-size:11px;color:var(--tx3)">${inv.batch_name||'—'}</td>
+                    <td style="padding:8px 12px;font-size:11px">${inv.type}</td>
+                    <td style="padding:8px 12px;font-size:12px;font-weight:700;color:var(--em)">${fmt2(inv.paid_amt)}</td>
+                    <td style="padding:8px 12px;font-size:12px">${fmt2(inv.net_fee)}</td>
+                    <td style="padding:8px 12px;font-size:11px">${totalDisc>0?`<span class="tag tor" style="font-size:9px">-₹${totalDisc.toLocaleString('en-IN')}</span>`:'—'}</td>
+                    <td style="padding:8px 12px;font-size:11px;color:var(--ac)">${fmtD(inv.paid_date)}</td>
+                    <td style="padding:8px 12px;font-size:11px;font-family:var(--fm)">${inv.mode||'—'}</td>
+                    <td style="padding:8px 12px">${ftag(inv.status)}</td>
+                    <td style="padding:8px 12px;font-size:11px;color:var(--tx3);max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${(inv.remarks||'').replace(/"/g,'&quot;')}">${inv.remarks||'—'}</td>
+                </tr>`;
+            }).join('');
+
+            const invSection = `
+                <div style="font-size:13px;font-weight:700;color:var(--tx);padding:16px 0 8px;display:flex;align-items:center;gap:8px">
+                    <span class="mi" style="color:var(--em)">payments</span> Fee Invoices
+                    <span style="font-size:11px;color:var(--tx3);font-weight:400">${res.invoices.length} entries</span>
+                </div>
+                <div class="tw"><table style="width:100%;border-collapse:collapse">
+                    <thead><tr>${['Invoice #','Student','Batch','Type','Paid','Net Fee','Discount','Paid On','Mode','Status','Remarks'].map(c=>`<th style="${thS}">${c}</th>`).join('')}</tr></thead>
+                    <tfoot><tr style="background:var(--sf3);font-weight:700">
+                        <td colspan="4" style="padding:8px 12px;font-size:12px;border-top:2px solid var(--br)">TOTAL</td>
+                        <td style="padding:8px 12px;font-size:12px;border-top:2px solid var(--br);color:var(--em)">${fmt2(invTotalPaid)}</td>
+                        <td colspan="6" style="border-top:2px solid var(--br)"></td>
+                    </tr></tfoot>
+                    <tbody>${invRows||`<tr><td colspan="11" style="text-align:center;padding:18px;color:var(--tx3)">No invoices for this month</td></tr>`}</tbody>
+                </table></div>`;
+
+            // ── Expense table ──────────────────────────────────────────────
+            const byCat = {};
+            res.expenses.forEach(e => { byCat[e.category] = (byCat[e.category]||0) + (+e.amount); });
+            const catHtml = Object.entries(byCat).sort((a,b)=>b[1]-a[1]).map(([cat,amt]) =>
+                `<div style="display:flex;justify-content:space-between;padding:5px 0;font-size:12px;border-bottom:1px solid var(--br)">
+                    <span style="color:var(--tx2)">${cat}</span>
+                    <span style="font-weight:700;color:var(--ro)">₹${amt.toLocaleString('en-IN')}</span>
+                </div>`).join('');
+            const expRows = res.expenses.map((e,i) =>
+                `<tr style="border-bottom:1px solid var(--br);background:${i%2?'var(--sf2)':'var(--sf)'}">
+                    <td style="padding:8px 12px;font-size:11px;color:var(--tx3);font-family:var(--fm)">${e.id}</td>
+                    <td style="padding:8px 12px;font-size:12px;font-weight:600">${e.emoji||'💸'} ${e.name}</td>
+                    <td style="padding:8px 12px"><span class="tag tor" style="font-size:10px">${e.category}</span></td>
+                    <td style="padding:8px 12px;font-size:12px;font-weight:700;color:var(--ro)">₹${(+e.amount).toLocaleString('en-IN')}</td>
+                    <td style="padding:8px 12px;font-size:11px">${fmtD(e.expense_date)}</td>
+                    <td style="padding:8px 12px;font-size:11px;color:var(--tx3)">${e.notes||'—'}</td>
+                </tr>`).join('');
+
+            const expSection = `
+                <div style="font-size:13px;font-weight:700;color:var(--tx);padding:16px 0 8px;display:flex;align-items:center;gap:8px;margin-top:8px">
+                    <span class="mi" style="color:var(--ro)">account_balance_wallet</span> Expenses
+                    <span style="font-size:11px;color:var(--tx3);font-weight:400">${res.expenses.length} entries</span>
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 260px;gap:14px;align-items:start">
+                    <div class="tw"><table style="width:100%;border-collapse:collapse">
+                        <thead><tr>${['#','Name','Category','Amount','Date','Notes'].map(c=>`<th style="${thS}">${c}</th>`).join('')}</tr></thead>
+                        <tfoot><tr style="background:var(--sf3);font-weight:700">
+                            <td colspan="3" style="padding:8px 12px;border-top:2px solid var(--br)">TOTAL</td>
+                            <td style="padding:8px 12px;border-top:2px solid var(--br);color:var(--ro)">${fmt2(res.total_expenses)}</td>
+                            <td colspan="2" style="border-top:2px solid var(--br)"></td>
+                        </tr></tfoot>
+                        <tbody>${expRows||`<tr><td colspan="6" style="text-align:center;padding:18px;color:var(--tx3)">No expenses this month</td></tr>`}</tbody>
+                    </table></div>
+                    <div style="background:var(--sf2);border:1px solid var(--br);border-radius:var(--r);padding:14px;position:sticky;top:10px">
+                        <div style="font-size:10px;font-weight:700;color:var(--tx3);text-transform:uppercase;letter-spacing:.8px;margin-bottom:10px;font-family:var(--fm)">By Category</div>
+                        ${catHtml||'<div style="color:var(--tx3);font-size:12px">No expenses</div>'}
+                        <div style="display:flex;justify-content:space-between;padding:7px 0 0;font-size:12px;font-weight:700;margin-top:4px">
+                            <span>Total</span><span style="color:var(--ro)">${fmt2(res.total_expenses)}</span>
+                        </div>
+                    </div>
+                </div>`;
+
+            body.innerHTML = invSection + expSection +
+                `<div style="margin-top:16px;display:flex;gap:8px;flex-wrap:wrap">
+                    <button class="btn bg" onclick="applyRptFilters()" style="font-size:11px"><span class="mi sm">arrow_back</span> Back to Summary</button>
+                    <button class="btn bg" onclick="exportDrillCSV('${ym}')" style="font-size:11px"><span class="mi sm">download</span> Export CSV</button>
+                </div>`;
+
+            window._drillData = res;
+        } catch(e) {
+            body.innerHTML = `<div style="text-align:center;padding:28px;color:var(--ro)">
+                <span class="mi" style="font-size:28px;display:block;margin-bottom:8px">error</span>
+                Failed to load: ${e.message}</div>`;
+        }
+    }
+
+    function exportDrillCSV(ym) {
+        const res = window._drillData;
+        if (!res) return toast('No data loaded', 'wn');
+        const invRows = [
+            ['Invoice #','Student','Batch','Type','Paid Amt','Net Fee','Discount','Paid On','Mode','Status','Remarks'],
+            ...(res.invoices||[]).map(i => [
+                i.id, `${i.fname||''} ${i.lname||''}`.trim(), i.batch_name||'',
+                i.type, i.paid_amt, i.net_fee,
+                (+i.discount||0)+(+i.payment_discount||0),
+                i.paid_date||'', i.mode||'', i.status, i.remarks||''
+            ]),
+            [''],
+            ['EXPENSES'],
+            ['ID','Name','Category','Amount','Date','Notes'],
+            ...(res.expenses||[]).map(e => [e.id, e.name, e.category, e.amount, e.expense_date, e.notes||''])
+        ];
+        const csv = invRows.map(r => r.map(c => `"${String(c??'').replace(/"/g,'""')}"`).join(',')).join('\n');
+        const a = Object.assign(document.createElement('a'), {
+            href: URL.createObjectURL(new Blob(['\uFEFF'+csv], {type:'text/csv;charset=utf-8;'})),
+            download: `Monthly_Detail_${ym}.csv`
+        });
+        a.click();
+        toast('CSV exported!', 'ok');
+    }
+
     function exportRptCSV() {
         if (!_rptData || !_rptData.length) { toast('No data to export', 'wn'); return; }
         const titles = { monthly:'Monthly_Summary', fee:'Fee_Report', outstanding:'Outstanding_Dues',
@@ -3942,13 +4014,13 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
             expense:'Expense_Report', student:'Student_Directory' };
         const headers = {
             monthly: ['Month','Revenue','Expenses','Profit','Invoices'],
-            fee: ['Student','Batch','Base Fee','Discount','Net Fee','Paid','Balance','Status','Due Date'],
+            fee: ['Student','Batch','Base Fee','Discount','Net Fee','Paid','Balance','Status','Paid On','Due Date'],
             outstanding: ['Student','Phone','Batch','Balance','Status','Due Date','Days Overdue'],
             batch: ['Batch','Timing','Students','Paid','Overdue','Revenue','Outstanding','Seats'],
             books: ['Title','Author','Category','ISBN','Shelf','Available','Total'],
             attendance: ['Student','Batch','Status'],
             expense: ['Name','Category','Amount','Date','Notes'],
-            student: ['ID','Name','Phone','Email','Batch','Seat','Type','Course','Fee Status','Join Date']
+            student: ['ID','Name','Phone','Email','Batch','Seat','Type','Course','Fee Status','Join Date','Leave Date','Leave Reason']
         };
         const stripHtml = v => String(v).replace(/<[^>]+>/g,'').replace(/₹/g,'Rs ');
         const rows = [headers[_rptType], ..._rptData.map(r=>r.map(stripHtml))];
@@ -4572,29 +4644,41 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
 
     // ── COLLECT FEE ──
     async function collectFee() {
-        const stuId=gv('cf-stu');
+        const stuId = gv('cf-stu');
         if (!stuId) return toast('Select student', 'er');
-        const mode=gv('cf-mode'), isSplit=mode==='split'||mode==='split2';
+        const mode = gv('cf-mode'), isSplit = mode === 'split' || mode === 'split2';
         let amt, modeStr;
         if (isSplit) {
-            const a1=+gv('cf-a1')||0, a2=+gv('cf-a2')||0;
-            amt=a1+a2; modeStr=`${gv('cf-m1')} ₹${a1} + ${gv('cf-m2')} ₹${a2}`;
+            const a1 = +gv('cf-a1') || 0, a2 = +gv('cf-a2') || 0;
+            amt = a1 + a2; modeStr = `${gv('cf-m1')} ₹${a1} + ${gv('cf-m2')} ₹${a2}`;
         } else {
-            amt=+gv('cf-amt')||0; modeStr=mode;
+            amt = +gv('cf-amt') || 0; modeStr = mode;
         }
         if (!amt) return toast('Enter amount', 'er');
+        const disc     = Math.max(0, +gv('cf-disc') || 0);
+        const paidDate = gv('cf-paid-date') || new Date().toISOString().slice(0, 10);
+        const remarks  = gv('cf-rem') || '';
+        if (disc >= amt) return toast('Discount cannot equal or exceed amount', 'er');
         const res = await apiPost('collect_fee', {
-            student_id: stuId, amount: amt, mode: modeStr,
-            month: gv('cf-mo') || new Date().toLocaleDateString('en-IN',{month:'long',year:'numeric'})
+            student_id:       stuId,
+            amount:           amt,
+            mode:             modeStr,
+            month:            gv('cf-mo') || new Date().toLocaleDateString('en-IN', {month:'long', year:'numeric'}),
+            payment_discount: disc,
+            paid_date:        paidDate,
+            remarks:          remarks,
         });
         if (res.error) return toast(res.error, 'er');
-        const bal = res.balance || 0;
-        const waCheck = document.getElementById('cf-wa');
+        const bal       = res.balance || 0;
+        const effective = amt - disc;
+        const waCheck   = document.getElementById('cf-wa');
         closeM('mCollectFee');
-        toast(`₹${amt} collected${bal > 0 ? ` — ₹${bal} still pending` : ''}!`, 'ok');
+        const dEl = document.getElementById('cf-disc'); if (dEl) dEl.value = '';
+        const pdEl = document.getElementById('cf-paid-date'); if (pdEl) pdEl.value = '';
+        toast(`₹${effective} collected${disc > 0 ? ` (₹${disc} discount)` : ''}${bal > 0 ? ` — ₹${bal} pending` : ''}!`, 'ok');
         await reloadDB();
         if (waCheck && waCheck.checked) {
-            setTimeout(() => waQuick(stuId, res.fee_status==='paid' ? 'fee_receipt' : 'partial_payment'), 600);
+            setTimeout(() => waQuick(stuId, res.fee_status === 'paid' ? 'fee_receipt' : 'partial_payment'), 600);
         }
     }
 
@@ -6075,6 +6159,65 @@ Thank you! 📚
     loadMyDP();
     loadLogo();
     loadArchivedBadge();
+
+    // ── MARK STUDENT LEFT ─────────────────────────────────────────────────
+    let _markLeftStudentId = null;
+
+    function openMarkLeft(id) {
+        if (!id) return;
+        const s = DB.students.find(x => x.id === id);
+        if (!s) return;
+        _markLeftStudentId = id;
+        const nm = document.getElementById('ml-name');
+        if (nm) nm.value = `${s.fname} ${s.lname}`;
+        const dt = document.getElementById('ml-date');
+        if (dt) dt.value = s.leaveDate || new Date().toISOString().slice(0, 10);
+        const re = document.getElementById('ml-reason');
+        if (re) re.value = s.leaveReason || '';
+        closeM('mStudentProfile');
+        openM('mMarkLeft');
+    }
+
+    async function saveMarkLeft() {
+        if (!_markLeftStudentId) return;
+        const leaveDate   = gv('ml-date');
+        const leaveReason = gv('ml-reason');
+        if (!leaveDate) return toast('Select leave date', 'er');
+        const res = await apiPost('mark_student_left', {
+            id:           _markLeftStudentId,
+            leave_date:   leaveDate,
+            leave_reason: leaveReason,
+        });
+        if (res.error) return toast(res.error, 'er');
+        closeM('mMarkLeft');
+        toast('Leave date saved!', 'ok');
+        await reloadDB();
+    }
 </script>
+
+<!-- ── MARK LEFT MODAL ──────────────────────────────────────────────── -->
+<div class="mo" id="mMarkLeft">
+    <div class="md">
+        <div class="mh">
+            <div class="mt"><span class="mi sm" style="vertical-align:middle;margin-right:6px">logout</span>Mark Student as Left</div>
+            <button class="mc" onclick="closeM('mMarkLeft')"><span class="mi sm">close</span></button>
+        </div>
+        <div class="mb">
+            <div style="background:rgba(220,38,38,.07);border:1px solid rgba(220,38,38,.2);border-radius:var(--r2);padding:10px 13px;margin-bottom:14px;font-size:12px;color:#9f1239;line-height:1.5">
+                ⚠️ This records the student's leave date. The student stays in the system for records — you can archive them separately if needed.
+            </div>
+            <div class="fg">
+                <div class="fgi full"><label>Student</label><input id="ml-name" readonly style="background:var(--sf2);color:var(--tx2)"></div>
+                <div class="fgi"><label>Leave Date <span style="color:var(--ro)">*</span></label><input id="ml-date" type="date"></div>
+                <div class="fgi"><label>Reason <span style="font-size:9px;color:var(--tx3);font-weight:400">optional</span></label><input id="ml-reason" placeholder="e.g. Shifted to another city, Course completed"></div>
+            </div>
+        </div>
+        <div class="mf">
+            <button class="btn bg" onclick="closeM('mMarkLeft')">Cancel</button>
+            <button class="btn" style="background:var(--ro);color:#fff;border-color:var(--ro)" onclick="saveMarkLeft()"><span class="mi sm">logout</span>Confirm Left</button>
+        </div>
+    </div>
+</div>
+
 </body>
 </html>
