@@ -122,19 +122,21 @@ switch ($action) {
         if (!in_array('perm_whatsapp',    $staffCols)) try { $db->exec("ALTER TABLE staff ADD COLUMN perm_whatsapp TINYINT(1) NOT NULL DEFAULT 1"); } catch(Exception $e) {}
         if (!in_array('perm_notifications',$staffCols)) try { $db->exec("ALTER TABLE staff ADD COLUMN perm_notifications TINYINT(1) NOT NULL DEFAULT 1"); } catch(Exception $e) {}
         if (!in_array('act_perms',         $staffCols)) try { $db->exec("ALTER TABLE staff ADD COLUMN act_perms JSON NULL"); } catch(Exception $e) {}
+        if (!in_array('perm_discount_max', $staffCols)) try { $db->exec("ALTER TABLE staff ADD COLUMN perm_discount_max INT NOT NULL DEFAULT 0"); } catch(Exception $e) {}
         // Re-read columns to know what's actually available now
         $staffCols2 = [];
         foreach ($db->query("SHOW COLUMNS FROM staff")->fetchAll() as $c) $staffCols2[] = $c['Field'];
         $selWA   = in_array('perm_whatsapp',     $staffCols2) ? 's.perm_whatsapp,'     : '1 AS perm_whatsapp,';
         $selNO   = in_array('perm_notifications', $staffCols2) ? 's.perm_notifications,' : '1 AS perm_notifications,';
         $selAP   = in_array('act_perms',          $staffCols2) ? 's.act_perms,'          : 'NULL AS act_perms,';
-        $staff   = $db->query("SELECT s.id,s.name,s.role,s.email,s.phone,s.username,s.perm_students,s.perm_fees,s.perm_books,s.perm_expenses,s.perm_reports,s.perm_staff,s.perm_settings,{$selWA}{$selNO}{$selAP}s.status,COALESCE(ss.base_monthly,0) AS base_salary FROM staff s LEFT JOIN staff_salary ss ON ss.staff_id=s.id ORDER BY s.created_at")->fetchAll();
-        $meStmt   = $db->prepare("SELECT role,perm_students,perm_fees,perm_books,perm_expenses,perm_reports,perm_staff,perm_settings FROM staff WHERE id=? LIMIT 1");
+        $selDM   = in_array('perm_discount_max',  $staffCols2) ? 's.perm_discount_max,'  : '0 AS perm_discount_max,';
+        $staff   = $db->query("SELECT s.id,s.name,s.role,s.email,s.phone,s.username,s.perm_students,s.perm_fees,s.perm_books,s.perm_expenses,s.perm_reports,s.perm_staff,s.perm_settings,{$selWA}{$selNO}{$selAP}{$selDM}s.status,COALESCE(ss.base_monthly,0) AS base_salary FROM staff s LEFT JOIN staff_salary ss ON ss.staff_id=s.id ORDER BY s.created_at")->fetchAll();
+        $meStmt   = $db->prepare("SELECT role,perm_students,perm_fees,perm_books,perm_expenses,perm_reports,perm_staff,perm_settings,act_perms,COALESCE(perm_discount_max,0) AS perm_discount_max FROM staff WHERE id=? LIMIT 1");
         $meStmt->execute([$_SESSION['staff_id']]);
         $me = $meStmt->fetch();
         if (!$me) {
-            // Fallback: admin gets full access
-            $me = ['role'=>'admin','perm_students'=>1,'perm_fees'=>1,'perm_books'=>1,'perm_expenses'=>1,'perm_reports'=>1,'perm_staff'=>1,'perm_settings'=>1];
+            // Fallback: admin gets full access, unlimited discount
+            $me = ['role'=>'admin','perm_students'=>1,'perm_fees'=>1,'perm_books'=>1,'perm_expenses'=>1,'perm_reports'=>1,'perm_staff'=>1,'perm_settings'=>1,'perm_discount_max'=>0];
         }
         jsonResponse([
             'students'      => $students,
@@ -530,6 +532,29 @@ switch ($action) {
         $remarks         = trim($d['remarks'] ?? '');
         $paymentDiscount = max(0, (int)($d['payment_discount'] ?? 0));
 
+        // ── Discount permission check ────────────────────────────────────
+        if ($paymentDiscount > 0) {
+            $staffId = $_SESSION['staff_id'] ?? null;
+            if ($staffId) {
+                $sfRow = $db->prepare("SELECT role, act_perms, COALESCE(perm_discount_max,0) AS perm_discount_max FROM staff WHERE id=? LIMIT 1");
+                $sfRow->execute([$staffId]);
+                $sf = $sfRow->fetch();
+                if ($sf && $sf['role'] !== 'admin') {
+                    // Check act_perms JSON for apply_discount flag
+                    $actP = json_decode($sf['act_perms'] ?? '{}', true) ?: [];
+                    $canDiscount = isset($actP['apply_discount']) ? (bool)$actP['apply_discount'] : false;
+                    if (!$canDiscount) {
+                        jsonError('You do not have permission to apply discounts. Contact admin.');
+                    }
+                    // Check max cap (0 = no cap, only applies to admin)
+                    $maxDisc = (int)$sf['perm_discount_max'];
+                    if ($maxDisc > 0 && $paymentDiscount > $maxDisc) {
+                        jsonError("Discount exceeds your allowed maximum of ₹{$maxDisc}.");
+                    }
+                }
+            }
+        }
+
         // Effective amount after one-time discount on this payment
         $effectiveAmt = max(0, $amt - $paymentDiscount);
 
@@ -708,7 +733,8 @@ switch ($action) {
         if (!in_array('perm_whatsapp',     $sfCols)) try { $db->exec("ALTER TABLE staff ADD COLUMN perm_whatsapp TINYINT(1) NOT NULL DEFAULT 1"); } catch(Exception $e) {}
         if (!in_array('perm_notifications',$sfCols)) try { $db->exec("ALTER TABLE staff ADD COLUMN perm_notifications TINYINT(1) NOT NULL DEFAULT 1"); } catch(Exception $e) {}
         if (!in_array('act_perms',         $sfCols)) try { $db->exec("ALTER TABLE staff ADD COLUMN act_perms JSON NULL"); } catch(Exception $e) {}
-        $rows = $db->query("SELECT id,name,role,email,phone,username,perm_students,perm_fees,perm_books,perm_expenses,perm_reports,perm_staff,perm_settings,perm_whatsapp,perm_notifications,act_perms,status FROM staff ORDER BY created_at")->fetchAll();
+        if (!in_array('perm_discount_max', $sfCols)) try { $db->exec("ALTER TABLE staff ADD COLUMN perm_discount_max INT NOT NULL DEFAULT 0"); } catch(Exception $e) {}
+        $rows = $db->query("SELECT id,name,role,email,phone,username,perm_students,perm_fees,perm_books,perm_expenses,perm_reports,perm_staff,perm_settings,perm_whatsapp,perm_notifications,act_perms,COALESCE(perm_discount_max,0) AS perm_discount_max,status FROM staff ORDER BY created_at")->fetchAll();
         jsonResponse($rows);
 
     case 'save_staff':
@@ -725,8 +751,10 @@ switch ($action) {
         if (!in_array('perm_whatsapp',     $sfCols)) try { $db->exec("ALTER TABLE staff ADD COLUMN perm_whatsapp TINYINT(1) NOT NULL DEFAULT 1"); } catch(Exception $e) {}
         if (!in_array('perm_notifications',$sfCols)) try { $db->exec("ALTER TABLE staff ADD COLUMN perm_notifications TINYINT(1) NOT NULL DEFAULT 1"); } catch(Exception $e) {}
         if (!in_array('act_perms',         $sfCols)) try { $db->exec("ALTER TABLE staff ADD COLUMN act_perms JSON NULL"); } catch(Exception $e) {}
+        if (!in_array('perm_discount_max', $sfCols)) try { $db->exec("ALTER TABLE staff ADD COLUMN perm_discount_max INT NOT NULL DEFAULT 0"); } catch(Exception $e) {}
 
-        $actJson = !empty($actPerms) ? json_encode($actPerms) : null;
+        $actJson      = !empty($actPerms) ? json_encode($actPerms) : null;
+        $discountMax  = max(0, (int)($perms['discount_max'] ?? 0));
 
         if ($isEdit) {
             // If a new password is provided, update it too; otherwise keep existing hash
@@ -734,21 +762,23 @@ switch ($action) {
                 $newHash = password_hash($d['password'], PASSWORD_BCRYPT);
                 $db->prepare("UPDATE staff SET name=?,role=?,email=?,phone=?,username=?,password_hash=?,
                     perm_students=?,perm_fees=?,perm_books=?,perm_expenses=?,perm_reports=?,perm_staff=?,perm_settings=?,
-                    perm_whatsapp=?,perm_notifications=?,act_perms=? WHERE id=?")
+                    perm_whatsapp=?,perm_notifications=?,act_perms=?,perm_discount_max=? WHERE id=?")
                     ->execute([$d['name'],$d['role'],$d['email'],$d['phone'] ?? '',$d['username'] ?? '',
                         $newHash,
                         (int)($perms['students'] ?? 0),(int)($perms['fees'] ?? 0),(int)($perms['books'] ?? 0),
                         (int)($perms['expenses'] ?? 0),(int)($perms['reports'] ?? 0),(int)($perms['staff'] ?? 0),(int)($perms['settings'] ?? 0),
                         (int)($perms['whatsapp'] ?? 1),(int)($perms['notifications'] ?? 1),$actJson,
+                        $discountMax,
                         $d['id']]);
             } else {
                 $db->prepare("UPDATE staff SET name=?,role=?,email=?,phone=?,username=?,
                     perm_students=?,perm_fees=?,perm_books=?,perm_expenses=?,perm_reports=?,perm_staff=?,perm_settings=?,
-                    perm_whatsapp=?,perm_notifications=?,act_perms=? WHERE id=?")
+                    perm_whatsapp=?,perm_notifications=?,act_perms=?,perm_discount_max=? WHERE id=?")
                     ->execute([$d['name'],$d['role'],$d['email'],$d['phone'] ?? '',$d['username'] ?? '',
                         (int)($perms['students'] ?? 0),(int)($perms['fees'] ?? 0),(int)($perms['books'] ?? 0),
                         (int)($perms['expenses'] ?? 0),(int)($perms['reports'] ?? 0),(int)($perms['staff'] ?? 0),(int)($perms['settings'] ?? 0),
                         (int)($perms['whatsapp'] ?? 1),(int)($perms['notifications'] ?? 1),$actJson,
+                        $discountMax,
                         $d['id']]);
             }
         } else {
@@ -776,11 +806,12 @@ switch ($action) {
             }
             $db->prepare("INSERT INTO staff (id,name,role,email,phone,username,password_hash,
                 perm_students,perm_fees,perm_books,perm_expenses,perm_reports,perm_staff,perm_settings,
-                perm_whatsapp,perm_notifications,act_perms,status) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)")
+                perm_whatsapp,perm_notifications,act_perms,perm_discount_max,status) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)")
                 ->execute([$newId,$d['name'],$d['role'],$d['email'],$d['phone'] ?? '',$d['username'],$hash,
                     (int)($perms['students'] ?? 0),(int)($perms['fees'] ?? 0),(int)($perms['books'] ?? 0),
                     (int)($perms['expenses'] ?? 0),(int)($perms['reports'] ?? 0),(int)($perms['staff'] ?? 0),(int)($perms['settings'] ?? 0),
                     (int)($perms['whatsapp'] ?? 1),(int)($perms['notifications'] ?? 1),$actJson,
+                    $discountMax,
                     'active']);
             addActivity($db, '👥', 'rgba(74,124,111,.14)', "Staff <strong>{$d['name']}</strong> added");
         }

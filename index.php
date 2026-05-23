@@ -1482,7 +1482,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
                 <div id="payNormal" class="fg" style="margin-top:10px">
                     <div class="fgi"><label>Amount Paying (₹)</label><input id="cf-amt" type="number" placeholder="0" oninput="cfCalcBalance()"></div>
                     <div class="fgi"><label>Transaction Ref</label><input id="cf-ref" placeholder="Auto-generated"></div>
-                    <div class="fgi"><label>One-time Discount (₹) <span style="font-size:9px;color:var(--tx3);font-weight:400">optional</span></label><input id="cf-disc" type="number" placeholder="0" min="0" oninput="cfCalcBalance()"></div>
+                    <div class="fgi" id="cf-disc-wrap"><label>One-time Discount (₹) <span style="font-size:9px;color:var(--tx3);font-weight:400">optional</span></label><input id="cf-disc" type="number" placeholder="0" min="0" oninput="cfCalcBalance()"></div>
                     <div class="fgi"><label>Payment Date</label><input id="cf-paid-date" type="date"></div>
                 </div>
                 <div id="paySplit" style="display:none;margin-top:10px">
@@ -1960,6 +1960,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
                         whatsapp: sf.perm_whatsapp !== undefined ? !!+sf.perm_whatsapp : true,
                         notifications: sf.perm_notifications !== undefined ? !!+sf.perm_notifications : true,
                     },
+                    discountMax: +sf.perm_discount_max || 0,
                     actPerms: sf.act_perms ? (typeof sf.act_perms === 'string' ? JSON.parse(sf.act_perms) : sf.act_perms) : {},
                     status: sf.status
                 }));
@@ -1984,7 +1985,10 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
             if (nameEl && DB.settings.name) nameEl.textContent = DB.settings.name;
 
             // Apply nav permissions for the logged-in staff member
-            if (data.me) applyNavPerms(data.me);
+            if (data.me) {
+                window._me = data.me; // store globally so collectFee can read it
+                applyNavPerms(data.me);
+            }
 
             // ── Fire all secondary calls IN PARALLEL (saves ~800ms vs sequential awaits) ──
             const today = new Date().toISOString().split('T')[0];
@@ -3323,6 +3327,27 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         // Pre-fill paid date with today; reset discount
         const pdEl = document.getElementById('cf-paid-date'); if (pdEl && !pdEl.value) pdEl.value = new Date().toISOString().slice(0,10);
         const dEl  = document.getElementById('cf-disc');      if (dEl) dEl.value = '';
+
+        // ── Discount field visibility based on permission ──────────────
+        const discWrap = document.getElementById('cf-disc-wrap');
+        if (discWrap) {
+            const me = window._me;
+            const isAdmin = !me || me.role === 'admin';
+            const actP    = me?.actPerms || (me?.act_perms ? (typeof me.act_perms === 'string' ? JSON.parse(me.act_perms) : me.act_perms) : {});
+            const canDisc = isAdmin || actP['apply_discount'] === true;
+            const maxDisc = isAdmin ? 0 : (+me?.perm_discount_max || 0);
+
+            discWrap.style.display = canDisc ? '' : 'none';
+            if (canDisc && dEl) {
+                if (maxDisc > 0) {
+                    dEl.max = maxDisc;
+                    dEl.placeholder = `0 – ₹${maxDisc.toLocaleString('en-IN')} max`;
+                } else {
+                    dEl.removeAttribute('max');
+                    dEl.placeholder = '0';
+                }
+            }
+        }
     }
     function cfLoadStudent(){
         const s=DB.students.find(x=>x.id===gv('cf-stu'));if(!s)return;
@@ -4201,7 +4226,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
     <td><span class="tag tac" style="text-transform:capitalize">${sf.role}</span></td><td>${sf.email}</td><td>${sf.phone}</td>
     <td><div style="display:flex;flex-direction:column;gap:4px">
       <div style="display:flex;flex-wrap:wrap;gap:3px">${PERMS.filter(p=>sf.perms[p.key]).map(p=>`<span title="Page: ${p.label}" style="display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;background:rgba(61,111,240,.09);border:1px solid rgba(61,111,240,.2);border-radius:6px"><span class="mi" style="font-size:12px;color:var(--ac)">${p.icon}</span></span>`).join('')}${pc===0?'<span style="font-size:10px;color:var(--tx3);font-style:italic">No pages</span>':''}</div>
-      <div style="display:flex;flex-wrap:wrap;gap:3px">${ACTION_PERMS.filter(a=>(sf.actPerms||{})[a.key]).map(a=>`<span title="Action: ${a.label}" style="display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;background:rgba(124,58,237,.08);border:1px solid rgba(124,58,237,.2);border-radius:6px"><span class="mi" style="font-size:12px;color:var(--vi)">${a.icon}</span></span>`).join('')||'<span style="font-size:9px;color:var(--tx3);font-style:italic">No actions</span>'}</div>
+      <div style="display:flex;flex-wrap:wrap;gap:3px">${ACTION_PERMS.filter(a=>(sf.actPerms||{})[a.key]).map(a=>`<span title="Action: ${a.label}" style="display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;background:rgba(124,58,237,.08);border:1px solid rgba(124,58,237,.2);border-radius:6px"><span class="mi" style="font-size:12px;color:var(--vi)">${a.icon}</span></span>`).join('')||'<span style="font-size:9px;color:var(--tx3);font-style:italic">No actions</span>'}${(sf.actPerms||{})['apply_discount']&&sf.role!=='admin'?`<span title="Max Discount: ${sf.discountMax>0?'₹'+sf.discountMax.toLocaleString('en-IN'):'Unlimited'}" style="display:inline-flex;align-items:center;gap:2px;padding:0 5px;height:22px;background:rgba(234,179,8,.1);border:1px solid rgba(234,179,8,.3);border-radius:6px;font-size:9px;font-weight:700;color:#854d0e">${sf.discountMax>0?`≤₹${sf.discountMax}`:'∞'}</span>`:''}</div>
     </div></td><td><span class="tag ${sf.status==='active'?'tpd':'tod'}">${sf.status==='active'?'Active':'Inactive'}</span></td>
     <td><div style="display:flex;gap:4px"><button class="btn bg" style="font-size:10px;padding:3px 7px" onclick="editStaff(${i})">✏</button>${i>0?`<button class="btn bd" style="font-size:10px;padding:3px 6px" onclick="delStaff(${i})"><span class="mi sm">close</span></button>`:''}</div></td></tr>`;
         }).join('')||'<tr><td colspan="7"><div class="empty"><div class="ei">👥</div><div class="et">No staff</div></div></td></tr>';
@@ -4262,6 +4287,14 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
               ${modActions.map(a=>permCard(a.key,a.label,a.desc,a.icon,isAdmin?true:da[a.key],isAdmin,'act-')).join('')}
             </div>
+            ${mod==='fees'?`<div id="discountMaxWrap" style="margin-top:8px;padding:10px 13px;background:var(--sf2);border:1px solid var(--br);border-radius:var(--r2);display:flex;align-items:center;gap:12px">
+              <span class="mi sm" style="color:var(--vi)">redeem</span>
+              <div style="flex:1">
+                <div style="font-size:12px;font-weight:600;color:var(--tx)">Max Discount per Payment (₹)</div>
+                <div style="font-size:9.5px;color:var(--tx3);margin-top:2px">Set to 0 for unlimited (admin only). Staff with Apply Discount permission cannot exceed this amount.</div>
+              </div>
+              <input id="sf-disc-max" type="number" min="0" placeholder="0 = unlimited" value="${isAdmin?0:editStaffIdx>=0?(DB.staff[editStaffIdx]?.discountMax||0):0}" style="width:120px;padding:5px 8px;border:1px solid var(--br);border-radius:var(--r2);background:var(--sf);color:var(--tx);font-size:12px" ${isAdmin?'disabled title="Admins always have unlimited discount"':''}>
+            </div>`:''}
           </div>`;
         }).join('')}
         ${isAdmin?'':'<div style="padding:7px 11px;background:rgba(124,58,237,.05);border:1px solid rgba(124,58,237,.2);border-radius:var(--r2);font-size:10.5px;color:var(--vi);display:flex;align-items:center;gap:6px"><span class="mi sm">info</span>Action controls work inside pages the staff member can already access.</div>'}
@@ -4300,6 +4333,8 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
       PERMS.forEach(p=>{const el=document.getElementById('perm-'+p.key);if(el)el.checked=!!sf.perms[p.key];});
       // Restore action perms
       ACTION_PERMS.forEach(a=>{const el=document.getElementById('act-'+a.key);if(el)el.checked=!!(sf.actPerms||{})[a.key];});
+      // Restore discount max
+      const dmEl = document.getElementById('sf-disc-max'); if (dmEl) dmEl.value = sf.discountMax || 0;
       refreshPermCards();
       openM('mAddStaff');
     }
@@ -4669,6 +4704,16 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         const paidDate = gv('cf-paid-date') || new Date().toISOString().slice(0, 10);
         const remarks  = gv('cf-rem') || '';
         if (disc >= amt) return toast('Discount cannot equal or exceed amount', 'er');
+
+        // Client-side cap check (server also enforces this)
+        const me = window._me;
+        const isAdmin = !me || me.role === 'admin';
+        if (!isAdmin && disc > 0) {
+            const actP = me?.actPerms || (me?.act_perms ? (typeof me.act_perms === 'string' ? JSON.parse(me.act_perms) : me.act_perms) : {});
+            if (!actP['apply_discount']) return toast('You do not have permission to apply discounts', 'er');
+            const maxDisc = +me?.perm_discount_max || 0;
+            if (maxDisc > 0 && disc > maxDisc) return toast(`Discount cannot exceed ₹${maxDisc.toLocaleString('en-IN')} (your limit)`, 'er');
+        }
         const res = await apiPost('collect_fee', {
             student_id:       stuId,
             amount:           amt,
@@ -4750,6 +4795,8 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         PERMS.forEach(p => { const el=document.getElementById('perm-'+p.key); perms[p.key]=el?el.checked:false; });
         const actPerms = {};
         ACTION_PERMS.forEach(a => { const el=document.getElementById('act-'+a.key); actPerms[a.key]=el?el.checked:false; });
+        const discMaxEl = document.getElementById('sf-disc-max');
+        perms.discount_max = discMaxEl ? Math.max(0, +discMaxEl.value || 0) : 0;
         const payload = {
             name: nm, role: rl, email: em,
             phone: gv('sf-ph'), username: gv('sf-un'), password: gv('sf-pw'), perms, actPerms
