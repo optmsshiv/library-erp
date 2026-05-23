@@ -2001,58 +2001,86 @@ switch ($action) {
         $ym = $_GET['month'] ?? date('Y-m');
         if (!preg_match('/^\d{4}-\d{2}$/', $ym)) jsonError('Invalid month format. Use YYYY-MM');
 
-        try { $db->exec("ALTER TABLE invoices ADD COLUMN IF NOT EXISTS paid_date DATE NULL"); } catch(Exception $e) {}
-        try { $db->exec("ALTER TABLE invoices ADD COLUMN IF NOT EXISTS remarks VARCHAR(500) DEFAULT ''"); } catch(Exception $e) {}
-        try { $db->exec("ALTER TABLE invoices ADD COLUMN IF NOT EXISTS payment_discount INT DEFAULT 0"); } catch(Exception $e) {}
+        try {
+            // ── Safe column migrations (SHOW COLUMNS — works on MySQL 5.7+) ──
+            $existingInvCols = array_column(
+                $db->query("SHOW COLUMNS FROM invoices")->fetchAll(PDO::FETCH_ASSOC),
+                'Field'
+            );
+            if (!in_array('paid_date',        $existingInvCols)) $db->exec("ALTER TABLE invoices ADD COLUMN paid_date DATE NULL");
+            if (!in_array('remarks',          $existingInvCols)) $db->exec("ALTER TABLE invoices ADD COLUMN remarks VARCHAR(500) DEFAULT ''");
+            if (!in_array('payment_discount', $existingInvCols)) $db->exec("ALTER TABLE invoices ADD COLUMN payment_discount INT DEFAULT 0");
 
-        $monthLabel = date('F Y', strtotime($ym . '-01'));
+            $monthLabel = date('F Y', strtotime($ym . '-01'));
 
-        $invStmt = $db->prepare(
-            "SELECT i.id, i.student_id, i.type, i.amount, i.base_fee, i.discount,
-                    i.net_fee, i.paid_amt, i.balance, i.invoice_date,
-                    COALESCE(i.paid_date, i.invoice_date) AS paid_date,
-                    i.month, i.mode, i.status,
-                    COALESCE(i.remarks, '') AS remarks,
-                    COALESCE(i.payment_discount, 0) AS payment_discount,
-                    s.fname, s.lname, s.batch_id, b.name AS batch_name
-             FROM invoices i
-             LEFT JOIN students s ON i.student_id = s.id
-             LEFT JOIN batches  b ON s.batch_id   = b.id
-             WHERE DATE_FORMAT(COALESCE(i.paid_date, i.invoice_date), '%Y-%m') = ?
-                OR i.month = ?
-                OR i.month = ?
-             ORDER BY COALESCE(i.paid_date, i.invoice_date) ASC"
-        );
-        $invStmt->execute([$ym, $ym, $monthLabel]);
-        $invoices = $invStmt->fetchAll();
+            // ── Invoices ──────────────────────────────────────────────────
+            // Re-read cols after migration
+            $invCols = array_column($db->query("SHOW COLUMNS FROM invoices")->fetchAll(PDO::FETCH_ASSOC), 'Field');
+            $selPaidDate  = in_array('paid_date',        $invCols) ? "COALESCE(i.paid_date, i.invoice_date)" : "i.invoice_date";
+            $selRemarks   = in_array('remarks',          $invCols) ? "COALESCE(i.remarks, '')"              : "'' ";
+            $selPayDisc   = in_array('payment_discount', $invCols) ? "COALESCE(i.payment_discount, 0)"       : "0";
 
-        // Deduplicate by invoice ID
-        $seen = []; $invoices = array_values(array_filter($invoices, function($r) use (&$seen) {
-            if (isset($seen[$r['id']])) return false;
-            return $seen[$r['id']] = true;
-        }));
+            $invSql = "SELECT i.id, i.student_id, i.type, i.amount, i.base_fee,
+                              COALESCE(i.discount, 0) AS discount,
+                              i.net_fee, i.paid_amt, i.balance, i.invoice_date,
+                              {$selPaidDate}  AS paid_date,
+                              i.month, i.mode, i.status,
+                              {$selRemarks}   AS remarks,
+                              {$selPayDisc}   AS payment_discount,
+                              s.fname, s.lname, s.batch_id,
+                              COALESCE(b.name, '') AS batch_name
+                       FROM invoices i
+                       LEFT JOIN students s ON i.student_id = s.id
+                       LEFT JOIN batches  b ON s.batch_id   = b.id
+                       WHERE DATE_FORMAT({$selPaidDate}, '%Y-%m') = ?
+                          OR i.month = ?
+                          OR i.month = ?
+                       ORDER BY {$selPaidDate} ASC";
 
-        $expStmt = $db->prepare(
-            "SELECT id, name, amount, category, expense_date, notes, emoji
-             FROM expenses
-             WHERE DATE_FORMAT(expense_date, '%Y-%m') = ?
-             ORDER BY expense_date ASC"
-        );
-        $expStmt->execute([$ym]);
-        $expenses = $expStmt->fetchAll();
+            $invStmt = $db->prepare($invSql);
+            $invStmt->execute([$ym, $ym, $monthLabel]);
+            $invoices = $invStmt->fetchAll();
 
-        $totalRevenue  = array_sum(array_column($invoices, 'paid_amt'));
-        $totalExpenses = array_sum(array_column($expenses, 'amount'));
+            // Deduplicate by invoice ID
+            $seen = [];
+            $invoices = array_values(array_filter($invoices, function($r) use (&$seen) {
+                if (isset($seen[$r['id']])) return false;
+                return $seen[$r['id']] = true;
+            }));
 
-        jsonResponse([
-            'month'          => $ym,
-            'month_label'    => $monthLabel,
-            'invoices'       => $invoices,
-            'expenses'       => $expenses,
-            'total_revenue'  => $totalRevenue,
-            'total_expenses' => $totalExpenses,
-            'net_profit'     => $totalRevenue - $totalExpenses,
-        ]);
+            // ── Expenses ─────────────────────────────────────────────────
+            $expenses = [];
+            $expCols = array_column($db->query("SHOW COLUMNS FROM expenses")->fetchAll(PDO::FETCH_ASSOC), 'Field');
+            $selCat   = in_array('category',     $expCols) ? 'category'     : "'' AS category";
+            $selNotes = in_array('notes',        $expCols) ? 'notes'        : "'' AS notes";
+            $selEmoji = in_array('emoji',        $expCols) ? 'emoji'        : "'💸' AS emoji";
+
+            $expStmt = $db->prepare(
+                "SELECT id, name, amount, expense_date, {$selCat}, {$selNotes}, {$selEmoji}
+                 FROM expenses
+                 WHERE DATE_FORMAT(expense_date, '%Y-%m') = ?
+                 ORDER BY expense_date ASC"
+            );
+            $expStmt->execute([$ym]);
+            $expenses = $expStmt->fetchAll();
+
+            $totalRevenue  = array_sum(array_column($invoices, 'paid_amt'));
+            $totalExpenses = array_sum(array_column($expenses, 'amount'));
+
+            jsonResponse([
+                'month'          => $ym,
+                'month_label'    => $monthLabel,
+                'invoices'       => $invoices,
+                'expenses'       => $expenses,
+                'total_revenue'  => $totalRevenue,
+                'total_expenses' => $totalExpenses,
+                'net_profit'     => $totalRevenue - $totalExpenses,
+            ]);
+
+        } catch (PDOException $e) {
+            error_log("get_monthly_detail error: " . $e->getMessage());
+            jsonError('Database error: ' . $e->getMessage(), 500);
+        }
 
     default:
         jsonError('Unknown action', 404);

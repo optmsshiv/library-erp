@@ -3873,6 +3873,16 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
             Loading detail for ${ym}…</div>`;
         try {
             const res = await apiGet('get_monthly_detail', { month: ym });
+
+            // API returned an error JSON
+            if (res.error) {
+                body.innerHTML = `<div style="text-align:center;padding:28px;color:var(--ro)">
+                    <span class="mi" style="font-size:28px;display:block;margin-bottom:8px">error</span>
+                    <strong>Server error:</strong> ${res.error}
+                    <div style="margin-top:12px"><button class="btn bg" onclick="applyRptFilters()" style="font-size:11px"><span class="mi sm">arrow_back</span> Back</button></div>
+                </div>`;
+                return;
+            }
             const [y,mo] = ym.split('-');
             const label = new Date(+y,+mo-1).toLocaleString('en-IN',{month:'long',year:'numeric'});
             if (title) title.textContent = `📅 ${label} — Detailed Breakdown`;
