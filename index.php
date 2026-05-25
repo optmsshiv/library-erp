@@ -326,6 +326,18 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         .sp-edit-toggle:hover,.sp-edit-toggle.on{background:var(--ac);color:#fff;border-color:var(--ac)}
         .sp-seat-chip{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;background:var(--c-blue);border:1px solid var(--cb);border-radius:20px;font-size:12px;font-weight:700;color:var(--ac);font-family:var(--fm);cursor:pointer;transition:all .18s}
         .sp-seat-chip:hover{background:rgba(61,111,240,.15);transform:scale(1.04)}
+        /* ── NEW profile improvements ── */
+        .sp-left-banner{display:none;align-items:center;gap:10px;padding:10px 14px;background:rgba(220,38,38,.08);border:1px solid rgba(220,38,38,.2);border-radius:var(--r2);margin-bottom:12px;font-size:12px;color:#9f1239}
+        .sp-left-banner.show{display:flex}
+        .sp-balance-pill{display:inline-flex;align-items:center;gap:6px;padding:6px 13px;border-radius:30px;font-size:13px;font-weight:700;border:1.5px solid}
+        .sp-balance-pill.due{background:rgba(239,68,68,.08);color:#dc2626;border-color:rgba(239,68,68,.25)}
+        .sp-balance-pill.clear{background:rgba(16,185,129,.08);color:#059669;border-color:rgba(16,185,129,.25)}
+        .sp-phone-link{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:500;color:var(--tx);text-decoration:none}
+        .sp-phone-link:hover{color:var(--ac)}
+        .sp-hist-row{display:grid;grid-template-columns:auto 1fr auto auto;gap:8px;align-items:center;padding:8px 11px;border-radius:var(--r2);background:var(--sf2);border:1px solid var(--br);margin-bottom:6px;font-size:12px}
+        .sp-hist-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+        .sp-actions-primary{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px}
+        .sp-actions-secondary{display:flex;gap:6px;flex-wrap:wrap;padding-top:8px;border-top:1px solid var(--br)}
 
         /* ── WHATSAPP TEMPLATE GRID ── */
         .wa-tpl{
@@ -1656,16 +1668,30 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
             <div class="sp-av-wrap"><div class="sp-av" id="spAv" style="background:var(--ac)">AB</div></div>
         </div>
         <div class="sp-body">
-            <!-- Fee status bar -->
-            <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;padding:10px 14px;background:var(--sf2);border-radius:var(--r2)">
-                <span id="spFeeTag" class="tag tpn">⏳ Pending</span>
-                <div style="flex:1">
-                    <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--tx3);font-family:var(--fm);margin-bottom:3px"><span id="spPaidLbl">Paid ₹0</span><span id="spDueLbl">Due ₹0</span></div>
-                    <div class="sp-fee-bar"><div class="sp-fee-fill" id="spFeeFill" style="width:0%"></div></div>
+
+            <!-- Left banner — hidden unless student has left -->
+            <div class="sp-left-banner" id="spLeftBanner">
+                <span style="font-size:18px">🚪</span>
+                <div>
+                    <div style="font-weight:700;font-size:12px">Student Left</div>
+                    <div id="spLeftInfo" style="font-size:11px;margin-top:1px;color:#be123c"></div>
                 </div>
-                <div style="text-align:right">
-                    <div style="font-size:15px;font-weight:700;font-family:var(--fm);color:var(--em)" id="spNetFee">₹0</div>
-                    <div style="font-size:9px;color:var(--tx3)">Net Fee</div>
+            </div>
+
+            <!-- Fee status bar + balance pill -->
+            <div style="padding:12px 14px;background:var(--sf2);border-radius:var(--r2);border:1px solid var(--br);margin-bottom:14px">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+                    <span id="spFeeTag" class="tag tpn">⏳ Pending</span>
+                    <span id="spBalancePill" class="sp-balance-pill due">₹0 pending</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--tx3);font-family:var(--fm);margin-bottom:4px">
+                    <span id="spPaidLbl">Paid ₹0</span>
+                    <span id="spDueLbl">Due ₹0</span>
+                </div>
+                <div class="sp-fee-bar"><div class="sp-fee-fill" id="spFeeFill" style="width:0%"></div></div>
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px">
+                    <div style="font-size:11px;color:var(--tx3)">Net Fee: <strong id="spNetFee" style="color:var(--tx)">₹0</strong></div>
+                    <div style="font-size:11px;color:var(--tx3)">Last paid: <strong id="spLastPaid" style="color:var(--ac)">—</strong></div>
                 </div>
             </div>
 
@@ -1742,12 +1768,20 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
                 </div>
             </div>
 
+            <!-- Payment History -->
+            <div class="sp-section"><span class="mi sm" style="vertical-align:middle;margin-right:5px">receipt_long</span>Payment History</div>
+            <div id="spPayHistory" style="margin-bottom:14px">
+                <div style="text-align:center;padding:14px;color:var(--tx3);font-size:12px">No payment records</div>
+            </div>
+
             <!-- Quick Actions -->
             <div class="sp-section">⚡ Quick Actions</div>
-            <div style="display:flex;gap:8px;flex-wrap:wrap">
-                <button class="btn bp" data-action="collect_fee" style="font-size:11px" id="spCollectBtn" onclick="closeM('mStudentProfile')"><span class="mi sm">payments</span>Collect Fee</button>
-                <button class="btn bwa" style="font-size:11px" id="spWaBtn">💬 Send WhatsApp</button>
-                <button class="btn bg" style="font-size:11px;color:var(--ac);border-color:var(--ac)" id="spUpiBtn">📱 UPI Link</button>
+            <div class="sp-actions-primary">
+                <button class="btn bp" data-action="collect_fee" style="font-size:12px;padding:7px 14px" id="spCollectBtn"><span class="mi sm">payments</span>Collect Fee</button>
+                <button class="btn bwa" style="font-size:12px;padding:7px 14px" id="spWaBtn">💬 WhatsApp</button>
+                <button class="btn bg" style="font-size:12px;padding:7px 14px;color:var(--ac);border-color:var(--ac)" id="spUpiBtn">📱 UPI Link</button>
+            </div>
+            <div class="sp-actions-secondary">
                 <button class="btn bg" style="font-size:11px" onclick="openAllocFromProfile()"><span class="mi sm">event_seat</span>Change Seat</button>
                 <button class="btn bg" style="font-size:11px;color:var(--ro);border-color:var(--ro)" id="spMarkLeftBtn"><span class="mi sm">logout</span>Mark Left</button>
                 <button class="btn bd" data-action="delete_student" style="font-size:11px" id="spDelBtn">🗑 Remove</button>
@@ -2622,57 +2656,142 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         const s = DB.students.find(x => x.id === id);
         if (!s) return;
         profileStudentId = id;
-        profileEditMode = false;
+        profileEditMode  = false;
 
-        // Header
+        const fmtD2 = d => d ? new Date(d).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}) : null;
+
+        // ── Header ────────────────────────────────────────────────────────
         document.getElementById('spHeaderName').textContent = s.fname + ' ' + s.lname;
-        document.getElementById('spHeaderId').textContent = '#' + s.id;
-        document.getElementById('spAv').textContent = ((s.fname?.[0]||'') + (s.lname?.[0]||'')).toUpperCase();
-        document.getElementById('spAv').style.background = s.color || '#3d6ff0';
+        document.getElementById('spHeaderId').textContent   = '#' + s.id;
+        document.getElementById('spAv').textContent         = ((s.fname?.[0]||'') + (s.lname?.[0]||'')).toUpperCase();
+        document.getElementById('spAv').style.background    = s.color || '#3d6ff0';
 
-        // Fee bar
+        // ── Left banner ───────────────────────────────────────────────────
+        const leftBanner = document.getElementById('spLeftBanner');
+        const leftInfo   = document.getElementById('spLeftInfo');
+        if (s.leaveDate) {
+            leftBanner.classList.add('show');
+            leftInfo.textContent = `Left on ${fmtD2(s.leaveDate)}${s.leaveReason ? ' — ' + s.leaveReason : ''}`;
+        } else {
+            leftBanner.classList.remove('show');
+        }
+
+        // ── Fee bar ───────────────────────────────────────────────────────
+        const bal = Math.max(0, s.netFee - s.paidAmt);
         const pct = s.netFee > 0 ? Math.round(s.paidAmt / s.netFee * 100) : 0;
         document.getElementById('spFeeFill').style.width = pct + '%';
-        document.getElementById('spPaidLbl').textContent = 'Paid ₹' + s.paidAmt.toLocaleString();
-        document.getElementById('spDueLbl').textContent = 'Due ₹' + Math.max(0, s.netFee - s.paidAmt).toLocaleString();
-        document.getElementById('spNetFee').textContent = '₹' + s.netFee.toLocaleString();
+        document.getElementById('spPaidLbl').textContent  = 'Paid ₹' + s.paidAmt.toLocaleString('en-IN');
+        document.getElementById('spDueLbl').textContent   = 'Balance ₹' + bal.toLocaleString('en-IN');
+        document.getElementById('spNetFee').textContent   = '₹' + s.netFee.toLocaleString('en-IN');
+
+        // Balance pill
+        const pill = document.getElementById('spBalancePill');
+        if (bal > 0) {
+            pill.className = 'sp-balance-pill due';
+            pill.textContent = '₹' + bal.toLocaleString('en-IN') + ' pending';
+        } else {
+            pill.className = 'sp-balance-pill clear';
+            pill.textContent = '✓ Fully Paid';
+        }
+
+        // Fee tag
         const feeTagEl = document.getElementById('spFeeTag');
-        const feeMap = { paid: ['tpd', '✓ Paid'], partial: ['tpart', '◑ Partial'], pending: ['tpn', '⏳ Pending'], overdue: ['tod', '🚨 Overdue'] };
-        feeTagEl.className = 'tag ' + (feeMap[s.feeStatus]?.[0] || 'tpn');
+        const feeMap   = { paid:['tpd','✓ Paid'], partial:['tpart','◑ Partial'], pending:['tpn','⏳ Pending'], overdue:['tod','🚨 Overdue'] };
+        feeTagEl.className   = 'tag ' + (feeMap[s.feeStatus]?.[0] || 'tpn');
         feeTagEl.textContent = feeMap[s.feeStatus]?.[1] || s.feeStatus;
 
-        // Batch & seat
+        // Last paid date — from most recent invoice
+        const stuInvs   = DB.invoices.filter(i => i.studentId === id).sort((a,b) => (b.paidDate||b.date||'').localeCompare(a.paidDate||a.date||''));
+        const lastPaidEl = document.getElementById('spLastPaid');
+        lastPaidEl.textContent = stuInvs.length && stuInvs[0].paidDate ? fmtD2(stuInvs[0].paidDate) : '—';
+
+        // ── Placement ─────────────────────────────────────────────────────
         const b = DB.batches.find(x => x.id === s.batchId);
-        document.getElementById('spBatchDisp').innerHTML = b ? `<span class="tag ${b.name.includes('Morning')||b.name.includes('Early')?'tpn':b.name.includes('Evening')?'tis':b.name.includes('Night')?'tac':'tav'}">${b.name}</span>` : '<span style="color:var(--tx3)">—</span>';
-        document.getElementById('spSeatNum').textContent = s.seat || '—';
-        document.getElementById('spSeatChip').title = s.seat ? 'Click to change seat' : 'Click to allocate seat';
-        document.getElementById('spSeatTypeDisp').innerHTML = s.seatType === 'ac' ? '<span class="tag tac" style="font-size:10px">❄ AC</span>' : '<span style="font-size:11px;color:var(--tx2)">Non-AC</span>';
-        document.getElementById('spJoinDate').textContent = s.joinDate || '—';
+        document.getElementById('spBatchDisp').innerHTML = b
+            ? `<span class="tag ${b.name.includes('Morning')||b.name.includes('Early')?'tpn':b.name.includes('Evening')?'tis':b.name.includes('Night')?'tac':'tav'}">${b.name}</span>`
+            : '<span style="color:var(--tx3)">—</span>';
+        document.getElementById('spSeatNum').textContent         = s.seat || '—';
+        document.getElementById('spSeatChip').title              = s.seat ? 'Click to change seat' : 'Click to allocate seat';
+        document.getElementById('spSeatTypeDisp').innerHTML      = s.seatType === 'ac'
+            ? '<span class="tag tac" style="font-size:10px">❄ AC</span>'
+            : '<span style="font-size:11px;color:var(--tx2)">Non-AC</span>';
+        document.getElementById('spJoinDate').textContent        = s.joinDate || '—';
 
-        // Personal
-        document.getElementById('spFname').textContent = s.fname;
-        document.getElementById('spLname').textContent = s.lname;
-        document.getElementById('spPhone').textContent = s.phone || '—';
-        document.getElementById('spEmail').textContent = s.email || '—';
+        // ── Personal ──────────────────────────────────────────────────────
+        document.getElementById('spFname').textContent  = s.fname;
+        document.getElementById('spLname').textContent  = s.lname;
         document.getElementById('spCourse').textContent = s.course || '—';
-        document.getElementById('spAddr').textContent = s.addr || '—';
+        document.getElementById('spAddr').textContent   = s.addr   || '—';
+        document.getElementById('spEmail').textContent  = s.email  || '—';
 
-        // Fee details
-        document.getElementById('spBaseFee').textContent = '₹' + (s.baseFee || 0).toLocaleString();
-        document.getElementById('spDiscount').textContent = s.baseFee > s.netFee ? '₹' + (s.baseFee - s.netFee).toLocaleString() + (s.discount?.reason ? ' — ' + s.discount.reason : '') : '—';
-        document.getElementById('spPaidAmt').textContent = '₹' + (s.paidAmt || 0).toLocaleString();
-        document.getElementById('spDueDate').textContent = fmtDate(s.dueDate);
+        // Phone — tap-to-call link in view mode
+        const phoneEl = document.getElementById('spPhone');
+        if (!profileEditMode && s.phone) {
+            phoneEl.innerHTML = `<a href="tel:${s.phone}" class="sp-phone-link">
+                <span class="mi sm" style="font-size:13px;color:var(--ac)">call</span>${s.phone}
+                <a href="https://wa.me/${s.phone.replace(/\D/g,'')}" target="_blank" class="sp-phone-link" style="margin-left:6px;font-size:11px;color:#25d366" title="Open in WhatsApp">
+                    <span class="mi sm">chat</span>
+                </a>
+            </a>`;
+        } else {
+            phoneEl.textContent = s.phone || '—';
+        }
 
-        // Quick action buttons
+        // ── Fee Details ───────────────────────────────────────────────────
+        document.getElementById('spBaseFee').textContent  = '₹' + (s.baseFee || 0).toLocaleString('en-IN');
+        document.getElementById('spDiscount').textContent = s.baseFee > s.netFee
+            ? '₹' + (s.baseFee - s.netFee).toLocaleString('en-IN') + (s.discount?.reason ? ' — ' + s.discount.reason : '')
+            : '—';
+        document.getElementById('spPaidAmt').textContent  = '₹' + (s.paidAmt || 0).toLocaleString('en-IN');
+        document.getElementById('spDueDate').textContent  = fmtDate(s.dueDate);
+
+        // ── Payment History ───────────────────────────────────────────────
+        const histEl   = document.getElementById('spPayHistory');
+        const modeColors = { Cash:'#10b981', Online:'#3b82f6', UPI:'#8b5cf6', Cheque:'#f59e0b', NEFT:'#06b6d4', IMPS:'#ec4899' };
+        if (stuInvs.length) {
+            const MAX_SHOW = 6;
+            const shown    = stuInvs.slice(0, MAX_SHOW);
+            histEl.innerHTML = shown.map(inv => {
+                const dotClr  = inv.status === 'paid' ? '#10b981' : inv.status === 'partial' ? '#f59e0b' : '#ef4444';
+                const modeClr = Object.entries(modeColors).find(([k]) => (inv.mode||'').includes(k))?.[1] || '#64748b';
+                const disc    = (inv.paymentDiscount || 0) + (inv.discount > 0 && inv.paidAmt === inv.netFee ? 0 : 0);
+                return `<div class="sp-hist-row">
+                    <div class="sp-hist-dot" style="background:${dotClr}"></div>
+                    <div>
+                        <div style="font-weight:600;font-size:12px">${inv.type || 'Monthly Fee'}</div>
+                        <div style="font-size:10px;color:var(--tx3);margin-top:1px">${fmtD2(inv.paidDate||inv.date)||'—'} · <span style="color:${modeClr};font-weight:600">${inv.mode||'—'}</span>${inv.remarks ? ' · <em style="color:var(--tx3)">' + inv.remarks + '</em>' : ''}</div>
+                    </div>
+                    <div style="text-align:right">
+                        <div style="font-weight:700;font-size:13px;color:var(--em)">₹${(+inv.paidAmt||0).toLocaleString('en-IN')}</div>
+                        ${inv.paymentDiscount > 0 ? `<div style="font-size:9px;color:#f59e0b">-₹${inv.paymentDiscount} disc</div>` : ''}
+                    </div>
+                    <div><span class="tag ${inv.status==='paid'?'tpd':inv.status==='partial'?'tpart':'tpn'}" style="font-size:9px">${inv.status}</span></div>
+                </div>`;
+            }).join('');
+            if (stuInvs.length > MAX_SHOW) {
+                histEl.innerHTML += `<div style="text-align:center;padding:6px;font-size:11px;color:var(--tx3)">+ ${stuInvs.length - MAX_SHOW} more payments</div>`;
+            }
+        } else {
+            histEl.innerHTML = `<div style="text-align:center;padding:14px;color:var(--tx3);font-size:12px">No payment records yet</div>`;
+        }
+
+        // ── Quick action buttons ──────────────────────────────────────────
         document.getElementById('spCollectBtn').onclick = () => { closeM('mStudentProfile'); qCollect(id); };
-        document.getElementById('spWaBtn').onclick = () => { closeM('mStudentProfile'); setTimeout(() => waQuick(id, s.feeStatus === 'paid' ? 'fee_receipt' : s.feeStatus === 'overdue' ? 'fee_overdue' : 'fee_due'), 200); };
+        document.getElementById('spWaBtn').onclick      = () => { closeM('mStudentProfile'); setTimeout(() => waQuick(id, s.feeStatus==='paid'?'fee_receipt':s.feeStatus==='overdue'?'fee_overdue':'fee_due'), 200); };
         const _upiProfBtn = document.getElementById('spUpiBtn');
-        if (_upiProfBtn) { _upiProfBtn.style.display = s.feeStatus !== 'paid' ? '' : 'none'; _upiProfBtn.onclick = () => { closeM('mStudentProfile'); setTimeout(() => sendUpiLink(id), 200); }; }
+        if (_upiProfBtn) {
+            _upiProfBtn.style.display = s.feeStatus !== 'paid' ? '' : 'none';
+            _upiProfBtn.onclick = () => { closeM('mStudentProfile'); setTimeout(() => sendUpiLink(id), 200); };
+        }
         document.getElementById('spDelBtn').onclick = () => { closeM('mStudentProfile'); delStu(id); };
         const _mlBtn = document.getElementById('spMarkLeftBtn');
-        if (_mlBtn) _mlBtn.onclick = () => openMarkLeft(id);
+        if (_mlBtn) {
+            _mlBtn.onclick = () => openMarkLeft(id);
+            // Show/hide mark left based on whether already left
+            _mlBtn.style.display = s.leaveDate ? 'none' : '';
+        }
 
-        // Edit toggle reset
+        // ── Edit toggle reset ─────────────────────────────────────────────
         document.getElementById('spEditToggle').classList.remove('on');
         document.getElementById('spEditToggle').textContent = '✏ Edit';
         document.getElementById('spSaveFooter').style.display = 'none';
@@ -2694,6 +2813,10 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
             toggle.classList.add('on');
             toggle.textContent = '✏ Editing…';
             footer.style.display = 'flex';
+            // Phone: strip link HTML → plain text so contenteditable works cleanly
+            const phoneEl = document.getElementById('spPhone');
+            const s = DB.students.find(x => x.id === profileStudentId);
+            if (s) phoneEl.textContent = s.phone || '';
             fields.forEach(id2 => {
                 const el = document.getElementById(id2);
                 el.contentEditable = 'true';
