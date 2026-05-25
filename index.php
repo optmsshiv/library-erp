@@ -502,6 +502,43 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         @media(max-width:768px){
             #dashRowA{grid-template-columns:1fr !important}
         }
+
+        /* ── PRINT STYLES ──────────────────────────────────────────────── */
+        @media print {
+            /* Hide everything except the report output panel */
+            body > *:not(#print-report-root) { display: none !important; }
+            #print-report-root { display: block !important; }
+
+            /* Reset page */
+            * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+            body { background: #fff !important; color: #1e293b !important; font-family: -apple-system, sans-serif; }
+
+            /* Print header */
+            .prh { display: flex !important; }
+            .prh-logo { width: 40px; height: 40px; }
+
+            /* Tables */
+            table { border-collapse: collapse !important; width: 100% !important; page-break-inside: auto; }
+            tr { page-break-inside: avoid; }
+            th, td { border: 1px solid #e2e8f0 !important; padding: 6px 9px !important; font-size: 10px !important; }
+            thead { display: table-header-group; }
+            tfoot { display: table-footer-group; }
+
+            /* Hide interactive elements */
+            button, .btn, .mc, [onclick] { display: none !important; }
+
+            /* Stat cards — keep visible */
+            .sc { border: 1px solid #e2e8f0 !important; break-inside: avoid; }
+
+            /* Progress bars — keep colors */
+            .cat-bar-fill { print-color-adjust: exact !important; }
+
+            /* Page breaks */
+            .print-break { page-break-before: always; }
+
+            /* Hide sticky/overflow wrappers */
+            .tw { overflow: visible !important; }
+        }
     </style>
 </head>
 <body>
@@ -1031,7 +1068,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
                         </div>
                         <div style="margin-left:auto;display:flex;gap:8px">
                             <button class="btn bg" onclick="exportRptCSV()" style="font-size:11px"><span class="mi sm">download</span> CSV</button>
-                            <button class="btn bg" onclick="window.print()" style="font-size:11px"><span class="mi sm">print</span> Print</button>
+                            <button class="btn bg" onclick="printReport()" style="font-size:11px"><span class="mi sm">print</span> Print</button>
                         </div>
                     </div>
                 </div>
@@ -3964,11 +4001,26 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
             // ── Expense table ──────────────────────────────────────────────
             const byCat = {};
             res.expenses.forEach(e => { byCat[e.category] = (byCat[e.category]||0) + (+e.amount); });
-            const catHtml = Object.entries(byCat).sort((a,b)=>b[1]-a[1]).map(([cat,amt]) =>
-                `<div style="display:flex;justify-content:space-between;padding:5px 0;font-size:12px;border-bottom:1px solid var(--br)">
-                    <span style="color:var(--tx2)">${cat}</span>
-                    <span style="font-weight:700;color:var(--ro)">₹${amt.toLocaleString('en-IN')}</span>
-                </div>`).join('');
+            const totalExpAmt = Object.values(byCat).reduce((a,b)=>a+b,0);
+
+            // Colour palette for bars — cycles if more than 8 categories
+            const BAR_COLORS = ['#3b82f6','#10b981','#f59e0b','#ef4444','#8b5cf6','#06b6d4','#ec4899','#84cc16'];
+
+            const catHtml = Object.entries(byCat).sort((a,b)=>b[1]-a[1]).map(([cat,amt],ci) => {
+                const pct = totalExpAmt > 0 ? Math.round(amt/totalExpAmt*100) : 0;
+                const clr = BAR_COLORS[ci % BAR_COLORS.length];
+                return `<div style="margin-bottom:10px">
+                    <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:3px">
+                        <span style="font-size:11px;font-weight:600;color:var(--tx2)">${cat}</span>
+                        <span style="font-size:10px;color:var(--tx3)">${pct}%</span>
+                    </div>
+                    <div style="height:6px;background:var(--sf3);border-radius:3px;overflow:hidden;margin-bottom:2px">
+                        <div class="cat-bar-fill" style="width:${pct}%;height:100%;background:${clr};border-radius:3px;transition:width .4s ease"></div>
+                    </div>
+                    <div style="text-align:right;font-size:10px;font-weight:700;color:var(--ro)">₹${amt.toLocaleString('en-IN')}</div>
+                </div>`;
+            }).join('');
+
             const expRows = res.expenses.map((e,i) =>
                 `<tr style="border-bottom:1px solid var(--br);background:${i%2?'var(--sf2)':'var(--sf)'}">
                     <td style="padding:8px 12px;font-size:11px;color:var(--tx3);font-family:var(--fm)">${e.id}</td>
@@ -3995,9 +4047,9 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
                         <tbody>${expRows||`<tr><td colspan="6" style="text-align:center;padding:18px;color:var(--tx3)">No expenses this month</td></tr>`}</tbody>
                     </table></div>
                     <div style="background:var(--sf2);border:1px solid var(--br);border-radius:var(--r);padding:14px;position:sticky;top:10px">
-                        <div style="font-size:10px;font-weight:700;color:var(--tx3);text-transform:uppercase;letter-spacing:.8px;margin-bottom:10px;font-family:var(--fm)">By Category</div>
+                        <div style="font-size:10px;font-weight:700;color:var(--tx3);text-transform:uppercase;letter-spacing:.8px;margin-bottom:12px;font-family:var(--fm)">Expense Breakdown</div>
                         ${catHtml||'<div style="color:var(--tx3);font-size:12px">No expenses</div>'}
-                        <div style="display:flex;justify-content:space-between;padding:7px 0 0;font-size:12px;font-weight:700;margin-top:4px">
+                        <div style="display:flex;justify-content:space-between;padding:8px 0 0;font-size:12px;font-weight:700;border-top:1px solid var(--br);margin-top:4px">
                             <span>Total</span><span style="color:var(--ro)">${fmt2(res.total_expenses)}</span>
                         </div>
                     </div>
@@ -4007,6 +4059,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
                 `<div style="margin-top:16px;display:flex;gap:8px;flex-wrap:wrap">
                     <button class="btn bg" onclick="applyRptFilters()" style="font-size:11px"><span class="mi sm">arrow_back</span> Back to Summary</button>
                     <button class="btn bg" onclick="exportDrillCSV('${ym}')" style="font-size:11px"><span class="mi sm">download</span> Export CSV</button>
+                    <button class="btn bg" onclick="printDrillDown('${ym}')" style="font-size:11px"><span class="mi sm">print</span> Print</button>
                 </div>`;
 
             window._drillData = res;
@@ -4040,6 +4093,218 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         });
         a.click();
         toast('CSV exported!', 'ok');
+    }
+
+    // ── PRINT HELPERS ─────────────────────────────────────────────────────
+
+    function _printBase() {
+        // Shared CSS for all print windows
+        return `
+        <style>
+            *{box-sizing:border-box;margin:0;padding:0}
+            body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#1e293b;background:#fff;padding:28px 32px;font-size:12px}
+            .prh{display:flex;align-items:center;justify-content:space-between;border-bottom:2px solid #1e293b;padding-bottom:12px;margin-bottom:18px}
+            .prh-left{display:flex;align-items:center;gap:12px}
+            .prh-logo{width:38px;height:38px;border-radius:8px;background:#3b82f6;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:16px;flex-shrink:0}
+            .prh-title{font-size:18px;font-weight:700;color:#1e293b}
+            .prh-sub{font-size:11px;color:#64748b;margin-top:2px}
+            .prh-right{text-align:right;font-size:10px;color:#64748b;line-height:1.6}
+            .stats{display:grid;gap:10px;margin-bottom:18px}
+            .stat{background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:10px 14px}
+            .stat-lb{font-size:9px;color:#64748b;text-transform:uppercase;letter-spacing:.6px;font-weight:600;margin-bottom:3px}
+            .stat-vl{font-size:20px;font-weight:700;color:#1e293b}
+            table{width:100%;border-collapse:collapse;margin-bottom:18px;font-size:11px}
+            thead th{background:#f1f5f9;color:#475569;font-size:9px;text-transform:uppercase;letter-spacing:.5px;padding:7px 9px;text-align:left;border:1px solid #e2e8f0;font-weight:600}
+            tbody td{padding:6px 9px;border:1px solid #e2e8f0;vertical-align:top}
+            tbody tr:nth-child(even){background:#f8fafc}
+            tfoot td{padding:7px 9px;border:1px solid #cbd5e1;background:#f1f5f9;font-weight:700;font-size:11px}
+            .tag{display:inline-block;padding:1px 6px;border-radius:4px;font-size:9px;font-weight:600;text-transform:capitalize}
+            .tag-paid{background:#dcfce7;color:#166534}
+            .tag-partial{background:#fef9c3;color:#854d0e}
+            .tag-pending{background:#fee2e2;color:#991b1b}
+            .tag-overdue{background:#fce7f3;color:#9d174d}
+            .section-title{font-size:13px;font-weight:700;color:#1e293b;margin:18px 0 8px;display:flex;align-items:center;gap:6px;border-bottom:1px solid #e2e8f0;padding-bottom:6px}
+            .cat-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:18px}
+            .cat-item{padding:8px 10px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px}
+            .cat-name{font-size:10px;font-weight:600;color:#374151;margin-bottom:4px;display:flex;justify-content:space-between}
+            .cat-bar-bg{height:5px;background:#e2e8f0;border-radius:3px;overflow:hidden}
+            .cat-bar-fill{height:100%;border-radius:3px;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+            .footer{margin-top:24px;padding-top:10px;border-top:1px solid #e2e8f0;display:flex;justify-content:space-between;font-size:9px;color:#94a3b8}
+            @media print{
+                body{padding:14px 18px}
+                @page{margin:10mm 12mm;size:A4 portrait}
+            }
+        </style>`;
+    }
+
+    function _printHeader(reportTitle, subText) {
+        const lib   = DB.settings?.name || 'Library';
+        const init  = lib.charAt(0).toUpperCase();
+        const logoEl = document.getElementById('main-logo');
+        const logoSrc = logoEl?.src || '';
+        const logoHtml = logoSrc && !logoSrc.endsWith('undefined')
+            ? `<img src="${logoSrc}" style="width:38px;height:38px;border-radius:8px;object-fit:contain">`
+            : `<div class="prh-logo">${init}</div>`;
+        const now = new Date().toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'});
+        const time = new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
+        return `
+        <div class="prh">
+            <div class="prh-left">
+                ${logoHtml}
+                <div>
+                    <div class="prh-title">${lib}</div>
+                    <div class="prh-sub">${reportTitle}</div>
+                </div>
+            </div>
+            <div class="prh-right">
+                <div><strong>Generated:</strong> ${now}, ${time}</div>
+                ${subText ? `<div>${subText}</div>` : ''}
+                <div style="margin-top:4px;font-size:9px;color:#cbd5e1">optms.co.in</div>
+            </div>
+        </div>`;
+    }
+
+    function _printFooter() {
+        const lib = DB.settings?.name || 'Library';
+        return `<div class="footer"><span>${lib} — Powered by OPTMS</span><span>Page <span class="pn"></span></span></div>`;
+    }
+
+    function _feeTagHtml(st) {
+        const m = {paid:'tag-paid',pending:'tag-pending',partial:'tag-partial',overdue:'tag-overdue'};
+        return `<span class="tag ${m[st]||''}">${st}</span>`;
+    }
+
+    // ── Print summary report (fee / monthly / student / batch / outstanding / expense) ──
+    function printReport() {
+        if (!_rptType) return toast('Generate a report first', 'wn');
+        const titleEl = document.getElementById('rptTitle');
+        const metaEl  = document.getElementById('rptMeta');
+        const statsEl = document.getElementById('rptStatsWrap');
+        const bodyEl  = document.getElementById('rptBody');
+        if (!bodyEl?.innerHTML?.trim()) return toast('No report content to print', 'wn');
+
+        const reportTitle = titleEl?.textContent || _rptType;
+        const subText     = metaEl?.textContent  || '';
+
+        // Build stats HTML for print (strip interactive elements)
+        const statsClone = statsEl?.cloneNode(true);
+        if (statsClone) {
+            statsClone.querySelectorAll('button,[onclick]').forEach(el => el.remove());
+        }
+
+        // Build body clone — strip buttons, keep tables
+        const bodyClone = bodyEl.cloneNode(true);
+        bodyClone.querySelectorAll('button,.btn,[onclick]').forEach(el => el.remove());
+        // Replace inline color vars with concrete values for print
+        bodyClone.querySelectorAll('[style]').forEach(el => {
+            el.style.color    = el.style.color    || '';
+            el.style.fontSize = el.style.fontSize || '';
+        });
+
+        const w = window.open('', '_blank', 'width=900,height=700');
+        w.document.write(`<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><title>${reportTitle} — ${DB.settings?.name||'Library'}</title>${_printBase()}</head><body>`);
+        w.document.write(_printHeader(reportTitle, subText));
+        if (statsClone) w.document.write(`<div class="stats" style="grid-template-columns:repeat(auto-fit,minmax(140px,1fr))">${statsClone.innerHTML}</div>`);
+        w.document.write(bodyClone.outerHTML);
+        w.document.write(_printFooter());
+        w.document.write(`<script>window.onload=function(){window.print();}<\/script></body></html>`);
+        w.document.close();
+    }
+
+    // ── Print monthly drill-down (invoices + expense % bars + expense table) ──
+    function printDrillDown(ym) {
+        const res = window._drillData;
+        if (!res) return toast('Load the drill-down first', 'wn');
+
+        const [y,mo] = ym.split('-');
+        const label  = new Date(+y,+mo-1).toLocaleString('en-IN',{month:'long',year:'numeric'});
+        const fmtD   = d => d ? new Date(d).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}) : '—';
+        const fmt2   = v => `₹${(+v||0).toLocaleString('en-IN')}`;
+        const pft    = +res.net_profit;
+
+        // ── Stat row ──
+        const statsHtml = `
+        <div class="stats" style="grid-template-columns:repeat(4,1fr);margin-bottom:18px">
+            <div class="stat"><div class="stat-lb">Revenue Collected</div><div class="stat-vl" style="color:#10b981">${fmt2(res.total_revenue)}</div></div>
+            <div class="stat"><div class="stat-lb">Total Expenses</div><div class="stat-vl" style="color:#ef4444">${fmt2(res.total_expenses)}</div></div>
+            <div class="stat"><div class="stat-lb">Net Profit</div><div class="stat-vl" style="color:${pft>=0?'#10b981':'#ef4444'}">${fmt2(Math.abs(pft))} ${pft<0?'▼':'▲'}</div></div>
+            <div class="stat"><div class="stat-lb">Invoices</div><div class="stat-vl">${res.invoices.length}</div></div>
+        </div>`;
+
+        // ── Invoice table ──
+        const invTotal = res.invoices.reduce((a,i)=>a+(+i.paid_amt||0),0);
+        const invRows  = res.invoices.map((inv,i) => {
+            const nm       = `${inv.fname||''} ${inv.lname||''}`.trim()||inv.student_id;
+            const totalDisc = (+inv.discount||0)+(+inv.payment_discount||0);
+            return `<tr>
+                <td style="color:#64748b">${inv.id}</td>
+                <td><strong>${nm}</strong></td>
+                <td>${inv.batch_name||'—'}</td>
+                <td>${inv.type}</td>
+                <td style="color:#10b981;font-weight:700">${fmt2(inv.paid_amt)}</td>
+                <td>${fmt2(inv.net_fee)}</td>
+                <td>${totalDisc>0?fmt2(totalDisc):'—'}</td>
+                <td>${fmtD(inv.paid_date)}</td>
+                <td>${inv.mode||'—'}</td>
+                <td>${_feeTagHtml(inv.status)}</td>
+                <td style="color:#64748b;font-size:10px">${inv.remarks||'—'}</td>
+            </tr>`;
+        }).join('');
+
+        const invTable = `
+        <div class="section-title">💳 Fee Invoices <span style="font-size:11px;font-weight:400;color:#64748b">${res.invoices.length} entries</span></div>
+        <table>
+            <thead><tr>${['Invoice #','Student','Batch','Type','Paid','Net Fee','Discount','Paid On','Mode','Status','Remarks'].map(c=>`<th>${c}</th>`).join('')}</tr></thead>
+            <tfoot><tr><td colspan="4">TOTAL</td><td style="color:#10b981">${fmt2(invTotal)}</td><td colspan="6"></td></tr></tfoot>
+            <tbody>${invRows||'<tr><td colspan="11" style="text-align:center;padding:14px;color:#94a3b8">No invoices</td></tr>'}</tbody>
+        </table>`;
+
+        // ── Category % bars ──
+        const BAR_COLORS = ['#3b82f6','#10b981','#f59e0b','#ef4444','#8b5cf6','#06b6d4','#ec4899','#84cc16'];
+        const byCat      = {};
+        res.expenses.forEach(e => { byCat[e.category||'Other'] = (byCat[e.category||'Other']||0)+(+e.amount); });
+        const totalExpAmt = Object.values(byCat).reduce((a,b)=>a+b,0);
+        const catBars    = Object.entries(byCat).sort((a,b)=>b[1]-a[1]).map(([cat,amt],ci)=>{
+            const pct = totalExpAmt > 0 ? Math.round(amt/totalExpAmt*100) : 0;
+            const clr = BAR_COLORS[ci % BAR_COLORS.length];
+            return `<div class="cat-item">
+                <div class="cat-name"><span>${cat}</span><span style="color:#ef4444">${fmt2(amt)}</span></div>
+                <div class="cat-bar-bg"><div class="cat-bar-fill" style="width:${pct}%;background:${clr}"></div></div>
+                <div style="text-align:right;font-size:9px;color:#94a3b8;margin-top:2px">${pct}% of total expenses</div>
+            </div>`;
+        }).join('');
+
+        // ── Expense table ──
+        const expTotal = res.expenses.reduce((a,e)=>a+(+e.amount||0),0);
+        const expRows  = res.expenses.map(e =>
+            `<tr>
+                <td style="color:#64748b">${e.id}</td>
+                <td><strong>${e.emoji||'💸'} ${e.name}</strong></td>
+                <td>${e.category||'—'}</td>
+                <td style="color:#ef4444;font-weight:700">${fmt2(e.amount)}</td>
+                <td>${fmtD(e.expense_date)}</td>
+                <td style="color:#64748b">${e.notes||'—'}</td>
+            </tr>`
+        ).join('');
+
+        const expSection = `
+        <div class="section-title" style="margin-top:24px">💸 Expenses <span style="font-size:11px;font-weight:400;color:#64748b">${res.expenses.length} entries</span></div>
+        ${catBars ? `<div class="cat-grid">${catBars}</div>` : ''}
+        <table>
+            <thead><tr>${['#','Name','Category','Amount','Date','Notes'].map(c=>`<th>${c}</th>`).join('')}</tr></thead>
+            <tfoot><tr><td colspan="3">TOTAL</td><td style="color:#ef4444">${fmt2(expTotal)}</td><td colspan="2"></td></tr></tfoot>
+            <tbody>${expRows||'<tr><td colspan="6" style="text-align:center;padding:14px;color:#94a3b8">No expenses</td></tr>'}</tbody>
+        </table>`;
+
+        const w = window.open('', '_blank', 'width=960,height=750');
+        w.document.write(`<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><title>${label} Detail — ${DB.settings?.name||'Library'}</title>${_printBase()}</head><body>`);
+        w.document.write(_printHeader(`${label} — Detailed Breakdown`, `${res.invoices.length} invoices · ${res.expenses.length} expenses`));
+        w.document.write(statsHtml);
+        w.document.write(invTable);
+        w.document.write(expSection);
+        w.document.write(_printFooter());
+        w.document.write(`<script>window.onload=function(){window.print();}<\/script></body></html>`);
+        w.document.close();
     }
 
     function exportRptCSV() {
