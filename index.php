@@ -1749,7 +1749,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
                 <button class="btn bwa" style="font-size:11px" id="spWaBtn">💬 Send WhatsApp</button>
                 <button class="btn bg" style="font-size:11px;color:var(--ac);border-color:var(--ac)" id="spUpiBtn">📱 UPI Link</button>
                 <button class="btn bg" style="font-size:11px" onclick="openAllocFromProfile()"><span class="mi sm">event_seat</span>Change Seat</button>
-                <button class="btn bg" style="font-size:11px;color:var(--ro);border-color:var(--ro)" id="spMarkLeftBtn" onclick="openMarkLeft(currentStu?.id)"><span class="mi sm">logout</span>Mark Left</button>
+                <button class="btn bg" style="font-size:11px;color:var(--ro);border-color:var(--ro)" id="spMarkLeftBtn"><span class="mi sm">logout</span>Mark Left</button>
                 <button class="btn bd" data-action="delete_student" style="font-size:11px" id="spDelBtn">🗑 Remove</button>
             </div>
         </div>
@@ -2669,6 +2669,8 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         const _upiProfBtn = document.getElementById('spUpiBtn');
         if (_upiProfBtn) { _upiProfBtn.style.display = s.feeStatus !== 'paid' ? '' : 'none'; _upiProfBtn.onclick = () => { closeM('mStudentProfile'); setTimeout(() => sendUpiLink(id), 200); }; }
         document.getElementById('spDelBtn').onclick = () => { closeM('mStudentProfile'); delStu(id); };
+        const _mlBtn = document.getElementById('spMarkLeftBtn');
+        if (_mlBtn) _mlBtn.onclick = () => openMarkLeft(id);
 
         // Edit toggle reset
         document.getElementById('spEditToggle').classList.remove('on');
