@@ -754,7 +754,17 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
                         <thead><tr><th>Student</th><th>Batch</th><th>Seat</th><th>Type</th><th>Full Fee</th><th>Discount</th><th>Net Fee</th><th>Paid</th><th>Balance</th><th>Status</th><th>Due</th><th>Action</th></tr></thead>
                         <tbody id="stuTable"></tbody>
                     </table></div>
-                <div class="pag"><span class="pag-i" id="stuPagI"></span><div class="pag-b" id="stuPagB"></div></div></div>
+                <div class="pag">
+                    <span class="pag-i" id="stuPagI"></span>
+                    <div class="pag-b" id="stuPagB"></div>
+                    <select id="stuPerPageSel" onchange="stuPerPage=+this.value;stuPage=1;renderStudents()" style="font-size:11px;padding:3px 6px;border:1px solid var(--br);border-radius:var(--r2);background:var(--sf);color:var(--tx);cursor:pointer">
+                        <option value="10" selected>10 / page</option>
+                        <option value="15">15 / page</option>
+                        <option value="25">25 / page</option>
+                        <option value="50">50 / page</option>
+                        <option value="9999">All</option>
+                    </select>
+                </div></div>
         </div>
 
         <!-- SEATS -->
@@ -2598,7 +2608,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
     }
 
     // ═══ STUDENTS ═══
-    let stuPage=1,stuFilterVal='all',stuSearchVal='';
+    let stuPage=1, stuFilterVal='all', stuSearchVal='', stuPerPage=10;
     function renderStudents(){
         let list=DB.students.filter(x=>{
             const mF=stuFilterVal==='all'||x.feeStatus===stuFilterVal;
@@ -2606,7 +2616,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
             return mF&&mS;
         });
         document.getElementById('stuCount2').textContent=`${list.length} student(s)`;
-        const pp=7,total=list.length,pages=Math.ceil(total/pp)||1;
+        const pp=stuPerPage,total=list.length,pages=Math.ceil(total/pp)||1;
         stuPage=Math.min(stuPage,pages);
         const sl=list.slice((stuPage-1)*pp,stuPage*pp);
         document.getElementById('stuTable').innerHTML=sl.map(x=>{
