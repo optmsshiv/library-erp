@@ -152,14 +152,14 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
 
         .mo{display:none;position:fixed;inset:0;background:rgba(15,23,42,.45);z-index:500;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(4px)}
         .mo.open{display:flex}
-        .md{background:var(--sf);border-radius:var(--r);width:100%;max-width:540px;max-height:94vh;overflow-y:auto;box-shadow:var(--sh2);animation:mIn .22s ease;border:1px solid var(--br)}
+        .md{background:var(--sf);border-radius:var(--r);width:100%;max-width:540px;max-height:94vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:var(--sh2);animation:mIn .22s ease;border:1px solid var(--br)}
         .md.wide{max-width:680px}.md.lg{max-width:800px}
         @keyframes mIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
-        .mh{padding:16px 20px;border-bottom:1px solid var(--br);display:flex;align-items:center;justify-content:space-between;background:var(--sf2)}
+        .mh{padding:16px 20px;border-bottom:1px solid var(--br);display:flex;align-items:center;justify-content:space-between;background:var(--sf2);flex-shrink:0}
         .mt{font-family:var(--fd);font-size:16px;color:var(--tx)}
         .mc{width:30px;height:30px;border-radius:8px;background:var(--sf);border:1px solid var(--br);cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--tx3);transition:all .18s}
         .mc:hover{background:var(--c-rose);color:var(--ro);border-color:var(--cr)}
-        .mb{padding:20px}.mf{padding:13px 20px;border-top:1px solid var(--br);display:flex;justify-content:flex-end;gap:9px;background:var(--sf2)}
+        .mb{padding:20px;overflow-y:auto;flex:1;min-height:0}.mf{padding:13px 20px;border-top:1px solid var(--br);display:flex;justify-content:flex-end;gap:9px;background:var(--sf2);flex-shrink:0}
 
         .fg{display:grid;grid-template-columns:1fr 1fr;gap:13px}
         .fgi{display:flex;flex-direction:column;gap:5px}.fgi.full{grid-column:1/-1}
@@ -310,7 +310,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         .sp-av{width:68px;height:68px;border-radius:18px;border:3px solid var(--sf);display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:700;color:#fff;box-shadow:var(--sh2)}
         .sp-name{color:#fff;font-family:var(--fd);font-size:20px;margin-bottom:3px}
         .sp-id{color:rgba(255,255,255,.75);font-size:11px;font-family:var(--fm)}
-        .sp-body{padding:46px 22px 14px}
+        .sp-body{padding:46px 22px 14px;overflow-y:auto;flex:1;min-height:0}
         .sp-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
         .sp-field{display:flex;flex-direction:column;gap:3px}.sp-field.full{grid-column:1/-1}
         .sp-label{font-size:10px;font-weight:600;color:var(--tx3);text-transform:uppercase;letter-spacing:.6px;font-family:var(--fm)}
