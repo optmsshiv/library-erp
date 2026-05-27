@@ -246,8 +246,8 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         .tab{flex:1;padding:6px 10px;text-align:center;font-size:11.5px;font-weight:500;color:var(--tx3);border-radius:7px;cursor:pointer;transition:all .18s;white-space:nowrap}
         .tab.active{background:var(--sf);color:var(--tx);font-weight:600;box-shadow:var(--sh)}
 
-        .pag{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-top:1px solid var(--br)}
-        .pag-i{font-size:11px;color:var(--tx3)}.pag-b{display:flex;gap:3px}
+        .pag{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-top:1px solid var(--br);gap:8px}
+        .pag-i{font-size:11px;color:var(--tx3);white-space:nowrap;flex-shrink:0}.pag-b{display:flex;gap:3px;flex:1;justify-content:center}
         .pb2{padding:3px 9px;border-radius:6px;font-size:11px;cursor:pointer;border:1px solid var(--br);background:var(--sf);color:var(--tx2);transition:all .18s}
         .pb2:hover,.pb2.active{background:var(--ac);color:#fff;border-color:var(--ac)}
 
@@ -757,7 +757,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
                 <div class="pag">
                     <span class="pag-i" id="stuPagI"></span>
                     <div class="pag-b" id="stuPagB"></div>
-                    <select id="stuPerPageSel" onchange="stuPerPage=+this.value;stuPage=1;renderStudents()" style="font-size:11px;padding:3px 6px;border:1px solid var(--br);border-radius:var(--r2);background:var(--sf);color:var(--tx);cursor:pointer">
+                    <select id="stuPerPageSel" onchange="stuPerPage=+this.value;stuPage=1;renderStudents()" style="font-size:11px;padding:3px 8px;border:1px solid var(--br);border-radius:var(--r2);background:var(--sf2);color:var(--tx);cursor:pointer;width:auto;flex-shrink:0">
                         <option value="10" selected>10 / page</option>
                         <option value="15">15 / page</option>
                         <option value="25">25 / page</option>
