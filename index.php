@@ -451,23 +451,23 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         .audit-btn-export:hover{background:var(--sf2);border-color:var(--br2)}
         .audit-btn-clear{display:inline-flex;align-items:center;gap:5px;padding:7px 13px;border-radius:var(--r2);font-size:11.5px;font-weight:600;cursor:pointer;border:1px solid var(--cr);background:var(--c-rose);color:var(--ro);transition:all .15s}
         .audit-btn-clear:hover{background:#f9d8d5}
-        /* Stats row */
-        .audit-stats-row{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
-        .audit-stat-chip{display:flex;align-items:center;gap:8px;background:var(--sf);border:1px solid var(--br);border-radius:var(--r2);padding:8px 13px;cursor:pointer;transition:all .15s;position:relative;overflow:hidden;flex-shrink:0}
-        .audit-stat-chip::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--asc-cl,var(--br2));border-radius:0}
-        .audit-stat-chip:hover{background:var(--sf2);transform:translateY(-1px);box-shadow:0 3px 10px rgba(0,0,0,.07)}
-        .audit-stat-chip.asc-on{border-color:var(--asc-cl,var(--ac));background:var(--asc-bg,var(--c-blue))}
-        .asc-icon{font-size:16px;line-height:1}
+        /* Stats row — Option A pill chips */
+        .audit-stats-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+        .audit-stat-chip{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:20px;font-size:12px;font-weight:500;border:1px solid var(--br);background:var(--sf);color:var(--tx2);cursor:pointer;transition:all .15s;white-space:nowrap}
+        .audit-stat-chip:hover{background:var(--sf2);border-color:var(--br2)}
+        .audit-stat-chip.asc-on{background:var(--asc-bg,var(--c-blue));color:var(--asc-cl,var(--ac));border-color:var(--asc-cl,var(--ac))}
+        .asc-icon{font-size:13px;line-height:1}
+        .asc-count{font-size:10px;font-weight:700;padding:0 5px;border-radius:8px;background:rgba(0,0,0,.07);color:inherit}
+        .audit-stat-chip.asc-on .asc-count{background:rgba(255,255,255,.25)}
+        .asc-label{font-size:12px}
         .asc-right{}
-        .asc-count{font-size:17px;font-weight:800;color:var(--asc-cl,var(--tx));line-height:1}
-        .asc-label{font-size:9.5px;font-weight:600;color:var(--tx3);text-transform:uppercase;letter-spacing:.8px;margin-top:1px}
-        /* Search bar */
-        .audit-search-bar{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:center}
-        .audit-srch-wrap{flex:1;min-width:180px;position:relative}
+        /* Search bar — single row 3 columns */
+        .audit-search-bar{display:grid;grid-template-columns:2fr 1fr 1fr;gap:8px;margin-bottom:12px;align-items:center}
+        .audit-srch-wrap{position:relative}
         .audit-srch-wrap input{width:100%;padding:8px 12px 8px 34px;border:1px solid var(--br);border-radius:var(--r2);background:var(--sf);color:var(--tx);font-size:12px;outline:none;transition:all .15s}
         .audit-srch-wrap input:focus{border-color:var(--ac);box-shadow:0 0 0 3px rgba(61,111,240,.08)}
-        .audit-srch-ico{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--tx3);pointer-events:none}
-        .audit-flt-sel{padding:8px 11px;border:1px solid var(--br);border-radius:var(--r2);background:var(--sf);color:var(--tx2);font-size:11.5px;outline:none;cursor:pointer;transition:border-color .15s}
+        .audit-srch-ico{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--tx3);pointer-events:none}
+        .audit-flt-sel{width:100%;padding:8px 11px;border:1px solid var(--br);border-radius:var(--r2);background:var(--sf);color:var(--tx2);font-size:11.5px;outline:none;cursor:pointer;transition:border-color .15s}
         .audit-flt-sel:focus{border-color:var(--ac)}
         /* Panel */
         .audit-panel{background:var(--sf);border:1px solid var(--br);border-radius:var(--r);overflow:hidden;box-shadow:0 1px 6px rgba(0,0,0,.04)}
@@ -1285,10 +1285,10 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
             </div>
             <!-- Stat chips -->
             <div class="audit-stats-row" id="auditStats"></div>
-            <!-- Search + filters -->
+            <!-- Search + filters — single row 3 columns -->
             <div class="audit-search-bar">
                 <div class="audit-srch-wrap">
-                    <svg class="audit-srch-ico" width="13" height="13" viewBox="0 0 14 14" fill="none"><circle cx="6" cy="6" r="4.5" stroke="currentColor" stroke-width="1.3"/><path d="M10 10l2.5 2.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+                    <span class="mi audit-srch-ico" style="font-size:15px">search</span>
                     <input type="text" id="auditSearch" placeholder="Search actions, staff, or type…" oninput="renderAudit()">
                 </div>
                 <select class="audit-flt-sel" id="auditFilter" onchange="renderAudit()">
@@ -6000,24 +6000,18 @@ Thank you! 📚
         const total   = (DB.auditLog || []).length;
         const curType = document.getElementById('auditFilter')?.value || 'all';
         const allOn   = curType === 'all';
-        let chips = `<div class="audit-stat-chip ${allOn ? 'asc-on' : ''}" style="--asc-cl:var(--tx);--asc-bg:var(--sf2)" onclick="document.getElementById('auditFilter').value='all';_auditPage=1;renderAudit()">
-            <div class="asc-icon">◎</div>
-            <div class="asc-right">
-                <div class="asc-count" style="color:var(--tx)">${total}</div>
-                <div class="asc-label">All</div>
-            </div>
-        </div>`;
+        let chips = `<span class="audit-stat-chip ${allOn?'asc-on':''}" style="--asc-cl:var(--tx);--asc-bg:var(--sf2)" onclick="document.getElementById('auditFilter').value='all';_auditPage=1;renderAudit()">
+            All <span class="asc-count">${total}</span>
+        </span>`;
         Object.entries(_AUDIT_TYPE_CFG).forEach(([t, c]) => {
             const cnt = (DB.auditLog || []).filter(a => a.type === t).length;
             if (!cnt) return;
             const on = curType === t;
-            chips += `<div class="audit-stat-chip ${on ? 'asc-on' : ''}" style="--asc-cl:${c.ac};--asc-bg:${c.bg}" onclick="document.getElementById('auditFilter').value='${t}';_auditPage=1;renderAudit()">
-                <div class="asc-icon">${c.icon}</div>
-                <div class="asc-right">
-                    <div class="asc-count">${cnt}</div>
-                    <div class="asc-label">${c.label}</div>
-                </div>
-            </div>`;
+            chips += `<span class="audit-stat-chip ${on?'asc-on':''}" style="--asc-cl:${c.ac};--asc-bg:${c.bg}" onclick="document.getElementById('auditFilter').value='${t}';_auditPage=1;renderAudit()">
+                <span class="asc-icon">${c.icon}</span>
+                <span class="asc-label">${c.label}</span>
+                <span class="asc-count">${cnt}</span>
+            </span>`;
         });
         if (statsEl) statsEl.innerHTML = chips;
 
