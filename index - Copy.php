@@ -143,16 +143,23 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         .tpart{background:var(--c-sky);color:#075985;border:1px solid var(--cs)}
         .tor{background:var(--c-orange);color:#9a3412;border:1px solid var(--co)}
 
+        /* ── REPORT CARDS ── */
+        .rpt-card{background:var(--sf);border:1px solid var(--br);border-top:3px solid var(--rc,var(--ac));border-radius:var(--r);padding:18px 16px;cursor:pointer;transition:all .2s;box-shadow:var(--sh);display:flex;flex-direction:column;align-items:center;text-align:center;gap:8px}
+        .rpt-card:hover{transform:translateY(-3px);box-shadow:var(--sh2)}
+        .rpt-ic{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;margin-bottom:2px}
+        .rpt-lb{font-weight:700;font-size:13px;color:var(--tx)}
+        .rpt-ds{font-size:10.5px;color:var(--tx3)}
+
         .mo{display:none;position:fixed;inset:0;background:rgba(15,23,42,.45);z-index:500;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(4px)}
         .mo.open{display:flex}
-        .md{background:var(--sf);border-radius:var(--r);width:100%;max-width:540px;max-height:94vh;overflow-y:auto;box-shadow:var(--sh2);animation:mIn .22s ease;border:1px solid var(--br)}
+        .md{background:var(--sf);border-radius:var(--r);width:100%;max-width:540px;max-height:94vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:var(--sh2);animation:mIn .22s ease;border:1px solid var(--br)}
         .md.wide{max-width:680px}.md.lg{max-width:800px}
         @keyframes mIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
-        .mh{padding:16px 20px;border-bottom:1px solid var(--br);display:flex;align-items:center;justify-content:space-between;background:var(--sf2)}
+        .mh{padding:16px 20px;border-bottom:1px solid var(--br);display:flex;align-items:center;justify-content:space-between;background:var(--sf2);flex-shrink:0}
         .mt{font-family:var(--fd);font-size:16px;color:var(--tx)}
         .mc{width:30px;height:30px;border-radius:8px;background:var(--sf);border:1px solid var(--br);cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--tx3);transition:all .18s}
         .mc:hover{background:var(--c-rose);color:var(--ro);border-color:var(--cr)}
-        .mb{padding:20px}.mf{padding:13px 20px;border-top:1px solid var(--br);display:flex;justify-content:flex-end;gap:9px;background:var(--sf2)}
+        .mb{padding:20px;overflow-y:auto;flex:1;min-height:0}.mf{padding:13px 20px;border-top:1px solid var(--br);display:flex;justify-content:flex-end;gap:9px;background:var(--sf2);flex-shrink:0}
 
         .fg{display:grid;grid-template-columns:1fr 1fr;gap:13px}
         .fgi{display:flex;flex-direction:column;gap:5px}.fgi.full{grid-column:1/-1}
@@ -239,8 +246,8 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         .tab{flex:1;padding:6px 10px;text-align:center;font-size:11.5px;font-weight:500;color:var(--tx3);border-radius:7px;cursor:pointer;transition:all .18s;white-space:nowrap}
         .tab.active{background:var(--sf);color:var(--tx);font-weight:600;box-shadow:var(--sh)}
 
-        .pag{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-top:1px solid var(--br)}
-        .pag-i{font-size:11px;color:var(--tx3)}.pag-b{display:flex;gap:3px}
+        .pag{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-top:1px solid var(--br);gap:8px}
+        .pag-i{font-size:11px;color:var(--tx3);white-space:nowrap;flex-shrink:0}.pag-b{display:flex;gap:3px;flex:1;justify-content:center}
         .pb2{padding:3px 9px;border-radius:6px;font-size:11px;cursor:pointer;border:1px solid var(--br);background:var(--sf);color:var(--tx2);transition:all .18s}
         .pb2:hover,.pb2.active{background:var(--ac);color:#fff;border-color:var(--ac)}
 
@@ -297,13 +304,13 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         .toggle-inp:checked+.toggle-sl{background:var(--ac)}
         .toggle-inp:checked+.toggle-sl::before{transform:translateX(16px)}
 
-        .sp-header{background:linear-gradient(135deg,var(--ac),var(--vi));border-radius:var(--r) var(--r) 0 0;padding:22px 22px 54px;position:relative}
+        .sp-header{background:linear-gradient(135deg,var(--ac),var(--vi));border-radius:var(--r) var(--r) 0 0;padding:22px 22px 54px;position:relative;flex-shrink:0}
         .sp-header::before{content:'';position:absolute;top:-30px;right:-30px;width:150px;height:150px;border-radius:50%;background:rgba(255,255,255,.08);pointer-events:none}
         .sp-av-wrap{position:absolute;bottom:-34px;left:22px;z-index:2}
         .sp-av{width:68px;height:68px;border-radius:18px;border:3px solid var(--sf);display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:700;color:#fff;box-shadow:var(--sh2)}
         .sp-name{color:#fff;font-family:var(--fd);font-size:20px;margin-bottom:3px}
         .sp-id{color:rgba(255,255,255,.75);font-size:11px;font-family:var(--fm)}
-        .sp-body{padding:46px 22px 14px}
+        .sp-body{padding:46px 22px 14px;overflow-y:auto;flex:1;min-height:0}
         .sp-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
         .sp-field{display:flex;flex-direction:column;gap:3px}.sp-field.full{grid-column:1/-1}
         .sp-label{font-size:10px;font-weight:600;color:var(--tx3);text-transform:uppercase;letter-spacing:.6px;font-family:var(--fm)}
@@ -319,6 +326,18 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         .sp-edit-toggle:hover,.sp-edit-toggle.on{background:var(--ac);color:#fff;border-color:var(--ac)}
         .sp-seat-chip{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;background:var(--c-blue);border:1px solid var(--cb);border-radius:20px;font-size:12px;font-weight:700;color:var(--ac);font-family:var(--fm);cursor:pointer;transition:all .18s}
         .sp-seat-chip:hover{background:rgba(61,111,240,.15);transform:scale(1.04)}
+        /* ── NEW profile improvements ── */
+        .sp-left-banner{display:none;align-items:center;gap:10px;padding:10px 14px;background:rgba(220,38,38,.08);border:1px solid rgba(220,38,38,.2);border-radius:var(--r2);margin-bottom:12px;font-size:12px;color:#9f1239}
+        .sp-left-banner.show{display:flex}
+        .sp-balance-pill{display:inline-flex;align-items:center;gap:6px;padding:6px 13px;border-radius:30px;font-size:13px;font-weight:700;border:1.5px solid}
+        .sp-balance-pill.due{background:rgba(239,68,68,.08);color:#dc2626;border-color:rgba(239,68,68,.25)}
+        .sp-balance-pill.clear{background:rgba(16,185,129,.08);color:#059669;border-color:rgba(16,185,129,.25)}
+        .sp-phone-link{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:500;color:var(--tx);text-decoration:none}
+        .sp-phone-link:hover{color:var(--ac)}
+        .sp-hist-row{display:grid;grid-template-columns:auto 1fr auto auto;gap:8px;align-items:center;padding:8px 11px;border-radius:var(--r2);background:var(--sf2);border:1px solid var(--br);margin-bottom:6px;font-size:12px}
+        .sp-hist-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+        .sp-actions-primary{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px}
+        .sp-actions-secondary{display:flex;gap:6px;flex-wrap:wrap;padding-top:8px;border-top:1px solid var(--br)}
 
         /* ── WHATSAPP TEMPLATE GRID ── */
         .wa-tpl{
@@ -495,6 +514,43 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         @media(max-width:768px){
             #dashRowA{grid-template-columns:1fr !important}
         }
+
+        /* ── PRINT STYLES ──────────────────────────────────────────────── */
+        @media print {
+            /* Hide everything except the report output panel */
+            body > *:not(#print-report-root) { display: none !important; }
+            #print-report-root { display: block !important; }
+
+            /* Reset page */
+            * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+            body { background: #fff !important; color: #1e293b !important; font-family: -apple-system, sans-serif; }
+
+            /* Print header */
+            .prh { display: flex !important; }
+            .prh-logo { width: 40px; height: 40px; }
+
+            /* Tables */
+            table { border-collapse: collapse !important; width: 100% !important; page-break-inside: auto; }
+            tr { page-break-inside: avoid; }
+            th, td { border: 1px solid #e2e8f0 !important; padding: 6px 9px !important; font-size: 10px !important; }
+            thead { display: table-header-group; }
+            tfoot { display: table-footer-group; }
+
+            /* Hide interactive elements */
+            button, .btn, .mc, [onclick] { display: none !important; }
+
+            /* Stat cards — keep visible */
+            .sc { border: 1px solid #e2e8f0 !important; break-inside: avoid; }
+
+            /* Progress bars — keep colors */
+            .cat-bar-fill { print-color-adjust: exact !important; }
+
+            /* Page breaks */
+            .print-break { page-break-before: always; }
+
+            /* Hide sticky/overflow wrappers */
+            .tw { overflow: visible !important; }
+        }
     </style>
 </head>
 <body>
@@ -502,13 +558,14 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
 <div class="sb">
     <div class="sb-logo"><div class="logo-row"><div class="logo-ic" id="sidebar-logo-wrap"><span class="mi" style="color:#fff;font-size:20px" id="sidebar-logo-icon">auto_stories</span><img id="sidebar-logo-img" src="" alt="" style="display:none;width:36px;height:36px;object-fit:contain;border-radius:8px"></div><div><div class="logo-tx" id="sidebar-lib-name">OPTMS Tech</div><div class="logo-sb">ERP v6.0</div></div></div></div>
     <nav class="sb-nav">
-        <div class="ns"><div class="nl">Overview</div>
+        <div class="ns"><div class="nl">Students</div>
             <div class="ni active" data-page="dashboard"><span class="ni-ic mi">dashboard</span> Dashboard</div>
             <div class="ni" data-page="analytics"><span class="ni-ic mi">insights</span> Analytics</div>
         </div>
         <div class="ns"><div class="nl">Students</div>
             <div class="ni" data-page="students"><span class="ni-ic mi">school</span> All Students</div>
             <div class="ni" data-page="enroll" id="ni-enroll"><span class="ni-ic mi">person_add</span> Enroll Student</div>
+            <div class="ni" data-page="archived"><span class="ni-ic mi">archive</span> Archived <span class="nbadge y" id="b-archived" style="display:none">0</span></div>
             <div class="ni" data-page="seats"><span class="ni-ic mi">event_seat</span> Seat Allocation</div>
             <div class="ni" data-page="attendance"><span class="ni-ic mi">fact_check</span> Attendance <span class="nbadge" id="b-absent">0</span></div>
         </div>
@@ -697,7 +754,17 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
                         <thead><tr><th>Student</th><th>Batch</th><th>Seat</th><th>Type</th><th>Full Fee</th><th>Discount</th><th>Net Fee</th><th>Paid</th><th>Balance</th><th>Status</th><th>Due</th><th>Action</th></tr></thead>
                         <tbody id="stuTable"></tbody>
                     </table></div>
-                <div class="pag"><span class="pag-i" id="stuPagI"></span><div class="pag-b" id="stuPagB"></div></div></div>
+                <div class="pag">
+                    <span class="pag-i" id="stuPagI"></span>
+                    <div class="pag-b" id="stuPagB"></div>
+                    <select id="stuPerPageSel" onchange="stuPerPage=+this.value;stuPage=1;renderStudents()" style="font-size:11px;padding:3px 8px;border:1px solid var(--br);border-radius:var(--r2);background:var(--sf2);color:var(--tx);cursor:pointer;width:auto;flex-shrink:0">
+                        <option value="10" selected>10 / page</option>
+                        <option value="15">15 / page</option>
+                        <option value="25">25 / page</option>
+                        <option value="50">50 / page</option>
+                        <option value="9999">All</option>
+                    </select>
+                </div></div>
         </div>
 
         <!-- SEATS -->
@@ -936,16 +1003,143 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
 
         <!-- REPORTS -->
         <div class="page" id="page-reports">
-            <div class="sec-hd"><div><div class="sec-t">Reports</div></div></div>
-            <div class="g3">
-                <div class="panel" style="cursor:pointer" onclick="genReport('monthly')"><div class="pb" style="text-align:center;padding:22px"><div style="margin-bottom:8px"><span class="mi xl" style="color:var(--ac)">description</span></div><div style="font-weight:600;margin-bottom:3px">Monthly Summary</div><button class="btn bp" style="margin-top:10px">Generate</button></div></div>
-                <div class="panel" style="cursor:pointer" onclick="genReport('fee')"><div class="pb" style="text-align:center;padding:22px"><div style="margin-bottom:8px"><span class="mi xl" style="color:var(--em)">payments</span></div><div style="font-weight:600;margin-bottom:3px">Fee Report</div><button class="btn bp" style="margin-top:10px">Generate</button></div></div>
-                <div class="panel" style="cursor:pointer" onclick="genReport('books')"><div class="pb" style="text-align:center;padding:22px"><div style="margin-bottom:8px"><span class="mi xl" style="color:var(--gd)">menu_book</span></div><div style="font-weight:600;margin-bottom:3px">Book Inventory</div><button class="btn bp" style="margin-top:10px">Generate</button></div></div>
-                <div class="panel" style="cursor:pointer" onclick="genReport('attendance')"><div class="pb" style="text-align:center;padding:22px"><div style="margin-bottom:8px"><span class="mi xl" style="color:var(--vi)">fact_check</span></div><div style="font-weight:600;margin-bottom:3px">Attendance</div><button class="btn bp" style="margin-top:10px">Generate</button></div></div>
-                <div class="panel" style="cursor:pointer" onclick="genReport('expense')"><div class="pb" style="text-align:center;padding:22px"><div style="margin-bottom:8px"><span class="mi xl" style="color:var(--or)">account_balance_wallet</span></div><div style="font-weight:600;margin-bottom:3px">Expense Report</div><button class="btn bp" style="margin-top:10px">Generate</button></div></div>
-                <div class="panel" style="cursor:pointer" onclick="genReport('student')"><div class="pb" style="text-align:center;padding:22px"><div style="margin-bottom:8px"><span class="mi xl" style="color:var(--sk)">groups</span></div><div style="font-weight:600;margin-bottom:3px">Student Directory</div><button class="btn bp" style="margin-top:10px">Generate</button></div></div>
+            <div class="sec-hd">
+                <div><div class="sec-t">📊 Reports & Analytics</div><div class="sec-s">Generate, filter and export detailed reports</div></div>
             </div>
-            <div class="panel" id="rptOut" style="display:none"><div class="ph"><div class="pt" id="rptTitle">Report</div><button class="btn bg" onclick="window.print()"><span class="mi sm">print</span>Print</button></div><div class="pb" id="rptBody"></div></div>
+
+            <!-- Report Cards Grid -->
+            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px">
+                <div class="rpt-card" onclick="openReport('monthly')" style="--rc:var(--ac)">
+                    <div class="rpt-ic" style="background:var(--c-blue)"><span class="mi xl" style="color:var(--ac)">description</span></div>
+                    <div class="rpt-lb">Monthly Summary</div>
+                    <div class="rpt-ds">Revenue, expenses & profit</div>
+                </div>
+                <div class="rpt-card" onclick="openReport('fee')" style="--rc:var(--em)">
+                    <div class="rpt-ic" style="background:var(--c-green)"><span class="mi xl" style="color:var(--em)">payments</span></div>
+                    <div class="rpt-lb">Fee Report</div>
+                    <div class="rpt-ds">Paid, pending & overdue</div>
+                </div>
+                <div class="rpt-card" onclick="openReport('outstanding')" style="--rc:var(--ro)">
+                    <div class="rpt-ic" style="background:var(--c-rose)"><span class="mi xl" style="color:var(--ro)">warning</span></div>
+                    <div class="rpt-lb">Outstanding Dues</div>
+                    <div class="rpt-ds">Unpaid balances only</div>
+                </div>
+                <div class="rpt-card" onclick="openReport('batch')" style="--rc:var(--vi)">
+                    <div class="rpt-ic" style="background:var(--c-purple)"><span class="mi xl" style="color:var(--vi)">groups</span></div>
+                    <div class="rpt-lb">Batch-wise Summary</div>
+                    <div class="rpt-ds">Revenue & headcount by batch</div>
+                </div>
+                <div class="rpt-card" onclick="openReport('books')" style="--rc:var(--gd)">
+                    <div class="rpt-ic" style="background:var(--c-amber)"><span class="mi xl" style="color:var(--gd)">menu_book</span></div>
+                    <div class="rpt-lb">Book Inventory</div>
+                    <div class="rpt-ds">Stock & availability</div>
+                </div>
+                <div class="rpt-card" onclick="openReport('attendance')" style="--rc:var(--sk)">
+                    <div class="rpt-ic" style="background:var(--c-sky)"><span class="mi xl" style="color:var(--sk)">fact_check</span></div>
+                    <div class="rpt-lb">Attendance</div>
+                    <div class="rpt-ds">Student presence today</div>
+                </div>
+                <div class="rpt-card" onclick="openReport('expense')" style="--rc:var(--or)">
+                    <div class="rpt-ic" style="background:var(--c-orange)"><span class="mi xl" style="color:var(--or)">account_balance_wallet</span></div>
+                    <div class="rpt-lb">Expense Report</div>
+                    <div class="rpt-ds">All expenses by category</div>
+                </div>
+                <div class="rpt-card" onclick="openReport('student')" style="--rc:var(--tx2)">
+                    <div class="rpt-ic" style="background:var(--sf2)"><span class="mi xl" style="color:var(--tx2)">badge</span></div>
+                    <div class="rpt-lb">Student Directory</div>
+                    <div class="rpt-ds">Full student list</div>
+                </div>
+            </div>
+
+            <!-- Filters Bar (shown when a report is active) -->
+            <div id="rptFilters" style="display:none;margin-bottom:14px">
+                <div class="panel" style="margin-bottom:0">
+                    <div class="pb" style="padding:12px 16px;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+                        <span style="font-size:11px;font-weight:700;color:var(--tx3);font-family:var(--fm);text-transform:uppercase;letter-spacing:.8px">Filters:</span>
+                        <!-- Month filter -->
+                        <div id="flt-month-wrap" style="display:none;align-items:center;gap:6px">
+                            <label style="font-size:11px;color:var(--tx3)">Month</label>
+                            <select id="flt-month" onchange="applyRptFilters()" style="font-size:11px;padding:4px 8px;width:auto">
+                                <option value="">All Months</option>
+                            </select>
+                        </div>
+                        <!-- Fee status filter -->
+                        <div id="flt-status-wrap" style="display:none;align-items:center;gap:6px">
+                            <label style="font-size:11px;color:var(--tx3)">Status</label>
+                            <select id="flt-status" onchange="applyRptFilters()" style="font-size:11px;padding:4px 8px;width:auto">
+                                <option value="">All</option>
+                                <option value="paid">Paid</option>
+                                <option value="pending">Pending</option>
+                                <option value="partial">Partial</option>
+                                <option value="overdue">Overdue</option>
+                            </select>
+                        </div>
+                        <!-- Batch filter -->
+                        <div id="flt-batch-wrap" style="display:none;align-items:center;gap:6px">
+                            <label style="font-size:11px;color:var(--tx3)">Batch</label>
+                            <select id="flt-batch" onchange="applyRptFilters()" style="font-size:11px;padding:4px 8px;width:auto">
+                                <option value="">All Batches</option>
+                            </select>
+                        </div>
+                        <!-- Expense category filter -->
+                        <div id="flt-cat-wrap" style="display:none;align-items:center;gap:6px">
+                            <label style="font-size:11px;color:var(--tx3)">Category</label>
+                            <select id="flt-cat" onchange="applyRptFilters()" style="font-size:11px;padding:4px 8px;width:auto">
+                                <option value="">All Categories</option>
+                            </select>
+                        </div>
+                        <div style="margin-left:auto;display:flex;gap:8px">
+                            <button class="btn bg" onclick="exportRptCSV()" style="font-size:11px"><span class="mi sm">download</span> CSV</button>
+                            <button class="btn bg" onclick="printReport()" style="font-size:11px"><span class="mi sm">print</span> Print</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Report Output Panel -->
+            <div class="panel" id="rptOut" style="display:none">
+                <div class="ph">
+                    <div style="display:flex;align-items:center;gap:10px">
+                        <button class="btn bg" onclick="closeReport()" style="font-size:11px;padding:5px 9px"><span class="mi sm">arrow_back</span></button>
+                        <div class="pt" id="rptTitle">Report</div>
+                        <span id="rptMeta" style="font-size:11px;color:var(--tx3)"></span>
+                    </div>
+                </div>
+                <!-- Summary stat row for the report -->
+                <div id="rptStatsWrap" style="padding:0 0 0 0"></div>
+                <div class="pb" id="rptBody"></div>
+            </div>
+        </div>
+
+        <!-- ARCHIVED STUDENTS -->
+        <div class="page" id="page-archived">
+            <div class="sec-hd">
+                <div>
+                    <div class="sec-t">🗄️ Archived Students</div>
+                    <div class="sec-s">Students removed from active list — can be restored or permanently deleted</div>
+                </div>
+                <div style="display:flex;gap:8px;align-items:center">
+                    <input id="archSrch" placeholder="Search archived…" oninput="renderArchived(this.value)" style="font-size:12px;padding:6px 11px;width:200px">
+                </div>
+            </div>
+            <!-- Stats -->
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px">
+                <div class="sc" style="--ca:var(--or)"><div class="s-lb">Archived Students</div><div class="s-vl" id="arch-count">0</div><div class="s-mt">Removed from active list</div></div>
+                <div class="sc" style="--ca:var(--ro)"><div class="s-lb">Total Dues Left</div><div class="s-vl" id="arch-dues">₹0</div><div class="s-mt">Outstanding at time of archive</div></div>
+                <div class="sc" style="--ca:var(--em)"><div class="s-lb">Total Collected</div><div class="s-vl" id="arch-paid">₹0</div><div class="s-mt">Fees collected from archived</div></div>
+            </div>
+            <div class="panel">
+                <div class="ph"><div class="pt">Archived List</div><span id="archMeta" style="font-size:11px;color:var(--tx3)"></span></div>
+                <div class="tw">
+                    <table>
+                        <thead><tr>
+                            <th>Student</th><th>Batch</th><th>Course</th><th>Phone</th>
+                            <th>Fee Status</th><th>Balance</th><th>Archived On</th><th>Archived By</th><th>Actions</th>
+                        </tr></thead>
+                        <tbody id="archTable"><tr><td colspan="9" style="text-align:center;padding:28px;color:var(--tx3)">Loading…</td></tr></tbody>
+                    </table>
+                </div>
+            </div>
         </div>
 
         <!-- WHATSAPP -->
@@ -1347,6 +1541,8 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
                 <div id="payNormal" class="fg" style="margin-top:10px">
                     <div class="fgi"><label>Amount Paying (₹)</label><input id="cf-amt" type="number" placeholder="0" oninput="cfCalcBalance()"></div>
                     <div class="fgi"><label>Transaction Ref</label><input id="cf-ref" placeholder="Auto-generated"></div>
+                    <div class="fgi" id="cf-disc-wrap"><label>One-time Discount (₹) <span style="font-size:9px;color:var(--tx3);font-weight:400">optional</span></label><input id="cf-disc" type="number" placeholder="0" min="0" oninput="cfCalcBalance()"></div>
+                    <div class="fgi"><label>Payment Date</label><input id="cf-paid-date" type="date"></div>
                 </div>
                 <div id="paySplit" style="display:none;margin-top:10px">
                     <div class="fg">
@@ -1482,16 +1678,30 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
             <div class="sp-av-wrap"><div class="sp-av" id="spAv" style="background:var(--ac)">AB</div></div>
         </div>
         <div class="sp-body">
-            <!-- Fee status bar -->
-            <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;padding:10px 14px;background:var(--sf2);border-radius:var(--r2)">
-                <span id="spFeeTag" class="tag tpn">⏳ Pending</span>
-                <div style="flex:1">
-                    <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--tx3);font-family:var(--fm);margin-bottom:3px"><span id="spPaidLbl">Paid ₹0</span><span id="spDueLbl">Due ₹0</span></div>
-                    <div class="sp-fee-bar"><div class="sp-fee-fill" id="spFeeFill" style="width:0%"></div></div>
+
+            <!-- Left banner — hidden unless student has left -->
+            <div class="sp-left-banner" id="spLeftBanner">
+                <span style="font-size:18px">🚪</span>
+                <div>
+                    <div style="font-weight:700;font-size:12px">Student Left</div>
+                    <div id="spLeftInfo" style="font-size:11px;margin-top:1px;color:#be123c"></div>
                 </div>
-                <div style="text-align:right">
-                    <div style="font-size:15px;font-weight:700;font-family:var(--fm);color:var(--em)" id="spNetFee">₹0</div>
-                    <div style="font-size:9px;color:var(--tx3)">Net Fee</div>
+            </div>
+
+            <!-- Fee status bar + balance pill -->
+            <div style="padding:12px 14px;background:var(--sf2);border-radius:var(--r2);border:1px solid var(--br);margin-bottom:14px">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+                    <span id="spFeeTag" class="tag tpn">⏳ Pending</span>
+                    <span id="spBalancePill" class="sp-balance-pill due">₹0 pending</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--tx3);font-family:var(--fm);margin-bottom:4px">
+                    <span id="spPaidLbl">Paid ₹0</span>
+                    <span id="spDueLbl">Due ₹0</span>
+                </div>
+                <div class="sp-fee-bar"><div class="sp-fee-fill" id="spFeeFill" style="width:0%"></div></div>
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px">
+                    <div style="font-size:11px;color:var(--tx3)">Net Fee: <strong id="spNetFee" style="color:var(--tx)">₹0</strong></div>
+                    <div style="font-size:11px;color:var(--tx3)">Last paid: <strong id="spLastPaid" style="color:var(--ac)">—</strong></div>
                 </div>
             </div>
 
@@ -1568,13 +1778,22 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
                 </div>
             </div>
 
+            <!-- Payment History -->
+            <div class="sp-section"><span class="mi sm" style="vertical-align:middle;margin-right:5px">receipt_long</span>Payment History</div>
+            <div id="spPayHistory" style="margin-bottom:14px">
+                <div style="text-align:center;padding:14px;color:var(--tx3);font-size:12px">No payment records</div>
+            </div>
+
             <!-- Quick Actions -->
             <div class="sp-section">⚡ Quick Actions</div>
-            <div style="display:flex;gap:8px;flex-wrap:wrap">
-                <button class="btn bp" data-action="collect_fee" style="font-size:11px" id="spCollectBtn" onclick="closeM('mStudentProfile')"><span class="mi sm">payments</span>Collect Fee</button>
-                <button class="btn bwa" style="font-size:11px" id="spWaBtn">💬 Send WhatsApp</button>
-                <button class="btn bg" style="font-size:11px;color:var(--ac);border-color:var(--ac)" id="spUpiBtn">📱 UPI Link</button>
+            <div class="sp-actions-primary">
+                <button class="btn bp" data-action="collect_fee" style="font-size:12px;padding:7px 14px" id="spCollectBtn"><span class="mi sm">payments</span>Collect Fee</button>
+                <button class="btn bwa" style="font-size:12px;padding:7px 14px" id="spWaBtn">💬 WhatsApp</button>
+                <button class="btn bg" style="font-size:12px;padding:7px 14px;color:var(--ac);border-color:var(--ac)" id="spUpiBtn">📱 UPI Link</button>
+            </div>
+            <div class="sp-actions-secondary">
                 <button class="btn bg" style="font-size:11px" onclick="openAllocFromProfile()"><span class="mi sm">event_seat</span>Change Seat</button>
+                <button class="btn bg" style="font-size:11px;color:var(--ro);border-color:var(--ro)" id="spMarkLeftBtn"><span class="mi sm">logout</span>Mark Left</button>
                 <button class="btn bd" data-action="delete_student" style="font-size:11px" id="spDelBtn">🗑 Remove</button>
             </div>
         </div>
@@ -1766,7 +1985,9 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
                 netFee: +s.net_fee, paidAmt: +s.paid_amt,
                 feeStatus: s.fee_status, paidOn: s.paid_on,
                 dueDate: s.due_date, course: s.course,
-                color: s.color || '#3d6ff0', joinDate: s.join_date
+                color: s.color || '#3d6ff0', joinDate: s.join_date,
+                leaveDate: s.leave_date || null,
+                leaveReason: s.leave_reason || '',
             }));
 
             DB.books = (data.books || []).map(b => ({
@@ -1791,7 +2012,11 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
                 id: i.id, studentId: i.student_id, type: i.type,
                 amount: +i.amount, baseFee: +i.base_fee, discount: +i.discount,
                 netFee: +i.net_fee, paidAmt: +i.paid_amt, balance: +i.balance,
-                date: i.invoice_date, month: i.month, mode: i.mode, status: i.status
+                date: i.invoice_date,
+                paidDate: i.paid_date || i.invoice_date || null,
+                month: i.month, mode: i.mode, status: i.status,
+                remarks: i.remarks || '',
+                paymentDiscount: +i.payment_discount || 0,
             }));
 
             DB.activities = (data.activities || []).map(a => ({
@@ -1816,6 +2041,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
                         whatsapp: sf.perm_whatsapp !== undefined ? !!+sf.perm_whatsapp : true,
                         notifications: sf.perm_notifications !== undefined ? !!+sf.perm_notifications : true,
                     },
+                    discountMax: +sf.perm_discount_max || 0,
                     actPerms: sf.act_perms ? (typeof sf.act_perms === 'string' ? JSON.parse(sf.act_perms) : sf.act_perms) : {},
                     status: sf.status
                 }));
@@ -1840,7 +2066,10 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
             if (nameEl && DB.settings.name) nameEl.textContent = DB.settings.name;
 
             // Apply nav permissions for the logged-in staff member
-            if (data.me) applyNavPerms(data.me);
+            if (data.me) {
+                window._me = data.me; // store globally so collectFee can read it
+                applyNavPerms(data.me);
+            }
 
             // ── Fire all secondary calls IN PARALLEL (saves ~800ms vs sequential awaits) ──
             const today = new Date().toISOString().split('T')[0];
@@ -1962,7 +2191,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
     }
 
     // ═══ NAVIGATION ═══
-    const PAGE_TITLES={dashboard:'Dashboard',students:'All Students',seats:'Seat Allocation',attendance:'Attendance',books:'Books Catalog',transactions:'Issue & Returns',fees:'Fee Management',invoices:'Invoices',expenses:'Expenses',reports:'Reports',analytics:'Analytics',whatsapp:'WhatsApp Messaging',staff:'Staff & Users',staff_attendance:'Staff Attendance & Salary',renewal:'Student Renewals',audit:'Audit Log',notifications:'Notifications',settings:'Settings'};
+    const PAGE_TITLES={dashboard:'Dashboard',students:'All Students',archived:'Archived Students',seats:'Seat Allocation',attendance:'Attendance',books:'Books Catalog',transactions:'Issue & Returns',fees:'Fee Management',invoices:'Invoices',expenses:'Expenses',reports:'Reports',analytics:'Analytics',whatsapp:'WhatsApp Messaging',staff:'Staff & Users',staff_attendance:'Staff Attendance & Salary',renewal:'Student Renewals',audit:'Audit Log',notifications:'Notifications',settings:'Settings'};
     function navTo(page){
         document.querySelectorAll('.ni').forEach(n=>n.classList.remove('active'));
         const ni=document.querySelector(`.ni[data-page="${page}"]`);if(ni)ni.classList.add('active');
@@ -1975,7 +2204,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         el.addEventListener('click',()=>{if(el.dataset.page==='enroll'){openM('mEnroll');return;}navTo(el.dataset.page);});
     });
     function renderPage(p){
-        const map={dashboard:renderDash,students:renderStudents,seats:renderSeats,attendance:renderAtt,books:renderBooks,transactions:renderTx,fees:renderFees,invoices:renderInv,expenses:renderExp,analytics:renderAnal,whatsapp:renderWA,staff:renderStaff,staff_attendance:renderStaffAtt,renewal:renderRenewal,audit:renderAudit,notifications:renderNotifs,settings:renderSettings,biometric:renderBiometric};
+        const map={dashboard:renderDash,students:renderStudents,archived:loadArchived,seats:renderSeats,attendance:renderAtt,books:renderBooks,transactions:renderTx,fees:renderFees,invoices:renderInv,expenses:renderExp,analytics:renderAnal,whatsapp:renderWA,staff:renderStaff,staff_attendance:renderStaffAtt,renewal:renderRenewal,audit:renderAudit,notifications:renderNotifs,settings:renderSettings,biometric:renderBiometric};
         if(map[p])map[p]();
     }
 
@@ -2379,7 +2608,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
     }
 
     // ═══ STUDENTS ═══
-    let stuPage=1,stuFilterVal='all',stuSearchVal='';
+    let stuPage=1, stuFilterVal='all', stuSearchVal='', stuPerPage=10;
     function renderStudents(){
         let list=DB.students.filter(x=>{
             const mF=stuFilterVal==='all'||x.feeStatus===stuFilterVal;
@@ -2387,7 +2616,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
             return mF&&mS;
         });
         document.getElementById('stuCount2').textContent=`${list.length} student(s)`;
-        const pp=7,total=list.length,pages=Math.ceil(total/pp)||1;
+        const pp=stuPerPage,total=list.length,pages=Math.ceil(total/pp)||1;
         stuPage=Math.min(stuPage,pages);
         const sl=list.slice((stuPage-1)*pp,stuPage*pp);
         document.getElementById('stuTable').innerHTML=sl.map(x=>{
@@ -2422,7 +2651,12 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
     }
     function stuSrch(v){stuSearchVal=v;stuPage=1;renderStudents();}
     function stuFilt(f,el){stuFilterVal=f;stuPage=1;document.querySelectorAll('#stuTabs .tab').forEach(t=>t.classList.remove('active'));el.classList.add('active');renderStudents();}
-    function qCollect(id){populateFeeModal(id);openM('mCollectFee');}
+    function qCollect(id) {
+        populateFeeModal(id);
+        const pdEl = document.getElementById('cf-paid-date');
+        if (pdEl) pdEl.value = new Date().toISOString().slice(0, 10);
+        openM('mCollectFee');
+    }
     function delStu(id){if(!confirm('Remove?'))return;DB.students=DB.students.filter(x=>x.id!==id);toast('Removed','wn');renderStudents();updateBadges();}
     // ═══ STUDENT PROFILE ═══
     let profileStudentId = null;
@@ -2432,55 +2666,142 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         const s = DB.students.find(x => x.id === id);
         if (!s) return;
         profileStudentId = id;
-        profileEditMode = false;
+        profileEditMode  = false;
 
-        // Header
+        const fmtD2 = d => d ? new Date(d).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}) : null;
+
+        // ── Header ────────────────────────────────────────────────────────
         document.getElementById('spHeaderName').textContent = s.fname + ' ' + s.lname;
-        document.getElementById('spHeaderId').textContent = '#' + s.id;
-        document.getElementById('spAv').textContent = ((s.fname?.[0]||'') + (s.lname?.[0]||'')).toUpperCase();
-        document.getElementById('spAv').style.background = s.color || '#3d6ff0';
+        document.getElementById('spHeaderId').textContent   = '#' + s.id;
+        document.getElementById('spAv').textContent         = ((s.fname?.[0]||'') + (s.lname?.[0]||'')).toUpperCase();
+        document.getElementById('spAv').style.background    = s.color || '#3d6ff0';
 
-        // Fee bar
+        // ── Left banner ───────────────────────────────────────────────────
+        const leftBanner = document.getElementById('spLeftBanner');
+        const leftInfo   = document.getElementById('spLeftInfo');
+        if (s.leaveDate) {
+            leftBanner.classList.add('show');
+            leftInfo.textContent = `Left on ${fmtD2(s.leaveDate)}${s.leaveReason ? ' — ' + s.leaveReason : ''}`;
+        } else {
+            leftBanner.classList.remove('show');
+        }
+
+        // ── Fee bar ───────────────────────────────────────────────────────
+        const bal = Math.max(0, s.netFee - s.paidAmt);
         const pct = s.netFee > 0 ? Math.round(s.paidAmt / s.netFee * 100) : 0;
         document.getElementById('spFeeFill').style.width = pct + '%';
-        document.getElementById('spPaidLbl').textContent = 'Paid ₹' + s.paidAmt.toLocaleString();
-        document.getElementById('spDueLbl').textContent = 'Due ₹' + Math.max(0, s.netFee - s.paidAmt).toLocaleString();
-        document.getElementById('spNetFee').textContent = '₹' + s.netFee.toLocaleString();
+        document.getElementById('spPaidLbl').textContent  = 'Paid ₹' + s.paidAmt.toLocaleString('en-IN');
+        document.getElementById('spDueLbl').textContent   = 'Balance ₹' + bal.toLocaleString('en-IN');
+        document.getElementById('spNetFee').textContent   = '₹' + s.netFee.toLocaleString('en-IN');
+
+        // Balance pill
+        const pill = document.getElementById('spBalancePill');
+        if (bal > 0) {
+            pill.className = 'sp-balance-pill due';
+            pill.textContent = '₹' + bal.toLocaleString('en-IN') + ' pending';
+        } else {
+            pill.className = 'sp-balance-pill clear';
+            pill.textContent = '✓ Fully Paid';
+        }
+
+        // Fee tag
         const feeTagEl = document.getElementById('spFeeTag');
-        const feeMap = { paid: ['tpd', '✓ Paid'], partial: ['tpart', '◑ Partial'], pending: ['tpn', '⏳ Pending'], overdue: ['tod', '🚨 Overdue'] };
-        feeTagEl.className = 'tag ' + (feeMap[s.feeStatus]?.[0] || 'tpn');
+        const feeMap   = { paid:['tpd','✓ Paid'], partial:['tpart','◑ Partial'], pending:['tpn','⏳ Pending'], overdue:['tod','🚨 Overdue'] };
+        feeTagEl.className   = 'tag ' + (feeMap[s.feeStatus]?.[0] || 'tpn');
         feeTagEl.textContent = feeMap[s.feeStatus]?.[1] || s.feeStatus;
 
-        // Batch & seat
+        // Last paid date — from most recent invoice
+        const stuInvs   = DB.invoices.filter(i => i.studentId === id).sort((a,b) => (b.paidDate||b.date||'').localeCompare(a.paidDate||a.date||''));
+        const lastPaidEl = document.getElementById('spLastPaid');
+        lastPaidEl.textContent = stuInvs.length && stuInvs[0].paidDate ? fmtD2(stuInvs[0].paidDate) : '—';
+
+        // ── Placement ─────────────────────────────────────────────────────
         const b = DB.batches.find(x => x.id === s.batchId);
-        document.getElementById('spBatchDisp').innerHTML = b ? `<span class="tag ${b.name.includes('Morning')||b.name.includes('Early')?'tpn':b.name.includes('Evening')?'tis':b.name.includes('Night')?'tac':'tav'}">${b.name}</span>` : '<span style="color:var(--tx3)">—</span>';
-        document.getElementById('spSeatNum').textContent = s.seat || '—';
-        document.getElementById('spSeatChip').title = s.seat ? 'Click to change seat' : 'Click to allocate seat';
-        document.getElementById('spSeatTypeDisp').innerHTML = s.seatType === 'ac' ? '<span class="tag tac" style="font-size:10px">❄ AC</span>' : '<span style="font-size:11px;color:var(--tx2)">Non-AC</span>';
-        document.getElementById('spJoinDate').textContent = s.joinDate || '—';
+        document.getElementById('spBatchDisp').innerHTML = b
+            ? `<span class="tag ${b.name.includes('Morning')||b.name.includes('Early')?'tpn':b.name.includes('Evening')?'tis':b.name.includes('Night')?'tac':'tav'}">${b.name}</span>`
+            : '<span style="color:var(--tx3)">—</span>';
+        document.getElementById('spSeatNum').textContent         = s.seat || '—';
+        document.getElementById('spSeatChip').title              = s.seat ? 'Click to change seat' : 'Click to allocate seat';
+        document.getElementById('spSeatTypeDisp').innerHTML      = s.seatType === 'ac'
+            ? '<span class="tag tac" style="font-size:10px">❄ AC</span>'
+            : '<span style="font-size:11px;color:var(--tx2)">Non-AC</span>';
+        document.getElementById('spJoinDate').textContent        = s.joinDate || '—';
 
-        // Personal
-        document.getElementById('spFname').textContent = s.fname;
-        document.getElementById('spLname').textContent = s.lname;
-        document.getElementById('spPhone').textContent = s.phone || '—';
-        document.getElementById('spEmail').textContent = s.email || '—';
+        // ── Personal ──────────────────────────────────────────────────────
+        document.getElementById('spFname').textContent  = s.fname;
+        document.getElementById('spLname').textContent  = s.lname;
         document.getElementById('spCourse').textContent = s.course || '—';
-        document.getElementById('spAddr').textContent = s.addr || '—';
+        document.getElementById('spAddr').textContent   = s.addr   || '—';
+        document.getElementById('spEmail').textContent  = s.email  || '—';
 
-        // Fee details
-        document.getElementById('spBaseFee').textContent = '₹' + (s.baseFee || 0).toLocaleString();
-        document.getElementById('spDiscount').textContent = s.baseFee > s.netFee ? '₹' + (s.baseFee - s.netFee).toLocaleString() + (s.discount?.reason ? ' — ' + s.discount.reason : '') : '—';
-        document.getElementById('spPaidAmt').textContent = '₹' + (s.paidAmt || 0).toLocaleString();
-        document.getElementById('spDueDate').textContent = fmtDate(s.dueDate);
+        // Phone — tap-to-call link in view mode
+        const phoneEl = document.getElementById('spPhone');
+        if (!profileEditMode && s.phone) {
+            phoneEl.innerHTML = `<a href="tel:${s.phone}" class="sp-phone-link">
+                <span class="mi sm" style="font-size:13px;color:var(--ac)">call</span>${s.phone}
+                <a href="https://wa.me/${s.phone.replace(/\D/g,'')}" target="_blank" class="sp-phone-link" style="margin-left:6px;font-size:11px;color:#25d366" title="Open in WhatsApp">
+                    <span class="mi sm">chat</span>
+                </a>
+            </a>`;
+        } else {
+            phoneEl.textContent = s.phone || '—';
+        }
 
-        // Quick action buttons
+        // ── Fee Details ───────────────────────────────────────────────────
+        document.getElementById('spBaseFee').textContent  = '₹' + (s.baseFee || 0).toLocaleString('en-IN');
+        document.getElementById('spDiscount').textContent = s.baseFee > s.netFee
+            ? '₹' + (s.baseFee - s.netFee).toLocaleString('en-IN') + (s.discount?.reason ? ' — ' + s.discount.reason : '')
+            : '—';
+        document.getElementById('spPaidAmt').textContent  = '₹' + (s.paidAmt || 0).toLocaleString('en-IN');
+        document.getElementById('spDueDate').textContent  = fmtDate(s.dueDate);
+
+        // ── Payment History ───────────────────────────────────────────────
+        const histEl   = document.getElementById('spPayHistory');
+        const modeColors = { Cash:'#10b981', Online:'#3b82f6', UPI:'#8b5cf6', Cheque:'#f59e0b', NEFT:'#06b6d4', IMPS:'#ec4899' };
+        if (stuInvs.length) {
+            const MAX_SHOW = 6;
+            const shown    = stuInvs.slice(0, MAX_SHOW);
+            histEl.innerHTML = shown.map(inv => {
+                const dotClr  = inv.status === 'paid' ? '#10b981' : inv.status === 'partial' ? '#f59e0b' : '#ef4444';
+                const modeClr = Object.entries(modeColors).find(([k]) => (inv.mode||'').includes(k))?.[1] || '#64748b';
+                const disc    = (inv.paymentDiscount || 0) + (inv.discount > 0 && inv.paidAmt === inv.netFee ? 0 : 0);
+                return `<div class="sp-hist-row">
+                    <div class="sp-hist-dot" style="background:${dotClr}"></div>
+                    <div>
+                        <div style="font-weight:600;font-size:12px">${inv.type || 'Monthly Fee'}</div>
+                        <div style="font-size:10px;color:var(--tx3);margin-top:1px">${fmtD2(inv.paidDate||inv.date)||'—'} · <span style="color:${modeClr};font-weight:600">${inv.mode||'—'}</span>${inv.remarks ? ' · <em style="color:var(--tx3)">' + inv.remarks + '</em>' : ''}</div>
+                    </div>
+                    <div style="text-align:right">
+                        <div style="font-weight:700;font-size:13px;color:var(--em)">₹${(+inv.paidAmt||0).toLocaleString('en-IN')}</div>
+                        ${inv.paymentDiscount > 0 ? `<div style="font-size:9px;color:#f59e0b">-₹${inv.paymentDiscount} disc</div>` : ''}
+                    </div>
+                    <div><span class="tag ${inv.status==='paid'?'tpd':inv.status==='partial'?'tpart':'tpn'}" style="font-size:9px">${inv.status}</span></div>
+                </div>`;
+            }).join('');
+            if (stuInvs.length > MAX_SHOW) {
+                histEl.innerHTML += `<div style="text-align:center;padding:6px;font-size:11px;color:var(--tx3)">+ ${stuInvs.length - MAX_SHOW} more payments</div>`;
+            }
+        } else {
+            histEl.innerHTML = `<div style="text-align:center;padding:14px;color:var(--tx3);font-size:12px">No payment records yet</div>`;
+        }
+
+        // ── Quick action buttons ──────────────────────────────────────────
         document.getElementById('spCollectBtn').onclick = () => { closeM('mStudentProfile'); qCollect(id); };
-        document.getElementById('spWaBtn').onclick = () => { closeM('mStudentProfile'); setTimeout(() => waQuick(id, s.feeStatus === 'paid' ? 'fee_receipt' : s.feeStatus === 'overdue' ? 'fee_overdue' : 'fee_due'), 200); };
+        document.getElementById('spWaBtn').onclick      = () => { closeM('mStudentProfile'); setTimeout(() => waQuick(id, s.feeStatus==='paid'?'fee_receipt':s.feeStatus==='overdue'?'fee_overdue':'fee_due'), 200); };
         const _upiProfBtn = document.getElementById('spUpiBtn');
-        if (_upiProfBtn) { _upiProfBtn.style.display = s.feeStatus !== 'paid' ? '' : 'none'; _upiProfBtn.onclick = () => { closeM('mStudentProfile'); setTimeout(() => sendUpiLink(id), 200); }; }
+        if (_upiProfBtn) {
+            _upiProfBtn.style.display = s.feeStatus !== 'paid' ? '' : 'none';
+            _upiProfBtn.onclick = () => { closeM('mStudentProfile'); setTimeout(() => sendUpiLink(id), 200); };
+        }
         document.getElementById('spDelBtn').onclick = () => { closeM('mStudentProfile'); delStu(id); };
+        const _mlBtn = document.getElementById('spMarkLeftBtn');
+        if (_mlBtn) {
+            _mlBtn.onclick = () => openMarkLeft(id);
+            // Show/hide mark left based on whether already left
+            _mlBtn.style.display = s.leaveDate ? 'none' : '';
+        }
 
-        // Edit toggle reset
+        // ── Edit toggle reset ─────────────────────────────────────────────
         document.getElementById('spEditToggle').classList.remove('on');
         document.getElementById('spEditToggle').textContent = '✏ Edit';
         document.getElementById('spSaveFooter').style.display = 'none';
@@ -2502,6 +2823,10 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
             toggle.classList.add('on');
             toggle.textContent = '✏ Editing…';
             footer.style.display = 'flex';
+            // Phone: strip link HTML → plain text so contenteditable works cleanly
+            const phoneEl = document.getElementById('spPhone');
+            const s = DB.students.find(x => x.id === profileStudentId);
+            if (s) phoneEl.textContent = s.phone || '';
             fields.forEach(id2 => {
                 const el = document.getElementById(id2);
                 el.contentEditable = 'true';
@@ -3171,6 +3496,30 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
     function populateModal_cf(){
         document.getElementById('cf-stu').innerHTML='<option value="">-- Select --</option>'+DB.students.filter(s=>s.feeStatus!=='paid').map(s=>`<option value="${s.id}">${s.fname} ${s.lname} — Net ₹${s.netFee} (${s.feeStatus})</option>`).join('');
         document.getElementById('cf-stu').onchange=cfLoadStudent;
+        // Pre-fill paid date with today; reset discount
+        const pdEl = document.getElementById('cf-paid-date'); if (pdEl && !pdEl.value) pdEl.value = new Date().toISOString().slice(0,10);
+        const dEl  = document.getElementById('cf-disc');      if (dEl) dEl.value = '';
+
+        // ── Discount field visibility based on permission ──────────────
+        const discWrap = document.getElementById('cf-disc-wrap');
+        if (discWrap) {
+            const me = window._me;
+            const isAdmin = !me || me.role === 'admin';
+            const actP    = me?.actPerms || (me?.act_perms ? (typeof me.act_perms === 'string' ? JSON.parse(me.act_perms) : me.act_perms) : {});
+            const canDisc = isAdmin || actP['apply_discount'] === true;
+            const maxDisc = isAdmin ? 0 : (+me?.perm_discount_max || 0);
+
+            discWrap.style.display = canDisc ? '' : 'none';
+            if (canDisc && dEl) {
+                if (maxDisc > 0) {
+                    dEl.max = maxDisc;
+                    dEl.placeholder = `0 – ₹${maxDisc.toLocaleString('en-IN')} max`;
+                } else {
+                    dEl.removeAttribute('max');
+                    dEl.placeholder = '0';
+                }
+            }
+        }
     }
     function cfLoadStudent(){
         const s=DB.students.find(x=>x.id===gv('cf-stu'));if(!s)return;
@@ -3359,19 +3708,766 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
     }
 
     // ═══ REPORTS ═══
-    function genReport(type){
-        const titles={monthly:'Monthly Summary',fee:'Fee Report',books:'Book Inventory',attendance:'Attendance',expense:'Expense Report',student:'Student Directory'};
-        document.getElementById('rptTitle').textContent=titles[type];
-        const s=DB.students;const paid=s.filter(x=>x.feeStatus==='paid');
-        let html='';
-        if(type==='monthly'){const rev=DB.invoices.reduce((a,i)=>a+i.paidAmt,0);const exp=DB.expenses.reduce((a,e)=>a+e.amount,0);html=`<div class="g3" style="margin-bottom:16px"><div class="sc" style="--ca:var(--em)"><div class="s-lb">Revenue</div><div class="s-vl" style="color:var(--em)">${fmt(rev)}</div></div><div class="sc" style="--ca:var(--ro)"><div class="s-lb">Expenses</div><div class="s-vl" style="color:var(--ro)">${fmt(exp)}</div></div><div class="sc" style="--ca:var(--ac)"><div class="s-lb">Profit</div><div class="s-vl">${fmt(rev-exp)}</div></div></div>`;}
-        else{
-            const map={fee:['Student','Batch','Base Fee','Discount','Net Fee','Paid','Balance','Status'],student:['ID','Name','Batch','Seat','Type','Course'],attendance:['Student','Batch','Status'],expense:['Name','Category','Amount','Date'],books:['Book','Author','Category','Available']};
-            const rows={fee:s.map(x=>[`${x.fname} ${x.lname}`,batchName(x.batchId),`₹${x.baseFee}`,x.baseFee>x.netFee?`₹${x.baseFee-x.netFee} (${x.discount?.reason||''})`:'-',`₹${x.netFee}`,`₹${x.paidAmt}`,`₹${x.netFee-x.paidAmt}`,x.feeStatus]),student:s.map(x=>[x.id,`${x.fname} ${x.lname}`,batchName(x.batchId),x.seat||'—',x.seatType.toUpperCase(),x.course]),attendance:s.map(x=>[`${x.fname} ${x.lname}`,batchName(x.batchId),DB.attendance[x.id]||'absent']),expense:DB.expenses.map(e=>[e.name,e.category,`₹${e.amount.toLocaleString()}`,e.date]),books:DB.books.map(b=>[b.title,b.author,b.category,`${b.available}/${b.copies}`])};
-            html=`<table style="width:100%;border-collapse:collapse;font-size:12px"><thead><tr>${map[type].map(c=>`<th style="padding:7px 11px;text-align:left;background:var(--sf2);color:var(--tx3);font-size:9px;text-transform:uppercase;font-family:var(--fm);border-bottom:1px solid var(--br)">${c}</th>`).join('')}</tr></thead><tbody>${rows[type].map(r=>`<tr style="border-bottom:1px solid var(--br)">${r.map(c=>`<td style="padding:7px 11px">${c}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
-        }
-        document.getElementById('rptBody').innerHTML=html;document.getElementById('rptOut').style.display='block';document.getElementById('rptOut').scrollIntoView({behavior:'smooth'});toast('Report generated!','ok');
+    // ═══ ENHANCED REPORTS ENGINE ═══
+    let _rptType = '';
+    let _rptData = []; // holds current filtered export data
+
+    function openReport(type) {
+        _rptType = type;
+        // populate filter dropdowns
+        _buildFilterOptions(type);
+        // show/hide relevant filters
+        _configureFilters(type);
+        document.getElementById('rptFilters').style.display = 'block';
+        document.getElementById('rptOut').style.display = 'block';
+        applyRptFilters();
+        document.getElementById('rptOut').scrollIntoView({ behavior: 'smooth' });
     }
+
+    function closeReport() {
+        _rptType = '';
+        document.getElementById('rptOut').style.display = 'none';
+        document.getElementById('rptFilters').style.display = 'none';
+    }
+
+    function _buildFilterOptions(type) {
+        // Month dropdown from invoices/expenses dates
+        const monthSel = document.getElementById('flt-month');
+        const monthsSet = new Set();
+        const _normM = (val, fallback) => {
+            if (/^\d{4}-\d{2}/.test(val||'')) return (val||'').slice(0,7);
+            if (/^[A-Za-z]+ \d{4}$/.test(val||'')) { const d=new Date(val); if(!isNaN(d)) return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`; }
+            if (/^\d{4}-\d{2}/.test(fallback||'')) return (fallback||'').slice(0,7);
+            return '';
+        };
+        DB.invoices.forEach(i => { const m=_normM(i.month,i.date); if(m) monthsSet.add(m); });
+        DB.expenses.forEach(e => { const m=_normM(null,e.date); if(m) monthsSet.add(m); });
+        DB.students.forEach(s => { const m=_normM(null,s.joinDate); if(m) monthsSet.add(m); });
+        const months = [...monthsSet].sort().reverse();
+        monthSel.innerHTML = '<option value="">All Months</option>' + months.map(m => {
+            const [y, mo] = m.split('-');
+            const label = new Date(+y, +mo-1).toLocaleString('en-IN', { month: 'long', year: 'numeric' });
+            return `<option value="${m}">${label}</option>`;
+        }).join('');
+
+        // Batch dropdown
+        const batchSel = document.getElementById('flt-batch');
+        batchSel.innerHTML = '<option value="">All Batches</option>' + DB.batches.map(b => `<option value="${b.id}">${b.name}</option>`).join('');
+
+        // Expense category
+        const catSel = document.getElementById('flt-cat');
+        const cats = [...new Set(DB.expenses.map(e => e.category).filter(Boolean))];
+        catSel.innerHTML = '<option value="">All Categories</option>' + cats.map(c => `<option value="${c}">${c}</option>`).join('');
+    }
+
+    function _configureFilters(type) {
+        const show = (id, visible) => { const el=document.getElementById(id); if(el) el.style.display=visible?'flex':'none'; };
+        show('flt-month-wrap',  ['monthly','expense','fee','outstanding'].includes(type));
+        show('flt-status-wrap', ['fee','outstanding','student'].includes(type));
+        show('flt-batch-wrap',  ['fee','outstanding','attendance','student','batch'].includes(type));
+        show('flt-cat-wrap',    type==='expense');
+    }
+
+    function applyRptFilters() {
+        if (!_rptType) return;
+        const month  = document.getElementById('flt-month')?.value  || '';
+        const status = document.getElementById('flt-status')?.value || '';
+        const batch  = document.getElementById('flt-batch')?.value  || '';
+        const cat    = document.getElementById('flt-cat')?.value    || '';
+
+        const titles = { monthly:'Monthly Summary', fee:'Fee Report', outstanding:'Outstanding Dues',
+            batch:'Batch-wise Summary', books:'Book Inventory', attendance:'Attendance',
+            expense:'Expense Report', student:'Student Directory' };
+        document.getElementById('rptTitle').textContent = titles[_rptType] || 'Report';
+
+        let html = '', statsHtml = '', metaTxt = '';
+        const tbl = (cols, rows, totals) => {
+            const head = `<thead><tr>${cols.map(c=>`<th style="padding:8px 12px;text-align:left;background:var(--sf2);color:var(--tx3);font-size:9px;text-transform:uppercase;font-family:var(--fm);border-bottom:1px solid var(--br);white-space:nowrap">${c}</th>`).join('')}</tr></thead>`;
+            const body = `<tbody>${rows.map((r,i)=>`<tr style="border-bottom:1px solid var(--br);background:${i%2?'var(--sf2)':'var(--sf)'}">${r.map(c=>`<td style="padding:8px 12px;font-size:12px;vertical-align:middle">${c??'—'}</td>`).join('')}</tr>`).join('')}</tbody>`;
+            const foot = totals ? `<tfoot><tr style="background:var(--sf3);font-weight:700">${totals.map(c=>`<td style="padding:8px 12px;font-size:12px;border-top:2px solid var(--br)">${c??''}</td>`).join('')}</tr></tfoot>` : '';
+            return `<div class="tw"><table style="width:100%;border-collapse:collapse">${head}${foot}${body}</table></div>`;
+        };
+        const statCard = (lb,vl,col) => `<div class="sc" style="--ca:${col};margin-bottom:0"><div class="s-lb">${lb}</div><div class="s-vl" style="color:${col}">${vl}</div></div>`;
+        const feeTag = st => {const m={paid:'tpd',pending:'tpn',partial:'tpart',overdue:'tod'};return `<span class="tag ${m[st]||'tac'}">${st}</span>`;};
+        const inMonth = (dateStr) => !month || (dateStr||'').startsWith(month);
+
+        if (_rptType === 'monthly') {
+            // Normalize any month string to YYYY-MM format
+            const toYYYYMM = (val, fallbackDate) => {
+                if (!val && !fallbackDate) return '';
+                if (/^\d{4}-\d{2}/.test(val||'')) return (val||'').slice(0,7);
+                if (/^[A-Za-z]+ \d{4}$/.test(val||'')) {
+                    const d = new Date(val);
+                    if (!isNaN(d)) return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+                }
+                if (fallbackDate && /^\d{4}-\d{2}/.test(fallbackDate)) return fallbackDate.slice(0,7);
+                return '';
+            };
+
+            const byMonth = {};
+            DB.invoices.forEach(inv => {
+                const m = toYYYYMM(inv.month, inv.date);
+                if (!m || (month && m !== month)) return;
+                if (!byMonth[m]) byMonth[m] = { rev: 0, count: 0 };
+                byMonth[m].rev += inv.paidAmt;
+                byMonth[m].count++;
+            });
+            const byMonthExp = {};
+            DB.expenses.forEach(e => {
+                const m = toYYYYMM(null, e.date);
+                if (!m || (month && m !== month)) return;
+                if (!byMonthExp[m]) byMonthExp[m] = 0;
+                byMonthExp[m] += e.amount;
+            });
+            const allMonths = [...new Set([...Object.keys(byMonth),...Object.keys(byMonthExp)])].sort().reverse();
+            const totalRev  = allMonths.reduce((a,m) => a+(byMonth[m]?.rev||0), 0);
+            const totalExp  = allMonths.reduce((a,m) => a+(byMonthExp[m]||0), 0);
+            const totalPft  = totalRev - totalExp;
+            statsHtml = `<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:14px 16px 0">
+                ${statCard('Total Revenue', fmt(totalRev), 'var(--em)')}
+                ${statCard('Total Expenses', fmt(totalExp), 'var(--ro)')}
+                ${statCard('Net Profit', fmt(totalPft), totalPft>=0?'var(--ac)':'var(--ro)')}
+            </div>`;
+            _rptData = allMonths.map(m => {
+                const [y,mo] = m.split('-');
+                const label = new Date(+y, +mo-1).toLocaleString('en-IN',{month:'long',year:'numeric'});
+                const rev = byMonth[m]?.rev||0, exp = byMonthExp[m]||0;
+                return [label, fmt(rev), fmt(exp), fmt(rev-exp), byMonth[m]?.count||0];
+            });
+
+            // Build clickable summary table
+            const thS = 'padding:8px 12px;text-align:left;background:var(--sf2);color:var(--tx3);font-size:9px;text-transform:uppercase;font-family:var(--fm);border-bottom:1px solid var(--br);white-space:nowrap';
+            const head = `<thead><tr>
+                <th style="${thS}">Month</th><th style="${thS}">Revenue</th>
+                <th style="${thS}">Expenses</th><th style="${thS}">Profit / Loss</th>
+                <th style="${thS}">Invoices</th><th style="${thS}">Detail</th>
+            </tr></thead>`;
+            const foot = `<tfoot><tr style="background:var(--sf3);font-weight:700">
+                <td style="padding:8px 12px;font-size:12px;border-top:2px solid var(--br)">TOTAL</td>
+                <td style="padding:8px 12px;font-size:12px;border-top:2px solid var(--br);color:var(--em)">${fmt(totalRev)}</td>
+                <td style="padding:8px 12px;font-size:12px;border-top:2px solid var(--br);color:var(--ro)">${fmt(totalExp)}</td>
+                <td style="padding:8px 12px;font-size:12px;font-weight:700;border-top:2px solid var(--br)">${fmt(totalPft)}</td>
+                <td colspan="2" style="border-top:2px solid var(--br)"></td>
+            </tr></tfoot>`;
+            const bodyRows = allMonths.map((m,i) => {
+                const [y,mo] = m.split('-');
+                const label = new Date(+y,+mo-1).toLocaleString('en-IN',{month:'long',year:'numeric'});
+                const rev = byMonth[m]?.rev||0, exp = byMonthExp[m]||0, pft = rev-exp;
+                const cnt = byMonth[m]?.count||0;
+                return `<tr style="border-bottom:1px solid var(--br);background:${i%2?'var(--sf2)':'var(--sf)'};cursor:pointer" onclick="drillDownMonth('${m}')" title="View all invoices for ${label}">
+                    <td style="padding:8px 12px;font-size:12px;font-weight:600">${label}</td>
+                    <td style="padding:8px 12px;font-size:12px;color:var(--em);font-weight:700">₹${rev.toLocaleString('en-IN')}</td>
+                    <td style="padding:8px 12px;font-size:12px;color:var(--ro)">₹${exp.toLocaleString('en-IN')}</td>
+                    <td style="padding:8px 12px;font-size:12px;font-weight:700;color:${pft>=0?'var(--ac)':'var(--ro)'}">₹${Math.abs(pft).toLocaleString('en-IN')} ${pft<0?'▼':'▲'}</td>
+                    <td style="padding:8px 12px;font-size:12px">${cnt}</td>
+                    <td style="padding:8px 12px"><button class="btn bg" style="font-size:10px;padding:3px 9px" onclick="event.stopPropagation();drillDownMonth('${m}')"><span class="mi sm">open_in_new</span> View</button></td>
+                </tr>`;
+            }).join('');
+            html = `<div class="tw"><table style="width:100%;border-collapse:collapse">${head}${foot}<tbody>${bodyRows}</tbody></table></div>
+                <div style="margin-top:8px;padding:8px 14px;font-size:11px;color:var(--tx3);background:var(--sf2);border-radius:var(--r2);border:1px solid var(--br)">
+                    💡 Click any row or <strong>View</strong> to see every invoice, payment date, discount and expense breakdown for that month.
+                </div>`;
+            metaTxt = `${allMonths.length} month(s) — click a row to drill down`;
+        }
+
+        else if (_rptType === 'fee') {
+            let students = DB.students;
+            if (batch)  students = students.filter(s => s.batchId == batch);
+            if (status) students = students.filter(s => s.feeStatus === status);
+            if (month)  students = students.filter(s => (s.joinDate||'').startsWith(month) || (s.dueDate||'').startsWith(month));
+            const totalNet  = students.reduce((a,s) => a + s.netFee, 0);
+            const totalPaid = students.reduce((a,s) => a + s.paidAmt, 0);
+            const totalBal  = students.reduce((a,s) => a + (s.netFee - s.paidAmt), 0);
+            statsHtml = `<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;padding:14px 16px 0">
+                ${statCard('Students', students.length, 'var(--ac)')}
+                ${statCard('Net Fee Total', fmt(totalNet), 'var(--tx)')}
+                ${statCard('Collected', fmt(totalPaid), 'var(--em)')}
+                ${statCard('Outstanding', fmt(totalBal), 'var(--ro)')}
+            </div>`;
+            // Get most recent paid_date from invoices for each student
+            const latestPaidDate = sid => {
+                const matches = DB.invoices.filter(i => i.studentId === sid && i.paidDate)
+                    .sort((a,b) => (b.paidDate||'').localeCompare(a.paidDate||''));
+                return matches.length ? matches[0].paidDate : null;
+            };
+            const fmtD = d => d ? new Date(d).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}) : '—';
+            _rptData = students.map(s => {
+                const pd = latestPaidDate(s.id) || s.paidOn || '';
+                return [`${s.fname} ${s.lname}`, batchName(s.batchId), `₹${s.baseFee}`,
+                    s.baseFee>s.netFee?`₹${s.baseFee-s.netFee}`:'—', `₹${s.netFee}`,
+                    `₹${s.paidAmt}`, `₹${s.netFee-s.paidAmt}`, s.feeStatus, pd||'—', s.dueDate||'—'];
+            });
+            html = tbl(
+                ['Student','Batch','Base Fee','Discount','Net Fee','Paid','Balance','Status','Paid On','Due Date'],
+                students.map(s => {
+                    const bal = s.netFee - s.paidAmt;
+                    const pd  = latestPaidDate(s.id) || s.paidOn;
+                    return [
+                        `${s.fname} ${s.lname}`, batchName(s.batchId), fmt(s.baseFee),
+                        s.baseFee>s.netFee ? fmt(s.baseFee-s.netFee) : '—',
+                        fmt(s.netFee), fmt(s.paidAmt),
+                        `<strong style="color:${bal>0?'var(--ro)':'var(--em)'}">₹${bal}</strong>`,
+                        feeTag(s.feeStatus),
+                        pd ? `<span style="color:var(--ac)">${fmtD(pd)}</span>` : '<span style="color:var(--tx3)">—</span>',
+                        s.dueDate||'—'
+                    ];
+                }),
+                ['','','','',fmt(totalNet),fmt(totalPaid),fmt(totalBal),'','','']
+            );
+            metaTxt = `${students.length} students`;
+        }
+
+        else if (_rptType === 'outstanding') {
+            let students = DB.students.filter(s => s.feeStatus !== 'paid' && s.netFee - s.paidAmt > 0);
+            if (batch)  students = students.filter(s => s.batchId == batch);
+            if (month)  students = students.filter(s => (s.dueDate||'').startsWith(month));
+            students = students.sort((a,b) => (b.netFee-b.paidAmt)-(a.netFee-a.paidAmt));
+            const totalBal = students.reduce((a,s)=>a+(s.netFee-s.paidAmt),0);
+            const overdueCnt = students.filter(s=>s.feeStatus==='overdue').length;
+            statsHtml = `<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:14px 16px 0">
+                ${statCard('With Balance', students.length, 'var(--or)')}
+                ${statCard('Overdue', overdueCnt, 'var(--ro)')}
+                ${statCard('Total Outstanding', fmt(totalBal), 'var(--ro)')}
+            </div>`;
+            const today = new Date();
+            _rptData = students.map(s => {
+                const daysOD = s.dueDate ? Math.max(0, Math.floor((today-new Date(s.dueDate))/86400000)) : 0;
+                return [`${s.fname} ${s.lname}`, s.phone, batchName(s.batchId), `₹${s.netFee-s.paidAmt}`, s.feeStatus, s.dueDate||'—', daysOD];
+            });
+            html = tbl(['Student','Phone','Batch','Balance Due','Status','Due Date','Days Overdue'],
+                students.map(s => {
+                    const bal = s.netFee-s.paidAmt;
+                    const daysOD = s.dueDate ? Math.max(0, Math.floor((today-new Date(s.dueDate))/86400000)) : 0;
+                    return [`${s.fname} ${s.lname}`, s.phone, batchName(s.batchId),
+                        `<strong style="color:var(--ro)">₹${bal}</strong>`,
+                        feeTag(s.feeStatus), s.dueDate||'—',
+                        daysOD>0?`<span style="color:var(--ro);font-weight:700">${daysOD}d</span>`:'0d'];
+                }), ['','','',fmt(totalBal),'','','']);
+            metaTxt = `${students.length} students · ₹${totalBal.toLocaleString('en-IN')} outstanding`;
+        }
+
+        else if (_rptType === 'batch') {
+            const blist = batch ? DB.batches.filter(b=>b.id==batch) : DB.batches;
+            _rptData = blist.map(b => {
+                const stus = DB.students.filter(s=>s.batchId==b.id);
+                const rev = stus.reduce((a,s)=>a+s.paidAmt,0);
+                const outstanding = stus.reduce((a,s)=>a+(s.netFee-s.paidAmt),0);
+                const paid = stus.filter(s=>s.feeStatus==='paid').length;
+                const overdue = stus.filter(s=>s.feeStatus==='overdue').length;
+                return [b.name, `${b.startTime}–${b.endTime}`, stus.length, paid, overdue,
+                    `₹${rev}`, `₹${outstanding}`, `${b.occupied}/${b.total}`];
+            });
+            const totalRev = DB.students.reduce((a,s)=>a+s.paidAmt,0);
+            html = tbl(['Batch','Timing','Students','Paid','Overdue','Revenue Collected','Outstanding','Seats'],
+                blist.map(b => {
+                    const stus = DB.students.filter(s=>s.batchId==b.id);
+                    const rev = stus.reduce((a,s)=>a+s.paidAmt,0);
+                    const outstanding = stus.reduce((a,s)=>a+(s.netFee-s.paidAmt),0);
+                    const paid = stus.filter(s=>s.feeStatus==='paid').length;
+                    const overdue = stus.filter(s=>s.feeStatus==='overdue').length;
+                    const pct = stus.length ? Math.round(paid/stus.length*100) : 0;
+                    return [b.name, `${b.startTime}–${b.endTime}`, stus.length,
+                        `<span style="color:var(--em);font-weight:700">${paid}</span>`,
+                        overdue>0?`<span style="color:var(--ro);font-weight:700">${overdue}</span>`:'0',
+                        fmt(rev), outstanding>0?`<span style="color:var(--or)">₹${outstanding}</span>`:'₹0',
+                        `${b.occupied}/${b.total}`];
+                }));
+            metaTxt = `${blist.length} batch(es)`;
+        }
+
+        else if (_rptType === 'books') {
+            let books = DB.books;
+            const lowStock = books.filter(b=>b.available===0).length;
+            statsHtml = `<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:14px 16px 0">
+                ${statCard('Total Titles', books.length, 'var(--ac)')}
+                ${statCard('Total Copies', books.reduce((a,b)=>a+b.copies,0), 'var(--gd)')}
+                ${statCard('Unavailable', lowStock, 'var(--ro)')}
+            </div>`;
+            _rptData = books.map(b => [b.title, b.author, b.category, b.isbn||'—', b.shelf||'—', b.available, b.copies]);
+            html = tbl(['Title','Author','Category','ISBN','Shelf','Available','Total'],
+                books.map(b => [b.emoji+' '+b.title, b.author, b.category, b.isbn||'—', b.shelf||'—',
+                    b.available===0?`<span style="color:var(--ro);font-weight:700">0</span>`:b.available, b.copies]));
+            metaTxt = `${books.length} books`;
+        }
+
+        else if (_rptType === 'attendance') {
+            let students = DB.students;
+            if (batch) students = students.filter(s=>s.batchId==batch);
+            const presentList = students.filter(s=>DB.attendance[s.id]==='present');
+            const absentList  = students.filter(s=>DB.attendance[s.id]!=='present');
+            statsHtml = `<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:14px 16px 0">
+                ${statCard('Present', presentList.length, 'var(--em)')}
+                ${statCard('Absent', absentList.length, 'var(--ro)')}
+                ${statCard('Attendance %', students.length?Math.round(presentList.length/students.length*100)+'%':'—', 'var(--ac)')}
+            </div>`;
+            _rptData = students.map(s=>[`${s.fname} ${s.lname}`, batchName(s.batchId), DB.attendance[s.id]||'absent']);
+            const attTag = st => st==='present'?`<span class="tag tpd">✔ Present</span>`:`<span class="tag tod">✘ Absent</span>`;
+            html = tbl(['Student','Batch','Status'],
+                students.map(s=>[`${s.fname} ${s.lname}`, batchName(s.batchId), attTag(DB.attendance[s.id]||'absent')]));
+            metaTxt = `${students.length} students · Today`;
+        }
+
+        else if (_rptType === 'expense') {
+            let expenses = DB.expenses;
+            if (month) expenses = expenses.filter(e=>inMonth(e.date));
+            if (cat)   expenses = expenses.filter(e=>e.category===cat);
+            const total = expenses.reduce((a,e)=>a+e.amount,0);
+            const byCat = {};
+            expenses.forEach(e=>{ byCat[e.category]=(byCat[e.category]||0)+e.amount; });
+            const topCat = Object.entries(byCat).sort((a,b)=>b[1]-a[1])[0];
+            statsHtml = `<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:14px 16px 0">
+                ${statCard('Total Expenses', fmt(total), 'var(--ro)')}
+                ${statCard('# Entries', expenses.length, 'var(--or)')}
+                ${statCard('Top Category', topCat?topCat[0]:'—', 'var(--vi)')}
+            </div>`;
+            _rptData = expenses.map(e=>[e.name, e.category, `₹${e.amount}`, e.date, e.notes||'']);
+            html = tbl(['Name','Category','Amount','Date','Notes'],
+                expenses.map(e=>[e.emoji+' '+e.name, e.category, fmt(e.amount), e.date, e.notes||'—']),
+                ['TOTAL','',fmt(total),'','']);
+            metaTxt = `${expenses.length} entries`;
+        }
+
+        else if (_rptType === 'student') {
+            let students = DB.students;
+            if (batch)  students = students.filter(s => s.batchId == batch);
+            if (status) students = students.filter(s => s.feeStatus === status);
+            const fmtD = d => d ? new Date(d).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}) : '—';
+            _rptData = students.map(s => [
+                s.id, `${s.fname} ${s.lname}`, s.phone, s.email||'',
+                batchName(s.batchId), s.seat||'—', s.seatType.toUpperCase(),
+                s.course, s.feeStatus, s.joinDate||'—', s.leaveDate||'—', s.leaveReason||''
+            ]);
+            html = tbl(
+                ['ID','Name','Phone','Email','Batch','Seat','Type','Course','Fee Status','Join Date','Leave Date','Leave Reason'],
+                students.map(s => [
+                    s.id, `${s.fname} ${s.lname}`, s.phone, s.email||'—',
+                    batchName(s.batchId), s.seat||'—', s.seatType.toUpperCase(), s.course,
+                    feeTag(s.feeStatus), fmtD(s.joinDate),
+                    s.leaveDate
+                        ? `<span style="color:var(--ro);font-weight:600">${fmtD(s.leaveDate)}</span>`
+                        : '<span style="color:var(--ac);font-size:10px">Active</span>',
+                    s.leaveReason || '—'
+                ])
+            );
+            metaTxt = `${students.length} students`;
+        }
+
+        document.getElementById('rptMeta').textContent = metaTxt;
+        const statsWrap = document.getElementById('rptStatsWrap');
+        if (statsWrap) statsWrap.innerHTML = statsHtml;
+        document.getElementById('rptBody').innerHTML = html;
+        toast('Report generated!', 'ok');
+    }
+
+    // ── MONTHLY DRILL-DOWN ────────────────────────────────────────────────
+    async function drillDownMonth(ym) {
+        const body   = document.getElementById('rptBody');
+        const title  = document.getElementById('rptTitle');
+        const meta   = document.getElementById('rptMeta');
+        const statsW = document.getElementById('rptStatsWrap');
+        body.innerHTML = `<div style="text-align:center;padding:40px;color:var(--tx3)">
+            <span class="mi" style="font-size:36px;display:block;margin-bottom:10px;color:var(--ac)">hourglass_top</span>
+            Loading detail for ${ym}…</div>`;
+        try {
+            const res = await apiGet('get_monthly_detail', { month: ym });
+
+            // API returned an error JSON
+            if (res.error) {
+                body.innerHTML = `<div style="text-align:center;padding:28px;color:var(--ro)">
+                    <span class="mi" style="font-size:28px;display:block;margin-bottom:8px">error</span>
+                    <strong>Server error:</strong> ${res.error}
+                    <div style="margin-top:12px"><button class="btn bg" onclick="applyRptFilters()" style="font-size:11px"><span class="mi sm">arrow_back</span> Back</button></div>
+                </div>`;
+                return;
+            }
+            const [y,mo] = ym.split('-');
+            const label = new Date(+y,+mo-1).toLocaleString('en-IN',{month:'long',year:'numeric'});
+            if (title) title.textContent = `📅 ${label} — Detailed Breakdown`;
+            if (meta)  meta.textContent  = `${res.invoices.length} invoice(s) · ${res.expenses.length} expense(s)`;
+
+            const pft = +res.net_profit;
+            if (statsW) statsW.innerHTML = `<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;padding:14px 16px 0">
+                <div class="sc" style="margin-bottom:0"><div class="s-lb">Revenue Collected</div><div class="s-vl" style="color:var(--em)">₹${(+res.total_revenue).toLocaleString('en-IN')}</div></div>
+                <div class="sc" style="margin-bottom:0"><div class="s-lb">Total Expenses</div><div class="s-vl" style="color:var(--ro)">₹${(+res.total_expenses).toLocaleString('en-IN')}</div></div>
+                <div class="sc" style="margin-bottom:0"><div class="s-lb">Net Profit</div><div class="s-vl" style="color:${pft>=0?'var(--ac)':'var(--ro)'}">₹${Math.abs(pft).toLocaleString('en-IN')} ${pft<0?'▼':'▲'}</div></div>
+                <div class="sc" style="margin-bottom:0"><div class="s-lb">Invoices</div><div class="s-vl">${res.invoices.length}</div></div>
+            </div>`;
+
+            const fmtD  = d => d ? new Date(d).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}) : '—';
+            const fmt2  = v => `₹${(+v||0).toLocaleString('en-IN')}`;
+            const ftag  = st => { const m={paid:'tpd',pending:'tpn',partial:'tpart',overdue:'tod'}; return `<span class="tag ${m[st]||'tac'}">${st}</span>`; };
+            const thS   = 'padding:8px 12px;text-align:left;background:var(--sf2);color:var(--tx3);font-size:9px;text-transform:uppercase;font-family:var(--fm);border-bottom:1px solid var(--br);white-space:nowrap';
+
+            // ── Invoice table ──────────────────────────────────────────────
+            const invTotalPaid = res.invoices.reduce((a,i) => a+(+i.paid_amt||0), 0);
+            const invRows = res.invoices.map((inv,i) => {
+                const name     = `${inv.fname||''} ${inv.lname||''}`.trim() || inv.student_id;
+                const totalDisc = (+inv.discount||0) + (+inv.payment_discount||0);
+                return `<tr style="border-bottom:1px solid var(--br);background:${i%2?'var(--sf2)':'var(--sf)'}">
+                    <td style="padding:8px 12px;font-size:10px;color:var(--tx3);font-family:var(--fm)">${inv.id}</td>
+                    <td style="padding:8px 12px;font-size:12px;font-weight:600">${name}</td>
+                    <td style="padding:8px 12px;font-size:11px;color:var(--tx3)">${inv.batch_name||'—'}</td>
+                    <td style="padding:8px 12px;font-size:11px">${inv.type}</td>
+                    <td style="padding:8px 12px;font-size:12px;font-weight:700;color:var(--em)">${fmt2(inv.paid_amt)}</td>
+                    <td style="padding:8px 12px;font-size:12px">${fmt2(inv.net_fee)}</td>
+                    <td style="padding:8px 12px;font-size:11px">${totalDisc>0?`<span class="tag tor" style="font-size:9px">-₹${totalDisc.toLocaleString('en-IN')}</span>`:'—'}</td>
+                    <td style="padding:8px 12px;font-size:11px;color:var(--ac)">${fmtD(inv.paid_date)}</td>
+                    <td style="padding:8px 12px;font-size:11px;font-family:var(--fm)">${inv.mode||'—'}</td>
+                    <td style="padding:8px 12px">${ftag(inv.status)}</td>
+                    <td style="padding:8px 12px;font-size:11px;color:var(--tx3);max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${(inv.remarks||'').replace(/"/g,'&quot;')}">${inv.remarks||'—'}</td>
+                </tr>`;
+            }).join('');
+
+            const invSection = `
+                <div style="font-size:13px;font-weight:700;color:var(--tx);padding:16px 0 8px;display:flex;align-items:center;gap:8px">
+                    <span class="mi" style="color:var(--em)">payments</span> Fee Invoices
+                    <span style="font-size:11px;color:var(--tx3);font-weight:400">${res.invoices.length} entries</span>
+                </div>
+                <div class="tw"><table style="width:100%;border-collapse:collapse">
+                    <thead><tr>${['Invoice #','Student','Batch','Type','Paid','Net Fee','Discount','Paid On','Mode','Status','Remarks'].map(c=>`<th style="${thS}">${c}</th>`).join('')}</tr></thead>
+                    <tfoot><tr style="background:var(--sf3);font-weight:700">
+                        <td colspan="4" style="padding:8px 12px;font-size:12px;border-top:2px solid var(--br)">TOTAL</td>
+                        <td style="padding:8px 12px;font-size:12px;border-top:2px solid var(--br);color:var(--em)">${fmt2(invTotalPaid)}</td>
+                        <td colspan="6" style="border-top:2px solid var(--br)"></td>
+                    </tr></tfoot>
+                    <tbody>${invRows||`<tr><td colspan="11" style="text-align:center;padding:18px;color:var(--tx3)">No invoices for this month</td></tr>`}</tbody>
+                </table></div>`;
+
+            // ── Expense table ──────────────────────────────────────────────
+            const byCat = {};
+            res.expenses.forEach(e => { byCat[e.category] = (byCat[e.category]||0) + (+e.amount); });
+            const totalExpAmt = Object.values(byCat).reduce((a,b)=>a+b,0);
+
+            // Colour palette for bars — cycles if more than 8 categories
+            const BAR_COLORS = ['#3b82f6','#10b981','#f59e0b','#ef4444','#8b5cf6','#06b6d4','#ec4899','#84cc16'];
+
+            const catHtml = Object.entries(byCat).sort((a,b)=>b[1]-a[1]).map(([cat,amt],ci) => {
+                const pct = totalExpAmt > 0 ? Math.round(amt/totalExpAmt*100) : 0;
+                const clr = BAR_COLORS[ci % BAR_COLORS.length];
+                return `<div style="margin-bottom:10px">
+                    <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:3px">
+                        <span style="font-size:11px;font-weight:600;color:var(--tx2)">${cat}</span>
+                        <span style="font-size:10px;color:var(--tx3)">${pct}%</span>
+                    </div>
+                    <div style="height:6px;background:var(--sf3);border-radius:3px;overflow:hidden;margin-bottom:2px">
+                        <div class="cat-bar-fill" style="width:${pct}%;height:100%;background:${clr};border-radius:3px;transition:width .4s ease"></div>
+                    </div>
+                    <div style="text-align:right;font-size:10px;font-weight:700;color:var(--ro)">₹${amt.toLocaleString('en-IN')}</div>
+                </div>`;
+            }).join('');
+
+            const expRows = res.expenses.map((e,i) =>
+                `<tr style="border-bottom:1px solid var(--br);background:${i%2?'var(--sf2)':'var(--sf)'}">
+                    <td style="padding:8px 12px;font-size:11px;color:var(--tx3);font-family:var(--fm)">${e.id}</td>
+                    <td style="padding:8px 12px;font-size:12px;font-weight:600">${e.emoji||'💸'} ${e.name}</td>
+                    <td style="padding:8px 12px"><span class="tag tor" style="font-size:10px">${e.category}</span></td>
+                    <td style="padding:8px 12px;font-size:12px;font-weight:700;color:var(--ro)">₹${(+e.amount).toLocaleString('en-IN')}</td>
+                    <td style="padding:8px 12px;font-size:11px">${fmtD(e.expense_date)}</td>
+                    <td style="padding:8px 12px;font-size:11px;color:var(--tx3)">${e.notes||'—'}</td>
+                </tr>`).join('');
+
+            const expSection = `
+                <div style="font-size:13px;font-weight:700;color:var(--tx);padding:16px 0 8px;display:flex;align-items:center;gap:8px;margin-top:8px">
+                    <span class="mi" style="color:var(--ro)">account_balance_wallet</span> Expenses
+                    <span style="font-size:11px;color:var(--tx3);font-weight:400">${res.expenses.length} entries</span>
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 260px;gap:14px;align-items:start">
+                    <div class="tw"><table style="width:100%;border-collapse:collapse">
+                        <thead><tr>${['#','Name','Category','Amount','Date','Notes'].map(c=>`<th style="${thS}">${c}</th>`).join('')}</tr></thead>
+                        <tfoot><tr style="background:var(--sf3);font-weight:700">
+                            <td colspan="3" style="padding:8px 12px;border-top:2px solid var(--br)">TOTAL</td>
+                            <td style="padding:8px 12px;border-top:2px solid var(--br);color:var(--ro)">${fmt2(res.total_expenses)}</td>
+                            <td colspan="2" style="border-top:2px solid var(--br)"></td>
+                        </tr></tfoot>
+                        <tbody>${expRows||`<tr><td colspan="6" style="text-align:center;padding:18px;color:var(--tx3)">No expenses this month</td></tr>`}</tbody>
+                    </table></div>
+                    <div style="background:var(--sf2);border:1px solid var(--br);border-radius:var(--r);padding:14px;position:sticky;top:10px">
+                        <div style="font-size:10px;font-weight:700;color:var(--tx3);text-transform:uppercase;letter-spacing:.8px;margin-bottom:12px;font-family:var(--fm)">Expense Breakdown</div>
+                        ${catHtml||'<div style="color:var(--tx3);font-size:12px">No expenses</div>'}
+                        <div style="display:flex;justify-content:space-between;padding:8px 0 0;font-size:12px;font-weight:700;border-top:1px solid var(--br);margin-top:4px">
+                            <span>Total</span><span style="color:var(--ro)">${fmt2(res.total_expenses)}</span>
+                        </div>
+                    </div>
+                </div>`;
+
+            body.innerHTML = invSection + expSection +
+                `<div style="margin-top:16px;display:flex;gap:8px;flex-wrap:wrap">
+                    <button class="btn bg" onclick="applyRptFilters()" style="font-size:11px"><span class="mi sm">arrow_back</span> Back to Summary</button>
+                    <button class="btn bg" onclick="exportDrillCSV('${ym}')" style="font-size:11px"><span class="mi sm">download</span> Export CSV</button>
+                    <button class="btn bg" onclick="printDrillDown('${ym}')" style="font-size:11px"><span class="mi sm">print</span> Print</button>
+                </div>`;
+
+            window._drillData = res;
+        } catch(e) {
+            body.innerHTML = `<div style="text-align:center;padding:28px;color:var(--ro)">
+                <span class="mi" style="font-size:28px;display:block;margin-bottom:8px">error</span>
+                Failed to load: ${e.message}</div>`;
+        }
+    }
+
+    function exportDrillCSV(ym) {
+        const res = window._drillData;
+        if (!res) return toast('No data loaded', 'wn');
+        const invRows = [
+            ['Invoice #','Student','Batch','Type','Paid Amt','Net Fee','Discount','Paid On','Mode','Status','Remarks'],
+            ...(res.invoices||[]).map(i => [
+                i.id, `${i.fname||''} ${i.lname||''}`.trim(), i.batch_name||'',
+                i.type, i.paid_amt, i.net_fee,
+                (+i.discount||0)+(+i.payment_discount||0),
+                i.paid_date||'', i.mode||'', i.status, i.remarks||''
+            ]),
+            [''],
+            ['EXPENSES'],
+            ['ID','Name','Category','Amount','Date','Notes'],
+            ...(res.expenses||[]).map(e => [e.id, e.name, e.category, e.amount, e.expense_date, e.notes||''])
+        ];
+        const csv = invRows.map(r => r.map(c => `"${String(c??'').replace(/"/g,'""')}"`).join(',')).join('\n');
+        const a = Object.assign(document.createElement('a'), {
+            href: URL.createObjectURL(new Blob(['\uFEFF'+csv], {type:'text/csv;charset=utf-8;'})),
+            download: `Monthly_Detail_${ym}.csv`
+        });
+        a.click();
+        toast('CSV exported!', 'ok');
+    }
+
+    // ── PRINT HELPERS ─────────────────────────────────────────────────────
+
+    function _printBase() {
+        // Shared CSS for all print windows
+        return `
+        <style>
+            *{box-sizing:border-box;margin:0;padding:0}
+            body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#1e293b;background:#fff;padding:28px 32px;font-size:12px}
+            .prh{display:flex;align-items:center;justify-content:space-between;border-bottom:2px solid #1e293b;padding-bottom:12px;margin-bottom:18px}
+            .prh-left{display:flex;align-items:center;gap:12px}
+            .prh-logo{width:38px;height:38px;border-radius:8px;background:#3b82f6;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:16px;flex-shrink:0}
+            .prh-title{font-size:18px;font-weight:700;color:#1e293b}
+            .prh-sub{font-size:11px;color:#64748b;margin-top:2px}
+            .prh-right{text-align:right;font-size:10px;color:#64748b;line-height:1.6}
+            .stats{display:grid;gap:10px;margin-bottom:18px}
+            .stat{background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:10px 14px}
+            .stat-lb{font-size:9px;color:#64748b;text-transform:uppercase;letter-spacing:.6px;font-weight:600;margin-bottom:3px}
+            .stat-vl{font-size:20px;font-weight:700;color:#1e293b}
+            table{width:100%;border-collapse:collapse;margin-bottom:18px;font-size:11px}
+            thead th{background:#f1f5f9;color:#475569;font-size:9px;text-transform:uppercase;letter-spacing:.5px;padding:7px 9px;text-align:left;border:1px solid #e2e8f0;font-weight:600}
+            tbody td{padding:6px 9px;border:1px solid #e2e8f0;vertical-align:top}
+            tbody tr:nth-child(even){background:#f8fafc}
+            tfoot td{padding:7px 9px;border:1px solid #cbd5e1;background:#f1f5f9;font-weight:700;font-size:11px}
+            .tag{display:inline-block;padding:1px 6px;border-radius:4px;font-size:9px;font-weight:600;text-transform:capitalize}
+            .tag-paid{background:#dcfce7;color:#166534}
+            .tag-partial{background:#fef9c3;color:#854d0e}
+            .tag-pending{background:#fee2e2;color:#991b1b}
+            .tag-overdue{background:#fce7f3;color:#9d174d}
+            .section-title{font-size:13px;font-weight:700;color:#1e293b;margin:18px 0 8px;display:flex;align-items:center;gap:6px;border-bottom:1px solid #e2e8f0;padding-bottom:6px}
+            .cat-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:18px}
+            .cat-item{padding:8px 10px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px}
+            .cat-name{font-size:10px;font-weight:600;color:#374151;margin-bottom:4px;display:flex;justify-content:space-between}
+            .cat-bar-bg{height:5px;background:#e2e8f0;border-radius:3px;overflow:hidden}
+            .cat-bar-fill{height:100%;border-radius:3px;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+            .footer{margin-top:24px;padding-top:10px;border-top:1px solid #e2e8f0;display:flex;justify-content:space-between;font-size:9px;color:#94a3b8}
+            @media print{
+                body{padding:14px 18px}
+                @page{margin:10mm 12mm;size:A4 portrait}
+            }
+        </style>`;
+    }
+
+    function _printHeader(reportTitle, subText) {
+        const lib   = DB.settings?.name || 'Library';
+        const init  = lib.charAt(0).toUpperCase();
+        const logoEl = document.getElementById('main-logo');
+        const logoSrc = logoEl?.src || '';
+        const logoHtml = logoSrc && !logoSrc.endsWith('undefined')
+            ? `<img src="${logoSrc}" style="width:38px;height:38px;border-radius:8px;object-fit:contain">`
+            : `<div class="prh-logo">${init}</div>`;
+        const now = new Date().toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'});
+        const time = new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
+        return `
+        <div class="prh">
+            <div class="prh-left">
+                ${logoHtml}
+                <div>
+                    <div class="prh-title">${lib}</div>
+                    <div class="prh-sub">${reportTitle}</div>
+                </div>
+            </div>
+            <div class="prh-right">
+                <div><strong>Generated:</strong> ${now}, ${time}</div>
+                ${subText ? `<div>${subText}</div>` : ''}
+                <div style="margin-top:4px;font-size:9px;color:#cbd5e1">optms.co.in</div>
+            </div>
+        </div>`;
+    }
+
+    function _printFooter() {
+        const lib = DB.settings?.name || 'Library';
+        return `<div class="footer"><span>${lib} — Powered by OPTMS</span><span>Page <span class="pn"></span></span></div>`;
+    }
+
+    function _feeTagHtml(st) {
+        const m = {paid:'tag-paid',pending:'tag-pending',partial:'tag-partial',overdue:'tag-overdue'};
+        return `<span class="tag ${m[st]||''}">${st}</span>`;
+    }
+
+    // ── Print summary report (fee / monthly / student / batch / outstanding / expense) ──
+    function printReport() {
+        if (!_rptType) return toast('Generate a report first', 'wn');
+        const titleEl = document.getElementById('rptTitle');
+        const metaEl  = document.getElementById('rptMeta');
+        const statsEl = document.getElementById('rptStatsWrap');
+        const bodyEl  = document.getElementById('rptBody');
+        if (!bodyEl?.innerHTML?.trim()) return toast('No report content to print', 'wn');
+
+        const reportTitle = titleEl?.textContent || _rptType;
+        const subText     = metaEl?.textContent  || '';
+
+        // Build stats HTML for print (strip interactive elements)
+        const statsClone = statsEl?.cloneNode(true);
+        if (statsClone) {
+            statsClone.querySelectorAll('button,[onclick]').forEach(el => el.remove());
+        }
+
+        // Build body clone — strip buttons, keep tables
+        const bodyClone = bodyEl.cloneNode(true);
+        bodyClone.querySelectorAll('button,.btn,[onclick]').forEach(el => el.remove());
+        // Replace inline color vars with concrete values for print
+        bodyClone.querySelectorAll('[style]').forEach(el => {
+            el.style.color    = el.style.color    || '';
+            el.style.fontSize = el.style.fontSize || '';
+        });
+
+        const w = window.open('', '_blank', 'width=900,height=700');
+        w.document.write(`<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><title>${reportTitle} — ${DB.settings?.name||'Library'}</title>${_printBase()}</head><body>`);
+        w.document.write(_printHeader(reportTitle, subText));
+        if (statsClone) w.document.write(`<div class="stats" style="grid-template-columns:repeat(auto-fit,minmax(140px,1fr))">${statsClone.innerHTML}</div>`);
+        w.document.write(bodyClone.outerHTML);
+        w.document.write(_printFooter());
+        w.document.write(`<script>window.onload=function(){window.print();}<\/script></body></html>`);
+        w.document.close();
+    }
+
+    // ── Print monthly drill-down (invoices + expense % bars + expense table) ──
+    function printDrillDown(ym) {
+        const res = window._drillData;
+        if (!res) return toast('Load the drill-down first', 'wn');
+
+        const [y,mo] = ym.split('-');
+        const label  = new Date(+y,+mo-1).toLocaleString('en-IN',{month:'long',year:'numeric'});
+        const fmtD   = d => d ? new Date(d).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}) : '—';
+        const fmt2   = v => `₹${(+v||0).toLocaleString('en-IN')}`;
+        const pft    = +res.net_profit;
+
+        // ── Stat row ──
+        const statsHtml = `
+        <div class="stats" style="grid-template-columns:repeat(4,1fr);margin-bottom:18px">
+            <div class="stat"><div class="stat-lb">Revenue Collected</div><div class="stat-vl" style="color:#10b981">${fmt2(res.total_revenue)}</div></div>
+            <div class="stat"><div class="stat-lb">Total Expenses</div><div class="stat-vl" style="color:#ef4444">${fmt2(res.total_expenses)}</div></div>
+            <div class="stat"><div class="stat-lb">Net Profit</div><div class="stat-vl" style="color:${pft>=0?'#10b981':'#ef4444'}">${fmt2(Math.abs(pft))} ${pft<0?'▼':'▲'}</div></div>
+            <div class="stat"><div class="stat-lb">Invoices</div><div class="stat-vl">${res.invoices.length}</div></div>
+        </div>`;
+
+        // ── Invoice table ──
+        const invTotal = res.invoices.reduce((a,i)=>a+(+i.paid_amt||0),0);
+        const invRows  = res.invoices.map((inv,i) => {
+            const nm       = `${inv.fname||''} ${inv.lname||''}`.trim()||inv.student_id;
+            const totalDisc = (+inv.discount||0)+(+inv.payment_discount||0);
+            return `<tr>
+                <td style="color:#64748b">${inv.id}</td>
+                <td><strong>${nm}</strong></td>
+                <td>${inv.batch_name||'—'}</td>
+                <td>${inv.type}</td>
+                <td style="color:#10b981;font-weight:700">${fmt2(inv.paid_amt)}</td>
+                <td>${fmt2(inv.net_fee)}</td>
+                <td>${totalDisc>0?fmt2(totalDisc):'—'}</td>
+                <td>${fmtD(inv.paid_date)}</td>
+                <td>${inv.mode||'—'}</td>
+                <td>${_feeTagHtml(inv.status)}</td>
+                <td style="color:#64748b;font-size:10px">${inv.remarks||'—'}</td>
+            </tr>`;
+        }).join('');
+
+        const invTable = `
+        <div class="section-title">💳 Fee Invoices <span style="font-size:11px;font-weight:400;color:#64748b">${res.invoices.length} entries</span></div>
+        <table>
+            <thead><tr>${['Invoice #','Student','Batch','Type','Paid','Net Fee','Discount','Paid On','Mode','Status','Remarks'].map(c=>`<th>${c}</th>`).join('')}</tr></thead>
+            <tfoot><tr><td colspan="4">TOTAL</td><td style="color:#10b981">${fmt2(invTotal)}</td><td colspan="6"></td></tr></tfoot>
+            <tbody>${invRows||'<tr><td colspan="11" style="text-align:center;padding:14px;color:#94a3b8">No invoices</td></tr>'}</tbody>
+        </table>`;
+
+        // ── Category % bars ──
+        const BAR_COLORS = ['#3b82f6','#10b981','#f59e0b','#ef4444','#8b5cf6','#06b6d4','#ec4899','#84cc16'];
+        const byCat      = {};
+        res.expenses.forEach(e => { byCat[e.category||'Other'] = (byCat[e.category||'Other']||0)+(+e.amount); });
+        const totalExpAmt = Object.values(byCat).reduce((a,b)=>a+b,0);
+        const catBars    = Object.entries(byCat).sort((a,b)=>b[1]-a[1]).map(([cat,amt],ci)=>{
+            const pct = totalExpAmt > 0 ? Math.round(amt/totalExpAmt*100) : 0;
+            const clr = BAR_COLORS[ci % BAR_COLORS.length];
+            return `<div class="cat-item">
+                <div class="cat-name"><span>${cat}</span><span style="color:#ef4444">${fmt2(amt)}</span></div>
+                <div class="cat-bar-bg"><div class="cat-bar-fill" style="width:${pct}%;background:${clr}"></div></div>
+                <div style="text-align:right;font-size:9px;color:#94a3b8;margin-top:2px">${pct}% of total expenses</div>
+            </div>`;
+        }).join('');
+
+        // ── Expense table ──
+        const expTotal = res.expenses.reduce((a,e)=>a+(+e.amount||0),0);
+        const expRows  = res.expenses.map(e =>
+            `<tr>
+                <td style="color:#64748b">${e.id}</td>
+                <td><strong>${e.emoji||'💸'} ${e.name}</strong></td>
+                <td>${e.category||'—'}</td>
+                <td style="color:#ef4444;font-weight:700">${fmt2(e.amount)}</td>
+                <td>${fmtD(e.expense_date)}</td>
+                <td style="color:#64748b">${e.notes||'—'}</td>
+            </tr>`
+        ).join('');
+
+        const expSection = `
+        <div class="section-title" style="margin-top:24px">💸 Expenses <span style="font-size:11px;font-weight:400;color:#64748b">${res.expenses.length} entries</span></div>
+        ${catBars ? `<div class="cat-grid">${catBars}</div>` : ''}
+        <table>
+            <thead><tr>${['#','Name','Category','Amount','Date','Notes'].map(c=>`<th>${c}</th>`).join('')}</tr></thead>
+            <tfoot><tr><td colspan="3">TOTAL</td><td style="color:#ef4444">${fmt2(expTotal)}</td><td colspan="2"></td></tr></tfoot>
+            <tbody>${expRows||'<tr><td colspan="6" style="text-align:center;padding:14px;color:#94a3b8">No expenses</td></tr>'}</tbody>
+        </table>`;
+
+        const w = window.open('', '_blank', 'width=960,height=750');
+        w.document.write(`<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><title>${label} Detail — ${DB.settings?.name||'Library'}</title>${_printBase()}</head><body>`);
+        w.document.write(_printHeader(`${label} — Detailed Breakdown`, `${res.invoices.length} invoices · ${res.expenses.length} expenses`));
+        w.document.write(statsHtml);
+        w.document.write(invTable);
+        w.document.write(expSection);
+        w.document.write(_printFooter());
+        w.document.write(`<script>window.onload=function(){window.print();}<\/script></body></html>`);
+        w.document.close();
+    }
+
+    function exportRptCSV() {
+        if (!_rptData || !_rptData.length) { toast('No data to export', 'wn'); return; }
+        const titles = { monthly:'Monthly_Summary', fee:'Fee_Report', outstanding:'Outstanding_Dues',
+            batch:'Batch_Summary', books:'Book_Inventory', attendance:'Attendance',
+            expense:'Expense_Report', student:'Student_Directory' };
+        const headers = {
+            monthly: ['Month','Revenue','Expenses','Profit','Invoices'],
+            fee: ['Student','Batch','Base Fee','Discount','Net Fee','Paid','Balance','Status','Paid On','Due Date'],
+            outstanding: ['Student','Phone','Batch','Balance','Status','Due Date','Days Overdue'],
+            batch: ['Batch','Timing','Students','Paid','Overdue','Revenue','Outstanding','Seats'],
+            books: ['Title','Author','Category','ISBN','Shelf','Available','Total'],
+            attendance: ['Student','Batch','Status'],
+            expense: ['Name','Category','Amount','Date','Notes'],
+            student: ['ID','Name','Phone','Email','Batch','Seat','Type','Course','Fee Status','Join Date','Leave Date','Leave Reason']
+        };
+        const stripHtml = v => String(v).replace(/<[^>]+>/g,'').replace(/₹/g,'Rs ');
+        const rows = [headers[_rptType], ..._rptData.map(r=>r.map(stripHtml))];
+        const csv = rows.map(r=>r.map(c=>`"${(c+'').replace(/"/g,'""')}"`).join(',')).join('\n');
+        const blob = new Blob(['\uFEFF'+csv], { type: 'text/csv;charset=utf-8;' });
+        const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+        a.download = `${titles[_rptType]}_${new Date().toISOString().slice(0,10)}.csv`;
+        a.click(); toast('CSV downloaded!', 'ok');
+    }
+
+    // legacy stub kept for any old calls
+    function genReport(type) { openReport(type); }
 
     // ═══ WHATSAPP ═══
     const WA_TEMPLATES={
@@ -3530,7 +4626,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
     <td><span class="tag tac" style="text-transform:capitalize">${sf.role}</span></td><td>${sf.email}</td><td>${sf.phone}</td>
     <td><div style="display:flex;flex-direction:column;gap:4px">
       <div style="display:flex;flex-wrap:wrap;gap:3px">${PERMS.filter(p=>sf.perms[p.key]).map(p=>`<span title="Page: ${p.label}" style="display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;background:rgba(61,111,240,.09);border:1px solid rgba(61,111,240,.2);border-radius:6px"><span class="mi" style="font-size:12px;color:var(--ac)">${p.icon}</span></span>`).join('')}${pc===0?'<span style="font-size:10px;color:var(--tx3);font-style:italic">No pages</span>':''}</div>
-      <div style="display:flex;flex-wrap:wrap;gap:3px">${ACTION_PERMS.filter(a=>(sf.actPerms||{})[a.key]).map(a=>`<span title="Action: ${a.label}" style="display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;background:rgba(124,58,237,.08);border:1px solid rgba(124,58,237,.2);border-radius:6px"><span class="mi" style="font-size:12px;color:var(--vi)">${a.icon}</span></span>`).join('')||'<span style="font-size:9px;color:var(--tx3);font-style:italic">No actions</span>'}</div>
+      <div style="display:flex;flex-wrap:wrap;gap:3px">${ACTION_PERMS.filter(a=>(sf.actPerms||{})[a.key]).map(a=>`<span title="Action: ${a.label}" style="display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;background:rgba(124,58,237,.08);border:1px solid rgba(124,58,237,.2);border-radius:6px"><span class="mi" style="font-size:12px;color:var(--vi)">${a.icon}</span></span>`).join('')||'<span style="font-size:9px;color:var(--tx3);font-style:italic">No actions</span>'}${(sf.actPerms||{})['apply_discount']&&sf.role!=='admin'?`<span title="Max Discount: ${sf.discountMax>0?'₹'+sf.discountMax.toLocaleString('en-IN'):'Unlimited'}" style="display:inline-flex;align-items:center;gap:2px;padding:0 5px;height:22px;background:rgba(234,179,8,.1);border:1px solid rgba(234,179,8,.3);border-radius:6px;font-size:9px;font-weight:700;color:#854d0e">${sf.discountMax>0?`≤₹${sf.discountMax}`:'∞'}</span>`:''}</div>
     </div></td><td><span class="tag ${sf.status==='active'?'tpd':'tod'}">${sf.status==='active'?'Active':'Inactive'}</span></td>
     <td><div style="display:flex;gap:4px"><button class="btn bg" style="font-size:10px;padding:3px 7px" onclick="editStaff(${i})">✏</button>${i>0?`<button class="btn bd" style="font-size:10px;padding:3px 6px" onclick="delStaff(${i})"><span class="mi sm">close</span></button>`:''}</div></td></tr>`;
         }).join('')||'<tr><td colspan="7"><div class="empty"><div class="ei">👥</div><div class="et">No staff</div></div></td></tr>';
@@ -3591,6 +4687,14 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
               ${modActions.map(a=>permCard(a.key,a.label,a.desc,a.icon,isAdmin?true:da[a.key],isAdmin,'act-')).join('')}
             </div>
+            ${mod==='fees'?`<div id="discountMaxWrap" style="margin-top:8px;padding:10px 13px;background:var(--sf2);border:1px solid var(--br);border-radius:var(--r2);display:flex;align-items:center;gap:12px">
+              <span class="mi sm" style="color:var(--vi)">redeem</span>
+              <div style="flex:1">
+                <div style="font-size:12px;font-weight:600;color:var(--tx)">Max Discount per Payment (₹)</div>
+                <div style="font-size:9.5px;color:var(--tx3);margin-top:2px">Set to 0 for unlimited (admin only). Staff with Apply Discount permission cannot exceed this amount.</div>
+              </div>
+              <input id="sf-disc-max" type="number" min="0" placeholder="0 = unlimited" value="${isAdmin?0:editStaffIdx>=0?(DB.staff[editStaffIdx]?.discountMax||0):0}" style="width:120px;padding:5px 8px;border:1px solid var(--br);border-radius:var(--r2);background:var(--sf);color:var(--tx);font-size:12px" ${isAdmin?'disabled title="Admins always have unlimited discount"':''}>
+            </div>`:''}
           </div>`;
         }).join('')}
         ${isAdmin?'':'<div style="padding:7px 11px;background:rgba(124,58,237,.05);border:1px solid rgba(124,58,237,.2);border-radius:var(--r2);font-size:10.5px;color:var(--vi);display:flex;align-items:center;gap:6px"><span class="mi sm">info</span>Action controls work inside pages the staff member can already access.</div>'}
@@ -3629,6 +4733,8 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
       PERMS.forEach(p=>{const el=document.getElementById('perm-'+p.key);if(el)el.checked=!!sf.perms[p.key];});
       // Restore action perms
       ACTION_PERMS.forEach(a=>{const el=document.getElementById('act-'+a.key);if(el)el.checked=!!(sf.actPerms||{})[a.key];});
+      // Restore discount max
+      const dmEl = document.getElementById('sf-disc-max'); if (dmEl) dmEl.value = sf.discountMax || 0;
       refreshPermCards();
       openM('mAddStaff');
     }
@@ -3800,13 +4906,112 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         }
     }
 
-    // ── DELETE STUDENT ──
+    // ── ARCHIVE STUDENT (soft delete) ──
     async function delStu(id) {
-        if (!confirm('Remove this student?')) return;
-        const res = await apiPost('delete_student', { id });
+        const s = DB.students.find(x => x.id === id);
+        const name = s ? `${s.fname} ${s.lname}` : 'this student';
+        if (!confirm(`Archive "${name}"?\n\nThis will move them to Archived Students — their invoices and history are preserved. You can restore them anytime.`)) return;
+        const res = await apiPost('archive_student', { id });
         if (res.error) return toast(res.error, 'er');
-        toast('Removed', 'wn');
+        toast(`"${name}" archived`, 'wn');
+        auditLog('archive_student', `Archived student <strong>${name}</strong>`);
         await reloadDB();
+        // update archived badge
+        loadArchivedBadge();
+    }
+
+    // ── LOAD ARCHIVED BADGE COUNT ──
+    async function loadArchivedBadge() {
+        try {
+            const res = await apiGet('get_archived_students');
+            const count = (res.students || []).length;
+            const badge = document.getElementById('b-archived');
+            if (badge) { badge.textContent = count; badge.style.display = count > 0 ? '' : 'none'; }
+        } catch(e) {}
+    }
+
+    // ── LOAD & RENDER ARCHIVED STUDENTS ──
+    let _archivedList = [];
+    async function loadArchived() {
+        document.getElementById('archTable').innerHTML = '<tr><td colspan="9" style="text-align:center;padding:28px;color:var(--tx3)">Loading…</td></tr>';
+        try {
+            const res = await apiGet('get_archived_students');
+            _archivedList = res.students || [];
+            renderArchived('');
+        } catch(e) {
+            document.getElementById('archTable').innerHTML = '<tr><td colspan="9" style="text-align:center;padding:28px;color:var(--ro)">Failed to load archived students.</td></tr>';
+        }
+    }
+
+    function renderArchived(srch) {
+        const list = srch ? _archivedList.filter(s =>
+            `${s.fname} ${s.lname} ${s.phone} ${s.course||''}`.toLowerCase().includes(srch.toLowerCase())
+        ) : _archivedList;
+
+        // Update stats
+        const totalDues = _archivedList.reduce((a,s) => a + (+s.net_fee - +s.paid_amt), 0);
+        const totalPaid = _archivedList.reduce((a,s) => a + +s.paid_amt, 0);
+        document.getElementById('arch-count').textContent = _archivedList.length;
+        document.getElementById('arch-dues').textContent = fmt(Math.max(0, totalDues));
+        document.getElementById('arch-paid').textContent = fmt(totalPaid);
+        document.getElementById('archMeta').textContent = `${list.length} student(s)`;
+
+        const feeTag = st => { const m={paid:'tpd',pending:'tpn',partial:'tpart',overdue:'tod'}; return `<span class="tag ${m[st]||'tac'}">${st}</span>`; };
+        const bName = bid => DB.batches.find(b=>b.id==bid)?.name || '—';
+
+        if (!list.length) {
+            document.getElementById('archTable').innerHTML = `<tr><td colspan="9" style="text-align:center;padding:32px;color:var(--tx3)">${srch ? 'No matches found.' : '🎉 No archived students.'}</td></tr>`;
+            return;
+        }
+
+        document.getElementById('archTable').innerHTML = list.map(s => {
+            const bal = +s.net_fee - +s.paid_amt;
+            const archivedOn = s.archived_at ? new Date(s.archived_at).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}) : '—';
+            const initials = ((s.fname||'?')[0] + (s.lname||'')[0]).toUpperCase();
+            return `<tr>
+                <td>
+                    <div style="display:flex;align-items:center;gap:9px">
+                        <div style="width:30px;height:30px;border-radius:8px;background:${s.color||'#9aa3b8'};display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;flex-shrink:0">${initials}</div>
+                        <div><div style="font-weight:600;font-size:12px">${s.fname} ${s.lname||''}</div><div style="font-size:10px;color:var(--tx3);font-family:var(--fm)">${s.id}</div></div>
+                    </div>
+                </td>
+                <td style="font-size:12px">${bName(s.batch_id)}</td>
+                <td style="font-size:12px">${s.course||'—'}</td>
+                <td style="font-size:12px;font-family:var(--fm)">${s.phone||'—'}</td>
+                <td>${feeTag(s.fee_status||'pending')}</td>
+                <td style="font-size:12px;color:${bal>0?'var(--ro)':'var(--em)'};font-weight:${bal>0?'700':'400'}">₹${bal}</td>
+                <td style="font-size:11px;color:var(--tx3)">${archivedOn}</td>
+                <td style="font-size:11px;color:var(--tx3)">${s.archived_by||'—'}</td>
+                <td>
+                    <div style="display:flex;gap:6px">
+                        <button class="btn" style="background:var(--em);color:#fff;font-size:10px;padding:4px 9px" onclick="restoreStudent('${s.id}','${s.fname} ${s.lname||''}')"><span class="mi sm">restore</span> Restore</button>
+                        <button class="btn bd" style="font-size:10px;padding:4px 9px" onclick="permDeleteStudent('${s.id}','${s.fname} ${s.lname||''}')"><span class="mi sm">delete_forever</span></button>
+                    </div>
+                </td>
+            </tr>`;
+        }).join('');
+    }
+
+    async function restoreStudent(id, name) {
+        if (!confirm(`Restore "${name}" back to active students?`)) return;
+        const res = await apiPost('restore_student', { id });
+        if (res.error) return toast(res.error, 'er');
+        toast(`"${name}" restored!`, 'ok');
+        auditLog('restore_student', `Restored student <strong>${name}</strong>`);
+        await reloadDB();
+        await loadArchived();
+        loadArchivedBadge();
+    }
+
+    async function permDeleteStudent(id, name) {
+        if (!confirm(`⚠️ PERMANENTLY delete "${name}"?\n\nThis CANNOT be undone. All their data will be lost forever.`)) return;
+        if (!confirm(`Are you absolutely sure? Type-check: this will delete all records for "${name}".`)) return;
+        const res = await apiPost('perm_delete_student', { id });
+        if (res.error) return toast(res.error, 'er');
+        toast(`"${name}" permanently deleted`, 'er');
+        auditLog('perm_delete_student', `Permanently deleted student <strong>${name}</strong>`);
+        await loadArchived();
+        loadArchivedBadge();
     }
 
     // ── SAVE BATCH (add/edit) ──
@@ -3884,29 +5089,51 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
 
     // ── COLLECT FEE ──
     async function collectFee() {
-        const stuId=gv('cf-stu');
+        const stuId = gv('cf-stu');
         if (!stuId) return toast('Select student', 'er');
-        const mode=gv('cf-mode'), isSplit=mode==='split'||mode==='split2';
+        const mode = gv('cf-mode'), isSplit = mode === 'split' || mode === 'split2';
         let amt, modeStr;
         if (isSplit) {
-            const a1=+gv('cf-a1')||0, a2=+gv('cf-a2')||0;
-            amt=a1+a2; modeStr=`${gv('cf-m1')} ₹${a1} + ${gv('cf-m2')} ₹${a2}`;
+            const a1 = +gv('cf-a1') || 0, a2 = +gv('cf-a2') || 0;
+            amt = a1 + a2; modeStr = `${gv('cf-m1')} ₹${a1} + ${gv('cf-m2')} ₹${a2}`;
         } else {
-            amt=+gv('cf-amt')||0; modeStr=mode;
+            amt = +gv('cf-amt') || 0; modeStr = mode;
         }
         if (!amt) return toast('Enter amount', 'er');
+        const disc     = Math.max(0, +gv('cf-disc') || 0);
+        const paidDate = gv('cf-paid-date') || new Date().toISOString().slice(0, 10);
+        const remarks  = gv('cf-rem') || '';
+        if (disc >= amt) return toast('Discount cannot equal or exceed amount', 'er');
+
+        // Client-side cap check (server also enforces this)
+        const me = window._me;
+        const isAdmin = !me || me.role === 'admin';
+        if (!isAdmin && disc > 0) {
+            const actP = me?.actPerms || (me?.act_perms ? (typeof me.act_perms === 'string' ? JSON.parse(me.act_perms) : me.act_perms) : {});
+            if (!actP['apply_discount']) return toast('You do not have permission to apply discounts', 'er');
+            const maxDisc = +me?.perm_discount_max || 0;
+            if (maxDisc > 0 && disc > maxDisc) return toast(`Discount cannot exceed ₹${maxDisc.toLocaleString('en-IN')} (your limit)`, 'er');
+        }
         const res = await apiPost('collect_fee', {
-            student_id: stuId, amount: amt, mode: modeStr,
-            month: gv('cf-mo') || new Date().toLocaleDateString('en-IN',{month:'long',year:'numeric'})
+            student_id:       stuId,
+            amount:           amt,
+            mode:             modeStr,
+            month:            gv('cf-mo') || new Date().toLocaleDateString('en-IN', {month:'long', year:'numeric'}),
+            payment_discount: disc,
+            paid_date:        paidDate,
+            remarks:          remarks,
         });
         if (res.error) return toast(res.error, 'er');
-        const bal = res.balance || 0;
-        const waCheck = document.getElementById('cf-wa');
+        const bal       = res.balance || 0;
+        const effective = amt - disc;
+        const waCheck   = document.getElementById('cf-wa');
         closeM('mCollectFee');
-        toast(`₹${amt} collected${bal > 0 ? ` — ₹${bal} still pending` : ''}!`, 'ok');
+        const dEl = document.getElementById('cf-disc'); if (dEl) dEl.value = '';
+        const pdEl = document.getElementById('cf-paid-date'); if (pdEl) pdEl.value = '';
+        toast(`₹${effective} collected${disc > 0 ? ` (₹${disc} discount)` : ''}${bal > 0 ? ` — ₹${bal} pending` : ''}!`, 'ok');
         await reloadDB();
         if (waCheck && waCheck.checked) {
-            setTimeout(() => waQuick(stuId, res.fee_status==='paid' ? 'fee_receipt' : 'partial_payment'), 600);
+            setTimeout(() => waQuick(stuId, res.fee_status === 'paid' ? 'fee_receipt' : 'partial_payment'), 600);
         }
     }
 
@@ -3968,6 +5195,8 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         PERMS.forEach(p => { const el=document.getElementById('perm-'+p.key); perms[p.key]=el?el.checked:false; });
         const actPerms = {};
         ACTION_PERMS.forEach(a => { const el=document.getElementById('act-'+a.key); actPerms[a.key]=el?el.checked:false; });
+        const discMaxEl = document.getElementById('sf-disc-max');
+        perms.discount_max = discMaxEl ? Math.max(0, +discMaxEl.value || 0) : 0;
         const payload = {
             name: nm, role: rl, email: em,
             phone: gv('sf-ph'), username: gv('sf-un'), password: gv('sf-pw'), perms, actPerms
@@ -5386,6 +6615,66 @@ Thank you! 📚
     initData();
     loadMyDP();
     loadLogo();
+    loadArchivedBadge();
+
+    // ── MARK STUDENT LEFT ─────────────────────────────────────────────────
+    let _markLeftStudentId = null;
+
+    function openMarkLeft(id) {
+        if (!id) return;
+        const s = DB.students.find(x => x.id === id);
+        if (!s) return;
+        _markLeftStudentId = id;
+        const nm = document.getElementById('ml-name');
+        if (nm) nm.value = `${s.fname} ${s.lname}`;
+        const dt = document.getElementById('ml-date');
+        if (dt) dt.value = s.leaveDate || new Date().toISOString().slice(0, 10);
+        const re = document.getElementById('ml-reason');
+        if (re) re.value = s.leaveReason || '';
+        closeM('mStudentProfile');
+        openM('mMarkLeft');
+    }
+
+    async function saveMarkLeft() {
+        if (!_markLeftStudentId) return;
+        const leaveDate   = gv('ml-date');
+        const leaveReason = gv('ml-reason');
+        if (!leaveDate) return toast('Select leave date', 'er');
+        const res = await apiPost('mark_student_left', {
+            id:           _markLeftStudentId,
+            leave_date:   leaveDate,
+            leave_reason: leaveReason,
+        });
+        if (res.error) return toast(res.error, 'er');
+        closeM('mMarkLeft');
+        toast('Leave date saved!', 'ok');
+        await reloadDB();
+    }
 </script>
+
+<!-- ── MARK LEFT MODAL ──────────────────────────────────────────────── -->
+<div class="mo" id="mMarkLeft">
+    <div class="md">
+        <div class="mh">
+            <div class="mt"><span class="mi sm" style="vertical-align:middle;margin-right:6px">logout</span>Mark Student as Left</div>
+            <button class="mc" onclick="closeM('mMarkLeft')"><span class="mi sm">close</span></button>
+        </div>
+        <div class="mb">
+            <div style="background:rgba(220,38,38,.07);border:1px solid rgba(220,38,38,.2);border-radius:var(--r2);padding:10px 13px;margin-bottom:14px;font-size:12px;color:#9f1239;line-height:1.5">
+                ⚠️ This records the student's leave date. The student stays in the system for records — you can archive them separately if needed.
+            </div>
+            <div class="fg">
+                <div class="fgi full"><label>Student</label><input id="ml-name" readonly style="background:var(--sf2);color:var(--tx2)"></div>
+                <div class="fgi"><label>Leave Date <span style="color:var(--ro)">*</span></label><input id="ml-date" type="date"></div>
+                <div class="fgi"><label>Reason <span style="font-size:9px;color:var(--tx3);font-weight:400">optional</span></label><input id="ml-reason" placeholder="e.g. Shifted to another city, Course completed"></div>
+            </div>
+        </div>
+        <div class="mf">
+            <button class="btn bg" onclick="closeM('mMarkLeft')">Cancel</button>
+            <button class="btn" style="background:var(--ro);color:#fff;border-color:var(--ro)" onclick="saveMarkLeft()"><span class="mi sm">logout</span>Confirm Left</button>
+        </div>
+    </div>
+</div>
+
 </body>
 </html>

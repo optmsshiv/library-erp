@@ -440,66 +440,76 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         .sal-days{font-size:11px;color:var(--tx3);font-family:var(--fm)}
         .sal-amt{font-size:14px;font-weight:700;font-family:var(--fm);color:var(--em)}
         /* ── AUDIT LOG ──────────────────────────────────────── */
-        #page-audit{--audit-head:'Syne',sans-serif;--audit-mono:'DM Mono',monospace;--audit-body:'Lora',serif}
-        .audit-page-hd{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:22px;gap:12px;flex-wrap:wrap}
+        /* ── AUDIT LOG ──────────────────────────────────────────────────── */
+        #page-audit{}
+        .audit-page-hd{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px;gap:12px;flex-wrap:wrap}
         .audit-hd-left{}
-        .audit-eyebrow{font-family:var(--audit-mono,'JetBrains Mono',monospace);font-size:10px;font-weight:500;color:var(--tx3);letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;display:flex;align-items:center;gap:6px}
-        .audit-eyebrow-dot{width:6px;height:6px;border-radius:50%;background:var(--ac);display:inline-block;flex-shrink:0}
-        .audit-page-title{font-family:var(--audit-head,var(--fd));font-size:26px;font-weight:800;color:var(--tx);line-height:1.1;letter-spacing:-.5px}
-        .audit-page-sub{font-size:12px;color:var(--tx3);margin-top:5px;font-style:italic;font-family:var(--audit-body,var(--fb))}
+        .audit-page-title{font-size:22px;font-weight:800;color:var(--tx);letter-spacing:-.4px;line-height:1.1}
+        .audit-page-sub{font-size:12px;color:var(--tx3);margin-top:4px}
         .audit-hd-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-        .audit-btn-export{display:inline-flex;align-items:center;gap:5px;padding:7px 13px;border-radius:var(--r2);font-size:12px;font-weight:600;cursor:pointer;border:1px solid var(--br);background:var(--sf);color:var(--tx2);font-family:var(--fb);transition:all .15s;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+        .audit-btn-export{display:inline-flex;align-items:center;gap:5px;padding:7px 13px;border-radius:var(--r2);font-size:11.5px;font-weight:600;cursor:pointer;border:1px solid var(--br);background:var(--sf);color:var(--tx2);transition:all .15s}
         .audit-btn-export:hover{background:var(--sf2);border-color:var(--br2)}
-        .audit-btn-clear{display:inline-flex;align-items:center;gap:5px;padding:7px 13px;border-radius:var(--r2);font-size:12px;font-weight:600;cursor:pointer;border:1px solid var(--cr);background:var(--c-rose);color:var(--ro);font-family:var(--fb);transition:all .15s}
+        .audit-btn-clear{display:inline-flex;align-items:center;gap:5px;padding:7px 13px;border-radius:var(--r2);font-size:11.5px;font-weight:600;cursor:pointer;border:1px solid var(--cr);background:var(--c-rose);color:var(--ro);transition:all .15s}
         .audit-btn-clear:hover{background:#f9d8d5}
-        .audit-stats-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:9px;margin-bottom:18px}
-        .audit-stat-chip{background:var(--sf);border:1px solid var(--br);border-radius:var(--r);padding:11px 13px;cursor:pointer;transition:all .18s;position:relative;overflow:hidden}
-        .audit-stat-chip::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--asc-cl,var(--br2))}
-        .audit-stat-chip:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(0,0,0,.08)}
+        /* Stats row */
+        .audit-stats-row{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+        .audit-stat-chip{display:flex;align-items:center;gap:8px;background:var(--sf);border:1px solid var(--br);border-radius:var(--r2);padding:8px 13px;cursor:pointer;transition:all .15s;position:relative;overflow:hidden;flex-shrink:0}
+        .audit-stat-chip::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--asc-cl,var(--br2));border-radius:0}
+        .audit-stat-chip:hover{background:var(--sf2);transform:translateY(-1px);box-shadow:0 3px 10px rgba(0,0,0,.07)}
         .audit-stat-chip.asc-on{border-color:var(--asc-cl,var(--ac));background:var(--asc-bg,var(--c-blue))}
-        .audit-stat-chip.asc-on::before{height:3px}
-        .asc-icon{font-size:14px;margin-bottom:3px;font-family:monospace}
-        .asc-count{font-family:var(--audit-head,var(--fd));font-size:20px;font-weight:800;color:var(--asc-cl,var(--tx));line-height:1}
-        .asc-label{font-family:var(--audit-mono,'JetBrains Mono',monospace);font-size:9px;font-weight:500;color:var(--tx3);text-transform:uppercase;letter-spacing:1.2px;margin-top:2px}
-        .audit-search-bar{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;align-items:center}
+        .asc-icon{font-size:16px;line-height:1}
+        .asc-right{}
+        .asc-count{font-size:17px;font-weight:800;color:var(--asc-cl,var(--tx));line-height:1}
+        .asc-label{font-size:9.5px;font-weight:600;color:var(--tx3);text-transform:uppercase;letter-spacing:.8px;margin-top:1px}
+        /* Search bar */
+        .audit-search-bar{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:center}
         .audit-srch-wrap{flex:1;min-width:180px;position:relative}
-        .audit-srch-wrap input{width:100%;padding:8px 12px 8px 34px;border:1px solid var(--br);border-radius:var(--r2);background:var(--sf);color:var(--tx);font-size:12.5px;font-family:var(--audit-body,var(--fb));outline:none;transition:all .18s}
+        .audit-srch-wrap input{width:100%;padding:8px 12px 8px 34px;border:1px solid var(--br);border-radius:var(--r2);background:var(--sf);color:var(--tx);font-size:12px;outline:none;transition:all .15s}
         .audit-srch-wrap input:focus{border-color:var(--ac);box-shadow:0 0 0 3px rgba(61,111,240,.08)}
         .audit-srch-ico{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--tx3);pointer-events:none}
-        .audit-flt-sel{padding:8px 11px;border:1px solid var(--br);border-radius:var(--r2);background:var(--sf);color:var(--tx2);font-size:11.5px;font-family:var(--audit-mono,'JetBrains Mono',monospace);font-weight:500;outline:none;cursor:pointer;transition:border-color .15s}
+        .audit-flt-sel{padding:8px 11px;border:1px solid var(--br);border-radius:var(--r2);background:var(--sf);color:var(--tx2);font-size:11.5px;outline:none;cursor:pointer;transition:border-color .15s}
         .audit-flt-sel:focus{border-color:var(--ac)}
-        .audit-panel{background:var(--sf);border:1px solid var(--br);border-radius:var(--r);overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.04)}
-        .audit-panel-hd{padding:13px 20px;border-bottom:1px solid var(--br);display:flex;align-items:center;justify-content:space-between;background:var(--sf2)}
-        .audit-panel-title{font-family:var(--audit-head,var(--fd));font-size:13px;font-weight:700;color:var(--tx);letter-spacing:.2px}
-        .audit-count-pill{font-family:var(--audit-mono,'JetBrains Mono',monospace);font-size:10px;color:var(--tx3);background:var(--bg);border:1px solid var(--br);border-radius:20px;padding:2px 10px}
-        .audit-date-sep{padding:7px 20px;background:var(--sf2);border-bottom:1px solid var(--br);font-family:var(--audit-mono,'JetBrains Mono',monospace);font-size:9.5px;font-weight:500;color:var(--tx3);letter-spacing:1.5px;text-transform:uppercase;display:flex;align-items:center;gap:8px}
+        /* Panel */
+        .audit-panel{background:var(--sf);border:1px solid var(--br);border-radius:var(--r);overflow:hidden;box-shadow:0 1px 6px rgba(0,0,0,.04)}
+        .audit-panel-hd{padding:11px 16px;border-bottom:1px solid var(--br);display:flex;align-items:center;justify-content:space-between;background:var(--sf2)}
+        .audit-panel-title{font-size:12px;font-weight:700;color:var(--tx);letter-spacing:.1px}
+        .audit-count-pill{font-size:10px;color:var(--tx3);background:var(--bg);border:1px solid var(--br);border-radius:20px;padding:2px 10px}
+        /* Date separator */
+        .audit-date-sep{padding:6px 16px;background:var(--bg);border-bottom:1px solid var(--br);font-size:9.5px;font-weight:700;color:var(--tx3);text-transform:uppercase;letter-spacing:1.2px;display:flex;align-items:center;gap:8px}
         .audit-date-sep::after{content:'';flex:1;height:1px;background:var(--br)}
-        .audit-log-entry{display:flex;gap:13px;padding:13px 20px;border-bottom:1px solid var(--br);transition:background .12s;align-items:flex-start;position:relative}
+        /* Entry card */
+        .audit-log-entry{display:grid;grid-template-columns:auto 1fr auto;gap:0;border-bottom:1px solid var(--br);transition:background .1s;align-items:stretch;position:relative}
         .audit-log-entry:last-child{border-bottom:none}
         .audit-log-entry:hover{background:var(--sf2)}
-        .audit-log-entry:hover .ale-del{opacity:1}
-        .ale-timeline{display:flex;flex-direction:column;align-items:center;flex-shrink:0;padding-top:2px}
-        .ale-dot{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;font-family:monospace;font-weight:700}
-        .ale-line{width:1px;flex:1;min-height:14px;margin-top:4px;background:repeating-linear-gradient(to bottom,var(--br) 0,var(--br) 3px,transparent 3px,transparent 7px)}
-        .audit-log-entry:last-child .ale-line{display:none}
-        .ale-body{flex:1;min-width:0}
-        .ale-top{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-bottom:2px}
-        .ale-who{font-family:var(--audit-head,var(--fd));font-size:12.5px;font-weight:700;color:var(--tx)}
-        .ale-tag{font-family:var(--audit-mono,'JetBrains Mono',monospace);font-size:9px;font-weight:500;padding:2px 8px;border-radius:4px;text-transform:uppercase;letter-spacing:.8px;border:1px solid transparent}
-        .ale-text{font-family:var(--audit-body,var(--fb));font-size:12.5px;font-style:italic;color:var(--tx2);line-height:1.5}
-        .ale-time{font-family:var(--audit-mono,'JetBrains Mono',monospace);font-size:10px;color:var(--tx3);margin-top:4px;display:flex;align-items:center;gap:4px}
-        .ale-del{opacity:0;transition:opacity .15s;width:25px;height:25px;border-radius:6px;border:1px solid var(--br);background:var(--sf);color:var(--tx3);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;align-self:center;padding:0}
+        .audit-log-entry:hover .ale-del{opacity:1;pointer-events:auto}
+        /* Left accent bar */
+        .ale-accent{width:3px;background:var(--ale-cl,var(--br2));flex-shrink:0;border-radius:0}
+        /* Body */
+        .ale-body{padding:11px 14px;min-width:0;display:flex;flex-direction:column;gap:3px}
+        .ale-top{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+        .ale-who{font-size:12px;font-weight:700;color:var(--tx);white-space:nowrap}
+        .ale-who-sep{font-size:10px;color:var(--tx3)}
+        .ale-tag{font-size:9px;font-weight:700;padding:2px 7px;border-radius:4px;text-transform:uppercase;letter-spacing:.6px;border:1px solid transparent;white-space:nowrap}
+        .ale-text{font-size:12px;color:var(--tx2);line-height:1.45}
+        .ale-text strong{font-weight:700;color:var(--tx)}
+        .ale-time{font-size:10px;color:var(--tx3);display:flex;align-items:center;gap:4px;margin-top:1px}
+        /* Right side — timestamp + delete */
+        .ale-right{display:flex;flex-direction:column;align-items:flex-end;justify-content:space-between;padding:11px 14px 11px 0;gap:6px;flex-shrink:0}
+        .ale-ts{font-size:10px;color:var(--tx3);white-space:nowrap;text-align:right}
+        .ale-del{opacity:0;transition:opacity .15s;width:24px;height:24px;border-radius:6px;border:1px solid var(--br);background:var(--sf);color:var(--tx3);cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;pointer-events:none}
         .ale-del:hover{background:var(--c-rose);color:var(--ro);border-color:var(--cr)}
-        .audit-empty{text-align:center;padding:56px 20px}
-        .audit-empty-ico{font-size:36px;margin-bottom:10px;opacity:.35}
-        .audit-empty-t{font-family:var(--audit-head,var(--fd));font-size:15px;font-weight:700;color:var(--tx2);margin-bottom:4px}
-        .audit-empty-s{font-size:12px;color:var(--tx3);font-style:italic;font-family:var(--audit-body,var(--fb))}
-        .audit-pagination{padding:11px 20px;border-top:1px solid var(--br);display:flex;align-items:center;justify-content:space-between;background:var(--sf2)}
-        .audit-pg-info{font-family:var(--audit-mono,'JetBrains Mono',monospace);font-size:10px;color:var(--tx3)}
-        .audit-pg-btns{display:flex;gap:4px}
-        .audit-pg-btn{width:27px;height:27px;border-radius:6px;border:1px solid var(--br);background:var(--sf);color:var(--tx2);cursor:pointer;font-size:11px;font-family:var(--audit-mono,'JetBrains Mono',monospace);display:flex;align-items:center;justify-content:center;transition:all .12s}
+        /* Empty state */
+        .audit-empty{text-align:center;padding:52px 20px}
+        .audit-empty-ico{font-size:34px;margin-bottom:10px;opacity:.3}
+        .audit-empty-t{font-size:14px;font-weight:700;color:var(--tx2);margin-bottom:4px}
+        .audit-empty-s{font-size:12px;color:var(--tx3)}
+        /* Pagination */
+        .audit-pagination{padding:10px 16px;border-top:1px solid var(--br);display:flex;align-items:center;justify-content:space-between;background:var(--sf2);gap:8px}
+        .audit-pg-info{font-size:11px;color:var(--tx3);white-space:nowrap}
+        .audit-pg-btns{display:flex;gap:3px}
+        .audit-pg-btn{min-width:27px;height:27px;padding:0 6px;border-radius:6px;border:1px solid var(--br);background:var(--sf);color:var(--tx2);cursor:pointer;font-size:11px;display:flex;align-items:center;justify-content:center;transition:all .12s}
         .audit-pg-btn:hover{background:var(--sf2);border-color:var(--br2)}
-        .audit-pg-btn.apg-on{background:var(--tx);color:#fff;border-color:var(--tx)}
+        .audit-pg-btn.apg-on{background:var(--ac);color:#fff;border-color:var(--ac)}
         .audit-pg-btn:disabled{opacity:.3;cursor:default;pointer-events:none}
         /* ── PWA ─────────────────────────────────────────────── */
         .pwa-banner{display:none;position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:var(--ac);color:#fff;border-radius:12px;padding:12px 20px;font-size:13px;font-weight:600;gap:10px;align-items:center;box-shadow:0 4px 20px rgba(61,111,240,.35);z-index:9999;cursor:pointer;max-width:340px;width:90%}
@@ -1259,21 +1269,17 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
 
         <!-- AUDIT LOG -->
         <div class="page" id="page-audit">
-            <!-- Page header -->
             <div class="audit-page-hd">
                 <div class="audit-hd-left">
-                    <div class="audit-eyebrow"><span class="audit-eyebrow-dot"></span>OPTMS ERP &nbsp;/&nbsp; System</div>
-                    <div class="audit-page-title">Audit Log</div>
+                    <div class="audit-page-title"><span class="mi" style="vertical-align:middle;margin-right:8px;font-size:22px;color:var(--ac)">manage_search</span>Audit Log</div>
                     <div class="audit-page-sub">Every action recorded — who did what, and when</div>
                 </div>
                 <div class="audit-hd-actions">
                     <button class="audit-btn-export" onclick="auditExportCSV()">
-                        <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M6 1v7M3 5l3 3 3-3M2 10h8" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                        Export CSV
+                        <span class="mi sm">download</span> Export CSV
                     </button>
                     <button class="audit-btn-clear" onclick="clearAudit()">
-                        <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 3h8M5 1h2M4.5 3v7M7.5 3v7M2.5 3l.5 7h6l.5-7" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                        Clear Log
+                        <span class="mi sm">delete_sweep</span> Clear Log
                     </button>
                 </div>
             </div>
@@ -5995,18 +6001,22 @@ Thank you! 📚
         const curType = document.getElementById('auditFilter')?.value || 'all';
         const allOn   = curType === 'all';
         let chips = `<div class="audit-stat-chip ${allOn ? 'asc-on' : ''}" style="--asc-cl:var(--tx);--asc-bg:var(--sf2)" onclick="document.getElementById('auditFilter').value='all';_auditPage=1;renderAudit()">
-            <div class="asc-icon" style="color:var(--tx3)">◎</div>
-            <div class="asc-count" style="color:var(--tx)">${total}</div>
-            <div class="asc-label">Total</div>
+            <div class="asc-icon">◎</div>
+            <div class="asc-right">
+                <div class="asc-count" style="color:var(--tx)">${total}</div>
+                <div class="asc-label">All</div>
+            </div>
         </div>`;
         Object.entries(_AUDIT_TYPE_CFG).forEach(([t, c]) => {
             const cnt = (DB.auditLog || []).filter(a => a.type === t).length;
             if (!cnt) return;
             const on = curType === t;
             chips += `<div class="audit-stat-chip ${on ? 'asc-on' : ''}" style="--asc-cl:${c.ac};--asc-bg:${c.bg}" onclick="document.getElementById('auditFilter').value='${t}';_auditPage=1;renderAudit()">
-                <div class="asc-icon" style="color:${c.ac}">${c.icon}</div>
-                <div class="asc-count">${cnt}</div>
-                <div class="asc-label">${c.label}</div>
+                <div class="asc-icon">${c.icon}</div>
+                <div class="asc-right">
+                    <div class="asc-count">${cnt}</div>
+                    <div class="asc-label">${c.label}</div>
+                </div>
             </div>`;
         });
         if (statsEl) statsEl.innerHTML = chips;
@@ -6036,7 +6046,6 @@ Thank you! 📚
             return;
         }
 
-        // Group by date
         let html = '';
         let lastDate = null;
         slice.forEach(a => {
@@ -6045,26 +6054,24 @@ Thank you! 📚
                 html += `<div class="audit-date-sep">${dateLabel}</div>`;
                 lastDate = dateLabel;
             }
-            const c = _AUDIT_TYPE_CFG[a.type] || _AUDIT_TYPE_CFG.other;
-            html += `<div class="audit-log-entry">
-                <div class="ale-timeline">
-                    <div class="ale-dot" style="background:${c.bg};color:${c.ac}">${c.icon}</div>
-                    <div class="ale-line"></div>
-                </div>
+            const c    = _AUDIT_TYPE_CFG[a.type] || _AUDIT_TYPE_CFG.other;
+            const time = (a.time || '').split(',').slice(1).join(',').trim() || a.time || '';
+            html += `<div class="audit-log-entry" style="--ale-cl:${c.ac}">
+                <div class="ale-accent"></div>
                 <div class="ale-body">
                     <div class="ale-top">
                         <span class="ale-who">${a.who || 'System'}</span>
+                        <span class="ale-who-sep">·</span>
                         <span class="ale-tag" style="background:${c.bg};color:${c.ac};border-color:${c.border}">${c.label}</span>
                     </div>
                     <div class="ale-text">${a.text || ''}</div>
-                    <div class="ale-time">
-                        <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><circle cx="5" cy="5" r="4" stroke="currentColor" stroke-width="1"/><path d="M5 3v2l1.5 1.5" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
-                        ${a.time || ''}
-                    </div>
                 </div>
-                <button class="ale-del" title="Remove entry" onclick="auditDeleteEntry(${a.id})">
-                    <svg width="11" height="11" viewBox="0 0 11 11" fill="none"><path d="M1.5 2.5h8M4 2.5V1.5h3v1M3.5 2.5L4 9.5h3l.5-7" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                </button>
+                <div class="ale-right">
+                    <span class="ale-ts">${time}</span>
+                    <button class="ale-del" title="Remove entry" onclick="auditDeleteEntry(${a.id})">
+                        <svg width="11" height="11" viewBox="0 0 11 11" fill="none"><path d="M1.5 2.5h8M4 2.5V1.5h3v1M3.5 2.5L4 9.5h3l.5-7" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </button>
+                </div>
             </div>`;
         });
         listEl.innerHTML = html;
