@@ -216,10 +216,10 @@ switch ($action) {
                 $dueDate = date('Y-m-d', strtotime("+{$months} months", $joinTs));
             }
 
-            // ── Duplicate seat check ──
+            // ── Duplicate seat check (archived students don't hold the seat anymore) ──
             $seatVal = trim($d['seat'] ?? '');
             if ($seatVal !== '') {
-                $dupStmt = $db->prepare("SELECT COUNT(*) FROM students WHERE batch_id=? AND seat=?");
+                $dupStmt = $db->prepare("SELECT COUNT(*) FROM students WHERE batch_id=? AND seat=? AND is_deleted=0");
                 $dupStmt->execute([$d['batch_id'], $seatVal]);
                 if ((int)$dupStmt->fetchColumn() > 0) {
                     jsonError("Seat {$seatVal} is already taken in this batch. Please choose another.");
