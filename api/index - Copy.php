@@ -219,7 +219,7 @@ switch ($action) {
             // ── Duplicate seat check ──
             $seatVal = trim($d['seat'] ?? '');
             if ($seatVal !== '') {
-                $dupStmt = $db->prepare("SELECT COUNT(*) FROM students WHERE batch_id=? AND seat=?");
+                $dupStmt = $db->prepare("SELECT COUNT(*) FROM students WHERE batch_id=? AND seat=? AND (is_deleted=0 OR is_deleted IS NULL)");
                 $dupStmt->execute([$d['batch_id'], $seatVal]);
                 if ((int)$dupStmt->fetchColumn() > 0) {
                     jsonError("Seat {$seatVal} is already taken in this batch. Please choose another.");
@@ -234,9 +234,9 @@ switch ($action) {
                 $joinDate
             ]);
 
-            // ── Update occupied_seats count (archived students must never count) ──
+            // ── Update occupied_seats count ──
             if ($seatVal !== '') {
-                $db->prepare("UPDATE batches SET occupied_seats = (SELECT COUNT(*) FROM students WHERE batch_id=? AND seat IS NOT NULL AND seat != '' AND is_deleted=0) WHERE id=?")
+                $db->prepare("UPDATE batches SET occupied_seats = (SELECT COUNT(*) FROM students WHERE batch_id=? AND seat IS NOT NULL AND seat != '') WHERE id=?")
                    ->execute([$d['batch_id'], $d['batch_id']]);
             }
 
@@ -379,22 +379,6 @@ switch ($action) {
         $rows = $db->query("SELECT * FROM batches ORDER BY start_time")->fetchAll();
         jsonResponse($rows);
 
-    // One-time / on-demand correction: recompute occupied_seats for EVERY batch
-    // directly from live student data (archived students excluded). Safe to
-    // call repeatedly — it's idempotent and just realigns the stored counter
-    // with reality. Call once after deploying the is_deleted fixes above to
-    // wipe out any stale counts that built up before the fix.
-    case 'recalc_occupied_seats':
-        if ($method !== 'POST') jsonError('Method not allowed', 405);
-        $db->exec(
-            "UPDATE batches b SET b.occupied_seats = (
-                SELECT COUNT(*) FROM students s
-                WHERE s.batch_id = b.id AND s.seat IS NOT NULL AND s.seat != '' AND s.is_deleted = 0
-            )"
-        );
-        $rows = $db->query("SELECT id, name, occupied_seats, total_seats FROM batches ORDER BY start_time")->fetchAll();
-        jsonResponse(['success' => true, 'batches' => $rows]);
-
     case 'save_batch':
         if ($method !== 'POST') jsonError('Method not allowed', 405);
         $d = getInput();
@@ -402,6 +386,7 @@ switch ($action) {
         $isEdit = !empty($d['id']);
         if ($isEdit) {
             // Check not reducing below occupied
+            $occ = (int)$db->prepare("SELECT occupied_seats FROM batches WHERE id=?")->execute([$d['id']]) ? $db->prepare("SELECT occupied_seats FROM batches WHERE id=?")->execute([$d['id']]) : 0;
             $stmt2 = $db->prepare("SELECT occupied_seats FROM batches WHERE id=?");
             $stmt2->execute([$d['id']]);
             $row2 = $stmt2->fetch();
@@ -436,21 +421,14 @@ switch ($action) {
         $prevStmt->execute([$d['student_id']]);
         $prevBatchId = $prevStmt->fetchColumn();
 
-        // Duplicate seat check — only against active (non-archived) students, excluding self
-        $dupStmt = $db->prepare("SELECT COUNT(*) FROM students WHERE batch_id=? AND seat=? AND id!=? AND is_deleted=0");
-        $dupStmt->execute([$d['batch_id'], $d['seat'], $d['student_id']]);
-        if ((int)$dupStmt->fetchColumn() > 0) {
-            jsonError("Seat {$d['seat']} is already taken in this batch. Please choose another.");
-        }
-
         $db->prepare("UPDATE students SET seat=?, batch_id=? WHERE id=?")->execute([$d['seat'], $d['batch_id'], $d['student_id']]);
 
-        // Update occupied count for the NEW batch (archived students must never count)
-        $db->prepare("UPDATE batches SET occupied_seats = (SELECT COUNT(*) FROM students WHERE batch_id=? AND seat IS NOT NULL AND seat != '' AND is_deleted=0) WHERE id=?")->execute([$d['batch_id'], $d['batch_id']]);
+        // Update occupied count for the NEW batch
+        $db->prepare("UPDATE batches SET occupied_seats = (SELECT COUNT(*) FROM students WHERE batch_id=? AND seat IS NOT NULL AND seat != '') WHERE id=?")->execute([$d['batch_id'], $d['batch_id']]);
 
         // If the student moved FROM a different batch, fix that old batch's count too
         if ($prevBatchId && $prevBatchId !== $d['batch_id']) {
-            $db->prepare("UPDATE batches SET occupied_seats = (SELECT COUNT(*) FROM students WHERE batch_id=? AND seat IS NOT NULL AND seat != '' AND is_deleted=0) WHERE id=?")->execute([$prevBatchId, $prevBatchId]);
+            $db->prepare("UPDATE batches SET occupied_seats = (SELECT COUNT(*) FROM students WHERE batch_id=? AND seat IS NOT NULL AND seat != '') WHERE id=?")->execute([$prevBatchId, $prevBatchId]);
         }
 
         addActivity($db, '🪑', 'rgba(196,125,43,.14)', "Seat <strong>{$d['seat']}</strong> allocated");
