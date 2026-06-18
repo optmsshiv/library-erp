@@ -804,7 +804,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
             <div class="sec-hd">
                 <div><div class="sec-t">Attendance</div><div class="sec-s" id="attLbl"></div></div>
                 <div style="display:flex;gap:7px;align-items:center;flex-wrap:wrap">
-                    <select id="attBatchF" onchange="attPage=1;renderAtt()" style="font-size:12px;padding:6px 9px"><option value="all">All Batches</option></select>
+                    <select id="attBatchF" onchange="renderAtt()" style="font-size:12px;padding:6px 9px"><option value="all">All Batches</option></select>
                     <button class="btn bp" onclick="saveAtt()"><span class="mi sm">save</span>Save</button>
                     <button class="btn bg" onclick="markAll(true)">✓ All Present</button>
                     <button class="btn bd" onclick="markAll(false)" style="font-size:11px">✗ All Absent</button>
@@ -852,18 +852,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
             <div class="panel"><div class="tw"><table>
                         <thead><tr><th>Student</th><th>Batch</th><th>Seat</th><th>Fee Status</th><th>Check In</th><th>Check Out</th><th>Hours</th><th>Attend.</th><th>Toggle</th></tr></thead>
                         <tbody id="attTable"></tbody>
-                    </table></div>
-                <div class="pag">
-                    <span class="pag-i" id="attPagI"></span>
-                    <div class="pag-b" id="attPagB"></div>
-                    <select id="attPerPageSel" onchange="attPerPage=+this.value;attPage=1;renderAtt()" style="font-size:11px;padding:3px 8px;border:1px solid var(--br);border-radius:var(--r2);background:var(--sf2);color:var(--tx);cursor:pointer;width:auto;flex-shrink:0">
-                        <option value="10" selected>10 / page</option>
-                        <option value="15">15 / page</option>
-                        <option value="25">25 / page</option>
-                        <option value="50">50 / page</option>
-                        <option value="9999">All</option>
-                    </select>
-                </div></div>
+                    </table></div></div>
         </div>
 
         <!-- BIOMETRIC -->
@@ -955,18 +944,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
             <div class="panel"><div class="tw"><table>
                         <thead><tr><th>Student</th><th>Book</th><th>Issue Date</th><th>Due Date</th><th>Return Date</th><th>Fine</th><th>Status</th><th>Action</th></tr></thead>
                         <tbody id="txTable"></tbody>
-                    </table></div>
-                <div class="pag">
-                    <span class="pag-i" id="txPagI"></span>
-                    <div class="pag-b" id="txPagB"></div>
-                    <select id="txPerPageSel" onchange="txPerPage=+this.value;txPage=1;renderTx()" style="font-size:11px;padding:3px 8px;border:1px solid var(--br);border-radius:var(--r2);background:var(--sf2);color:var(--tx);cursor:pointer;width:auto;flex-shrink:0">
-                        <option value="10" selected>10 / page</option>
-                        <option value="15">15 / page</option>
-                        <option value="25">25 / page</option>
-                        <option value="50">50 / page</option>
-                        <option value="9999">All</option>
-                    </select>
-                </div></div>
+                    </table></div></div>
         </div>
 
         <!-- FEES -->
@@ -996,15 +974,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
                         <thead><tr><th>Student</th><th>Batch</th><th>Full Fee</th><th>Discount</th><th>Net Fee</th><th>Paid Amt</th><th>Balance Due</th><th>Paid On</th><th>Status</th><th>Due Date</th><th>Action</th></tr></thead>
                         <tbody id="feeTable"></tbody>
                     </table></div>
-                <div class="pag"><span class="pag-i" id="feePagI"></span><div class="pag-b" id="feePagB"></div>
-                    <select id="feePerPageSel" onchange="feePerPage=+this.value;feePage=1;renderFees()" style="font-size:11px;padding:3px 8px;border:1px solid var(--br);border-radius:var(--r2);background:var(--sf2);color:var(--tx);cursor:pointer;width:auto;flex-shrink:0">
-                        <option value="10" selected>10 / page</option>
-                        <option value="15">15 / page</option>
-                        <option value="25">25 / page</option>
-                        <option value="50">50 / page</option>
-                        <option value="9999">All</option>
-                    </select>
-                </div>
+                <div class="pag"><span class="pag-i" id="feePagI"></span></div>
             </div>
         </div>
 
@@ -1014,18 +984,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
             <div class="panel"><div id="invRevSummary"></div><div class="tw"><table>
                         <thead><tr><th>Invoice #</th><th>Student</th><th>Type</th><th>Total Fee</th><th>Discount</th><th>Paid</th><th>Balance</th><th>Date</th><th>Mode</th><th>Status</th><th>Action</th></tr></thead>
                         <tbody id="invTable"></tbody>
-                    </table></div>
-                <div class="pag">
-                    <span class="pag-i" id="invPagI"></span>
-                    <div class="pag-b" id="invPagB"></div>
-                    <select id="invPerPageSel" onchange="invPerPage=+this.value;invPage=1;renderInv()" style="font-size:11px;padding:3px 8px;border:1px solid var(--br);border-radius:var(--r2);background:var(--sf2);color:var(--tx);cursor:pointer;width:auto;flex-shrink:0">
-                        <option value="10" selected>10 / page</option>
-                        <option value="15">15 / page</option>
-                        <option value="25">25 / page</option>
-                        <option value="50">50 / page</option>
-                        <option value="9999">All</option>
-                    </select>
-                </div></div>
+                    </table></div></div>
         </div>
 
         <!-- EXPENSES -->
@@ -1139,14 +1098,6 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
                                 <option value="">All Categories</option>
                             </select>
                         </div>
-                        <!-- Active / Archived roster filter (Student Directory only) -->
-                        <div id="flt-roster-wrap" style="display:none;align-items:center;gap:6px">
-                            <label style="font-size:11px;color:var(--tx3)">Roster</label>
-                            <select id="flt-roster" onchange="applyRptFilters()" style="font-size:11px;padding:4px 8px;width:auto">
-                                <option value="active" selected>Active</option>
-                                <option value="archived">Archived</option>
-                            </select>
-                        </div>
                         <div style="margin-left:auto;display:flex;gap:8px">
                             <button class="btn bg" onclick="exportRptCSV()" style="font-size:11px"><span class="mi sm">download</span> CSV</button>
                             <button class="btn bg" onclick="printReport()" style="font-size:11px"><span class="mi sm">print</span> Print</button>
@@ -1178,7 +1129,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
                     <div class="sec-s">Students removed from active list — can be restored or permanently deleted</div>
                 </div>
                 <div style="display:flex;gap:8px;align-items:center">
-                    <input id="archSrch" placeholder="Search archived…" oninput="archPage=1;renderArchived(this.value)" style="font-size:12px;padding:6px 11px;width:200px">
+                    <input id="archSrch" placeholder="Search archived…" oninput="renderArchived(this.value)" style="font-size:12px;padding:6px 11px;width:200px">
                 </div>
             </div>
             <!-- Stats -->
@@ -1197,17 +1148,6 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
                         </tr></thead>
                         <tbody id="archTable"><tr><td colspan="9" style="text-align:center;padding:28px;color:var(--tx3)">Loading…</td></tr></tbody>
                     </table>
-                </div>
-                <div class="pag">
-                    <span class="pag-i" id="archPagI"></span>
-                    <div class="pag-b" id="archPagB"></div>
-                    <select id="archPerPageSel" onchange="archPerPage=+this.value;archPage=1;renderArchived(document.getElementById('archSrch').value)" style="font-size:11px;padding:3px 8px;border:1px solid var(--br);border-radius:var(--r2);background:var(--sf2);color:var(--tx);cursor:pointer;width:auto;flex-shrink:0">
-                        <option value="10" selected>10 / page</option>
-                        <option value="15">15 / page</option>
-                        <option value="25">25 / page</option>
-                        <option value="50">50 / page</option>
-                        <option value="9999">All</option>
-                    </select>
                 </div>
             </div>
         </div>
@@ -1270,17 +1210,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
             <div class="panel"><div class="tw"><table>
                         <thead><tr><th>Staff</th><th>Role</th><th>Email</th><th>Phone</th><th>Permissions</th><th>Status</th><th>Action</th></tr></thead>
                         <tbody id="staffTable"></tbody>
-                    </table></div>
-                <div class="pag">
-                    <span class="pag-i" id="staffPagI"></span>
-                    <div class="pag-b" id="staffPagB"></div>
-                    <select id="staffPerPageSel" onchange="staffPerPage=+this.value;staffPage=1;renderStaff()" style="font-size:11px;padding:3px 8px;border:1px solid var(--br);border-radius:var(--r2);background:var(--sf2);color:var(--tx);cursor:pointer;width:auto;flex-shrink:0">
-                        <option value="10" selected>10 / page</option>
-                        <option value="15">15 / page</option>
-                        <option value="25">25 / page</option>
-                        <option value="9999">All</option>
-                    </select>
-                </div></div>
+                    </table></div></div>
         </div>
 
 
@@ -3355,7 +3285,6 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
     // ═══ ATTENDANCE ═══
     // Stores today's biometric check-in/out per student_id
     const _bioToday = {};
-    let attPage=1, attPerPage=10;
 
     function renderAtt(){
         const today=new Date().toLocaleDateString('en-IN',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
@@ -3367,10 +3296,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         document.getElementById('at-a').textContent=list.length-prs;
         document.getElementById('at-r').textContent=list.length?Math.round(prs/list.length*100)+'%':'0%';
         document.getElementById('at-t').textContent=list.length;
-        const attTotal=list.length, attPages=Math.ceil(attTotal/attPerPage)||1;
-        attPage=Math.min(attPage,attPages);
-        const attSl=list.slice((attPage-1)*attPerPage,attPage*attPerPage);
-        document.getElementById('attTable').innerHTML=attSl.map(s=>{
+        document.getElementById('attTable').innerHTML=list.map(s=>{
             const st=DB.attendance[s.id]||'absent';
             const bio=_bioToday[s.id]||{};
             const checkIn=bio.in||'—';
@@ -3396,9 +3322,6 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
             <td><button class="btn ${st==='present'?'bd':'bp'}" style="font-size:10.5px;padding:4px 10px" onclick="togAtt('${s.id}')">${st==='present'?'Absent':'Present'}</button></td>
             </tr>`;
         }).join('')||'<tr><td colspan="9"><div class="empty"><div class="ei">📋</div><div class="et">No students</div></div></td></tr>';
-        document.getElementById('attPagI').textContent=`${attSl.length} of ${attTotal}`;
-        let attPb='';for(let i=1;i<=attPages;i++) attPb+=`<div class="pb2 ${i===attPage?'active':''}" onclick="attPage=${i};renderAtt()">${i}</div>`;
-        document.getElementById('attPagB').innerHTML=attPb;
         // Load QR feed (biometric loaded separately by loadAttBiometric)
         loadQRScans();
     }
@@ -3438,15 +3361,11 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
     }
 
     // ═══ TRANSACTIONS ═══
-    let txPage=1, txPerPage=10;
     function renderTx(){
         const iss=DB.transactions.filter(t=>t.status!=='returned');const od=DB.transactions.filter(t=>t.status==='overdue');const rt=DB.transactions.filter(t=>t.status==='returned');const fine=DB.transactions.reduce((a,t)=>a+(t.fine||0),0);
         document.getElementById('tx-is').textContent=iss.length;document.getElementById('tx-od').textContent=od.length;document.getElementById('tx-rt').textContent=rt.length;document.getElementById('tx-fn').textContent=fmt(fine);
         document.getElementById('b-overdue').textContent=od.length;document.getElementById('txCount').textContent=`${DB.transactions.length} transactions`;
-        const txTotal=DB.transactions.length, txPages=Math.ceil(txTotal/txPerPage)||1;
-        txPage=Math.min(txPage,txPages);
-        const txSl=DB.transactions.slice((txPage-1)*txPerPage,txPage*txPerPage);
-        document.getElementById('txTable').innerHTML=txSl.map(t=>{
+        document.getElementById('txTable').innerHTML=DB.transactions.map(t=>{
             const s=DB.students.find(x=>x.id===t.studentId);const b=DB.books.find(x=>x.id===t.bookId);if(!s||!b)return'';
             return `<tr><td><div class="si"><div class="sav" style="background:${s.color}">${(s.fname?.[0]||'')+(s.lname?.[0]||'')}</div><span style="font-size:12.5px;font-weight:600">${s.fname} ${s.lname}</span></div></td>
     <td>${b.emoji} ${b.title}</td>
@@ -3457,9 +3376,6 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
     <td><span class="tag ${t.status==='returned'?'trt':t.status==='overdue'?'tod':'tis'}">${t.status==='returned'?'✓ Returned':t.status==='overdue'?'⚠ Overdue':'📤 Issued'}</span></td>
     <td>${t.status!=='returned'?`<div style="display:flex;gap:4px"><button class="btn bg" style="font-size:10px;padding:3px 7px" onclick="qReturn('${t.id}')">Return</button><button class="btn bwa" style="font-size:10px;padding:3px 7px" onclick="waQuick('${t.studentId}','book_overdue')"><span class="mi sm">chat</span></button></div>`:''}</td></tr>`;
         }).join('')||'<tr><td colspan="8"><div class="empty"><div class="ei">🔄</div><div class="et">No transactions</div></div></td></tr>';
-        document.getElementById('txPagI').textContent=`${txSl.length} of ${txTotal}`;
-        let txPb='';for(let i=1;i<=txPages;i++) txPb+=`<div class="pb2 ${i===txPage?'active':''}" onclick="txPage=${i};renderTx()">${i}</div>`;
-        document.getElementById('txPagB').innerHTML=txPb;
     }
     function qReturn(txId){populateReturnModal();setTimeout(()=>{document.getElementById('rb-tx').value=txId;calcFine();},50);openM('mReturnBook');}
     function populateIssueModal(bkId){
@@ -3503,7 +3419,6 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
 
     // ═══ FEES ═══
     let feeFiltVal='all',feeSrchVal='';
-    let feePage=1, feePerPage=10;
     function renderFees(){
         const s=DB.students;
         const paid=s.filter(x=>x.feeStatus==='paid');const partial=s.filter(x=>x.feeStatus==='partial');
@@ -3514,10 +3429,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         document.getElementById('fc-o').textContent=fmt(od.reduce((a,x)=>a+x.netFee,0));document.getElementById('fc-om').textContent=`${od.length} students (>7 days)`;
         document.getElementById('b-fee').textContent=pend.length+od.length+partial.length;
         let list=s.filter(x=>(feeFiltVal==='all'||x.feeStatus===feeFiltVal)&&(!feeSrchVal||`${x.fname} ${x.lname} ${x.id}`.toLowerCase().includes(feeSrchVal.toLowerCase())));
-        const feeTotal=list.length, feePages=Math.ceil(feeTotal/feePerPage)||1;
-        feePage=Math.min(feePage,feePages);
-        const feeSl=list.slice((feePage-1)*feePerPage,feePage*feePerPage);
-        document.getElementById('feeTable').innerHTML=feeSl.map(x=>{
+        document.getElementById('feeTable').innerHTML=list.map(x=>{
             // ── Renewal data ──
             const stuRenewals=DB.invoices.filter(i=>i.studentId===x.id&&i.type&&i.type.startsWith('Renewal'));
             const renewCount=stuRenewals.length;
@@ -3575,12 +3487,10 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
       </div></td>
     </tr>${renewRow}`;
         }).join('')||'<tr><td colspan="11"><div class="empty"><div class="ei">💰</div><div class="et">No records</div></div></td></tr>';
-        document.getElementById('feePagI').textContent=`${feeSl.length} of ${feeTotal}`;
-        let feePb='';for(let i=1;i<=feePages;i++) feePb+=`<div class="pb2 ${i===feePage?'active':''}" onclick="feePage=${i};renderFees()">${i}</div>`;
-        document.getElementById('feePagB').innerHTML=feePb;
+        document.getElementById('feePagI').textContent=`${list.length} records`;
     }
-    function feeFilt(f,el){feeFiltVal=f;feePage=1;document.querySelectorAll('#feeTabs .tab').forEach(t=>t.classList.remove('active'));el.classList.add('active');renderFees();}
-    function feeSrch(v){feeSrchVal=v;feePage=1;renderFees();}
+    function feeFilt(f,el){feeFiltVal=f;document.querySelectorAll('#feeTabs .tab').forEach(t=>t.classList.remove('active'));el.classList.add('active');renderFees();}
+    function feeSrch(v){feeSrchVal=v;renderFees();}
     function sendReminders(){const od=DB.students.filter(x=>x.feeStatus!=='paid');od.forEach(s=>addActivity('📣','rgba(196,125,43,.14)',`Reminder → <strong>${s.fname}</strong>`));toast(`Reminders sent to ${od.length}`,'ok');}
     function waBulkFee(){bulkSend('pending');navTo('whatsapp');}
 
@@ -3648,17 +3558,10 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
     }
     function cfCalcBalance(){
         const s=DB.students.find(x=>x.id===gv('cf-stu'));if(!s)return;
-        const tot=s.netFee;const now=+gv('cf-amt')||0;const remaining=tot-s.paidAmt;const totalPaid=s.paidAmt+now;const bal=tot-totalPaid;
+        const tot=s.netFee;const now=+gv('cf-amt')||0;const totalPaid=s.paidAmt+now;const bal=tot-totalPaid;
         const note=document.getElementById('cf-balance-note');
-        if(now>remaining&&remaining>0){
-            note.style.display='block';
-            note.innerHTML=`<div style="font-size:12px;font-weight:600;color:var(--ro);margin-bottom:4px">⚠️ Overpayment Warning</div><div style="font-size:11.5px">Remaining balance is only <strong style="color:var(--ro)">₹${remaining}</strong>. Entering ₹${now} will collect ₹${remaining} and discard ₹${now-remaining}.<br><span style="color:var(--tx3);font-size:10.5px">If this student is enrolled in multiple shifts, collect the second shift fee separately by selecting that student record.</span></div>`;
-        } else if(now>0&&bal>0){
-            note.style.display='block';
-            note.innerHTML=`<div style="font-size:12px;font-weight:600;color:var(--or);margin-bottom:4px">⚡ Partial Payment</div><div style="font-size:11.5px">Net Fee: ₹${tot} | Paying now: ₹${now} | <strong style="color:var(--ro)">Balance: ₹${bal}</strong></div><div style="font-size:10.5px;color:var(--tx3);margin-top:3px">Status: <strong>Partial</strong></div>`;
-        } else {
-            note.style.display='none';
-        }
+        if(now>0&&bal>0){note.style.display='block';note.innerHTML=`<div style="font-size:12px;font-weight:600;color:var(--or);margin-bottom:4px">⚡ Partial Payment</div><div style="font-size:11.5px">Net Fee: ₹${tot} | Paying now: ₹${now} | <strong style="color:var(--ro)">Balance: ₹${bal}</strong></div><div style="font-size:10.5px;color:var(--tx3);margin-top:3px">Status: <strong>Partial</strong></div>`;}
+        else note.style.display='none';
     }
     function toggleSplit(){
         const m=gv('cf-mode');
@@ -3677,7 +3580,6 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         document.getElementById('splitNote').textContent=`Total: ₹${tot} | Mode 1: ₹${a1} | Mode 2: ₹${rem}`;
     }
     // ═══ INVOICES ═══
-    let invPage=1, invPerPage=10;
     function renderInv(){
         document.getElementById('invCount').textContent=`${DB.invoices.length} invoice(s)`;
         document.getElementById('gi-stu').innerHTML='<option value="">-- Select --</option>'+DB.students.map(s=>`<option value="${s.id}">${s.fname} ${s.lname}</option>`).join('');
@@ -3731,10 +3633,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
           </div>`:''}
 
         </div>`;
-        const invTotal=DB.invoices.length, invPages=Math.ceil(invTotal/invPerPage)||1;
-        invPage=Math.min(invPage,invPages);
-        const invSl=DB.invoices.slice((invPage-1)*invPerPage,invPage*invPerPage);
-        document.getElementById('invTable').innerHTML=invSl.length?invSl.map(inv=>{
+        document.getElementById('invTable').innerHTML=DB.invoices.length?DB.invoices.map(inv=>{
             const s=DB.students.find(x=>x.id===inv.studentId);
             const deleted=!s;
             const balCell=inv.balance>0
@@ -3754,9 +3653,6 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
     <td><span class="tag ${inv.status==='paid'?'tpd':'tpart'}">${inv.status==='paid'?'● Paid':'◑ Partial'}</span></td>
     <td><button class="btn bg" style="font-size:10px;padding:3px 7px" onclick="printInv('${inv.id}')"><span class="mi sm">print</span>Print</button></td></tr>`;
         }).join(''):'<tr><td colspan="11"><div class="empty"><div class="ei">🧾</div><div class="et">No invoices yet</div></div></td></tr>';
-        document.getElementById('invPagI').textContent=`${invSl.length} of ${invTotal}`;
-        let invPb='';for(let i=1;i<=invPages;i++) invPb+=`<div class="pb2 ${i===invPage?'active':''}" onclick="invPage=${i};renderInv()">${i}</div>`;
-        document.getElementById('invPagB').innerHTML=invPb;
     }
     function autoFillInv(){const s=DB.students.find(x=>x.id===gv('gi-stu'));if(s)document.getElementById('gi-am').value=s.netFee;}
     function printInv(invId){
@@ -3876,10 +3772,9 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         show('flt-status-wrap', ['fee','outstanding','student'].includes(type));
         show('flt-batch-wrap',  ['fee','outstanding','attendance','student','batch'].includes(type));
         show('flt-cat-wrap',    type==='expense');
-        show('flt-roster-wrap', type==='student');
     }
 
-    async function applyRptFilters() {
+    function applyRptFilters() {
         if (!_rptType) return;
         const month  = document.getElementById('flt-month')?.value  || '';
         const status = document.getElementById('flt-status')?.value || '';
@@ -4139,45 +4034,28 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         }
 
         else if (_rptType === 'student') {
-            const roster = document.getElementById('flt-roster')?.value || 'active';
-            let students;
-            if (roster === 'archived') {
-                let archRes = {};
-                try { archRes = await apiGet('get_archived_students'); } catch(e) { archRes = {}; }
-                students = (archRes.students || []).map(s => ({
-                    id: s.id, fname: s.fname, lname: s.lname, phone: s.phone,
-                    batchId: s.batch_id, seatType: s.seat_type, seat: s.seat,
-                    netFee: +s.net_fee, paidAmt: +s.paid_amt, feeStatus: s.fee_status,
-                    course: s.course, joinDate: s.join_date,
-                    leaveDate: s.leave_date || null, leaveReason: s.leave_reason || '',
-                }));
-            } else {
-                students = DB.students;
-            }
+            let students = DB.students;
             if (batch)  students = students.filter(s => s.batchId == batch);
             if (status) students = students.filter(s => s.feeStatus === status);
             const fmtD = d => d ? new Date(d).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}) : '—';
-            const rosterStatus = s => s.leaveDate ? 'Left' : 'Active';
             _rptData = students.map(s => [
-                s.id, `${s.fname} ${s.lname}`, s.phone,
-                batchName(s.batchId), s.seat||'—', (s.seatType||'').toUpperCase(),
-                s.course, s.feeStatus, rosterStatus(s), s.joinDate||'—', s.leaveDate||'—', s.leaveReason||''
+                s.id, `${s.fname} ${s.lname}`, s.phone, s.email||'',
+                batchName(s.batchId), s.seat||'—', s.seatType.toUpperCase(),
+                s.course, s.feeStatus, s.joinDate||'—', s.leaveDate||'—', s.leaveReason||''
             ]);
             html = tbl(
-                ['ID','Name','Phone','Batch','Seat','Type','Course','Fee Status','Status','Join Date','Leave Date','Leave Reason'],
+                ['ID','Name','Phone','Email','Batch','Seat','Type','Course','Fee Status','Join Date','Leave Date','Leave Reason'],
                 students.map(s => [
-                    s.id, `${s.fname} ${s.lname}`, s.phone,
-                    batchName(s.batchId), s.seat||'—', (s.seatType||'').toUpperCase(), s.course,
-                    feeTag(s.feeStatus),
+                    s.id, `${s.fname} ${s.lname}`, s.phone, s.email||'—',
+                    batchName(s.batchId), s.seat||'—', s.seatType.toUpperCase(), s.course,
+                    feeTag(s.feeStatus), fmtD(s.joinDate),
                     s.leaveDate
-                        ? `<span style="color:var(--ro);font-weight:600">Left</span>`
+                        ? `<span style="color:var(--ro);font-weight:600">${fmtD(s.leaveDate)}</span>`
                         : '<span style="color:var(--ac);font-size:10px">Active</span>',
-                    fmtD(s.joinDate),
-                    s.leaveDate ? fmtD(s.leaveDate) : '—',
                     s.leaveReason || '—'
                 ])
             );
-            metaTxt = `${students.length} students (${roster === 'archived' ? 'Archived' : 'Active'})`;
+            metaTxt = `${students.length} students`;
         }
 
         document.getElementById('rptMeta').textContent = metaTxt;
@@ -4583,7 +4461,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
             books: ['Title','Author','Category','ISBN','Shelf','Available','Total'],
             attendance: ['Student','Batch','Status'],
             expense: ['Name','Category','Amount','Date','Notes'],
-            student: ['ID','Name','Phone','Batch','Seat','Type','Course','Fee Status','Status','Join Date','Leave Date','Leave Reason']
+            student: ['ID','Name','Phone','Email','Batch','Seat','Type','Course','Fee Status','Join Date','Leave Date','Leave Reason']
         };
         const stripHtml = v => String(v).replace(/<[^>]+>/g,'').replace(/₹/g,'Rs ');
         const rows = [headers[_rptType], ..._rptData.map(r=>r.map(stripHtml))];
@@ -4747,14 +4625,9 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
       accountant:  {enroll_student:false,delete_student:false,alloc_seat:false,collect_fee:true,apply_discount:true,generate_invoice:true,issue_book:false,return_book:false,add_book:false,add_expense:true,send_whatsapp:false,add_staff:false,add_batch:false,reset_data:false},
       receptionist:{enroll_student:true,delete_student:false,alloc_seat:true,collect_fee:true,apply_discount:false,generate_invoice:false,issue_book:false,return_book:false,add_book:false,add_expense:false,send_whatsapp:true,add_staff:false,add_batch:false,reset_data:false},
     };
-    let staffPage=1, staffPerPage=10;
     function renderStaff(){
         document.getElementById('staffCount').textContent=`${DB.staff.length} staff`;
-        const staffTotal=DB.staff.length, staffPages=Math.ceil(staffTotal/staffPerPage)||1;
-        staffPage=Math.min(staffPage,staffPages);
-        const staffOffset=(staffPage-1)*staffPerPage;
-        const staffSl=DB.staff.slice(staffOffset,staffOffset+staffPerPage);
-        document.getElementById('staffTable').innerHTML=staffSl.map((sf,si)=>{const i=staffOffset+si;const pc=Object.values(sf.perms).filter(Boolean).length;
+        document.getElementById('staffTable').innerHTML=DB.staff.map((sf,i)=>{const pc=Object.values(sf.perms).filter(Boolean).length;
             return `<tr><td><div class="si"><div class="sav" style="background:linear-gradient(135deg,var(--ac),var(--vi))">${(sf.name||"?").split(' ').filter(Boolean).map(n=>n[0]).join('').slice(0,2).toUpperCase()||"?"}</div><div><div style="font-weight:600;font-size:12.5px">${sf.name||""}</div><div style="font-size:10px;color:var(--tx3);font-family:var(--fm)">${sf.id}</div></div></div></td>
     <td><span class="tag tac" style="text-transform:capitalize">${sf.role}</span></td><td>${sf.email}</td><td>${sf.phone}</td>
     <td><div style="display:flex;flex-direction:column;gap:4px">
@@ -4763,9 +4636,6 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
     </div></td><td><span class="tag ${sf.status==='active'?'tpd':'tod'}">${sf.status==='active'?'Active':'Inactive'}</span></td>
     <td><div style="display:flex;gap:4px"><button class="btn bg" style="font-size:10px;padding:3px 7px" onclick="editStaff(${i})">✏</button>${i>0?`<button class="btn bd" style="font-size:10px;padding:3px 6px" onclick="delStaff(${i})"><span class="mi sm">close</span></button>`:''}</div></td></tr>`;
         }).join('')||'<tr><td colspan="7"><div class="empty"><div class="ei">👥</div><div class="et">No staff</div></div></td></tr>';
-        document.getElementById('staffPagI').textContent=`${staffSl.length} of ${staffTotal}`;
-        let staffPb='';for(let i=1;i<=staffPages;i++) staffPb+=`<div class="pb2 ${i===staffPage?'active':''}" onclick="staffPage=${i};renderStaff()">${i}</div>`;
-        document.getElementById('staffPagB').innerHTML=staffPb;
     }
     function buildPermList(){
       const role=gv('sf-rl')||'librarian';
@@ -5079,7 +4949,6 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         }
     }
 
-    let archPage=1, archPerPage=10;
     function renderArchived(srch) {
         const list = srch ? _archivedList.filter(s =>
             `${s.fname} ${s.lname} ${s.phone} ${s.course||''}`.toLowerCase().includes(srch.toLowerCase())
@@ -5098,16 +4967,10 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
 
         if (!list.length) {
             document.getElementById('archTable').innerHTML = `<tr><td colspan="9" style="text-align:center;padding:32px;color:var(--tx3)">${srch ? 'No matches found.' : '🎉 No archived students.'}</td></tr>`;
-            document.getElementById('archPagI').textContent='';
-            document.getElementById('archPagB').innerHTML='';
             return;
         }
 
-        const archTotal=list.length, archPages=Math.ceil(archTotal/archPerPage)||1;
-        archPage=Math.min(archPage,archPages);
-        const archSl=list.slice((archPage-1)*archPerPage,archPage*archPerPage);
-
-        document.getElementById('archTable').innerHTML = archSl.map(s => {
+        document.getElementById('archTable').innerHTML = list.map(s => {
             const bal = +s.net_fee - +s.paid_amt;
             const archivedOn = s.archived_at ? new Date(s.archived_at).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}) : '—';
             const initials = ((s.fname||'?')[0] + (s.lname||'')[0]).toUpperCase();
@@ -5133,9 +4996,6 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
                 </td>
             </tr>`;
         }).join('');
-        document.getElementById('archPagI').textContent=`${archSl.length} of ${archTotal}`;
-        let archPb='';for(let i=1;i<=archPages;i++) archPb+=`<div class="pb2 ${i===archPage?'active':''}" onclick="archPage=${i};renderArchived(document.getElementById('archSrch').value||'')">${i}</div>`;
-        document.getElementById('archPagB').innerHTML=archPb;
     }
 
     async function restoreStudent(id, name) {

@@ -306,10 +306,7 @@ switch ($action) {
         $id = $d['id'] ?? '';
         if (!$id) jsonError('ID required');
 
-        try { $db->exec("ALTER TABLE students ADD COLUMN IF NOT EXISTS leave_date DATE NULL"); } catch(Exception $e) {}
-        try { $db->exec("ALTER TABLE students ADD COLUMN IF NOT EXISTS leave_reason VARCHAR(300) DEFAULT ''"); } catch(Exception $e) {}
-
-        $db->prepare("UPDATE students SET is_deleted=0, archived_at=NULL, archived_by=NULL, leave_date=NULL, leave_reason='' WHERE id=?")
+        $db->prepare("UPDATE students SET is_deleted=0, archived_at=NULL, archived_by=NULL WHERE id=?")
            ->execute([$id]);
 
         // Recalculate occupied seats after restore
@@ -423,17 +420,7 @@ switch ($action) {
     case 'delete_batch':
         if ($method !== 'POST') jsonError('Method not allowed', 405);
         $d = getInput();
-        $batchIdToDelete = $d['id'] ?? '';
-        if (!$batchIdToDelete) jsonError('Batch ID required');
-
-        $cntStmt = $db->prepare("SELECT COUNT(*) FROM students WHERE batch_id=? AND is_deleted=0");
-        $cntStmt->execute([$batchIdToDelete]);
-        $activeCount = (int)$cntStmt->fetchColumn();
-        if ($activeCount > 0) {
-            jsonError("Cannot delete this batch — {$activeCount} active student(s) are still assigned to it. Move or archive them first.");
-        }
-
-        $db->prepare("DELETE FROM batches WHERE id=?")->execute([$batchIdToDelete]);
+        $db->prepare("DELETE FROM batches WHERE id=?")->execute([$d['id'] ?? '']);
         jsonResponse(['success' => true]);
 
     // ══════════════════════════════════
@@ -593,16 +580,6 @@ switch ($action) {
         // Effective amount after one-time discount on this payment
         $effectiveAmt = max(0, $amt - $paymentDiscount);
 
-        // ── Overpayment guard ─────────────────────────────────────────────
-        // Never silently cap. If the staff is entering more than the remaining
-        // balance, that excess belongs to a different student/shift record and
-        // must be collected separately. Silently absorbing the excess would
-        // cause confusion about which shifts are paid.
-        $remaining = $s['net_fee'] - $s['paid_amt'];
-        if ($effectiveAmt > $remaining && $remaining > 0) {
-            jsonError("Amount ₹{$effectiveAmt} exceeds remaining balance ₹{$remaining}. If this student is in multiple shifts, collect each shift's fee separately by selecting the correct student record for each shift.");
-        }
-
         $newPaid   = min($s['net_fee'], $s['paid_amt'] + $effectiveAmt);
         $feeStatus = $newPaid >= $s['net_fee'] ? 'paid' : 'partial';
         $paidOn    = date('Y-m-d');
@@ -673,7 +650,6 @@ switch ($action) {
         $stuStmt = $db->prepare("SELECT * FROM students WHERE id=?");
         $stuStmt->execute([$d['student_id']]);
         $s = $stuStmt->fetch();
-        if (!$s) jsonError('Student not found');
         $lastInvId2 = $db->query("SELECT id FROM invoices ORDER BY created_at DESC LIMIT 1")->fetchColumn();
         $lastInvNum2 = $lastInvId2 ? (int)substr($lastInvId2, 4) : 0;
         $invId = 'INV-' . str_pad($lastInvNum2 + 1, 4, '0', STR_PAD_LEFT);
@@ -1708,6 +1684,36 @@ switch ($action) {
         $rows->execute([$date]);
         jsonResponse(['date' => $date, 'records' => $rows->fetchAll()]);
 
+    case 'get_audit_log':
+        $db->exec("CREATE TABLE IF NOT EXISTS audit_log (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            staff_id VARCHAR(32),
+            staff_name VARCHAR(128),
+            action VARCHAR(128),
+            detail TEXT,
+            ip VARCHAR(64),
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )");
+        $limit = (int)($_GET['limit'] ?? 100);
+        $rows = $db->query("SELECT * FROM audit_log ORDER BY created_at DESC LIMIT $limit")->fetchAll();
+        jsonResponse(['logs' => $rows]);
+        break;
+
+    case 'get_wa_log':
+        $db->exec("CREATE TABLE IF NOT EXISTS wa_log (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            student_id VARCHAR(32),
+            student_name VARCHAR(128),
+            phone VARCHAR(32),
+            message TEXT,
+            status VARCHAR(32) DEFAULT 'sent',
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )");
+        $limit = (int)($_GET['limit'] ?? 100);
+        $rows = $db->query("SELECT * FROM wa_log ORDER BY created_at DESC LIMIT $limit")->fetchAll();
+        jsonResponse(['logs' => $rows]);
+        break;
+
     case 'forgot_password':
         $d        = getInput();
         $username = trim($d['username'] ?? '');
@@ -2026,27 +2032,13 @@ switch ($action) {
         $leaveDate   = !empty($d['leave_date']) ? $d['leave_date'] : date('Y-m-d');
         $leaveReason = trim($d['leave_reason'] ?? '');
 
-        $stuStmt = $db->prepare("SELECT fname, lname, batch_id FROM students WHERE id=? AND is_deleted=0 LIMIT 1");
+        $stuStmt = $db->prepare("SELECT fname, lname FROM students WHERE id=? LIMIT 1");
         $stuStmt->execute([$id]);
         $stuRow = $stuStmt->fetch();
         if (!$stuRow) jsonError('Student not found');
 
-        $batchId    = $stuRow['batch_id'] ?? null;
-        $archivedBy = $_SESSION['staff_name'] ?? 'Staff';
-
-        // Full offboarding: stamp leave info, vacate the seat, and archive —
-        // removes them from Total Students / occupied seats everywhere, same as Archive.
-        $db->prepare(
-            "UPDATE students SET leave_date=?, leave_reason=?, seat='', is_deleted=1, archived_at=NOW(), archived_by=? WHERE id=?"
-        )->execute([$leaveDate, $leaveReason, $archivedBy, $id]);
-
-        // Recalculate occupied_seats for their batch now that the seat is vacated
-        if ($batchId) {
-            $cntStmt = $db->prepare("SELECT COUNT(*) as cnt FROM students WHERE batch_id=? AND seat IS NOT NULL AND seat != '' AND is_deleted=0");
-            $cntStmt->execute([$batchId]);
-            $newOcc = (int)($cntStmt->fetch()['cnt'] ?? 0);
-            $db->prepare("UPDATE batches SET occupied_seats=? WHERE id=?")->execute([$newOcc, $batchId]);
-        }
+        $db->prepare("UPDATE students SET leave_date=?, leave_reason=? WHERE id=?")
+           ->execute([$leaveDate, $leaveReason, $id]);
 
         $name = trim($stuRow['fname'] . ' ' . $stuRow['lname']);
         addActivity($db, '🚪', 'rgba(220,38,38,.12)',
