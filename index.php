@@ -3590,7 +3590,10 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         setTimeout(()=>{const s=DB.students.find(x=>x.id===stuId);if(s){document.getElementById('cf-stu').value=stuId;cfLoadStudent();}},50);
     }
     function populateModal_cf(){
-        document.getElementById('cf-stu').innerHTML='<option value="">-- Select --</option>'+DB.students.filter(s=>s.feeStatus!=='paid').map(s=>`<option value="${s.id}">${s.fname} ${s.lname} — Net ₹${s.netFee} (${s.feeStatus})</option>`).join('');
+        document.getElementById('cf-stu').innerHTML='<option value="">-- Select --</option>'+DB.students.filter(s=>s.feeStatus!=='paid').map(s=>{
+            const bName=DB.batches.find(b=>b.id===s.batchId)?.name||'';
+            return `<option value="${s.id}">${s.fname} ${s.lname}${bName?' · '+bName:''} — ₹${s.netFee} (${s.feeStatus})</option>`;
+        }).join('');
         document.getElementById('cf-stu').onchange=cfLoadStudent;
         // Pre-fill paid date with today; reset discount
         const pdEl = document.getElementById('cf-paid-date'); if (pdEl && !pdEl.value) pdEl.value = new Date().toISOString().slice(0,10);
@@ -3623,9 +3626,20 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         document.getElementById('cf-amt').value='';
         const bal=s.netFee-s.paidAmt;
         const info=document.getElementById('cf-status-info');
+
+        // ── Multi-shift alert ─────────────────────────────────────────────
+        // If same phone exists in other student records, warn staff to collect
+        // each shift's fee separately — they are independent records.
+        const otherShifts=s.phone?DB.students.filter(x=>x.phone===s.phone&&x.id!==s.id):[];
+        const multiNote=otherShifts.length>0
+            ?`<div style="padding:7px 11px;border-radius:var(--r2);border:1px solid rgba(124,58,237,.3);background:rgba(124,58,237,.06);margin-bottom:8px">
+                <div style="font-size:11.5px;font-weight:600;color:var(--vi)">📋 Multi-Shift Student</div>
+                <div style="font-size:11px;color:var(--tx2);margin-top:3px">Also enrolled in: ${otherShifts.map(x=>{const b=DB.batches.find(b=>b.id===x.batchId)?.name||'';return`<strong>${b||x.id}</strong> (${x.feeStatus})`;}).join(', ')}. Collect each shift's fee separately using the correct record.</div>
+              </div>`
+            :'';
         if(s.feeStatus==='partial'){
             info.style.display='block';
-            info.innerHTML=`<div style="padding:10px 13px;border-radius:var(--r2);border:1px solid rgba(58,122,176,.3);background:rgba(58,122,176,.06)">
+            info.innerHTML=multiNote+`<div style="padding:10px 13px;border-radius:var(--r2);border:1px solid rgba(58,122,176,.3);background:rgba(58,122,176,.06)">
       <div style="font-size:12px;font-weight:600;margin-bottom:4px;color:var(--sk)">◑ Partial Payment on Record</div>
       <div style="font-size:11.5px;color:var(--tx2)">Net Fee: <strong>₹${s.netFee}</strong> | Paid: <strong style="color:var(--em)">₹${s.paidAmt}</strong> | <strong style="color:var(--ro)">Balance: ₹${bal}</strong></div>
       <div style="height:6px;background:var(--sf2);border-radius:3px;overflow:hidden;margin:6px 0"><div style="width:${Math.round(s.paidAmt/s.netFee*100)}%;height:100%;background:linear-gradient(90deg,var(--em),#4ead82);border-radius:3px"></div></div>
@@ -3634,14 +3648,15 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
             document.getElementById('cf-amt').value=bal;
         } else if(s.feeStatus==='overdue'){
             info.style.display='block';
-            info.innerHTML=`<div style="padding:8px 12px;border-radius:var(--r2);border:1px solid rgba(192,68,79,.3);background:rgba(192,68,79,.06)"><div style="font-size:12px;font-weight:600;color:var(--ro)">🚨 Fee Overdue since ${fmtDate(s.dueDate)}</div><div style="font-size:11px;color:var(--tx2)">Amount due: ₹${s.netFee}</div></div>`;
+            info.innerHTML=multiNote+`<div style="padding:8px 12px;border-radius:var(--r2);border:1px solid rgba(192,68,79,.3);background:rgba(192,68,79,.06)"><div style="font-size:12px;font-weight:600;color:var(--ro)">🚨 Fee Overdue since ${fmtDate(s.dueDate)}</div><div style="font-size:11px;color:var(--tx2)">Amount due: ₹${s.netFee}</div></div>`;
             document.getElementById('cf-amt').value=s.netFee;
         } else if(s.baseFee>s.netFee){
             info.style.display='block';
-            info.innerHTML=`<div style="padding:8px 12px;border-radius:var(--r2);border:1px solid rgba(230,126,34,.3);background:rgba(230,126,34,.06)"><div style="font-size:12px;font-weight:600;color:var(--or)">🎁 Discount Applied: ₹${s.baseFee-s.netFee}</div><div style="font-size:11px;color:var(--tx2)">Full fee: ₹${s.baseFee} → Net: ₹${s.netFee} (${s.discount?.reason||''})</div></div>`;
+            info.innerHTML=multiNote+`<div style="padding:8px 12px;border-radius:var(--r2);border:1px solid rgba(230,126,34,.3);background:rgba(230,126,34,.06)"><div style="font-size:12px;font-weight:600;color:var(--or)">🎁 Discount Applied: ₹${s.baseFee-s.netFee}</div><div style="font-size:11px;color:var(--tx2)">Full fee: ₹${s.baseFee} → Net: ₹${s.netFee} (${s.discount?.reason||''})</div></div>`;
             document.getElementById('cf-amt').value=s.netFee;
         } else {
-            info.style.display='none';
+            info.style.display=multiNote?'block':'none';
+            info.innerHTML=multiNote;
             document.getElementById('cf-amt').value=s.netFee;
         }
         document.getElementById('cf-balance-note').style.display='none';
