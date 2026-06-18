@@ -2373,7 +2373,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
       const lastPt = pts[pts.length-1];
       const dot = `<circle cx="${lastPt[0]}" cy="${lastPt[1]}" r="3" fill="var(--vi)" stroke="#fff" stroke-width="1.5"/>`;
 
-      return `<div class="sc" style="--ca:var(--vi);padding:14px 16px;min-width:0;grid-column:span 1">
+      return `<div class="sc" style="--ca:var(--vi);padding:14px 16px;min-width:0;grid-column:1/-1">
         <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:6px">
           <div>
             <div style="font-size:10px;font-weight:700;color:var(--tx3);letter-spacing:.8px;text-transform:uppercase;font-family:var(--fm)">Monthly Expenses</div>
