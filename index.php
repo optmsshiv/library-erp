@@ -2373,12 +2373,14 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
       const lastPt = pts[pts.length-1];
       const dot = `<circle cx="${lastPt[0]}" cy="${lastPt[1]}" r="3" fill="var(--vi)" stroke="#fff" stroke-width="1.5"/>`;
 
-      return `<div class="sc" style="--ca:var(--vi);padding:14px 16px;min-width:0;grid-column:1/-1">
-        <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:6px">
-          <div>
-            <div style="font-size:10px;font-weight:700;color:var(--tx3);letter-spacing:.8px;text-transform:uppercase;font-family:var(--fm)">Monthly Expenses</div>
-            <div style="font-size:22px;font-weight:800;color:var(--tx);line-height:1.15;font-family:var(--fd)">₹${curTotal.toLocaleString('en-IN')}</div>
-            <div style="display:flex;align-items:center;gap:5px;margin-top:3px">
+      return `<div class="sc" style="--ca:var(--vi);padding:14px 16px;min-width:0;grid-column:1/-1;max-height:120px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+          <div style="display:flex;align-items:center;gap:16px">
+            <div>
+              <div style="font-size:10px;font-weight:700;color:var(--tx3);letter-spacing:.8px;text-transform:uppercase;font-family:var(--fm)">Monthly Expenses</div>
+              <div style="font-size:20px;font-weight:800;color:var(--tx);line-height:1.1;font-family:var(--fd)">₹${curTotal.toLocaleString('en-IN')}</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:5px">
               <span style="display:inline-flex;align-items:center;gap:2px;padding:2px 6px;border-radius:5px;font-size:10px;font-weight:700;background:${isUp?'rgba(220,38,38,.10)':'rgba(22,163,74,.12)'};color:${isUp?'var(--ro)':'var(--em)'}">
                 ${isUp?'▲':'▼'} ${Math.abs(pctChange).toFixed(1)}%
               </span>
@@ -2387,7 +2389,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
           </div>
           <div style="font-size:9px;color:var(--tx3);font-family:var(--fm);background:var(--sf2);border:1px solid var(--br);border-radius:6px;padding:3px 8px;white-space:nowrap">This Month</div>
         </div>
-        <svg width="100%" viewBox="0 0 ${W} ${H+10}" preserveAspectRatio="none" style="display:block;overflow:visible">
+        <svg width="100%" height="40" viewBox="0 0 ${W} ${H+10}" preserveAspectRatio="none" style="display:block;overflow:visible">
           <defs>
             <linearGradient id="expGrad" x1="0" y1="0" x2="0" y2="1">
               <stop offset="0%" stop-color="var(--vi)" stop-opacity="0.22"/>
