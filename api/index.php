@@ -297,8 +297,11 @@ switch ($action) {
         jsonResponse(['success' => true]);
 
     case 'get_archived_students':
+        try { $db->exec("ALTER TABLE students ADD COLUMN IF NOT EXISTS leave_date DATE NULL"); } catch(Exception $e) {}
+        try { $db->exec("ALTER TABLE students ADD COLUMN IF NOT EXISTS leave_reason VARCHAR(300) DEFAULT ''"); } catch(Exception $e) {}
         $rows = $db->query("SELECT * FROM students WHERE is_deleted=1 ORDER BY archived_at DESC")->fetchAll();
         jsonResponse(['students' => $rows]);
+        break;
 
     case 'restore_student':
         if ($method !== 'POST') jsonError('Method not allowed', 405);
