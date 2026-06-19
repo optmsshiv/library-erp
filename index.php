@@ -2463,13 +2463,13 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         </div>
         <div class="sc" style="--ca:var(--ac);padding:14px 16px;min-width:0">
           <div style="font-size:10px;font-weight:700;color:var(--tx3);letter-spacing:.8px;text-transform:uppercase;font-family:var(--fm);margin-bottom:10px">Batch-wise Occupancy</div>
-          <div style="position:relative;width:100%;height:240px">
+          <div style="position:relative;width:100%;height:185px">
             <canvas id="batchOccChart" role="img" aria-label="Horizontal bar chart of seat occupancy per batch"></canvas>
           </div>
         </div>
         <div class="sc" style="--ca:var(--vi);padding:14px 16px;min-width:0">
           <div style="font-size:10px;font-weight:700;color:var(--tx3);letter-spacing:.8px;text-transform:uppercase;font-family:var(--fm);margin-bottom:10px">Fee Collection Trend — 6 Months</div>
-          <div style="position:relative;width:100%;height:240px">
+          <div style="position:relative;width:100%;height:185px">
             <canvas id="feeTrendChart" role="img" aria-label="Stacked bar chart of monthly fee collection trend"></canvas>
           </div>
         </div>
