@@ -562,7 +562,6 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
             .tw { overflow: visible !important; }
         }
     </style>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 </head>
 <body>
 <!-- SIDEBAR -->
@@ -2287,75 +2286,6 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
 
     // ═══ DASHBOARD ═══
     let calDate=new Date(new Date().getFullYear(),new Date().getMonth(),1); // always start at current month
-    let _batchOccChart=null, _feeTrendChart=null;
-    function renderDashCharts(){
-        const batchCanvas = document.getElementById('batchOccChart');
-        if(batchCanvas && window.Chart){
-            const labels = DB.batches.map(b=>b.name||('Batch '+b.id));
-            const occ = DB.batches.map(b=>b.occupied);
-            const vac = DB.batches.map(b=>b.total-b.occupied);
-            if(_batchOccChart) _batchOccChart.destroy();
-            _batchOccChart = new Chart(batchCanvas,{
-                type:'bar',
-                data:{ labels, datasets:[
-                    {label:'Occupied', data:occ, backgroundColor:'#185FA5', borderRadius:3},
-                    {label:'Vacant', data:vac, backgroundColor:'#e2e8f0', borderRadius:3}
-                ]},
-                options:{
-                    responsive:true, maintainAspectRatio:false, indexAxis:'y',
-                    plugins:{ legend:{display:false} },
-                    scales:{
-                        x:{ stacked:true, grid:{display:false}, ticks:{color:'#64748b', font:{size:10}} },
-                        y:{ stacked:true, grid:{display:false}, ticks:{color:'#64748b', font:{size:10}} }
-                    }
-                }
-            });
-        }
-
-        const trendCanvas = document.getElementById('feeTrendChart');
-        if(trendCanvas && window.Chart){
-            const now = new Date();
-            const months = [];
-            for(let i=5;i>=0;i--){
-                const d = new Date(now.getFullYear(), now.getMonth()-i, 1);
-                months.push({ y:d.getFullYear(), m:d.getMonth(), collected:0, pending:0, overdue:0,
-                    label:d.toLocaleDateString('en-IN',{month:'short'}) });
-            }
-            DB.invoices.forEach(inv=>{
-                if(!inv.paidOn && inv.status!=='paid') return;
-                const d = new Date(inv.paidOn || inv.createdAt || now);
-                const bucket = months.find(b=>b.y===d.getFullYear() && b.m===d.getMonth());
-                if(!bucket) return;
-                if(inv.status==='paid' || inv.status==='partial') bucket.collected += inv.paidAmt||0;
-            });
-            DB.students.forEach(st=>{
-                const due = (st.netFee||0)-(st.paidAmt||0);
-                if(due<=0) return;
-                const d = st.dueDate ? new Date(st.dueDate) : now;
-                const bucket = months.find(b=>b.y===d.getFullYear() && b.m===d.getMonth()) || months[months.length-1];
-                if(st.feeStatus==='overdue') bucket.overdue += due;
-                else bucket.pending += due;
-            });
-            if(_feeTrendChart) _feeTrendChart.destroy();
-            _feeTrendChart = new Chart(trendCanvas,{
-                type:'bar',
-                data:{ labels: months.map(m=>m.label), datasets:[
-                    {label:'Collected', data:months.map(m=>m.collected), backgroundColor:'#16a34a', borderRadius:3, stack:'s'},
-                    {label:'Pending', data:months.map(m=>m.pending), backgroundColor:'rgba(217,119,6,0.5)', borderRadius:3, stack:'s'},
-                    {label:'Overdue', data:months.map(m=>m.overdue), backgroundColor:'rgba(220,38,38,0.4)', borderRadius:3, stack:'s'}
-                ]},
-                options:{
-                    responsive:true, maintainAspectRatio:false,
-                    plugins:{ legend:{display:false} },
-                    scales:{
-                        x:{ stacked:true, grid:{display:false}, ticks:{color:'#64748b', font:{size:10}} },
-                        y:{ stacked:true, grid:{color:'rgba(0,0,0,0.05)'}, ticks:{color:'#64748b', font:{size:10}, callback:v=>'₹'+(v/1000)+'K'} }
-                    }
-                }
-            });
-        }
-    }
-
     function renderDash(){
         const s=DB.students;
         const paid=s.filter(x=>x.feeStatus==='paid');
@@ -2391,7 +2321,10 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
     <div class="sc" style="--ca:var(--vi);padding:0;overflow:hidden;display:flex;transition:box-shadow .2s,transform .2s" onmouseenter="this.style.transform='translateY(-2px)';this.style.boxShadow='var(--sh2)'" onmouseleave="this.style.transform='';this.style.boxShadow=''"><div style="background:#5b21b6;width:58px;display:flex;align-items:center;justify-content:center;flex-shrink:0"><div style="width:42px;height:42px;border-radius:50%;background:rgba(255,255,255,0.13);display:flex;align-items:center;justify-content:center"><span class="mi" style="color:#e9d5ff;font-size:22px">menu_book</span></div></div><div style="padding:10px 12px;display:flex;flex-direction:column;gap:3px;flex:1;align-items:flex-end"><div style="font-size:24px;font-weight:700;color:var(--tx);line-height:1">${issTx.length}</div><div style="width:100%;height:1px;background:var(--br)"></div><div style="font-size:11px;color:var(--tx3);font-weight:500">Books Issued</div><div style="font-size:11px;color:var(--ro);font-weight:600">${odTx.length} overdue</div></div></div>
     <div class="sc" style="--ca:var(--sk);padding:0;overflow:hidden;display:flex;transition:box-shadow .2s,transform .2s" onmouseenter="this.style.transform='translateY(-2px)';this.style.boxShadow='var(--sh2)'" onmouseleave="this.style.transform='';this.style.boxShadow=''"><div style="background:#075985;width:58px;display:flex;align-items:center;justify-content:center;flex-shrink:0"><div style="width:42px;height:42px;border-radius:50%;background:rgba(255,255,255,0.13);display:flex;align-items:center;justify-content:center"><span class="mi" style="color:#bae6fd;font-size:22px">fact_check</span></div></div><div style="padding:10px 12px;display:flex;flex-direction:column;gap:3px;flex:1;align-items:flex-end"><div style="font-size:24px;font-weight:700;color:var(--tx);line-height:1">${prsnt}</div><div style="width:100%;height:1px;background:var(--br)"></div><div style="font-size:11px;color:var(--tx3);font-weight:500">Attendance Today</div><div style="font-size:11px;color:var(--em);font-weight:600">${s.length?Math.round(prsnt/s.length*100):0}% rate</div></div></div>
     <div class="sc" style="--ca:#7c3aed;padding:0;overflow:hidden;display:flex;cursor:pointer;transition:box-shadow .2s,transform .2s" onclick="navTo('biometric')" onmouseenter="this.style.transform='translateY(-2px)';this.style.boxShadow='var(--sh2)'" onmouseleave="this.style.transform='';this.style.boxShadow=''"><div style="background:#4c1d95;width:58px;display:flex;align-items:center;justify-content:center;flex-shrink:0"><div style="width:42px;height:42px;border-radius:50%;background:rgba(255,255,255,0.13);display:flex;align-items:center;justify-content:center"><span class="mi" style="color:#e9d5ff;font-size:22px">fingerprint</span></div></div><div style="padding:10px 12px;display:flex;flex-direction:column;gap:3px;flex:1;align-items:flex-end"><div style="font-size:24px;font-weight:700;color:var(--tx);line-height:1">${Object.values(_bioToday).filter(b=>b.in).length}</div><div style="width:100%;height:1px;background:var(--br)"></div><div style="font-size:11px;color:var(--tx3);font-weight:500">Biometric Check-ins</div><div style="font-size:11px;color:#7c3aed;font-weight:600">today · via device</div></div></div>
+
+    <div class="sc" style="--ca:var(--gd);padding:0;overflow:hidden;display:flex;transition:box-shadow .2s,transform .2s;grid-column:span 2" onmouseenter="this.style.transform='translateY(-2px)';this.style.boxShadow='var(--sh2)'" onmouseleave="this.style.transform='';this.style.boxShadow=''"><div style="background:#92400e;width:58px;display:flex;align-items:center;justify-content:center;flex-shrink:0"><div style="width:42px;height:42px;border-radius:50%;background:rgba(255,255,255,0.13);display:flex;align-items:center;justify-content:center"><span class="mi" style="color:#fde68a;font-size:22px">payments</span></div></div><div style="padding:10px 12px;display:flex;flex-direction:column;gap:4px;flex:1;align-items:flex-end"><div style="font-size:24px;font-weight:700;color:var(--tx);line-height:1">${fmt(activeStudentRev)}</div><div style="width:100%;height:1px;background:var(--br)"></div><div style="font-size:11px;color:var(--tx3);font-weight:500">Revenue Collected</div><div style="display:flex;flex-direction:column;gap:2px;align-items:flex-end;margin-top:2px"><span style="display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:600;color:#166534"><span style="width:5px;height:5px;border-radius:50%;background:#16a34a;flex-shrink:0"></span>₹${revLivePaid.toLocaleString('en-IN')} live · fully paid</span>${revLivePartial>0?`<span style="display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:600;color:#92400e"><span style="width:5px;height:5px;border-radius:50%;background:#d97706;flex-shrink:0"></span>₹${revLivePartial.toLocaleString('en-IN')} live · partial</span>`:''}${revFromDeleted>0?`<span style="display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:600;color:#9f1239;opacity:.75"><span style="width:5px;height:5px;border-radius:50%;background:#e11d48;flex-shrink:0"></span>₹${revFromDeleted.toLocaleString('en-IN')} deleted students</span>`:''}</div></div></div>
     ${(()=>{
+      // ── Quick Summary — Seats Donut Card ──
       const total = totalSeats || 1;
       const occPct = occSeats / total;
       const circ = 2 * Math.PI * 28;
@@ -2406,76 +2339,51 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
       const occDashV  = (occSeats/total) * circFull;
       const offset    = circFull * 0.25; // start from top
 
-      return `<div style="grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px">
-        <div style="display:flex;flex-direction:column;gap:14px">
-          <div class="sc" style="--ca:var(--gd);padding:0;overflow:hidden;display:flex;transition:box-shadow .2s,transform .2s" onmouseenter="this.style.transform='translateY(-2px)';this.style.boxShadow='var(--sh2)'" onmouseleave="this.style.transform='';this.style.boxShadow=''">
-            <div style="background:#92400e;width:46px;display:flex;align-items:center;justify-content:center;flex-shrink:0"><div style="width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,0.13);display:flex;align-items:center;justify-content:center"><span class="mi" style="color:#fde68a;font-size:16px">payments</span></div></div>
-            <div style="padding:10px 12px;display:flex;flex-direction:column;gap:3px;flex:1;align-items:flex-end">
-              <div style="font-size:19px;font-weight:700;color:var(--tx);line-height:1">${fmt(activeStudentRev)}</div>
-              <div style="width:100%;height:1px;background:var(--br)"></div>
-              <div style="font-size:10px;color:var(--tx3);font-weight:500">Revenue Collected</div>
-              <div style="display:flex;flex-direction:column;gap:2px;align-items:flex-end;margin-top:2px">
-                <span style="display:inline-flex;align-items:center;gap:4px;font-size:9px;font-weight:600;color:#166534"><span style="width:5px;height:5px;border-radius:50%;background:#16a34a;flex-shrink:0"></span>₹${revLivePaid.toLocaleString('en-IN')} live · fully paid</span>
-                ${revLivePartial>0?`<span style="display:inline-flex;align-items:center;gap:4px;font-size:9px;font-weight:600;color:#92400e"><span style="width:5px;height:5px;border-radius:50%;background:#d97706;flex-shrink:0"></span>₹${revLivePartial.toLocaleString('en-IN')} live · partial</span>`:''}
-                ${revFromDeleted>0?`<span style="display:inline-flex;align-items:center;gap:4px;font-size:9px;font-weight:600;color:#9f1239;opacity:.75"><span style="width:5px;height:5px;border-radius:50%;background:#e11d48;flex-shrink:0"></span>₹${revFromDeleted.toLocaleString('en-IN')} deleted students</span>`:''}
-              </div>
+      return `<div class="sc" style="--ca:var(--em);padding:14px 16px;min-width:0;grid-column:span 2">
+        <div style="font-size:10px;font-weight:700;color:var(--tx3);letter-spacing:.8px;text-transform:uppercase;font-family:var(--fm);margin-bottom:10px">Quick Summary</div>
+        <div style="display:flex;align-items:center;gap:16px">
+          <!-- Donut -->
+          <div style="position:relative;flex-shrink:0;width:80px;height:80px">
+            <svg width="80" height="80" viewBox="0 0 72 72">
+              <!-- track -->
+              <circle cx="36" cy="36" r="28" fill="none" stroke="#e8edf5" stroke-width="10"/>
+              <!-- occupied (blue) — drawn first, from top -->
+              <circle cx="36" cy="36" r="28" fill="none" stroke="var(--ac)" stroke-width="10"
+                stroke-dasharray="${occDashV.toFixed(1)} ${circFull.toFixed(1)}"
+                stroke-dashoffset="${offset.toFixed(1)}"
+                stroke-linecap="butt"/>
+              <!-- available (green) — starts after occupied arc -->
+              <circle cx="36" cy="36" r="28" fill="none" stroke="var(--em)" stroke-width="10"
+                stroke-dasharray="${availDash.toFixed(1)} ${circFull.toFixed(1)}"
+                stroke-dashoffset="${(offset - occDashV).toFixed(1)}"
+                stroke-linecap="butt"/>
+            </svg>
+            <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center">
+              <div style="font-size:15px;font-weight:800;color:var(--tx);line-height:1;font-family:var(--fd)">${totalSeats}</div>
+              <div style="font-size:8px;color:var(--tx3);font-weight:600;margin-top:2px;font-family:var(--fm)">Total Seats</div>
             </div>
           </div>
-          <div class="sc" style="--ca:var(--em);padding:12px 14px;min-width:0">
-            <div style="font-size:10px;font-weight:700;color:var(--tx3);letter-spacing:.8px;text-transform:uppercase;font-family:var(--fm);margin-bottom:10px">Quick Summary</div>
-            <div style="display:flex;align-items:center;gap:12px">
-              <div style="position:relative;flex-shrink:0;width:64px;height:64px">
-                <svg width="64" height="64" viewBox="0 0 72 72">
-                  <circle cx="36" cy="36" r="28" fill="none" stroke="#e8edf5" stroke-width="10"/>
-                  <circle cx="36" cy="36" r="28" fill="none" stroke="var(--ac)" stroke-width="10"
-                    stroke-dasharray="${occDashV.toFixed(1)} ${circFull.toFixed(1)}"
-                    stroke-dashoffset="${offset.toFixed(1)}"
-                    stroke-linecap="butt"/>
-                  <circle cx="36" cy="36" r="28" fill="none" stroke="var(--em)" stroke-width="10"
-                    stroke-dasharray="${availDash.toFixed(1)} ${circFull.toFixed(1)}"
-                    stroke-dashoffset="${(offset - occDashV).toFixed(1)}"
-                    stroke-linecap="butt"/>
-                </svg>
-                <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center">
-                  <div style="font-size:13px;font-weight:800;color:var(--tx);line-height:1;font-family:var(--fd)">${totalSeats}</div>
-                  <div style="font-size:7px;color:var(--tx3);font-weight:600;margin-top:1px;font-family:var(--fm)">Total Seats</div>
-                </div>
-              </div>
-              <div style="display:flex;flex-direction:column;gap:6px;flex:1;min-width:0">
-                <div style="display:flex;align-items:center;gap:5px;font-size:10px;font-weight:700">
-                  <span style="width:7px;height:7px;border-radius:50%;background:var(--em);flex-shrink:0"></span>
-                  <span style="color:var(--tx2);flex:1">Available</span>
-                  <span style="color:var(--em)">${avail} <span style="font-size:8px;color:var(--tx3);font-weight:500">(${availPct}%)</span></span>
-                </div>
-                <div style="display:flex;align-items:center;gap:5px;font-size:10px;font-weight:700">
-                  <span style="width:7px;height:7px;border-radius:50%;background:var(--ac);flex-shrink:0"></span>
-                  <span style="color:var(--tx2);flex:1">Occupied</span>
-                  <span style="color:var(--ac)">${occSeats} <span style="font-size:8px;color:var(--tx3);font-weight:500">(${occPctDisp}%)</span></span>
-                </div>
-                <div style="display:flex;align-items:center;gap:5px;font-size:10px;font-weight:700">
-                  <span style="width:7px;height:7px;border-radius:50%;background:var(--gd);flex-shrink:0"></span>
-                  <span style="color:var(--tx2);flex:1">Reserved</span>
-                  <span style="color:var(--gd)">0 <span style="font-size:8px;color:var(--tx3);font-weight:500">(0%)</span></span>
-                </div>
-              </div>
+          <!-- Legend -->
+          <div style="display:flex;flex-direction:column;gap:7px;flex:1;min-width:0">
+            <div style="display:flex;align-items:center;gap:6px;font-size:11px;font-weight:700">
+              <span style="width:8px;height:8px;border-radius:50%;background:var(--em);flex-shrink:0"></span>
+              <span style="color:var(--tx2);flex:1">Available</span>
+              <span style="color:var(--em)">${avail} <span style="font-size:9px;color:var(--tx3);font-weight:500">(${availPct}%)</span></span>
             </div>
-          </div>
-        </div>
-        <div class="sc" style="--ca:var(--ac);padding:14px 16px;min-width:0">
-          <div style="font-size:10px;font-weight:700;color:var(--tx3);letter-spacing:.8px;text-transform:uppercase;font-family:var(--fm);margin-bottom:10px">Batch-wise Occupancy</div>
-          <div style="position:relative;width:100%;height:240px">
-            <canvas id="batchOccChart" role="img" aria-label="Horizontal bar chart of seat occupancy per batch"></canvas>
-          </div>
-        </div>
-        <div class="sc" style="--ca:var(--vi);padding:14px 16px;min-width:0">
-          <div style="font-size:10px;font-weight:700;color:var(--tx3);letter-spacing:.8px;text-transform:uppercase;font-family:var(--fm);margin-bottom:10px">Fee Collection Trend — 6 Months</div>
-          <div style="position:relative;width:100%;height:240px">
-            <canvas id="feeTrendChart" role="img" aria-label="Stacked bar chart of monthly fee collection trend"></canvas>
+            <div style="display:flex;align-items:center;gap:6px;font-size:11px;font-weight:700">
+              <span style="width:8px;height:8px;border-radius:50%;background:var(--ac);flex-shrink:0"></span>
+              <span style="color:var(--tx2);flex:1">Occupied</span>
+              <span style="color:var(--ac)">${occSeats} <span style="font-size:9px;color:var(--tx3);font-weight:500">(${occPctDisp}%)</span></span>
+            </div>
+            <div style="display:flex;align-items:center;gap:6px;font-size:11px;font-weight:700">
+              <span style="width:8px;height:8px;border-radius:50%;background:var(--gd);flex-shrink:0"></span>
+              <span style="color:var(--tx2);flex:1">Reserved</span>
+              <span style="color:var(--gd)">0 <span style="font-size:9px;color:var(--tx3);font-weight:500">(0%)</span></span>
+            </div>
           </div>
         </div>
       </div>`;
     })()}`;
-        renderDashCharts();
 
         // ── BATCH SEAT AVAILABILITY WITH FEE STATUS ──
         // Build seat→student map
