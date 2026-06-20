@@ -4180,7 +4180,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
                     batchId: s.batch_id, seatType: s.seat_type, seat: s.seat,
                     netFee: +s.net_fee, paidAmt: +s.paid_amt, feeStatus: s.fee_status,
                     course: s.course, joinDate: s.join_date,
-                    leaveDate: s.leave_date || null, leaveReason: s.leave_reason || '',
+                    leaveDate: s.leave_date || s.archived_at || null, leaveReason: s.leave_reason || '',
                 }));
             } else {
                 students = DB.students;
@@ -4188,20 +4188,23 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
             if (batch)  students = students.filter(s => s.batchId == batch);
             if (status) students = students.filter(s => s.feeStatus === status);
             const fmtD = d => d ? new Date(d).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}) : '—';
-            const rosterStatus = s => s.leaveDate ? 'Left' : 'Active';
+            const rosterStatus = s => {
+                if (roster === 'archived') return s.leaveReason ? 'Left' : 'Archived';
+                return 'Active';
+            };
             _rptData = students.map(s => [
                 s.id, `${s.fname} ${s.lname}`, s.phone,
                 batchName(s.batchId), s.seat||'—', (s.seatType||'').toUpperCase(),
                 s.course, s.feeStatus, rosterStatus(s), s.joinDate||'—', s.leaveDate||'—', s.leaveReason||''
             ]);
             html = tbl(
-                ['ID','Name','Phone','Batch','Seat','Type','Course','Fee Status','Status','Join Date','Leave Date','Leave Reason'],
+                ['ID','Name','Phone','Batch','Seat','Type','Course','Fee Status','Status','Join Date','Left/Archived On','Leave Reason'],
                 students.map(s => [
                     s.id, `${s.fname} ${s.lname}`, s.phone,
                     batchName(s.batchId), s.seat||'—', (s.seatType||'').toUpperCase(), s.course,
                     feeTag(s.feeStatus),
                     s.leaveDate
-                        ? `<span style="color:var(--ro);font-weight:600">Left</span>`
+                        ? `<span style="color:var(--ro);font-weight:600">${rosterStatus(s)}</span>`
                         : '<span style="color:var(--ac);font-size:10px">Active</span>',
                     fmtD(s.joinDate),
                     s.leaveDate ? fmtD(s.leaveDate) : '—',
@@ -4614,7 +4617,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
             books: ['Title','Author','Category','ISBN','Shelf','Available','Total'],
             attendance: ['Student','Batch','Status'],
             expense: ['Name','Category','Amount','Date','Notes'],
-            student: ['ID','Name','Phone','Batch','Seat','Type','Course','Fee Status','Status','Join Date','Leave Date','Leave Reason']
+            student: ['ID','Name','Phone','Batch','Seat','Type','Course','Fee Status','Status','Join Date','Left/Archived On','Leave Reason']
         };
         const stripHtml = v => String(v).replace(/<[^>]+>/g,'').replace(/₹/g,'Rs ');
         const rows = [headers[_rptType], ..._rptData.map(r=>r.map(stripHtml))];
