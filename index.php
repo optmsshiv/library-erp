@@ -938,7 +938,15 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
                         <thead><tr><th>Book</th><th>Author</th><th>Category</th><th>Copies</th><th>Available</th><th>Shelf</th><th>Status</th><th>Action</th></tr></thead>
                         <tbody id="bkTable"></tbody>
                     </table></div>
-                <div class="pag"><span class="pag-i" id="bkPagI"></span><div class="pag-b" id="bkPagB"></div></div></div>
+                <div class="pag"><span class="pag-i" id="bkPagI"></span><div class="pag-b" id="bkPagB"></div>
+                    <select id="bkPerPageSel" onchange="bkPerPage=+this.value;bkPage=1;renderBooks()" style="font-size:11px;padding:3px 8px;border:1px solid var(--br);border-radius:var(--r2);background:var(--sf2);color:var(--tx);cursor:pointer;width:auto;flex-shrink:0">
+                        <option value="10" selected>10 / page</option>
+                        <option value="15">15 / page</option>
+                        <option value="25">25 / page</option>
+                        <option value="50">50 / page</option>
+                        <option value="9999">All</option>
+                    </select>
+                </div></div>
         </div>
 
         <!-- TRANSACTIONS -->
@@ -3414,13 +3422,13 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
     function markAll(p){DB.students.forEach(s=>{DB.attendance[s.id]=p?'present':'absent';});renderAtt();toast(p?'All present':'All absent',p?'ok':'wn');}
 
     // ═══ BOOKS ═══
-    let bkPage=1,bkSearch='';
+    let bkPage=1,bkSearch='',bkPerPage=10;
     function renderBooks(){
         const cf=document.getElementById('bkCatF')?.value||'all';
         let list=DB.books.filter(b=>(cf==='all'||b.category===cf)&&(!bkSearch||`${b.title} ${b.author}`.toLowerCase().includes(bkSearch.toLowerCase())));
         document.getElementById('bkCount').textContent=`${list.length} books`;
-        const pp=7,total=list.length,pages=Math.ceil(total/pp)||1;
-        bkPage=Math.min(bkPage,pages);const sl=list.slice((bkPage-1)*pp,bkPage*pp);
+        const total=list.length,pages=Math.ceil(total/bkPerPage)||1;
+        bkPage=Math.min(bkPage,pages);const sl=list.slice((bkPage-1)*bkPerPage,bkPage*bkPerPage);
         document.getElementById('bkTable').innerHTML=sl.map(b=>{const av=b.available>0;
             return `<tr><td><div style="display:flex;align-items:center;gap:7px"><span style="font-size:17px">${b.emoji}</span><div><div style="font-weight:600;font-size:12.5px">${b.title}</div><div style="font-size:10px;color:var(--tx3);font-family:var(--fm)">${b.id}</div></div></div></td>
     <td>${b.author}</td><td><span class="tag tac" style="font-size:9px">${b.category}</span></td>

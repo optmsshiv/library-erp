@@ -282,8 +282,8 @@ switch ($action) {
         $batchId = $stuData['batch_id'] ?? null;
         $archivedBy = $_SESSION['staff_name'] ?? 'Admin';
 
-        // Soft delete: mark as archived
-        $db->prepare("UPDATE students SET is_deleted=1, archived_at=NOW(), archived_by=? WHERE id=?")
+        // Soft delete: mark as archived and clear seat so it's immediately available
+        $db->prepare("UPDATE students SET is_deleted=1, archived_at=NOW(), archived_by=?, seat='' WHERE id=?")
            ->execute([$archivedBy, $id]);
 
         // Recalculate occupied seats
@@ -1142,9 +1142,11 @@ switch ($action) {
             $newDueDate = date('Y-m-d', strtotime("+{$months} months", $baseTs));
         }
 
-        // Calculate correct fee_status based on actual paid amount
-        $newPaidAmt = (int)($stu['paid_amt'] ?? 0) + $amount;
-        $netFee     = (int)($stu['net_fee']  ?? 0);
+        // Renewal starts a FRESH billing cycle — paid_amt resets to just what
+        // was paid now, not accumulated from the previous period. Carrying over
+        // old paid_amt would make partial payers appear "fully paid" after renewal.
+        $newPaidAmt = $amount;
+        $netFee     = (int)($stu['net_fee'] ?? 0);
         $feeStatus  = ($newPaidAmt >= $netFee) ? 'paid' : (($newPaidAmt > 0) ? 'partial' : 'pending');
 
         // Update student: extend due_date, accumulate paid_amt, set correct fee_status
