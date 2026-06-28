@@ -178,18 +178,23 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         .bst{font-size:9px;font-weight:700;padding:3px 8px;border-radius:20px;font-family:var(--fm)}
         .bst-o{background:var(--c-green);color:#166534}.bst-f{background:var(--c-rose);color:#9f1239}.bst-n{background:var(--c-amber);color:#92400e}
 
-        .seat-visual{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}
+        .seat-visual{display:flex;flex-wrap:wrap;gap:10px;margin-top:0}
         .seat-cell{width:64px;height:64px;border-radius:12px;border:2px solid;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:all .2s cubic-bezier(.4,0,.2,1);font-weight:700;position:relative;gap:3px}
-        .seat-cell:hover{transform:translateY(-2px);z-index:5;box-shadow:0 6px 18px rgba(0,0,0,.12)}
+        .seat-cell:hover{transform:translateY(-2px);z-index:5;box-shadow:0 6px 18px rgba(0,0,0,.13)}
+        .seat-cell.seat-selected{box-shadow:0 0 0 3px var(--ac) !important;transform:translateY(-2px)}
         .seat-num{font-size:11px;font-family:var(--fm);font-weight:700;line-height:1;letter-spacing:.02em}
         .seat-init{font-size:11px;font-weight:700;line-height:1}
         .seat-occ{background:#dbeafe;border-color:#93c5fd;color:#1d4ed8}
         .seat-vac{background:var(--c-green);border-color:var(--cg);color:#166534}
         .seat-due{background:var(--c-amber);border-color:var(--ca2);color:#92400e;animation:pulseDue 2s infinite}
         .seat-overdue{background:var(--c-rose);border-color:var(--cr);color:#9f1239;animation:pulseDue 1s infinite;box-shadow:0 0 0 4px rgba(220,38,38,.18)}
-        .seat-tooltip{display:none;position:absolute;bottom:calc(100%+8px);left:50%;transform:translateX(-50%);background:var(--tx);color:#fff;font-size:10px;padding:6px 12px;border-radius:8px;white-space:nowrap;z-index:20;pointer-events:none;line-height:1.5;text-align:center;box-shadow:0 4px 12px rgba(0,0,0,.2)}
+        .seat-tooltip{display:none;position:absolute;bottom:calc(100%+8px);left:50%;transform:translateX(-50%);background:var(--tx);color:#fff;font-size:10px;padding:6px 12px;border-radius:8px;white-space:nowrap;z-index:20;pointer-events:none;line-height:1.5;text-align:center;box-shadow:0 4px 12px rgba(0,0,0,.18)}
         .seat-cell:hover .seat-tooltip{display:block}
         .seat-summary{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;padding-top:14px;border-top:1px solid var(--br)}
+        /* Batch tab pills */
+        .batch-tab{padding:8px 16px;font-size:12px;font-weight:600;color:var(--tx3);border-bottom:2px solid transparent;cursor:pointer;white-space:nowrap;transition:all .18s;background:none;border-left:none;border-right:none;border-top:none;font-family:var(--fb)}
+        .batch-tab:hover{color:var(--tx);background:var(--sf2)}
+        .batch-tab.active{color:var(--ac);border-bottom-color:var(--ac)}
         .ss-chip{display:inline-flex;align-items:center;gap:6px;padding:6px 13px 6px 9px;border-radius:20px;border:1.5px solid;font-family:var(--fm);box-shadow:0 1px 4px rgba(0,0,0,.07);transition:transform .15s;cursor:default}
         .ss-chip:hover{transform:translateY(-1px)}
         .ss-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
@@ -207,9 +212,9 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         @keyframes pulseDue{0%,100%{opacity:1}50%{opacity:.55}}
 
         /* ── SEAT LEGEND ── */
-        .seat-legend{display:flex;flex-wrap:wrap;gap:10px;padding:12px 16px;background:var(--sf2);border-top:1px solid var(--br);border-radius:0 0 var(--r) var(--r)}
-        .sl-item{display:flex;align-items:center;gap:7px;font-size:11px;font-weight:600;color:var(--tx2)}
-        .sl-dot{width:28px;height:16px;border-radius:6px;border:2px solid;flex-shrink:0}
+        .seat-legend{display:flex;flex-wrap:wrap;gap:8px;padding:10px 14px;background:var(--sf2);border-top:1px solid var(--br)}
+        .sl-item{display:flex;align-items:center;gap:7px;font-size:11px;font-weight:500;color:var(--tx2)}
+        .sl-dot{width:22px;height:14px;border-radius:4px;border:1px solid;flex-shrink:0}
         /* Sticky table header inside scrollable container */
         .tw table thead th{position:sticky;top:0;z-index:2;background:var(--sf2)}
 
@@ -780,25 +785,92 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
 
         <!-- SEATS -->
         <div class="page" id="page-seats">
+            <!-- Page Header -->
             <div class="sec-hd">
-                <div><div class="sec-t">Seat Allocation</div><div class="sec-s">Batch seat map with fee status highlight</div></div>
-                <div style="display:flex;gap:7px"><button class="btn bp" data-action="add_batch" onclick="openM('mAddBatch')">+ Add Batch</button><button class="btn bg" data-action="alloc_seat" onclick="openM('mAllocSeat')">Allocate Seat</button></div>
+                <div><div class="sec-t">Seat Allocation</div><div class="sec-s">Interactive floor map with fee status highlight</div></div>
+                <div style="display:flex;gap:7px">
+                    <button class="btn bp" data-action="add_batch" onclick="openM('mAddBatch')">+ Add Batch</button>
+                    <button class="btn bg" data-action="alloc_seat" onclick="openM('mAllocSeat')"><span class="mi sm">event_seat</span> Allocate Seat</button>
+                </div>
             </div>
-            <div class="stats-grid" style="grid-template-columns:repeat(4,1fr)">
+
+            <!-- Summary Cards (4 cards like screenshot) -->
+            <div class="stats-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:14px">
                 <div class="sc" style="--ca:var(--ac)"><div class="s-row"><div class="s-ic" style="background:var(--c-blue)"><span class="mi" style="color:var(--ac);font-size:17px">event_seat</span></div><span class="s-lb">Total Seats</span></div><div class="s-vl" id="st-total">0</div></div>
                 <div class="sc" style="--ca:var(--tx2)"><div class="s-row"><div class="s-ic" style="background:var(--sf3)"><span class="mi" style="color:var(--tx2);font-size:17px">person</span></div><span class="s-lb">Occupied</span></div><div class="s-vl" id="st-occupied">0</div></div>
                 <div class="sc" style="--ca:var(--em)"><div class="s-row"><div class="s-ic" style="background:var(--c-green)"><span class="mi" style="color:var(--em);font-size:17px">check_circle</span></div><span class="s-lb">Vacant</span></div><div class="s-vl" id="st-vacant">0</div></div>
-                <div class="sc" style="--ca:var(--or)"><div class="s-row"><div class="s-ic" style="background:var(--c-orange)"><span class="mi" style="color:var(--or);font-size:17px">warning</span></div><span class="s-lb">Fee Issues</span></div><div class="s-vl" id="st-issues">0</div></div>
+                <div class="sc" style="--ca:var(--or)"><div class="s-row"><div class="s-ic" style="background:var(--c-orange)"><span class="mi" style="color:var(--or);font-size:17px">bookmark</span></div><span class="s-lb">Fee Issues</span></div><div class="s-vl" id="st-issues">0</div></div>
             </div>
-            <div style="margin-bottom:10px">
-                <div class="seat-legend">
-                    <div class="sl-item"><div class="sl-dot seat-vac"></div>Vacant</div>
-                    <div class="sl-item"><div class="sl-dot seat-occ"></div>Paid &amp; Occupied</div>
-                    <div class="sl-item"><div class="sl-dot seat-due"></div>Fee Pending / Partial</div>
-                    <div class="sl-item"><div class="sl-dot seat-overdue"></div>Fee Overdue</div>
+
+            <!-- Filter Bar -->
+            <div style="background:var(--sf);border:1px solid var(--br);border-radius:var(--r);padding:10px 16px;display:flex;align-items:center;gap:18px;margin-bottom:14px;flex-wrap:wrap;box-shadow:var(--sh)">
+                <div style="display:flex;align-items:center;gap:8px">
+                    <span style="font-size:11px;color:var(--tx3);font-weight:600;font-family:var(--fm)">BATCH</span>
+                    <select id="seatBatchFilter" onchange="renderSeats()" style="font-size:12px;padding:5px 10px;width:auto">
+                        <option value="all">All Batches</option>
+                    </select>
+                </div>
+                <div style="display:flex;align-items:center;gap:8px">
+                    <span style="font-size:11px;color:var(--tx3);font-weight:600;font-family:var(--fm)">STATUS</span>
+                    <select id="seatStatusFilter" onchange="renderSeats()" style="font-size:12px;padding:5px 10px;width:auto">
+                        <option value="all">All</option>
+                        <option value="vacant">Vacant</option>
+                        <option value="paid">Paid</option>
+                        <option value="due">Fee Pending</option>
+                        <option value="overdue">Overdue</option>
+                    </select>
+                </div>
+                <div style="margin-left:auto;display:flex;align-items:center;gap:10px">
+                    <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--tx2)"><div style="width:10px;height:10px;border-radius:50%;background:var(--em)"></div>Vacant</div>
+                    <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--tx2)"><div style="width:10px;height:10px;border-radius:50%;background:#3b82f6"></div>Occupied</div>
+                    <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--tx2)"><div style="width:10px;height:10px;border-radius:50%;background:var(--gd)"></div>Fee Pending</div>
+                    <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--tx2)"><div style="width:10px;height:10px;border-radius:50%;background:var(--ro)"></div>Overdue</div>
                 </div>
             </div>
-            <div class="g2" id="batchGrid"></div>
+
+            <!-- Main Two-Column Layout: Floor Map + Seat Details -->
+            <div style="display:grid;grid-template-columns:1fr 300px;gap:14px;min-height:560px">
+
+                <!-- Left: Floor Map Panel -->
+                <div style="background:var(--sf);border:1px solid var(--br);border-radius:var(--r);overflow:hidden;display:flex;flex-direction:column;box-shadow:var(--sh)">
+                    <div class="ph">
+                        <div class="pt" id="seatMapTitle">Interactive Floor Map</div>
+                        <div style="display:flex;gap:6px">
+                            <button class="btn bg" style="font-size:11px;padding:5px 10px" onclick="openM('mAddBatch')"><span class="mi sm">add</span> Add Batch</button>
+                        </div>
+                    </div>
+                    <!-- Batch tabs -->
+                    <div id="seatBatchTabs" style="display:flex;gap:0;border-bottom:1px solid var(--br);overflow-x:auto;flex-shrink:0"></div>
+                    <!-- Seat Grid Area -->
+                    <div style="flex:1;overflow:auto;padding:20px;background:var(--sf2)" id="seatMapArea">
+                        <div class="seat-visual" id="seatGridMain" style="gap:10px"></div>
+                    </div>
+                    <!-- Progress bar at bottom -->
+                    <div style="padding:10px 16px;border-top:1px solid var(--br);background:var(--sf)">
+                        <div style="display:flex;justify-content:space-between;margin-bottom:5px">
+                            <span style="font-size:11px;color:var(--tx3);font-family:var(--fm)" id="seatProgLabel">0 / 0 occupied</span>
+                            <span style="font-size:11px;font-weight:700;color:var(--ac)" id="seatProgPct">0%</span>
+                        </div>
+                        <div class="sbar"><div class="sfill sf-g" id="seatProgBar" style="width:0%"></div></div>
+                    </div>
+                </div>
+
+                <!-- Right: Seat Details Panel -->
+                <div style="background:var(--sf);border:1px solid var(--br);border-radius:var(--r);overflow:hidden;display:flex;flex-direction:column;box-shadow:var(--sh)">
+                    <div class="ph"><div class="pt">Seat Details</div></div>
+                    <div style="flex:1;overflow-y:auto;padding:18px;display:flex;flex-direction:column;gap:18px" id="seatDetailPanel">
+                        <!-- Default empty state -->
+                        <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:10px;padding:30px 0;text-align:center">
+                            <div style="width:56px;height:56px;background:var(--sf2);border-radius:14px;display:flex;align-items:center;justify-content:center;border:1px solid var(--br)">
+                                <span class="mi" style="font-size:26px;color:var(--tx3)">event_seat</span>
+                            </div>
+                            <div style="font-weight:700;font-size:13px;color:var(--tx)">No seat selected</div>
+                            <div style="font-size:11px;color:var(--tx3)">Click any seat on the map to view details</div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
         </div>
 
         <!-- ATTENDANCE -->
@@ -3092,81 +3164,223 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
 
 
     // ═══ SEATS (with fee status highlight) ═══
+    // ── SEAT MAP STATE ──
+    let seatActiveBatch=null, seatSelectedCell=null;
+
     function renderSeats(){
         const total=DB.batches.reduce((a,b)=>a+b.total,0);
         const occ=DB.batches.reduce((a,b)=>a+b.occupied,0);
+        const issues=DB.students.filter(s=>s.feeStatus==='overdue'||s.feeStatus==='pending'||s.feeStatus==='partial').length;
         document.getElementById('st-total').textContent=total;
         document.getElementById('st-vacant').textContent=total-occ;
         document.getElementById('st-occupied').textContent=occ;
-        // count fee issues across all batches
-        const issueCount=DB.students.filter(s=>s.feeStatus==='overdue'||s.feeStatus==='pending'||s.feeStatus==='partial').length;
-        const issEl=document.getElementById('st-issues');if(issEl)issEl.textContent=issueCount;
-        document.getElementById('batchGrid').innerHTML=DB.batches.map((b,i)=>{
-            const pct=Math.round(b.occupied/b.total*100);
-            const fc=pct>=100?'sf-r':pct>=70?'sf-y':'sf-g';
-            const sc=pct>=100?'bst-f':pct>=70?'bst-n':'bst-o';
-            const scLbl=pct>=100?'Full':pct>=70?'Filling':'Open';
-            const bStudents=DB.students.filter(x=>x.batchId===b.id);
-            const seatStudentMap={};bStudents.forEach(st=>{if(st.seat)seatStudentMap[st.seat]=st;});
-            let cntVac=0,cntPaid=0,cntDue=0,cntOD=0;
-            let cells='';
-            for(let s=1;s<=b.total;s++){
-                const sn=seatLbl(b.name,s);
-                const stu=seatStudentMap[sn];
-                let cls='seat-vac',ttText='Vacant — click to assign',initials='',icon='event_seat';
-                if(stu){
-                    initials=(stu.fname[0]+(stu.lname?stu.lname[0]:'')).toUpperCase();
-                    if(stu.feeStatus==='overdue'){
-                        cls='seat-overdue';cntOD++;icon='warning';
-                        ttText=`🚨 ${stu.fname} ${stu.lname||''} · Overdue ₹${stu.netFee-stu.paidAmt}`;
-                    } else if(stu.feeStatus==='pending'){
-                        cls='seat-due';cntDue++;icon='schedule';
-                        ttText=`⏳ ${stu.fname} ${stu.lname||''} · Pending ₹${stu.netFee}`;
-                    } else if(stu.feeStatus==='partial'){
-                        cls='seat-due';cntDue++;icon='schedule';
-                        ttText=`🟠 ${stu.fname} ${stu.lname||''} · Partial ₹${stu.netFee-stu.paidAmt} due`;
-                    } else {
-                        cls='seat-occ';cntPaid++;icon='person';
-                        ttText=`✓ ${stu.fname} ${stu.lname||''} · Paid · Click to view`;
-                    }
-                } else { cntVac++; }
-                const clickFn=stu?`openStudentProfile('${stu.id}')`:`openAllocSeatPrefilled('${b.id}','${sn}')`;
-                cells+=`<div class="seat-cell ${cls}" onclick="${clickFn}"><div class="seat-tooltip">${ttText}</div><div class="seat-num">${sn}</div><span class="mi" style="font-size:16px;line-height:1">${icon}</span>${initials?`<div class="seat-init">${initials}</div>`:''}</div>`;
+        const issEl=document.getElementById('st-issues');if(issEl)issEl.textContent=issues;
+
+        // Populate batch filter select
+        const bfSel=document.getElementById('seatBatchFilter');
+        if(bfSel&&bfSel.options.length<=1){
+            DB.batches.forEach(b=>{const o=document.createElement('option');o.value=b.id;o.textContent=b.name;bfSel.appendChild(o);});
+        }
+
+        // Build batch tabs
+        const tabsEl=document.getElementById('seatBatchTabs');
+        if(tabsEl){
+            if(!seatActiveBatch&&DB.batches.length>0)seatActiveBatch=DB.batches[0].id;
+            tabsEl.innerHTML=DB.batches.map(b=>`<button class="batch-tab${b.id===seatActiveBatch?' active':''}" onclick="switchSeatBatch('${b.id}')">${b.name}<span style="font-size:10px;margin-left:5px;opacity:.65;font-family:var(--fm)">${fmtT(b.startTime)}–${fmtT(b.endTime)}</span></button>`).join('');
+        }
+
+        renderSeatGrid();
+    }
+
+    function switchSeatBatch(bId){
+        seatActiveBatch=bId;
+        seatSelectedCell=null;
+        renderSeatGrid();
+        // update tab active state
+        document.querySelectorAll('.batch-tab').forEach(t=>{
+            t.classList.toggle('active',t.onclick.toString().includes(`'${bId}'`));
+        });
+        // reset detail panel
+        seatDetailEmpty();
+    }
+
+    function renderSeatGrid(){
+        const b=DB.batches.find(x=>x.id===seatActiveBatch);
+        if(!b){document.getElementById('seatGridMain').innerHTML='<div style="color:var(--tx3);font-size:12px;padding:20px">No batch selected</div>';return;}
+        const statusF=document.getElementById('seatStatusFilter');
+        const sf=statusF?statusF.value:'all';
+
+        const bStudents=DB.students.filter(x=>x.batchId===b.id);
+        const seatStudentMap={};bStudents.forEach(st=>{if(st.seat)seatStudentMap[st.seat]=st;});
+
+        // Update title
+        const titleEl=document.getElementById('seatMapTitle');
+        if(titleEl)titleEl.textContent=`${b.name} — Seat Map`;
+
+        // Update progress
+        const pct=b.total>0?Math.round(b.occupied/b.total*100):0;
+        const progLbl=document.getElementById('seatProgLabel');
+        const progPct=document.getElementById('seatProgPct');
+        const progBar=document.getElementById('seatProgBar');
+        if(progLbl)progLbl.textContent=`${b.occupied} / ${b.total} occupied`;
+        if(progPct)progPct.textContent=pct+'%';
+        if(progBar){progBar.style.width=pct+'%';progBar.className='sfill '+(pct>=100?'sf-r':pct>=70?'sf-y':'sf-g');}
+
+        let html='';
+        for(let s=1;s<=b.total;s++){
+            const sn=seatLbl(b.name,s);
+            const stu=seatStudentMap[sn];
+            let cls='seat-vac',ttText='Vacant — click to assign',initials='',icon='event_seat',stuStatus='vacant';
+            if(stu){
+                initials=(stu.fname[0]+(stu.lname?stu.lname[0]:'')).toUpperCase();
+                if(stu.feeStatus==='overdue'){cls='seat-overdue';icon='warning';stuStatus='overdue';ttText=`${stu.fname} ${stu.lname||''} · Overdue`;}
+                else if(stu.feeStatus==='pending'||stu.feeStatus==='partial'){cls='seat-due';icon='schedule';stuStatus='due';ttText=`${stu.fname} ${stu.lname||''} · Fee Pending`;}
+                else{cls='seat-occ';icon='person';stuStatus='paid';ttText=`${stu.fname} ${stu.lname||''} · Paid`;}
             }
-            const chips=[
-                cntVac>0  ?`<span class="ss-chip ss-vac"><span class="ss-dot"></span><span class="ss-ic">event_seat</span><span class="ss-cnt">${cntVac}</span><span class="ss-lbl">Vacant</span></span>`:'',
-                cntPaid>0 ?`<span class="ss-chip ss-occ"><span class="ss-dot"></span><span class="ss-ic">check_circle</span><span class="ss-cnt">${cntPaid}</span><span class="ss-lbl">Paid</span></span>`:'',
-                cntDue>0  ?`<span class="ss-chip ss-due"><span class="ss-dot"></span><span class="ss-ic">schedule</span><span class="ss-cnt">${cntDue}</span><span class="ss-lbl">Pending</span></span>`:'',
-                cntOD>0   ?`<span class="ss-chip ss-od"><span class="ss-dot"></span><span class="ss-ic">warning</span><span class="ss-cnt">${cntOD}</span><span class="ss-lbl">Overdue</span></span>`:'',
-            ].filter(Boolean).join('');
-            const vacCount=b.total-b.occupied;
-            return `<div class="panel"><div class="ph">
-      <div style="display:flex;align-items:center;gap:12px">
-        <div style="width:42px;height:42px;background:var(--c-green);border:1.5px solid var(--cg);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">${batchEmoji(b.name)}</div>
-        <div>
-          <div style="font-weight:800;font-size:14px;color:var(--tx)">${b.name}</div>
-          <div style="font-size:11px;color:var(--tx3);font-family:var(--fm);margin-top:2px">${fmtT(b.startTime)}–${fmtT(b.endTime)} · ₹${b.baseFee}/mo · AC +₹${b.acExtra}</div>
+            // Apply status filter
+            if(sf!=='all'){
+                if(sf==='vacant'&&stuStatus!=='vacant')continue;
+                if(sf==='paid'&&stuStatus!=='paid')continue;
+                if(sf==='due'&&stuStatus!=='due')continue;
+                if(sf==='overdue'&&stuStatus!=='overdue')continue;
+            }
+            const isSelected=seatSelectedCell===sn;
+            html+=`<div class="seat-cell ${cls}${isSelected?' seat-selected':''}" onclick="onSeatClick('${b.id}','${sn}',this)">
+                <div class="seat-tooltip">${ttText}</div>
+                <div class="seat-num">${sn}</div>
+                <span class="mi" style="font-size:16px;line-height:1">${icon}</span>
+                ${initials?`<div class="seat-init">${initials}</div>`:''}
+            </div>`;
+        }
+        document.getElementById('seatGridMain').innerHTML=html||`<div style="color:var(--tx3);font-size:12px;padding:20px">No seats match the filter</div>`;
+    }
+
+    function onSeatClick(bId,sn,el){
+        // Deselect all, select clicked
+        document.querySelectorAll('.seat-cell').forEach(c=>c.classList.remove('seat-selected'));
+        el.classList.add('seat-selected');
+        seatSelectedCell=sn;
+        const b=DB.batches.find(x=>x.id===bId);
+        if(!b)return;
+        const bStudents=DB.students.filter(x=>x.batchId===bId);
+        const seatStudentMap={};bStudents.forEach(st=>{if(st.seat)seatStudentMap[st.seat]=st;});
+        const stu=seatStudentMap[sn];
+        renderSeatDetail(b,sn,stu);
+    }
+
+    function seatDetailEmpty(){
+        document.getElementById('seatDetailPanel').innerHTML=`
+        <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:10px;padding:30px 0;text-align:center">
+            <div style="width:56px;height:56px;background:var(--sf2);border-radius:14px;display:flex;align-items:center;justify-content:center;border:1px solid var(--br)">
+                <span class="mi" style="font-size:26px;color:var(--tx3)">event_seat</span>
+            </div>
+            <div style="font-weight:700;font-size:13px;color:var(--tx)">No seat selected</div>
+            <div style="font-size:11px;color:var(--tx3)">Click any seat on the map to view details</div>
+        </div>`;
+    }
+
+    function renderSeatDetail(b,sn,stu){
+        const panel=document.getElementById('seatDetailPanel');
+        if(!stu){
+            // Vacant seat
+            panel.innerHTML=`
+            <div>
+                <div style="font-size:30px;font-weight:700;color:var(--tx);font-family:var(--fd);line-height:1">${sn}</div>
+                <div style="font-size:11px;color:var(--tx3);margin-top:4px">${b.name} · ${fmtT(b.startTime)}–${fmtT(b.endTime)}</div>
+            </div>
+            <div style="display:inline-flex;align-items:center;gap:6px;background:var(--c-green);border:1px solid var(--cg);border-radius:20px;padding:4px 12px;font-size:11px;font-weight:700;color:#166534">
+                <span class="mi sm">check_circle</span> Vacant
+            </div>
+            <div style="background:var(--sf2);border-radius:var(--r);padding:14px;border:1px solid var(--br);display:flex;flex-direction:column;gap:8px">
+                <div style="font-size:11px;font-weight:700;color:var(--tx3);text-transform:uppercase;letter-spacing:.7px;font-family:var(--fm)">Batch Info</div>
+                <div style="font-size:12px;color:var(--tx2)">Base fee: <strong style="color:var(--tx)">₹${b.baseFee}/mo</strong></div>
+                <div style="font-size:12px;color:var(--tx2)">AC extra: <strong style="color:var(--tx)">₹${b.acExtra}</strong></div>
+                <div style="font-size:12px;color:var(--tx2)">Capacity: <strong style="color:var(--tx)">${b.total} seats</strong></div>
+            </div>
+            <button class="btn bp" style="width:100%;justify-content:center;padding:10px" onclick="openAllocSeatPrefilled('${b.id}','${sn}')"><span class="mi sm">person_add</span> Assign Student</button>`;
+            return;
+        }
+
+        // Occupied seat
+        const initials=(stu.fname[0]+(stu.lname?stu.lname[0]:'')).toUpperCase();
+        let statusBadge='',statusColor='var(--em)',statusBg='var(--c-green)',statusBorder='var(--cg)';
+        if(stu.feeStatus==='overdue'){statusBadge='Fee Overdue';statusColor='#9f1239';statusBg='var(--c-rose)';statusBorder='var(--cr)';}
+        else if(stu.feeStatus==='pending'){statusBadge='Fee Pending';statusColor='#92400e';statusBg='var(--c-amber)';statusBorder='var(--ca2)';}
+        else if(stu.feeStatus==='partial'){statusBadge='Partial Paid';statusColor='#075985';statusBg='var(--c-sky)';statusBorder='var(--cs)';}
+        else{statusBadge='Paid';}
+        const balance=stu.netFee-stu.paidAmt;
+        const admDate=stu.admDate||stu.enrollDate||'—';
+        const expDate=stu.expDate||stu.renewalDate||'—';
+
+        panel.innerHTML=`
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px">
+            <div>
+                <div style="font-size:30px;font-weight:700;color:var(--tx);font-family:var(--fd);line-height:1">${sn}</div>
+                <div style="font-size:11px;color:var(--tx3);margin-top:4px">${b.name} · ${fmtT(b.startTime)}–${fmtT(b.endTime)}</div>
+            </div>
+            <span style="display:inline-flex;align-items:center;gap:5px;background:${statusBg};border:1px solid ${statusBorder};border-radius:20px;padding:4px 10px;font-size:10px;font-weight:700;color:${statusColor};white-space:nowrap">
+                <span class="mi" style="font-size:13px">${stu.feeStatus==='overdue'?'error':stu.feeStatus==='pending'||stu.feeStatus==='partial'?'schedule':'check_circle'}</span>${statusBadge}
+            </span>
         </div>
-      </div>
-      <div style="display:flex;gap:7px;align-items:center">
-        <div class="bst ${sc}">${scLbl}</div>
-        ${cntOD>0?`<span style="font-size:10px;background:var(--c-rose);border:1.5px solid var(--cr);color:#9f1239;padding:4px 9px;border-radius:8px;font-weight:700;animation:pulseDue 1s infinite">🚨 ${cntOD} Overdue</span>`:''}
-        ${cntDue>0?`<span style="font-size:10px;background:var(--c-amber);border:1.5px solid var(--ca2);color:#92400e;padding:4px 9px;border-radius:8px;font-weight:700">⏳ ${cntDue} Due</span>`:''}
-        <button class="btn bg" style="font-size:11px;padding:5px 10px" onclick="editBatch(${i})">✏ Edit</button>
-        <button class="btn bd" style="font-size:11px;padding:5px 8px" onclick="delBatch(${i})"><span class="mi sm">close</span></button>
-      </div>
-    </div>
-    <div class="pb">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-        <span style="font-size:12px;font-weight:700;color:var(--em)">${vacCount} Vacant</span>
-        <span style="font-size:12px;font-weight:700;color:var(--ac)">${b.occupied} Occupied</span>
-        <span style="font-size:12px;font-weight:700;color:var(--tx3)">${b.total} Total</span>
-      </div>
-      <div class="sbar"><div class="sfill ${fc}" style="width:${pct}%"></div></div>
-      <div class="seat-visual">${cells}</div>
-      ${chips?`<div class="seat-summary">${chips}</div>`:''}
-    </div></div>`;
-        }).join('');
+
+        <!-- Student Card -->
+        <div style="background:var(--sf2);border-radius:var(--r);padding:14px;border:1px solid var(--br)">
+            <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
+                <div style="width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,var(--ac),var(--vi));display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;color:#fff;flex-shrink:0;border:2px solid #fff;box-shadow:0 1px 6px rgba(61,111,240,.25)">${initials}</div>
+                <div>
+                    <div style="font-size:14px;font-weight:700;color:var(--tx)">${stu.fname} ${stu.lname||''}</div>
+                    <div style="font-size:11px;color:var(--tx3);font-family:var(--fm)">ID: ${stu.id}</div>
+                </div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+                <div>
+                    <div style="font-size:10px;color:var(--tx3);text-transform:uppercase;letter-spacing:.7px;font-family:var(--fm);font-weight:600">Seat Type</div>
+                    <div style="font-size:12px;font-weight:600;color:var(--tx);margin-top:2px">${stu.seatType==='ac'?'❄ AC Premium':'Standard'}</div>
+                </div>
+                <div>
+                    <div style="font-size:10px;color:var(--tx3);text-transform:uppercase;letter-spacing:.7px;font-family:var(--fm);font-weight:600">Course</div>
+                    <div style="font-size:12px;font-weight:600;color:var(--tx);margin-top:2px">${stu.course||'—'}</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dates -->
+        <div style="border:1px solid var(--br);border-radius:var(--r);overflow:hidden">
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--br)">
+                <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--tx2)"><span class="mi sm" style="color:var(--tx3)">calendar_today</span>Admission Date</div>
+                <div style="font-size:12px;font-weight:700;color:var(--tx)">${admDate}</div>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;${stu.feeStatus==='overdue'?'background:var(--c-rose)':''}">
+                <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:${stu.feeStatus==='overdue'?'var(--ro)':'var(--tx2)'}"><span class="mi sm" style="color:${stu.feeStatus==='overdue'?'var(--ro)':'var(--tx3)'}">timer</span>Expiry Date</div>
+                <div style="font-size:12px;font-weight:700;color:${stu.feeStatus==='overdue'?'var(--ro)':'var(--tx)'}">${expDate}</div>
+            </div>
+        </div>
+
+        ${balance>0?`<div style="background:${stu.feeStatus==='overdue'?'var(--c-rose)':'var(--c-amber)'};border:1px solid ${stu.feeStatus==='overdue'?'var(--cr)':'var(--ca2)'};border-radius:var(--r);padding:10px 14px;display:flex;justify-content:space-between;align-items:center">
+            <span style="font-size:12px;font-weight:600;color:${stu.feeStatus==='overdue'?'#9f1239':'#92400e'}">Balance Due</span>
+            <span style="font-size:14px;font-weight:800;color:${stu.feeStatus==='overdue'?'var(--ro)':'var(--gd)'}">₹${balance}</span>
+        </div>`:''}
+
+        <!-- Action Buttons -->
+        <div style="display:flex;flex-direction:column;gap:8px">
+            <button class="btn bp" style="width:100%;justify-content:center;padding:10px" onclick="openStudentProfile('${stu.id}')"><span class="mi sm">swap_horiz</span> Change Seat</button>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+                <button class="btn bg" style="justify-content:center;padding:9px" onclick="openStudentProfile('${stu.id}')"><span class="mi sm">person</span> Profile</button>
+                <button class="btn bd" style="justify-content:center;padding:9px" onclick="if(confirm('Release seat ${sn}?'))deallocSeat('${stu.id}')"><span class="mi sm">no_accounts</span> Release</button>
+            </div>
+            <button class="btn bg" style="width:100%;justify-content:center;padding:9px;color:var(--ac);border-color:var(--ac)" onclick="openStudentProfile('${stu.id}')"><span class="mi sm">autorenew</span> Extend Admission</button>
+        </div>`;
+    }
+
+    function deallocSeat(stuId){
+        const stu=DB.students.find(s=>s.id===stuId);
+        if(!stu)return;
+        const b=DB.batches.find(x=>x.id===stu.batchId);
+        if(b&&b.occupied>0)b.occupied--;
+        stu.seat='';stu.batchId='';
+        saveDB();toast('Seat released','ok');
+        seatSelectedCell=null;
+        renderSeats();seatDetailEmpty();
     }
 
     function seatLbl(n,i){const p={'Early Morning':'E','Morning':'A','Afternoon':'B','Evening':'C','Night':'D','Late Night':'F'};return`${p[n]||'X'}-${String(i).padStart(2,'0')}`;}
