@@ -200,11 +200,16 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         .seat-tooltip{display:none;position:absolute;bottom:calc(100%+8px);left:50%;transform:translateX(-50%);background:var(--tx);color:#fff;font-size:10px;padding:6px 12px;border-radius:8px;white-space:nowrap;z-index:20;pointer-events:none;line-height:1.5;text-align:center;box-shadow:0 4px 12px rgba(0,0,0,.18)}
         .seat-cell:hover .seat-tooltip{display:block}
         .seat-multishift-dot{position:absolute;top:4px;right:4px;width:7px;height:7px;border-radius:50%;background:#f97316;border:1.5px solid #fff;box-shadow:0 0 0 1.5px rgba(249,115,22,.3)}
+        .shift-tab{display:flex;align-items:center;gap:8px;padding:9px 16px;border-radius:9px;border:none;background:transparent;cursor:pointer;transition:all .15s;font-size:12.5px;font-weight:600;color:var(--tx2);flex:1;justify-content:center;white-space:nowrap}
+        .shift-tab:hover{background:var(--sf2);color:var(--tx)}
+        .shift-tab.active{background:var(--ac);color:#fff;box-shadow:0 2px 8px rgba(61,111,240,.3)}
+        .shift-tab .mi{font-size:17px}
+        .shift-tab-badge{font-size:9.5px;font-weight:700;padding:1px 7px;border-radius:20px;font-family:var(--fm)}
+        .shift-tab:not(.active) .shift-tab-badge{background:var(--sf3);color:var(--tx3)}
+        .shift-tab.active .shift-tab-badge{background:rgba(255,255,255,.25);color:#fff}
         .seat-summary{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;padding-top:14px;border-top:1px solid var(--br)}
         /* Batch tab pills */
-        .batch-tab{padding:8px 16px;font-size:12px;font-weight:600;color:var(--tx3);border-bottom:2px solid transparent;cursor:pointer;white-space:nowrap;transition:all .18s;background:none;border-left:none;border-right:none;border-top:none;font-family:var(--fb)}
-        .batch-tab:hover{color:var(--tx);background:var(--sf2)}
-        .batch-tab.active{color:var(--ac);border-bottom-color:var(--ac)}
+        /* (old .batch-tab styles removed — replaced by .shift-tab) */
         .ss-chip{display:inline-flex;align-items:center;gap:6px;padding:6px 13px 6px 9px;border-radius:20px;border:1.5px solid;font-family:var(--fm);box-shadow:0 1px 4px rgba(0,0,0,.07);transition:transform .15s;cursor:default}
         .ss-chip:hover{transform:translateY(-1px)}
         .ss-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
@@ -855,8 +860,11 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
             <!-- Two-column layout -->
             <div style="display:grid;grid-template-columns:1fr 300px;gap:14px;align-items:start">
 
-                <!-- LEFT: Batch Cards (scrollable) -->
-                <div style="display:flex;flex-direction:column;gap:12px;max-height:calc(100vh - 230px);overflow-y:auto;padding-right:4px;scrollbar-width:thin;scrollbar-color:var(--br) transparent" id="seatBatchGrid"></div>
+                <!-- LEFT: Shift tabs + active batch seat grid -->
+                <div>
+                    <div id="seatBatchTabs" style="display:flex;gap:4px;margin-bottom:12px;flex-wrap:wrap;background:var(--sf);border:1px solid var(--br);border-radius:var(--r);padding:5px;box-shadow:var(--sh)"></div>
+                    <div id="seatBatchGrid"></div>
+                </div>
 
                 <!-- RIGHT: Detail Panel (sticky) -->
                 <div style="background:var(--sf);border:1px solid var(--br);border-radius:var(--r);box-shadow:var(--sh);position:sticky;top:70px;overflow:hidden">
@@ -3205,110 +3213,122 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         document.getElementById('st-vacant-pct').textContent=total?`${Math.round(vac/total*100)}% available`:'';
         document.getElementById('st-occ-pct').textContent=total?`${Math.round(occ/total*100)}% occupancy`:'';
 
-        document.getElementById('seatBatchGrid').innerHTML=DB.batches.map((b,bi)=>{
+        // Default to first batch if none selected (or selected one got deleted)
+        if(!seatActiveBatch||!DB.batches.find(b=>b.id===seatActiveBatch)){
+            seatActiveBatch=DB.batches[0]?.id||null;
+        }
+
+        // ── Render tab bar ──
+        document.getElementById('seatBatchTabs').innerHTML=DB.batches.map(b=>{
             const pct=b.total>0?Math.round(b.occupied/b.total*100):0;
-            const barCls=pct>=100?'sf-r':pct>=70?'sf-y':'sf-g';
-            const stLbl=pct>=100?'Full':pct>=70?'Filling':'Open';
-            const stColor=pct>=100?'var(--ro)':pct>=70?'var(--gd)':'var(--em)';
-            const stBg=pct>=100?'var(--c-rose)':pct>=70?'var(--c-amber)':'var(--c-green)';
-            const stBr=pct>=100?'var(--cr)':pct>=70?'var(--ca2)':'var(--cg)';
+            const dueCount=DB.students.filter(s=>s.batchId===b.id&&(s.feeStatus==='pending'||s.feeStatus==='partial'||s.feeStatus==='overdue')).length;
+            return`<button class="shift-tab${b.id===seatActiveBatch?' active':''}" onclick="switchSeatBatch('${b.id}')">
+                <span class="mi fill">${batchIcon(b.name)}</span>
+                ${b.name}
+                <span class="shift-tab-badge">${b.occupied}/${b.total}</span>
+                ${dueCount>0?`<span class="shift-tab-badge" style="background:var(--ro);color:#fff">${dueCount}</span>`:''}
+            </button>`;
+        }).join('')||'';
 
-            const bStudents=DB.students.filter(s=>s.batchId===b.id);
-            const map={};bStudents.forEach(s=>{if(s.seat)map[s.seat]=s;});
-            let cntVac=0,cntPaid=0,cntDue=0,cntOD=0,cells='';
-
-            for(let i=1;i<=b.total;i++){
-                const sn=seatLbl(b.name,i);
-                const stu=map[sn];
-                let cls='seat-vac',ttText=`${sn} — Vacant`,inner='',statusIc='';
-                if(stu){
-                    const init=(stu.fname[0]+(stu.lname?stu.lname[0]:'')).toUpperCase();
-                    if(stu.feeStatus==='overdue'){
-                        cls='seat-overdue';cntOD++;statusIc='warning';
-                        ttText=`${sn} · ${stu.fname} ${stu.lname||''} — Overdue ₹${stu.netFee-stu.paidAmt}`;
-                    } else if(stu.feeStatus==='pending'||stu.feeStatus==='partial'){
-                        cls='seat-due';cntDue++;statusIc='schedule';
-                        ttText=`${sn} · ${stu.fname} ${stu.lname||''} — ${stu.feeStatus==='partial'?'Partial':'Pending'} ₹${stu.netFee-stu.paidAmt} due`;
-                    } else {
-                        cls='seat-occ';cntPaid++;statusIc='person';
-                        ttText=`${sn} · ${stu.fname} ${stu.lname||''} — Paid ✓`;
-                    }
-                    const multiNote=stu.otherShifts&&stu.otherShifts.length>0?' · 🔀 Multi-shift':'';
-                    inner=`<div class="seat-num">${sn}</div>
-                           <span class="mi fill seat-status-ic">${statusIc}</span>
-                           <div class="seat-init">${init}</div>`;
-                    ttText+=multiNote;
-                } else {
-                    cntVac++;
-                    inner=`<div class="seat-num">${sn}</div>
-                           <span class="mi fill" style="font-size:16px;line-height:1;opacity:.4">chair</span>`;
-                }
-                const multiDot=stu&&stu.otherShifts&&stu.otherShifts.length>0?'<div class="seat-multishift-dot"></div>':'';
-                const isSelected=seatSelectedCell===`${b.id}|${sn}`;
-                const clickFn=stu?`onSeatClick('${b.id}','${sn}',this)`:`onSeatClick('${b.id}','${sn}',this)`;
-                cells+=`<div class="seat-cell ${cls}${isSelected?' seat-selected':''}" id="sc-${b.id}-${sn}" onclick="${clickFn}">
-                    <div class="seat-tooltip">${ttText}</div>
-                    ${multiDot}${inner}
-                </div>`;
-            }
-
-            // Summary chips
-            const chips=[
-                cntVac>0  ?`<span style="display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;border:1.5px solid var(--br);background:var(--sf2);font-size:11px;font-weight:700;color:var(--tx2)"><span class="mi fill" style="font-size:12px;color:#94a3b8">chair</span>${cntVac} Vacant</span>`:'',
-                cntPaid>0 ?`<span style="display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;border:1.5px solid #a5b4fc;background:#eef2ff;font-size:11px;font-weight:700;color:#3730a3"><span class="mi fill" style="font-size:12px">person</span>${cntPaid} Paid</span>`:'',
-                cntDue>0  ?`<span style="display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;border:1.5px solid var(--ca2);background:var(--c-amber);font-size:11px;font-weight:700;color:#854d0e"><span class="mi" style="font-size:12px">schedule</span>${cntDue} Pending</span>`:'',
-                cntOD>0   ?`<span style="display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;border:1.5px solid var(--cr);background:var(--c-rose);font-size:11px;font-weight:700;color:#9f1239;animation:seatPulse 1s infinite"><span class="mi" style="font-size:12px">warning</span>${cntOD} Overdue</span>`:'',
-            ].filter(Boolean).join('');
-
-            return`<div style="background:var(--sf);border:1px solid var(--br);border-radius:var(--r);box-shadow:var(--sh);overflow:hidden" id="bc-${b.id}">
-                <!-- Batch header (clickable to collapse) -->
-                <div style="padding:12px 16px;border-bottom:1px solid var(--br);display:flex;align-items:center;justify-content:space-between;background:var(--sf2);cursor:pointer;user-select:none" onclick="toggleBatch('${b.id}')">
-                    <div style="display:flex;align-items:center;gap:11px">
-                        <div style="width:40px;height:40px;border-radius:10px;background:var(--sf);border:1.5px solid var(--br);display:flex;align-items:center;justify-content:center;flex-shrink:0">
-                            <span class="mi fill" style="color:var(--ac);font-size:20px">${batchIcon(b.name)}</span>
-                        </div>
-                        <div>
-                            <div style="font-size:13.5px;font-weight:700;color:var(--tx)">${b.name}</div>
-                            <div style="font-size:10.5px;color:var(--tx3);font-family:var(--fm);margin-top:2px">${fmtT(b.startTime)} – ${fmtT(b.endTime)} &nbsp;·&nbsp; ₹${b.baseFee}/mo &nbsp;·&nbsp; AC +₹${b.acExtra}</div>
-                        </div>
-                    </div>
-                    <div style="display:flex;align-items:center;gap:6px" onclick="event.stopPropagation()">
-                        <span style="padding:3px 10px;border-radius:20px;font-size:9.5px;font-weight:700;font-family:var(--fm);background:${stBg};border:1.5px solid ${stBr};color:${stColor}">${stLbl}</span>
-                        ${cntOD>0?`<span style="display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;border:1.5px solid var(--cr);background:var(--c-rose);font-size:10px;font-weight:700;color:#9f1239;animation:seatPulse 1s infinite"><span class="mi" style="font-size:11px">warning</span>${cntOD} Overdue</span>`:''}
-                        ${cntDue>0?`<span style="display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;border:1.5px solid var(--ca2);background:var(--c-amber);font-size:10px;font-weight:700;color:#854d0e"><span class="mi" style="font-size:11px">schedule</span>${cntDue} Due</span>`:''}
-                        <button onclick="editBatch(${bi})" class="btn bg" style="font-size:10.5px;padding:4px 8px"><span class="mi sm">edit</span></button>
-                        <button onclick="delBatch(${bi})" class="btn bd" style="font-size:10.5px;padding:4px 8px"><span class="mi sm">close</span></button>
-                        <span class="mi sm" style="color:var(--tx3)" id="chev-${b.id}">expand_less</span>
-                    </div>
-                </div>
-                <!-- Batch body -->
-                <div id="bbody-${b.id}">
-                    <!-- Occupancy bar -->
-                    <div style="padding:10px 16px 6px">
-                        <div style="display:flex;justify-content:space-between;margin-bottom:5px">
-                            <span style="font-size:11.5px;font-weight:600;color:var(--em);display:flex;align-items:center;gap:4px"><span class="mi fill" style="font-size:13px">chair</span>${b.total-b.occupied} Vacant</span>
-                            <span style="font-size:11.5px;font-weight:600;color:var(--ac);display:flex;align-items:center;gap:4px"><span class="mi fill" style="font-size:13px">person</span>${b.occupied} Occupied</span>
-                            <span style="font-size:11.5px;color:var(--tx3)">${b.total} Total</span>
-                        </div>
-                        <div class="sbar"><div class="sfill ${barCls}" style="width:${pct}%"></div></div>
-                    </div>
-                    <!-- Seat grid -->
-                    <div style="padding:10px 16px 14px">
-                        <div class="seat-visual">${cells}</div>
-                        ${chips?`<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:12px;padding-top:12px;border-top:1px solid var(--br)">${chips}</div>`:''}
-                    </div>
-                </div>
-            </div>`;
-        }).join('')||'<div style="text-align:center;padding:40px;color:var(--tx3)">No batches yet. Click + Add Batch to get started.</div>';
+        renderActiveBatchSeats();
     }
 
-    function toggleBatch(id){
-        const body=document.getElementById(`bbody-${id}`);
-        const chev=document.getElementById(`chev-${id}`);
-        if(!body)return;
-        const collapsed=body.style.display==='none';
-        body.style.display=collapsed?'block':'none';
-        if(chev)chev.textContent=collapsed?'expand_less':'expand_more';
+    function switchSeatBatch(bId){
+        seatActiveBatch=bId;
+        seatSelectedCell=null;
+        renderSeats();
+        seatDetailEmpty();
+    }
+
+    function renderActiveBatchSeats(){
+        const grid=document.getElementById('seatBatchGrid');
+        const b=DB.batches.find(x=>x.id===seatActiveBatch);
+        if(!b){grid.innerHTML='<div style="text-align:center;padding:40px;color:var(--tx3)">No batches yet. Click + Add Batch to get started.</div>';return;}
+
+        const bi=DB.batches.findIndex(x=>x.id===b.id);
+        const pct=b.total>0?Math.round(b.occupied/b.total*100):0;
+        const barCls=pct>=100?'sf-r':pct>=70?'sf-y':'sf-g';
+        const stLbl=pct>=100?'Full':pct>=70?'Filling':'Open';
+        const stColor=pct>=100?'var(--ro)':pct>=70?'var(--gd)':'var(--em)';
+        const stBg=pct>=100?'var(--c-rose)':pct>=70?'var(--c-amber)':'var(--c-green)';
+        const stBr=pct>=100?'var(--cr)':pct>=70?'var(--ca2)':'var(--cg)';
+
+        const bStudents=DB.students.filter(s=>s.batchId===b.id);
+        const map={};bStudents.forEach(s=>{if(s.seat)map[s.seat]=s;});
+        let cntVac=0,cntPaid=0,cntDue=0,cntOD=0,cells='';
+
+        for(let i=1;i<=b.total;i++){
+            const sn=seatLbl(b.name,i);
+            const stu=map[sn];
+            let cls='seat-vac',ttText=`${sn} — Vacant`,inner='',statusIc='';
+            if(stu){
+                const init=(stu.fname[0]+(stu.lname?stu.lname[0]:'')).toUpperCase();
+                if(stu.feeStatus==='overdue'){
+                    cls='seat-overdue';cntOD++;statusIc='warning';
+                    ttText=`${sn} · ${stu.fname} ${stu.lname||''} — Overdue ₹${stu.netFee-stu.paidAmt}`;
+                } else if(stu.feeStatus==='pending'||stu.feeStatus==='partial'){
+                    cls='seat-due';cntDue++;statusIc='schedule';
+                    ttText=`${sn} · ${stu.fname} ${stu.lname||''} — ${stu.feeStatus==='partial'?'Partial':'Pending'} ₹${stu.netFee-stu.paidAmt} due`;
+                } else {
+                    cls='seat-occ';cntPaid++;statusIc='person';
+                    ttText=`${sn} · ${stu.fname} ${stu.lname||''} — Paid ✓`;
+                }
+                const multiNote=stu.otherShifts&&stu.otherShifts.length>0?' · 🔀 Multi-shift':'';
+                inner=`<div class="seat-num">${sn}</div>
+                       <span class="mi fill seat-status-ic">${statusIc}</span>
+                       <div class="seat-init">${init}</div>`;
+                ttText+=multiNote;
+            } else {
+                cntVac++;
+                inner=`<div class="seat-num">${sn}</div>
+                       <span class="mi fill" style="font-size:16px;line-height:1;opacity:.4">chair</span>`;
+            }
+            const multiDot=stu&&stu.otherShifts&&stu.otherShifts.length>0?'<div class="seat-multishift-dot"></div>':'';
+            const isSelected=seatSelectedCell===`${b.id}|${sn}`;
+            cells+=`<div class="seat-cell ${cls}${isSelected?' seat-selected':''}" id="sc-${b.id}-${sn}" onclick="onSeatClick('${b.id}','${sn}',this)">
+                <div class="seat-tooltip">${ttText}</div>
+                ${multiDot}${inner}
+            </div>`;
+        }
+
+        // Summary chips
+        const chips=[
+            cntVac>0  ?`<span style="display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;border:1.5px solid var(--br);background:var(--sf2);font-size:11px;font-weight:700;color:var(--tx2)"><span class="mi fill" style="font-size:12px;color:#94a3b8">chair</span>${cntVac} Vacant</span>`:'',
+            cntPaid>0 ?`<span style="display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;border:1.5px solid #a5b4fc;background:#eef2ff;font-size:11px;font-weight:700;color:#3730a3"><span class="mi fill" style="font-size:12px">person</span>${cntPaid} Paid</span>`:'',
+            cntDue>0  ?`<span style="display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;border:1.5px solid var(--ca2);background:var(--c-amber);font-size:11px;font-weight:700;color:#854d0e"><span class="mi" style="font-size:12px">schedule</span>${cntDue} Pending</span>`:'',
+            cntOD>0   ?`<span style="display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;border:1.5px solid var(--cr);background:var(--c-rose);font-size:11px;font-weight:700;color:#9f1239;animation:seatPulse 1s infinite"><span class="mi" style="font-size:12px">warning</span>${cntOD} Overdue</span>`:'',
+        ].filter(Boolean).join('');
+
+        document.getElementById('seatBatchGrid').innerHTML=`<div style="background:var(--sf);border:1px solid var(--br);border-radius:var(--r);box-shadow:var(--sh);overflow:hidden" id="bc-${b.id}">
+            <div style="padding:12px 16px;border-bottom:1px solid var(--br);display:flex;align-items:center;justify-content:space-between;background:var(--sf2)">
+                <div style="display:flex;align-items:center;gap:11px">
+                    <div style="width:40px;height:40px;border-radius:10px;background:var(--sf);border:1.5px solid var(--br);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+                        <span class="mi fill" style="color:var(--ac);font-size:20px">${batchIcon(b.name)}</span>
+                    </div>
+                    <div>
+                        <div style="font-size:13.5px;font-weight:700;color:var(--tx)">${b.name}</div>
+                        <div style="font-size:10.5px;color:var(--tx3);font-family:var(--fm);margin-top:2px">${fmtT(b.startTime)} – ${fmtT(b.endTime)} &nbsp;·&nbsp; ₹${b.baseFee}/mo &nbsp;·&nbsp; AC +₹${b.acExtra}</div>
+                    </div>
+                </div>
+                <div style="display:flex;align-items:center;gap:6px">
+                    <span style="padding:3px 10px;border-radius:20px;font-size:9.5px;font-weight:700;font-family:var(--fm);background:${stBg};border:1.5px solid ${stBr};color:${stColor}">${stLbl}</span>
+                    <button onclick="editBatch(${bi})" class="btn bg" style="font-size:10.5px;padding:4px 8px"><span class="mi sm">edit</span></button>
+                    <button onclick="delBatch(${bi})" class="btn bd" style="font-size:10.5px;padding:4px 8px"><span class="mi sm">close</span></button>
+                </div>
+            </div>
+            <div style="padding:10px 16px 6px">
+                <div style="display:flex;justify-content:space-between;margin-bottom:5px">
+                    <span style="font-size:11.5px;font-weight:600;color:var(--em);display:flex;align-items:center;gap:4px"><span class="mi fill" style="font-size:13px">chair</span>${b.total-b.occupied} Vacant</span>
+                    <span style="font-size:11.5px;font-weight:600;color:var(--ac);display:flex;align-items:center;gap:4px"><span class="mi fill" style="font-size:13px">person</span>${b.occupied} Occupied</span>
+                    <span style="font-size:11.5px;color:var(--tx3)">${b.total} Total</span>
+                </div>
+                <div class="sbar"><div class="sfill ${barCls}" style="width:${pct}%"></div></div>
+            </div>
+            <div style="padding:10px 16px 14px">
+                <div class="seat-visual">${cells}</div>
+                ${chips?`<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:12px;padding-top:12px;border-top:1px solid var(--br)">${chips}</div>`:''}
+            </div>
+        </div>`;
     }
 
     function onSeatClick(bId,sn,el){
@@ -3323,21 +3343,19 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
     }
 
     function jumpToBatch(batchId,seatNum,stuId){
-        // Expand if collapsed
-        const body=document.getElementById(`bbody-${batchId}`);
-        const chev=document.getElementById(`chev-${batchId}`);
-        if(body&&body.style.display==='none'){body.style.display='block';if(chev)chev.textContent='expand_less';}
-        // Scroll to batch card
-        const card=document.getElementById(`bc-${batchId}`);
-        const panel=document.getElementById('seatBatchGrid');
-        if(card&&panel){panel.scrollTo({top:card.offsetTop-12,behavior:'smooth'});}
-        // Flash highlight
-        if(card){card.style.outline='2.5px solid var(--or)';card.style.outlineOffset='2px';setTimeout(()=>{card.style.outline='';card.style.outlineOffset='';},1800);}
-        // Select seat after scroll animation
+        // Switch to the target shift's tab
+        seatActiveBatch=batchId;
+        seatSelectedCell=null;
+        renderSeats();
+        // Select the seat and flash-highlight it once the grid has rendered
         setTimeout(()=>{
             const cell=document.getElementById(`sc-${batchId}-${seatNum}`);
-            if(cell)cell.click();
-        },350);
+            if(cell){
+                cell.click();
+                cell.style.boxShadow='0 0 0 4px rgba(249,115,22,.4)';
+                setTimeout(()=>{cell.style.boxShadow='';},1500);
+            }
+        },50);
     }
 
     function seatDetailEmpty(){
@@ -3391,8 +3409,8 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
             overdue:{lbl:'Overdue', ic:'warning',      color:'#9f1239', bg:'var(--c-rose)', br:'var(--cr)'},
         };
         const st=stMap[stu.feeStatus]||stMap.pending;
-        const admDate=stu.admDate||stu.enrollDate||'—';
-        const expDate=stu.expDate||stu.renewalDate||'—';
+        const admDate=fmtDate(stu.joinDate)||'—';
+        const expDate=fmtDate(stu.dueDate)||'—';
         const isExpiring=stu.feeStatus==='overdue';
 
         // Multi-shift banner — students enrolled in more than one batch (matched by fname+lname)
