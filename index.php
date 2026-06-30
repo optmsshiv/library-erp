@@ -3196,7 +3196,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         const n=(name||'').toLowerCase();
         if(n.includes('1st')||n.includes('early')||n.includes('morning')) return 'wb_twilight';
         if(n.includes('2nd')||n.includes('afternoon'))                      return 'wb_sunny';
-        if(n.includes('3rd')||n.includes('evening'))                        return 'wb_dusk';
+        if(n.includes('3rd')||n.includes('evening'))                        return 'bedtime';
         if(n.includes('night'))                                              return 'nights_stay';
         return 'schedule';
     }
