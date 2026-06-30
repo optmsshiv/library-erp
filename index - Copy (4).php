@@ -178,18 +178,23 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         .bst{font-size:9px;font-weight:700;padding:3px 8px;border-radius:20px;font-family:var(--fm)}
         .bst-o{background:var(--c-green);color:#166534}.bst-f{background:var(--c-rose);color:#9f1239}.bst-n{background:var(--c-amber);color:#92400e}
 
-        .seat-visual{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
-        .seat-cell{width:52px;height:38px;border-radius:10px;border:1.5px solid;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:all .15s;font-weight:700;position:relative;gap:1px}
-        .seat-cell:hover{transform:scale(1.08);z-index:5;box-shadow:0 4px 14px rgba(0,0,0,.13)}
-        .seat-num{font-size:11px;font-family:var(--fm);font-weight:700;line-height:1}
-        .seat-init{font-size:9px;font-weight:800;opacity:.8;line-height:1}
+        .seat-visual{display:flex;flex-wrap:wrap;gap:10px;margin-top:0}
+        .seat-cell{width:64px;height:64px;border-radius:12px;border:2px solid;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:all .2s cubic-bezier(.4,0,.2,1);font-weight:700;position:relative;gap:3px}
+        .seat-cell:hover{transform:translateY(-2px);z-index:5;box-shadow:0 6px 18px rgba(0,0,0,.13)}
+        .seat-cell.seat-selected{box-shadow:0 0 0 3px var(--ac) !important;transform:translateY(-2px)}
+        .seat-num{font-size:11px;font-family:var(--fm);font-weight:700;line-height:1;letter-spacing:.02em}
+        .seat-init{font-size:11px;font-weight:700;line-height:1}
         .seat-occ{background:#dbeafe;border-color:#93c5fd;color:#1d4ed8}
         .seat-vac{background:var(--c-green);border-color:var(--cg);color:#166534}
         .seat-due{background:var(--c-amber);border-color:var(--ca2);color:#92400e;animation:pulseDue 2s infinite}
-        .seat-overdue{background:var(--c-rose);border-color:var(--cr);color:#9f1239;animation:pulseDue 1s infinite}
-        .seat-tooltip{display:none;position:absolute;bottom:calc(100%+7px);left:50%;transform:translateX(-50%);background:var(--tx);color:#fff;font-size:10px;padding:6px 11px;border-radius:8px;white-space:nowrap;z-index:20;pointer-events:none;line-height:1.5;text-align:center}
+        .seat-overdue{background:var(--c-rose);border-color:var(--cr);color:#9f1239;animation:pulseDue 1s infinite;box-shadow:0 0 0 4px rgba(220,38,38,.18)}
+        .seat-tooltip{display:none;position:absolute;bottom:calc(100%+8px);left:50%;transform:translateX(-50%);background:var(--tx);color:#fff;font-size:10px;padding:6px 12px;border-radius:8px;white-space:nowrap;z-index:20;pointer-events:none;line-height:1.5;text-align:center;box-shadow:0 4px 12px rgba(0,0,0,.18)}
         .seat-cell:hover .seat-tooltip{display:block}
         .seat-summary{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;padding-top:14px;border-top:1px solid var(--br)}
+        /* Batch tab pills */
+        .batch-tab{padding:8px 16px;font-size:12px;font-weight:600;color:var(--tx3);border-bottom:2px solid transparent;cursor:pointer;white-space:nowrap;transition:all .18s;background:none;border-left:none;border-right:none;border-top:none;font-family:var(--fb)}
+        .batch-tab:hover{color:var(--tx);background:var(--sf2)}
+        .batch-tab.active{color:var(--ac);border-bottom-color:var(--ac)}
         .ss-chip{display:inline-flex;align-items:center;gap:6px;padding:6px 13px 6px 9px;border-radius:20px;border:1.5px solid;font-family:var(--fm);box-shadow:0 1px 4px rgba(0,0,0,.07);transition:transform .15s;cursor:default}
         .ss-chip:hover{transform:translateY(-1px)}
         .ss-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
@@ -440,66 +445,76 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         .sal-days{font-size:11px;color:var(--tx3);font-family:var(--fm)}
         .sal-amt{font-size:14px;font-weight:700;font-family:var(--fm);color:var(--em)}
         /* ── AUDIT LOG ──────────────────────────────────────── */
-        #page-audit{--audit-head:'Syne',sans-serif;--audit-mono:'DM Mono',monospace;--audit-body:'Lora',serif}
-        .audit-page-hd{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:22px;gap:12px;flex-wrap:wrap}
+        /* ── AUDIT LOG ──────────────────────────────────────────────────── */
+        #page-audit{}
+        .audit-page-hd{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px;gap:12px;flex-wrap:wrap}
         .audit-hd-left{}
-        .audit-eyebrow{font-family:var(--audit-mono,'JetBrains Mono',monospace);font-size:10px;font-weight:500;color:var(--tx3);letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;display:flex;align-items:center;gap:6px}
-        .audit-eyebrow-dot{width:6px;height:6px;border-radius:50%;background:var(--ac);display:inline-block;flex-shrink:0}
-        .audit-page-title{font-family:var(--audit-head,var(--fd));font-size:26px;font-weight:800;color:var(--tx);line-height:1.1;letter-spacing:-.5px}
-        .audit-page-sub{font-size:12px;color:var(--tx3);margin-top:5px;font-style:italic;font-family:var(--audit-body,var(--fb))}
+        .audit-page-title{font-size:22px;font-weight:800;color:var(--tx);letter-spacing:-.4px;line-height:1.1}
+        .audit-page-sub{font-size:12px;color:var(--tx3);margin-top:4px}
         .audit-hd-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-        .audit-btn-export{display:inline-flex;align-items:center;gap:5px;padding:7px 13px;border-radius:var(--r2);font-size:12px;font-weight:600;cursor:pointer;border:1px solid var(--br);background:var(--sf);color:var(--tx2);font-family:var(--fb);transition:all .15s;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+        .audit-btn-export{display:inline-flex;align-items:center;gap:5px;padding:7px 13px;border-radius:var(--r2);font-size:11.5px;font-weight:600;cursor:pointer;border:1px solid var(--br);background:var(--sf);color:var(--tx2);transition:all .15s}
         .audit-btn-export:hover{background:var(--sf2);border-color:var(--br2)}
-        .audit-btn-clear{display:inline-flex;align-items:center;gap:5px;padding:7px 13px;border-radius:var(--r2);font-size:12px;font-weight:600;cursor:pointer;border:1px solid var(--cr);background:var(--c-rose);color:var(--ro);font-family:var(--fb);transition:all .15s}
+        .audit-btn-clear{display:inline-flex;align-items:center;gap:5px;padding:7px 13px;border-radius:var(--r2);font-size:11.5px;font-weight:600;cursor:pointer;border:1px solid var(--cr);background:var(--c-rose);color:var(--ro);transition:all .15s}
         .audit-btn-clear:hover{background:#f9d8d5}
-        .audit-stats-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:9px;margin-bottom:18px}
-        .audit-stat-chip{background:var(--sf);border:1px solid var(--br);border-radius:var(--r);padding:11px 13px;cursor:pointer;transition:all .18s;position:relative;overflow:hidden}
-        .audit-stat-chip::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--asc-cl,var(--br2))}
-        .audit-stat-chip:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(0,0,0,.08)}
-        .audit-stat-chip.asc-on{border-color:var(--asc-cl,var(--ac));background:var(--asc-bg,var(--c-blue))}
-        .audit-stat-chip.asc-on::before{height:3px}
-        .asc-icon{font-size:14px;margin-bottom:3px;font-family:monospace}
-        .asc-count{font-family:var(--audit-head,var(--fd));font-size:20px;font-weight:800;color:var(--asc-cl,var(--tx));line-height:1}
-        .asc-label{font-family:var(--audit-mono,'JetBrains Mono',monospace);font-size:9px;font-weight:500;color:var(--tx3);text-transform:uppercase;letter-spacing:1.2px;margin-top:2px}
-        .audit-search-bar{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;align-items:center}
-        .audit-srch-wrap{flex:1;min-width:180px;position:relative}
-        .audit-srch-wrap input{width:100%;padding:8px 12px 8px 34px;border:1px solid var(--br);border-radius:var(--r2);background:var(--sf);color:var(--tx);font-size:12.5px;font-family:var(--audit-body,var(--fb));outline:none;transition:all .18s}
+        /* Stats row — Option A pill chips */
+        .audit-stats-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+        .audit-stat-chip{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:20px;font-size:12px;font-weight:500;border:1px solid var(--br);background:var(--sf);color:var(--tx2);cursor:pointer;transition:all .15s;white-space:nowrap}
+        .audit-stat-chip:hover{background:var(--sf2);border-color:var(--br2)}
+        .audit-stat-chip.asc-on{background:var(--asc-bg,var(--c-blue));color:var(--asc-cl,var(--ac));border-color:var(--asc-cl,var(--ac))}
+        .asc-icon{font-size:13px;line-height:1}
+        .asc-count{font-size:10px;font-weight:700;padding:0 5px;border-radius:8px;background:rgba(0,0,0,.07);color:inherit}
+        .audit-stat-chip.asc-on .asc-count{background:rgba(255,255,255,.25)}
+        .asc-label{font-size:12px}
+        .asc-right{}
+        /* Search bar — single row 3 columns */
+        .audit-search-bar{display:grid;grid-template-columns:2fr 1fr 1fr;gap:8px;margin-bottom:12px;align-items:center}
+        .audit-srch-wrap{position:relative}
+        .audit-srch-wrap input{width:100%;padding:8px 12px 8px 34px;border:1px solid var(--br);border-radius:var(--r2);background:var(--sf);color:var(--tx);font-size:12px;outline:none;transition:all .15s}
         .audit-srch-wrap input:focus{border-color:var(--ac);box-shadow:0 0 0 3px rgba(61,111,240,.08)}
-        .audit-srch-ico{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--tx3);pointer-events:none}
-        .audit-flt-sel{padding:8px 11px;border:1px solid var(--br);border-radius:var(--r2);background:var(--sf);color:var(--tx2);font-size:11.5px;font-family:var(--audit-mono,'JetBrains Mono',monospace);font-weight:500;outline:none;cursor:pointer;transition:border-color .15s}
+        .audit-srch-ico{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--tx3);pointer-events:none}
+        .audit-flt-sel{width:100%;padding:8px 11px;border:1px solid var(--br);border-radius:var(--r2);background:var(--sf);color:var(--tx2);font-size:11.5px;outline:none;cursor:pointer;transition:border-color .15s}
         .audit-flt-sel:focus{border-color:var(--ac)}
-        .audit-panel{background:var(--sf);border:1px solid var(--br);border-radius:var(--r);overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.04)}
-        .audit-panel-hd{padding:13px 20px;border-bottom:1px solid var(--br);display:flex;align-items:center;justify-content:space-between;background:var(--sf2)}
-        .audit-panel-title{font-family:var(--audit-head,var(--fd));font-size:13px;font-weight:700;color:var(--tx);letter-spacing:.2px}
-        .audit-count-pill{font-family:var(--audit-mono,'JetBrains Mono',monospace);font-size:10px;color:var(--tx3);background:var(--bg);border:1px solid var(--br);border-radius:20px;padding:2px 10px}
-        .audit-date-sep{padding:7px 20px;background:var(--sf2);border-bottom:1px solid var(--br);font-family:var(--audit-mono,'JetBrains Mono',monospace);font-size:9.5px;font-weight:500;color:var(--tx3);letter-spacing:1.5px;text-transform:uppercase;display:flex;align-items:center;gap:8px}
+        /* Panel */
+        .audit-panel{background:var(--sf);border:1px solid var(--br);border-radius:var(--r);overflow:hidden;box-shadow:0 1px 6px rgba(0,0,0,.04)}
+        .audit-panel-hd{padding:11px 16px;border-bottom:1px solid var(--br);display:flex;align-items:center;justify-content:space-between;background:var(--sf2)}
+        .audit-panel-title{font-size:12px;font-weight:700;color:var(--tx);letter-spacing:.1px}
+        .audit-count-pill{font-size:10px;color:var(--tx3);background:var(--bg);border:1px solid var(--br);border-radius:20px;padding:2px 10px}
+        /* Date separator */
+        .audit-date-sep{padding:6px 16px;background:var(--bg);border-bottom:1px solid var(--br);font-size:9.5px;font-weight:700;color:var(--tx3);text-transform:uppercase;letter-spacing:1.2px;display:flex;align-items:center;gap:8px}
         .audit-date-sep::after{content:'';flex:1;height:1px;background:var(--br)}
-        .audit-log-entry{display:flex;gap:13px;padding:13px 20px;border-bottom:1px solid var(--br);transition:background .12s;align-items:flex-start;position:relative}
+        /* Entry card */
+        .audit-log-entry{display:grid;grid-template-columns:auto 1fr auto;gap:0;border-bottom:1px solid var(--br);transition:background .1s;align-items:stretch;position:relative}
         .audit-log-entry:last-child{border-bottom:none}
         .audit-log-entry:hover{background:var(--sf2)}
-        .audit-log-entry:hover .ale-del{opacity:1}
-        .ale-timeline{display:flex;flex-direction:column;align-items:center;flex-shrink:0;padding-top:2px}
-        .ale-dot{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;font-family:monospace;font-weight:700}
-        .ale-line{width:1px;flex:1;min-height:14px;margin-top:4px;background:repeating-linear-gradient(to bottom,var(--br) 0,var(--br) 3px,transparent 3px,transparent 7px)}
-        .audit-log-entry:last-child .ale-line{display:none}
-        .ale-body{flex:1;min-width:0}
-        .ale-top{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-bottom:2px}
-        .ale-who{font-family:var(--audit-head,var(--fd));font-size:12.5px;font-weight:700;color:var(--tx)}
-        .ale-tag{font-family:var(--audit-mono,'JetBrains Mono',monospace);font-size:9px;font-weight:500;padding:2px 8px;border-radius:4px;text-transform:uppercase;letter-spacing:.8px;border:1px solid transparent}
-        .ale-text{font-family:var(--audit-body,var(--fb));font-size:12.5px;font-style:italic;color:var(--tx2);line-height:1.5}
-        .ale-time{font-family:var(--audit-mono,'JetBrains Mono',monospace);font-size:10px;color:var(--tx3);margin-top:4px;display:flex;align-items:center;gap:4px}
-        .ale-del{opacity:0;transition:opacity .15s;width:25px;height:25px;border-radius:6px;border:1px solid var(--br);background:var(--sf);color:var(--tx3);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;align-self:center;padding:0}
+        .audit-log-entry:hover .ale-del{opacity:1;pointer-events:auto}
+        /* Left accent bar */
+        .ale-accent{width:3px;background:var(--ale-cl,var(--br2));flex-shrink:0;border-radius:0}
+        /* Body */
+        .ale-body{padding:11px 14px;min-width:0;display:flex;flex-direction:column;gap:3px}
+        .ale-top{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+        .ale-who{font-size:12px;font-weight:700;color:var(--tx);white-space:nowrap}
+        .ale-who-sep{font-size:10px;color:var(--tx3)}
+        .ale-tag{font-size:9px;font-weight:700;padding:2px 7px;border-radius:4px;text-transform:uppercase;letter-spacing:.6px;border:1px solid transparent;white-space:nowrap}
+        .ale-text{font-size:12px;color:var(--tx2);line-height:1.45}
+        .ale-text strong{font-weight:700;color:var(--tx)}
+        .ale-time{font-size:10px;color:var(--tx3);display:flex;align-items:center;gap:4px;margin-top:1px}
+        /* Right side — timestamp + delete */
+        .ale-right{display:flex;flex-direction:column;align-items:flex-end;justify-content:space-between;padding:11px 14px 11px 0;gap:6px;flex-shrink:0}
+        .ale-ts{font-size:10px;color:var(--tx3);white-space:nowrap;text-align:right}
+        .ale-del{opacity:0;transition:opacity .15s;width:24px;height:24px;border-radius:6px;border:1px solid var(--br);background:var(--sf);color:var(--tx3);cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;pointer-events:none}
         .ale-del:hover{background:var(--c-rose);color:var(--ro);border-color:var(--cr)}
-        .audit-empty{text-align:center;padding:56px 20px}
-        .audit-empty-ico{font-size:36px;margin-bottom:10px;opacity:.35}
-        .audit-empty-t{font-family:var(--audit-head,var(--fd));font-size:15px;font-weight:700;color:var(--tx2);margin-bottom:4px}
-        .audit-empty-s{font-size:12px;color:var(--tx3);font-style:italic;font-family:var(--audit-body,var(--fb))}
-        .audit-pagination{padding:11px 20px;border-top:1px solid var(--br);display:flex;align-items:center;justify-content:space-between;background:var(--sf2)}
-        .audit-pg-info{font-family:var(--audit-mono,'JetBrains Mono',monospace);font-size:10px;color:var(--tx3)}
-        .audit-pg-btns{display:flex;gap:4px}
-        .audit-pg-btn{width:27px;height:27px;border-radius:6px;border:1px solid var(--br);background:var(--sf);color:var(--tx2);cursor:pointer;font-size:11px;font-family:var(--audit-mono,'JetBrains Mono',monospace);display:flex;align-items:center;justify-content:center;transition:all .12s}
+        /* Empty state */
+        .audit-empty{text-align:center;padding:52px 20px}
+        .audit-empty-ico{font-size:34px;margin-bottom:10px;opacity:.3}
+        .audit-empty-t{font-size:14px;font-weight:700;color:var(--tx2);margin-bottom:4px}
+        .audit-empty-s{font-size:12px;color:var(--tx3)}
+        /* Pagination */
+        .audit-pagination{padding:10px 16px;border-top:1px solid var(--br);display:flex;align-items:center;justify-content:space-between;background:var(--sf2);gap:8px}
+        .audit-pg-info{font-size:11px;color:var(--tx3);white-space:nowrap}
+        .audit-pg-btns{display:flex;gap:3px}
+        .audit-pg-btn{min-width:27px;height:27px;padding:0 6px;border-radius:6px;border:1px solid var(--br);background:var(--sf);color:var(--tx2);cursor:pointer;font-size:11px;display:flex;align-items:center;justify-content:center;transition:all .12s}
         .audit-pg-btn:hover{background:var(--sf2);border-color:var(--br2)}
-        .audit-pg-btn.apg-on{background:var(--tx);color:#fff;border-color:var(--tx)}
+        .audit-pg-btn.apg-on{background:var(--ac);color:#fff;border-color:var(--ac)}
         .audit-pg-btn:disabled{opacity:.3;cursor:default;pointer-events:none}
         /* ── PWA ─────────────────────────────────────────────── */
         .pwa-banner{display:none;position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:var(--ac);color:#fff;border-radius:12px;padding:12px 20px;font-size:13px;font-weight:600;gap:10px;align-items:center;box-shadow:0 4px 20px rgba(61,111,240,.35);z-index:9999;cursor:pointer;max-width:340px;width:90%}
@@ -552,6 +567,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
             .tw { overflow: visible !important; }
         }
     </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 </head>
 <body>
 <!-- SIDEBAR -->
@@ -769,24 +785,92 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
 
         <!-- SEATS -->
         <div class="page" id="page-seats">
+            <!-- Page Header -->
             <div class="sec-hd">
-                <div><div class="sec-t">Seat Allocation</div><div class="sec-s">Batch seat map with fee status highlight</div></div>
-                <div style="display:flex;gap:7px"><button class="btn bp" data-action="add_batch" onclick="openM('mAddBatch')">+ Add Batch</button><button class="btn bg" data-action="alloc_seat" onclick="openM('mAllocSeat')">Allocate Seat</button></div>
-            </div>
-            <div class="stats-grid" style="grid-template-columns:repeat(3,1fr)">
-                <div class="sc" style="--ca:var(--ac)"><div class="s-row"><div class="s-ic" style="background:var(--c-blue)"><span class="mi" style="color:var(--ac);font-size:17px">event_seat</span></div><span class="s-lb">Total Seats</span></div><div class="s-vl" id="st-total">0</div></div>
-                <div class="sc" style="--ca:var(--em)"><div class="s-row"><div class="s-ic" style="background:var(--c-green)"><span class="mi" style="color:var(--em);font-size:17px">check_circle</span></div><span class="s-lb">Vacant</span></div><div class="s-vl" id="st-vacant">0</div></div>
-                <div class="sc" style="--ca:var(--ro)"><div class="s-row"><div class="s-ic" style="background:var(--c-rose)"><span class="mi" style="color:var(--ro);font-size:17px">person</span></div><span class="s-lb">Occupied</span></div><div class="s-vl" id="st-occupied">0</div></div>
-            </div>
-            <div style="margin-bottom:10px">
-                <div class="seat-legend">
-                    <div class="sl-item"><div class="sl-dot seat-vac"></div>Vacant</div>
-                    <div class="sl-item"><div class="sl-dot seat-occ"></div>Paid &amp; Occupied</div>
-                    <div class="sl-item"><div class="sl-dot seat-due"></div>Fee Pending / Partial</div>
-                    <div class="sl-item"><div class="sl-dot seat-overdue"></div>Fee Overdue</div>
+                <div><div class="sec-t">Seat Allocation</div><div class="sec-s">Interactive floor map with fee status highlight</div></div>
+                <div style="display:flex;gap:7px">
+                    <button class="btn bp" data-action="add_batch" onclick="openM('mAddBatch')">+ Add Batch</button>
+                    <button class="btn bg" data-action="alloc_seat" onclick="openM('mAllocSeat')"><span class="mi sm">event_seat</span> Allocate Seat</button>
                 </div>
             </div>
-            <div class="g2" id="batchGrid"></div>
+
+            <!-- Summary Cards (4 cards like screenshot) -->
+            <div class="stats-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:14px">
+                <div class="sc" style="--ca:var(--ac)"><div class="s-row"><div class="s-ic" style="background:var(--c-blue)"><span class="mi" style="color:var(--ac);font-size:17px">event_seat</span></div><span class="s-lb">Total Seats</span></div><div class="s-vl" id="st-total">0</div></div>
+                <div class="sc" style="--ca:var(--tx2)"><div class="s-row"><div class="s-ic" style="background:var(--sf3)"><span class="mi" style="color:var(--tx2);font-size:17px">person</span></div><span class="s-lb">Occupied</span></div><div class="s-vl" id="st-occupied">0</div></div>
+                <div class="sc" style="--ca:var(--em)"><div class="s-row"><div class="s-ic" style="background:var(--c-green)"><span class="mi" style="color:var(--em);font-size:17px">check_circle</span></div><span class="s-lb">Vacant</span></div><div class="s-vl" id="st-vacant">0</div></div>
+                <div class="sc" style="--ca:var(--or)"><div class="s-row"><div class="s-ic" style="background:var(--c-orange)"><span class="mi" style="color:var(--or);font-size:17px">bookmark</span></div><span class="s-lb">Fee Issues</span></div><div class="s-vl" id="st-issues">0</div></div>
+            </div>
+
+            <!-- Filter Bar -->
+            <div style="background:var(--sf);border:1px solid var(--br);border-radius:var(--r);padding:10px 16px;display:flex;align-items:center;gap:18px;margin-bottom:14px;flex-wrap:wrap;box-shadow:var(--sh)">
+                <div style="display:flex;align-items:center;gap:8px">
+                    <span style="font-size:11px;color:var(--tx3);font-weight:600;font-family:var(--fm)">BATCH</span>
+                    <select id="seatBatchFilter" onchange="renderSeats()" style="font-size:12px;padding:5px 10px;width:auto">
+                        <option value="all">All Batches</option>
+                    </select>
+                </div>
+                <div style="display:flex;align-items:center;gap:8px">
+                    <span style="font-size:11px;color:var(--tx3);font-weight:600;font-family:var(--fm)">STATUS</span>
+                    <select id="seatStatusFilter" onchange="renderSeats()" style="font-size:12px;padding:5px 10px;width:auto">
+                        <option value="all">All</option>
+                        <option value="vacant">Vacant</option>
+                        <option value="paid">Paid</option>
+                        <option value="due">Fee Pending</option>
+                        <option value="overdue">Overdue</option>
+                    </select>
+                </div>
+                <div style="margin-left:auto;display:flex;align-items:center;gap:10px">
+                    <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--tx2)"><div style="width:10px;height:10px;border-radius:50%;background:var(--em)"></div>Vacant</div>
+                    <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--tx2)"><div style="width:10px;height:10px;border-radius:50%;background:#3b82f6"></div>Occupied</div>
+                    <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--tx2)"><div style="width:10px;height:10px;border-radius:50%;background:var(--gd)"></div>Fee Pending</div>
+                    <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--tx2)"><div style="width:10px;height:10px;border-radius:50%;background:var(--ro)"></div>Overdue</div>
+                </div>
+            </div>
+
+            <!-- Main Two-Column Layout: Floor Map + Seat Details -->
+            <div style="display:grid;grid-template-columns:1fr 300px;gap:14px;min-height:560px">
+
+                <!-- Left: Floor Map Panel -->
+                <div style="background:var(--sf);border:1px solid var(--br);border-radius:var(--r);overflow:hidden;display:flex;flex-direction:column;box-shadow:var(--sh)">
+                    <div class="ph">
+                        <div class="pt" id="seatMapTitle">Interactive Floor Map</div>
+                        <div style="display:flex;gap:6px">
+                            <button class="btn bg" style="font-size:11px;padding:5px 10px" onclick="openM('mAddBatch')"><span class="mi sm">add</span> Add Batch</button>
+                        </div>
+                    </div>
+                    <!-- Batch tabs -->
+                    <div id="seatBatchTabs" style="display:flex;gap:0;border-bottom:1px solid var(--br);overflow-x:auto;flex-shrink:0"></div>
+                    <!-- Seat Grid Area -->
+                    <div style="flex:1;overflow:auto;padding:20px;background:var(--sf2)" id="seatMapArea">
+                        <div class="seat-visual" id="seatGridMain" style="gap:10px"></div>
+                    </div>
+                    <!-- Progress bar at bottom -->
+                    <div style="padding:10px 16px;border-top:1px solid var(--br);background:var(--sf)">
+                        <div style="display:flex;justify-content:space-between;margin-bottom:5px">
+                            <span style="font-size:11px;color:var(--tx3);font-family:var(--fm)" id="seatProgLabel">0 / 0 occupied</span>
+                            <span style="font-size:11px;font-weight:700;color:var(--ac)" id="seatProgPct">0%</span>
+                        </div>
+                        <div class="sbar"><div class="sfill sf-g" id="seatProgBar" style="width:0%"></div></div>
+                    </div>
+                </div>
+
+                <!-- Right: Seat Details Panel -->
+                <div style="background:var(--sf);border:1px solid var(--br);border-radius:var(--r);overflow:hidden;display:flex;flex-direction:column;box-shadow:var(--sh)">
+                    <div class="ph"><div class="pt">Seat Details</div></div>
+                    <div style="flex:1;overflow-y:auto;padding:18px;display:flex;flex-direction:column;gap:18px" id="seatDetailPanel">
+                        <!-- Default empty state -->
+                        <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:10px;padding:30px 0;text-align:center">
+                            <div style="width:56px;height:56px;background:var(--sf2);border-radius:14px;display:flex;align-items:center;justify-content:center;border:1px solid var(--br)">
+                                <span class="mi" style="font-size:26px;color:var(--tx3)">event_seat</span>
+                            </div>
+                            <div style="font-weight:700;font-size:13px;color:var(--tx)">No seat selected</div>
+                            <div style="font-size:11px;color:var(--tx3)">Click any seat on the map to view details</div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
         </div>
 
         <!-- ATTENDANCE -->
@@ -794,7 +878,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
             <div class="sec-hd">
                 <div><div class="sec-t">Attendance</div><div class="sec-s" id="attLbl"></div></div>
                 <div style="display:flex;gap:7px;align-items:center;flex-wrap:wrap">
-                    <select id="attBatchF" onchange="renderAtt()" style="font-size:12px;padding:6px 9px"><option value="all">All Batches</option></select>
+                    <select id="attBatchF" onchange="attPage=1;renderAtt()" style="font-size:12px;padding:6px 9px"><option value="all">All Batches</option></select>
                     <button class="btn bp" onclick="saveAtt()"><span class="mi sm">save</span>Save</button>
                     <button class="btn bg" onclick="markAll(true)">✓ All Present</button>
                     <button class="btn bd" onclick="markAll(false)" style="font-size:11px">✗ All Absent</button>
@@ -842,7 +926,18 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
             <div class="panel"><div class="tw"><table>
                         <thead><tr><th>Student</th><th>Batch</th><th>Seat</th><th>Fee Status</th><th>Check In</th><th>Check Out</th><th>Hours</th><th>Attend.</th><th>Toggle</th></tr></thead>
                         <tbody id="attTable"></tbody>
-                    </table></div></div>
+                    </table></div>
+                <div class="pag">
+                    <span class="pag-i" id="attPagI"></span>
+                    <div class="pag-b" id="attPagB"></div>
+                    <select id="attPerPageSel" onchange="attPerPage=+this.value;attPage=1;renderAtt()" style="font-size:11px;padding:3px 8px;border:1px solid var(--br);border-radius:var(--r2);background:var(--sf2);color:var(--tx);cursor:pointer;width:auto;flex-shrink:0">
+                        <option value="10" selected>10 / page</option>
+                        <option value="15">15 / page</option>
+                        <option value="25">25 / page</option>
+                        <option value="50">50 / page</option>
+                        <option value="9999">All</option>
+                    </select>
+                </div></div>
         </div>
 
         <!-- BIOMETRIC -->
@@ -916,7 +1011,15 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
                         <thead><tr><th>Book</th><th>Author</th><th>Category</th><th>Copies</th><th>Available</th><th>Shelf</th><th>Status</th><th>Action</th></tr></thead>
                         <tbody id="bkTable"></tbody>
                     </table></div>
-                <div class="pag"><span class="pag-i" id="bkPagI"></span><div class="pag-b" id="bkPagB"></div></div></div>
+                <div class="pag"><span class="pag-i" id="bkPagI"></span><div class="pag-b" id="bkPagB"></div>
+                    <select id="bkPerPageSel" onchange="bkPerPage=+this.value;bkPage=1;renderBooks()" style="font-size:11px;padding:3px 8px;border:1px solid var(--br);border-radius:var(--r2);background:var(--sf2);color:var(--tx);cursor:pointer;width:auto;flex-shrink:0">
+                        <option value="10" selected>10 / page</option>
+                        <option value="15">15 / page</option>
+                        <option value="25">25 / page</option>
+                        <option value="50">50 / page</option>
+                        <option value="9999">All</option>
+                    </select>
+                </div></div>
         </div>
 
         <!-- TRANSACTIONS -->
@@ -934,7 +1037,18 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
             <div class="panel"><div class="tw"><table>
                         <thead><tr><th>Student</th><th>Book</th><th>Issue Date</th><th>Due Date</th><th>Return Date</th><th>Fine</th><th>Status</th><th>Action</th></tr></thead>
                         <tbody id="txTable"></tbody>
-                    </table></div></div>
+                    </table></div>
+                <div class="pag">
+                    <span class="pag-i" id="txPagI"></span>
+                    <div class="pag-b" id="txPagB"></div>
+                    <select id="txPerPageSel" onchange="txPerPage=+this.value;txPage=1;renderTx()" style="font-size:11px;padding:3px 8px;border:1px solid var(--br);border-radius:var(--r2);background:var(--sf2);color:var(--tx);cursor:pointer;width:auto;flex-shrink:0">
+                        <option value="10" selected>10 / page</option>
+                        <option value="15">15 / page</option>
+                        <option value="25">25 / page</option>
+                        <option value="50">50 / page</option>
+                        <option value="9999">All</option>
+                    </select>
+                </div></div>
         </div>
 
         <!-- FEES -->
@@ -964,7 +1078,15 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
                         <thead><tr><th>Student</th><th>Batch</th><th>Full Fee</th><th>Discount</th><th>Net Fee</th><th>Paid Amt</th><th>Balance Due</th><th>Paid On</th><th>Status</th><th>Due Date</th><th>Action</th></tr></thead>
                         <tbody id="feeTable"></tbody>
                     </table></div>
-                <div class="pag"><span class="pag-i" id="feePagI"></span></div>
+                <div class="pag"><span class="pag-i" id="feePagI"></span><div class="pag-b" id="feePagB"></div>
+                    <select id="feePerPageSel" onchange="feePerPage=+this.value;feePage=1;renderFees()" style="font-size:11px;padding:3px 8px;border:1px solid var(--br);border-radius:var(--r2);background:var(--sf2);color:var(--tx);cursor:pointer;width:auto;flex-shrink:0">
+                        <option value="10" selected>10 / page</option>
+                        <option value="15">15 / page</option>
+                        <option value="25">25 / page</option>
+                        <option value="50">50 / page</option>
+                        <option value="9999">All</option>
+                    </select>
+                </div>
             </div>
         </div>
 
@@ -974,7 +1096,18 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
             <div class="panel"><div id="invRevSummary"></div><div class="tw"><table>
                         <thead><tr><th>Invoice #</th><th>Student</th><th>Type</th><th>Total Fee</th><th>Discount</th><th>Paid</th><th>Balance</th><th>Date</th><th>Mode</th><th>Status</th><th>Action</th></tr></thead>
                         <tbody id="invTable"></tbody>
-                    </table></div></div>
+                    </table></div>
+                <div class="pag">
+                    <span class="pag-i" id="invPagI"></span>
+                    <div class="pag-b" id="invPagB"></div>
+                    <select id="invPerPageSel" onchange="invPerPage=+this.value;invPage=1;renderInv()" style="font-size:11px;padding:3px 8px;border:1px solid var(--br);border-radius:var(--r2);background:var(--sf2);color:var(--tx);cursor:pointer;width:auto;flex-shrink:0">
+                        <option value="10" selected>10 / page</option>
+                        <option value="15">15 / page</option>
+                        <option value="25">25 / page</option>
+                        <option value="50">50 / page</option>
+                        <option value="9999">All</option>
+                    </select>
+                </div></div>
         </div>
 
         <!-- EXPENSES -->
@@ -1088,6 +1221,14 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
                                 <option value="">All Categories</option>
                             </select>
                         </div>
+                        <!-- Active / Archived roster filter (Student Directory only) -->
+                        <div id="flt-roster-wrap" style="display:none;align-items:center;gap:6px">
+                            <label style="font-size:11px;color:var(--tx3)">Roster</label>
+                            <select id="flt-roster" onchange="applyRptFilters()" style="font-size:11px;padding:4px 8px;width:auto">
+                                <option value="active" selected>Active</option>
+                                <option value="archived">Archived</option>
+                            </select>
+                        </div>
                         <div style="margin-left:auto;display:flex;gap:8px">
                             <button class="btn bg" onclick="exportRptCSV()" style="font-size:11px"><span class="mi sm">download</span> CSV</button>
                             <button class="btn bg" onclick="printReport()" style="font-size:11px"><span class="mi sm">print</span> Print</button>
@@ -1119,7 +1260,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
                     <div class="sec-s">Students removed from active list — can be restored or permanently deleted</div>
                 </div>
                 <div style="display:flex;gap:8px;align-items:center">
-                    <input id="archSrch" placeholder="Search archived…" oninput="renderArchived(this.value)" style="font-size:12px;padding:6px 11px;width:200px">
+                    <input id="archSrch" placeholder="Search archived…" oninput="archPage=1;renderArchived(this.value)" style="font-size:12px;padding:6px 11px;width:200px">
                 </div>
             </div>
             <!-- Stats -->
@@ -1138,6 +1279,17 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
                         </tr></thead>
                         <tbody id="archTable"><tr><td colspan="9" style="text-align:center;padding:28px;color:var(--tx3)">Loading…</td></tr></tbody>
                     </table>
+                </div>
+                <div class="pag">
+                    <span class="pag-i" id="archPagI"></span>
+                    <div class="pag-b" id="archPagB"></div>
+                    <select id="archPerPageSel" onchange="archPerPage=+this.value;archPage=1;renderArchived(document.getElementById('archSrch').value)" style="font-size:11px;padding:3px 8px;border:1px solid var(--br);border-radius:var(--r2);background:var(--sf2);color:var(--tx);cursor:pointer;width:auto;flex-shrink:0">
+                        <option value="10" selected>10 / page</option>
+                        <option value="15">15 / page</option>
+                        <option value="25">25 / page</option>
+                        <option value="50">50 / page</option>
+                        <option value="9999">All</option>
+                    </select>
                 </div>
             </div>
         </div>
@@ -1200,7 +1352,17 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
             <div class="panel"><div class="tw"><table>
                         <thead><tr><th>Staff</th><th>Role</th><th>Email</th><th>Phone</th><th>Permissions</th><th>Status</th><th>Action</th></tr></thead>
                         <tbody id="staffTable"></tbody>
-                    </table></div></div>
+                    </table></div>
+                <div class="pag">
+                    <span class="pag-i" id="staffPagI"></span>
+                    <div class="pag-b" id="staffPagB"></div>
+                    <select id="staffPerPageSel" onchange="staffPerPage=+this.value;staffPage=1;renderStaff()" style="font-size:11px;padding:3px 8px;border:1px solid var(--br);border-radius:var(--r2);background:var(--sf2);color:var(--tx);cursor:pointer;width:auto;flex-shrink:0">
+                        <option value="10" selected>10 / page</option>
+                        <option value="15">15 / page</option>
+                        <option value="25">25 / page</option>
+                        <option value="9999">All</option>
+                    </select>
+                </div></div>
         </div>
 
 
@@ -1259,30 +1421,26 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
 
         <!-- AUDIT LOG -->
         <div class="page" id="page-audit">
-            <!-- Page header -->
             <div class="audit-page-hd">
                 <div class="audit-hd-left">
-                    <div class="audit-eyebrow"><span class="audit-eyebrow-dot"></span>OPTMS ERP &nbsp;/&nbsp; System</div>
-                    <div class="audit-page-title">Audit Log</div>
+                    <div class="audit-page-title"><span class="mi" style="vertical-align:middle;margin-right:8px;font-size:22px;color:var(--ac)">manage_search</span>Audit Log</div>
                     <div class="audit-page-sub">Every action recorded — who did what, and when</div>
                 </div>
                 <div class="audit-hd-actions">
                     <button class="audit-btn-export" onclick="auditExportCSV()">
-                        <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M6 1v7M3 5l3 3 3-3M2 10h8" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                        Export CSV
+                        <span class="mi sm">download</span> Export CSV
                     </button>
                     <button class="audit-btn-clear" onclick="clearAudit()">
-                        <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 3h8M5 1h2M4.5 3v7M7.5 3v7M2.5 3l.5 7h6l.5-7" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                        Clear Log
+                        <span class="mi sm">delete_sweep</span> Clear Log
                     </button>
                 </div>
             </div>
             <!-- Stat chips -->
             <div class="audit-stats-row" id="auditStats"></div>
-            <!-- Search + filters -->
+            <!-- Search + filters — single row 3 columns -->
             <div class="audit-search-bar">
                 <div class="audit-srch-wrap">
-                    <svg class="audit-srch-ico" width="13" height="13" viewBox="0 0 14 14" fill="none"><circle cx="6" cy="6" r="4.5" stroke="currentColor" stroke-width="1.3"/><path d="M10 10l2.5 2.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+                    <span class="mi audit-srch-ico" style="font-size:15px">search</span>
                     <input type="text" id="auditSearch" placeholder="Search actions, staff, or type…" oninput="renderAudit()">
                 </div>
                 <select class="audit-flt-sel" id="auditFilter" onchange="renderAudit()">
@@ -2210,6 +2368,75 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
 
     // ═══ DASHBOARD ═══
     let calDate=new Date(new Date().getFullYear(),new Date().getMonth(),1); // always start at current month
+    let _batchOccChart=null, _feeTrendChart=null;
+    function renderDashCharts(){
+        const batchCanvas = document.getElementById('batchOccChart');
+        if(batchCanvas && window.Chart){
+            const labels = DB.batches.map(b=>b.name||('Batch '+b.id));
+            const occ = DB.batches.map(b=>b.occupied);
+            const vac = DB.batches.map(b=>b.total-b.occupied);
+            if(_batchOccChart) _batchOccChart.destroy();
+            _batchOccChart = new Chart(batchCanvas,{
+                type:'bar',
+                data:{ labels, datasets:[
+                    {label:'Occupied', data:occ, backgroundColor:'#185FA5', borderRadius:3},
+                    {label:'Vacant', data:vac, backgroundColor:'#e2e8f0', borderRadius:3}
+                ]},
+                options:{
+                    responsive:true, maintainAspectRatio:false, indexAxis:'y',
+                    plugins:{ legend:{display:false} },
+                    scales:{
+                        x:{ stacked:true, grid:{display:false}, ticks:{color:'#64748b', font:{size:10}} },
+                        y:{ stacked:true, grid:{display:false}, ticks:{color:'#64748b', font:{size:10}} }
+                    }
+                }
+            });
+        }
+
+        const trendCanvas = document.getElementById('feeTrendChart');
+        if(trendCanvas && window.Chart){
+            const now = new Date();
+            const months = [];
+            for(let i=5;i>=0;i--){
+                const d = new Date(now.getFullYear(), now.getMonth()-i, 1);
+                months.push({ y:d.getFullYear(), m:d.getMonth(), collected:0, pending:0, overdue:0,
+                    label:d.toLocaleDateString('en-IN',{month:'short'}) });
+            }
+            DB.invoices.forEach(inv=>{
+                if(!inv.paidOn && inv.status!=='paid') return;
+                const d = new Date(inv.paidOn || inv.createdAt || now);
+                const bucket = months.find(b=>b.y===d.getFullYear() && b.m===d.getMonth());
+                if(!bucket) return;
+                if(inv.status==='paid' || inv.status==='partial') bucket.collected += inv.paidAmt||0;
+            });
+            DB.students.forEach(st=>{
+                const due = (st.netFee||0)-(st.paidAmt||0);
+                if(due<=0) return;
+                const d = st.dueDate ? new Date(st.dueDate) : now;
+                const bucket = months.find(b=>b.y===d.getFullYear() && b.m===d.getMonth()) || months[months.length-1];
+                if(st.feeStatus==='overdue') bucket.overdue += due;
+                else bucket.pending += due;
+            });
+            if(_feeTrendChart) _feeTrendChart.destroy();
+            _feeTrendChart = new Chart(trendCanvas,{
+                type:'bar',
+                data:{ labels: months.map(m=>m.label), datasets:[
+                    {label:'Collected', data:months.map(m=>m.collected), backgroundColor:'#16a34a', borderRadius:3, stack:'s'},
+                    {label:'Pending', data:months.map(m=>m.pending), backgroundColor:'rgba(217,119,6,0.5)', borderRadius:3, stack:'s'},
+                    {label:'Overdue', data:months.map(m=>m.overdue), backgroundColor:'rgba(220,38,38,0.4)', borderRadius:3, stack:'s'}
+                ]},
+                options:{
+                    responsive:true, maintainAspectRatio:false,
+                    plugins:{ legend:{display:false} },
+                    scales:{
+                        x:{ stacked:true, grid:{display:false}, ticks:{color:'#64748b', font:{size:10}} },
+                        y:{ stacked:true, grid:{color:'rgba(0,0,0,0.05)'}, ticks:{color:'#64748b', font:{size:10}, callback:v=>'₹'+(v/1000)+'K'} }
+                    }
+                }
+            });
+        }
+    }
+
     function renderDash(){
         const s=DB.students;
         const paid=s.filter(x=>x.feeStatus==='paid');
@@ -2238,101 +2465,14 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
     <div class="al-card al-i"><span style="font-size:17px">🎁</span><div><div class="al-t">Discounts Applied</div><div class="al-b">${s.filter(x=>x.baseFee>x.netFee).length} students with discounts — ₹${totalDiscount.toLocaleString()} waived</div></div></div>`;
 
         document.getElementById('dashStats').innerHTML=`
-    <div class="sc" style="--ca:var(--ac)"><div class="s-row"><div class="s-ic" style="background:var(--c-blue)"><span class="mi" style="color:var(--ac);font-size:17px">school</span></div><span class="s-lb">Total Students</span></div><div class="s-vl">${s.length}</div><div class="s-mt"><span class="bup">↑ 12%</span> this month</div></div>
-    <div class="sc" style="--ca:var(--em)"><div class="s-row"><div class="s-ic" style="background:var(--c-green)"><span class="mi" style="color:var(--em);font-size:17px">event_seat</span></div><span class="s-lb">Seats Available</span></div><div class="s-vl">${totalSeats-occSeats}</div><div class="s-mt">${occSeats}/${totalSeats} occupied</div></div>
-    <div class="sc" style="--ca:var(--gd)"><div class="s-row"><div class="s-ic" style="background:var(--c-amber)"><span class="mi" style="color:var(--gd);font-size:17px">payments</span></div><span class="s-lb">Revenue Collected</span></div><div class="s-vl">${fmt(activeStudentRev)}</div><div class="s-mt" style="display:flex;flex-direction:column;gap:3px;margin-top:4px">
-      <span style="display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:600;color:#166534"><span style="width:6px;height:6px;border-radius:50%;background:#16a34a;flex-shrink:0"></span>₹${revLivePaid.toLocaleString('en-IN')} live · fully paid</span>
-      ${revLivePartial>0?`<span style="display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:600;color:#92400e"><span style="width:6px;height:6px;border-radius:50%;background:#d97706;flex-shrink:0"></span>₹${revLivePartial.toLocaleString('en-IN')} live · partial</span>`:''}
-      ${revFromDeleted>0?`<span style="display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:600;color:#9f1239;opacity:.75"><span style="width:6px;height:6px;border-radius:50%;background:#e11d48;flex-shrink:0"></span>₹${revFromDeleted.toLocaleString('en-IN')} deleted students</span>`:''}
-    </div></div>
-    <div class="sc" style="--ca:var(--ro)"><div class="s-row"><div class="s-ic" style="background:var(--c-rose)"><span class="mi" style="color:var(--ro);font-size:17px">pending</span></div><span class="s-lb">Total Due</span></div><div class="s-vl">${fmt(allDue)}</div><div class="s-mt" style="color:var(--ro)">${[...pending,...overdue,...partial].length} students</div></div>
-    <div class="sc" style="--ca:var(--or)"><div class="s-row"><div class="s-ic" style="background:var(--c-orange)"><span class="mi" style="color:var(--or);font-size:17px">redeem</span></div><span class="s-lb">Discounts Given</span></div><div class="s-vl">${fmt(totalDiscount)}</div><div class="s-mt">${s.filter(x=>x.baseFee>x.netFee).length} students</div></div>
-    <div class="sc" style="--ca:var(--vi)"><div class="s-row"><div class="s-ic" style="background:var(--c-purple)"><span class="mi" style="color:var(--vi);font-size:17px">menu_book</span></div><span class="s-lb">Books Issued</span></div><div class="s-vl">${issTx.length}</div><div class="s-mt" style="color:var(--ro)">${odTx.length} overdue</div></div>
-    <div class="sc" style="--ca:var(--sk)"><div class="s-row"><div class="s-ic" style="background:var(--c-sky)"><span class="mi" style="color:var(--sk);font-size:17px">fact_check</span></div><span class="s-lb">Attendance Today</span></div><div class="s-vl">${prsnt}</div><div class="s-mt" style="color:var(--em)">${s.length?Math.round(prsnt/s.length*100):0}%</div></div>
-    <div class="sc" style="--ca:#7c3aed;cursor:pointer" onclick="navTo('biometric')"><div class="s-row"><div class="s-ic" style="background:#faf5ff"><span class="mi" style="color:#7c3aed;font-size:17px">fingerprint</span></div><span class="s-lb">Biometric Check-ins</span></div><div class="s-vl">${Object.values(_bioToday).filter(b=>b.in).length}</div><div class="s-mt" style="color:#7c3aed">today · via device</div></div>
+    <div class="sc" style="--ca:var(--ac);padding:0;overflow:hidden;display:flex;transition:box-shadow .2s,transform .2s" onmouseenter="this.style.transform='translateY(-2px)';this.style.boxShadow='var(--sh2)'" onmouseleave="this.style.transform='';this.style.boxShadow=''"><div style="background:#185FA5;width:58px;display:flex;align-items:center;justify-content:center;flex-shrink:0"><div style="width:42px;height:42px;border-radius:50%;background:rgba(255,255,255,0.13);display:flex;align-items:center;justify-content:center"><span class="mi" style="color:#E6F1FB;font-size:22px">school</span></div></div><div style="padding:10px 12px;display:flex;flex-direction:column;gap:3px;flex:1;align-items:flex-end"><div style="font-size:24px;font-weight:700;color:var(--tx);line-height:1">${s.length}</div><div style="width:100%;height:1px;background:var(--br)"></div><div style="font-size:11px;color:var(--tx3);font-weight:500">Total Students</div><div style="display:flex;align-items:center;gap:4px"><span class="mi" style="font-size:12px;color:var(--em)">arrow_upward</span><span style="font-size:11px;color:var(--em);font-weight:600">12%</span><span style="font-size:11px;color:var(--tx3)">this month</span></div></div></div>
+    <div class="sc" style="--ca:var(--em);padding:0;overflow:hidden;display:flex;transition:box-shadow .2s,transform .2s" onmouseenter="this.style.transform='translateY(-2px)';this.style.boxShadow='var(--sh2)'" onmouseleave="this.style.transform='';this.style.boxShadow=''"><div style="background:#166534;width:58px;display:flex;align-items:center;justify-content:center;flex-shrink:0"><div style="width:42px;height:42px;border-radius:50%;background:rgba(255,255,255,0.13);display:flex;align-items:center;justify-content:center"><span class="mi" style="color:#dcfce7;font-size:22px">event_seat</span></div></div><div style="padding:10px 12px;display:flex;flex-direction:column;gap:3px;flex:1;align-items:flex-end"><div style="font-size:24px;font-weight:700;color:var(--tx);line-height:1">${totalSeats-occSeats}</div><div style="width:100%;height:1px;background:var(--br)"></div><div style="font-size:11px;color:var(--tx3);font-weight:500">Seats Available</div><div style="font-size:11px;color:var(--tx3)">${occSeats}/${totalSeats} occupied</div></div></div>
+    <div class="sc" style="--ca:var(--ro);padding:0;overflow:hidden;display:flex;transition:box-shadow .2s,transform .2s" onmouseenter="this.style.transform='translateY(-2px)';this.style.boxShadow='var(--sh2)'" onmouseleave="this.style.transform='';this.style.boxShadow=''"><div style="background:#991b1b;width:58px;display:flex;align-items:center;justify-content:center;flex-shrink:0"><div style="width:42px;height:42px;border-radius:50%;background:rgba(255,255,255,0.13);display:flex;align-items:center;justify-content:center"><span class="mi" style="color:#fecdd3;font-size:22px">pending</span></div></div><div style="padding:10px 12px;display:flex;flex-direction:column;gap:3px;flex:1;align-items:flex-end"><div style="font-size:24px;font-weight:700;color:var(--tx);line-height:1">${fmt(allDue)}</div><div style="width:100%;height:1px;background:var(--br)"></div><div style="font-size:11px;color:var(--tx3);font-weight:500">Total Due</div><div style="font-size:11px;color:var(--ro);font-weight:600">${[...pending,...overdue,...partial].length} students</div></div></div>
+    <div class="sc" style="--ca:var(--or);padding:0;overflow:hidden;display:flex;transition:box-shadow .2s,transform .2s" onmouseenter="this.style.transform='translateY(-2px)';this.style.boxShadow='var(--sh2)'" onmouseleave="this.style.transform='';this.style.boxShadow=''"><div style="background:#9a3412;width:58px;display:flex;align-items:center;justify-content:center;flex-shrink:0"><div style="width:42px;height:42px;border-radius:50%;background:rgba(255,255,255,0.13);display:flex;align-items:center;justify-content:center"><span class="mi" style="color:#fed7aa;font-size:22px">redeem</span></div></div><div style="padding:10px 12px;display:flex;flex-direction:column;gap:3px;flex:1;align-items:flex-end"><div style="font-size:24px;font-weight:700;color:var(--tx);line-height:1">${fmt(totalDiscount)}</div><div style="width:100%;height:1px;background:var(--br)"></div><div style="font-size:11px;color:var(--tx3);font-weight:500">Discounts Given</div><div style="font-size:11px;color:var(--tx3)">${s.filter(x=>x.baseFee>x.netFee).length} students</div></div></div>
+    <div class="sc" style="--ca:var(--vi);padding:0;overflow:hidden;display:flex;transition:box-shadow .2s,transform .2s" onmouseenter="this.style.transform='translateY(-2px)';this.style.boxShadow='var(--sh2)'" onmouseleave="this.style.transform='';this.style.boxShadow=''"><div style="background:#5b21b6;width:58px;display:flex;align-items:center;justify-content:center;flex-shrink:0"><div style="width:42px;height:42px;border-radius:50%;background:rgba(255,255,255,0.13);display:flex;align-items:center;justify-content:center"><span class="mi" style="color:#e9d5ff;font-size:22px">menu_book</span></div></div><div style="padding:10px 12px;display:flex;flex-direction:column;gap:3px;flex:1;align-items:flex-end"><div style="font-size:24px;font-weight:700;color:var(--tx);line-height:1">${issTx.length}</div><div style="width:100%;height:1px;background:var(--br)"></div><div style="font-size:11px;color:var(--tx3);font-weight:500">Books Issued</div><div style="font-size:11px;color:var(--ro);font-weight:600">${odTx.length} overdue</div></div></div>
+    <div class="sc" style="--ca:var(--sk);padding:0;overflow:hidden;display:flex;transition:box-shadow .2s,transform .2s" onmouseenter="this.style.transform='translateY(-2px)';this.style.boxShadow='var(--sh2)'" onmouseleave="this.style.transform='';this.style.boxShadow=''"><div style="background:#075985;width:58px;display:flex;align-items:center;justify-content:center;flex-shrink:0"><div style="width:42px;height:42px;border-radius:50%;background:rgba(255,255,255,0.13);display:flex;align-items:center;justify-content:center"><span class="mi" style="color:#bae6fd;font-size:22px">fact_check</span></div></div><div style="padding:10px 12px;display:flex;flex-direction:column;gap:3px;flex:1;align-items:flex-end"><div style="font-size:24px;font-weight:700;color:var(--tx);line-height:1">${prsnt}</div><div style="width:100%;height:1px;background:var(--br)"></div><div style="font-size:11px;color:var(--tx3);font-weight:500">Attendance Today</div><div style="font-size:11px;color:var(--em);font-weight:600">${s.length?Math.round(prsnt/s.length*100):0}% rate</div></div></div>
+    <div class="sc" style="--ca:#7c3aed;padding:0;overflow:hidden;display:flex;cursor:pointer;transition:box-shadow .2s,transform .2s" onclick="navTo('biometric')" onmouseenter="this.style.transform='translateY(-2px)';this.style.boxShadow='var(--sh2)'" onmouseleave="this.style.transform='';this.style.boxShadow=''"><div style="background:#4c1d95;width:58px;display:flex;align-items:center;justify-content:center;flex-shrink:0"><div style="width:42px;height:42px;border-radius:50%;background:rgba(255,255,255,0.13);display:flex;align-items:center;justify-content:center"><span class="mi" style="color:#e9d5ff;font-size:22px">fingerprint</span></div></div><div style="padding:10px 12px;display:flex;flex-direction:column;gap:3px;flex:1;align-items:flex-end"><div style="font-size:24px;font-weight:700;color:var(--tx);line-height:1">${Object.values(_bioToday).filter(b=>b.in).length}</div><div style="width:100%;height:1px;background:var(--br)"></div><div style="font-size:11px;color:var(--tx3);font-weight:500">Biometric Check-ins</div><div style="font-size:11px;color:#7c3aed;font-weight:600">today · via device</div></div></div>
     ${(()=>{
-      // ── Monthly Expenses Sparkline Card ──
-      const now = new Date();
-      const curY = now.getFullYear(), curM = now.getMonth();
-
-      // Build last-6-months buckets
-      const months = [];
-      for(let i = 5; i >= 0; i--){
-        const d = new Date(curY, curM - i, 1);
-        months.push({ y: d.getFullYear(), m: d.getMonth(), total: 0,
-          label: d.toLocaleDateString('en-IN',{month:'short'}) });
-      }
-      DB.expenses.forEach(e => {
-        if(!e.date) return;
-        const d = new Date(e.date);
-        const bucket = months.find(b => b.y===d.getFullYear() && b.m===d.getMonth());
-        if(bucket) bucket.total += e.amount;
-      });
-
-      const curTotal  = months[5].total;
-      const prevTotal = months[4].total;
-      const pctChange = prevTotal > 0 ? ((curTotal - prevTotal) / prevTotal * 100) : 0;
-      const isUp      = pctChange >= 0;
-      const vals      = months.map(b => b.total);
-      const maxV      = Math.max(...vals, 1);
-
-      // SVG sparkline (area chart) — 220×60
-      const W=220, H=60, padX=6, padY=6;
-      const pts = vals.map((v,i)=>{
-        const x = padX + (i / (vals.length-1)) * (W - padX*2);
-        const y = H - padY - (v/maxV) * (H - padY*2);
-        return [x.toFixed(1), y.toFixed(1)];
-      });
-      const polyline = pts.map(p=>p.join(',')).join(' ');
-      const area = `${pts[0][0]},${H-padY} ${polyline} ${pts[pts.length-1][0]},${H-padY}`;
-
-      // Y-axis tick labels (3 levels)
-      const yTicks = [0, Math.round(maxV/2), maxV].map((v,i)=>{
-        const y = H - padY - (v/maxV)*(H-padY*2);
-        const label = v>=1000?`${(v/1000).toFixed(0)}K`:`${v}`;
-        return `<text x="0" y="${y.toFixed(1)}" font-size="5.5" fill="var(--tx3)" dominant-baseline="middle" font-family="JetBrains Mono,monospace">${label}</text>`;
-      }).join('');
-
-      const xLabels = months.map((b,i)=>{
-        const x = padX + (i/(vals.length-1))*(W-padX*2);
-        return `<text x="${x.toFixed(1)}" y="${H+1}" font-size="6" fill="var(--tx3)" text-anchor="middle" font-family="JetBrains Mono,monospace">${b.label}</text>`;
-      }).join('');
-
-      // dot on last point
-      const lastPt = pts[pts.length-1];
-      const dot = `<circle cx="${lastPt[0]}" cy="${lastPt[1]}" r="3" fill="var(--vi)" stroke="#fff" stroke-width="1.5"/>`;
-
-      return `<div class="sc" style="--ca:var(--vi);padding:14px 16px;min-width:0;grid-column:span 1">
-        <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:6px">
-          <div>
-            <div style="font-size:10px;font-weight:700;color:var(--tx3);letter-spacing:.8px;text-transform:uppercase;font-family:var(--fm)">Monthly Expenses</div>
-            <div style="font-size:22px;font-weight:800;color:var(--tx);line-height:1.15;font-family:var(--fd)">₹${curTotal.toLocaleString('en-IN')}</div>
-            <div style="display:flex;align-items:center;gap:5px;margin-top:3px">
-              <span style="display:inline-flex;align-items:center;gap:2px;padding:2px 6px;border-radius:5px;font-size:10px;font-weight:700;background:${isUp?'rgba(220,38,38,.10)':'rgba(22,163,74,.12)'};color:${isUp?'var(--ro)':'var(--em)'}">
-                ${isUp?'▲':'▼'} ${Math.abs(pctChange).toFixed(1)}%
-              </span>
-              <span style="font-size:10px;color:var(--tx3)">vs last month</span>
-            </div>
-          </div>
-          <div style="font-size:9px;color:var(--tx3);font-family:var(--fm);background:var(--sf2);border:1px solid var(--br);border-radius:6px;padding:3px 8px;white-space:nowrap">This Month</div>
-        </div>
-        <svg width="100%" viewBox="0 0 ${W} ${H+10}" preserveAspectRatio="none" style="display:block;overflow:visible">
-          <defs>
-            <linearGradient id="expGrad" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stop-color="var(--vi)" stop-opacity="0.22"/>
-              <stop offset="100%" stop-color="var(--vi)" stop-opacity="0.02"/>
-            </linearGradient>
-          </defs>
-          ${yTicks}
-          <polygon points="${area}" fill="url(#expGrad)"/>
-          <polyline points="${polyline}" fill="none" stroke="var(--vi)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
-          ${dot}
-          ${xLabels}
-        </svg>
-      </div>`;
-    })()}
-    ${(()=>{
-      // ── Quick Summary — Seats Donut Card ──
       const total = totalSeats || 1;
       const occPct = occSeats / total;
       const circ = 2 * Math.PI * 28;
@@ -2347,51 +2487,76 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
       const occDashV  = (occSeats/total) * circFull;
       const offset    = circFull * 0.25; // start from top
 
-      return `<div class="sc" style="--ca:var(--em);padding:14px 16px;min-width:0">
-        <div style="font-size:10px;font-weight:700;color:var(--tx3);letter-spacing:.8px;text-transform:uppercase;font-family:var(--fm);margin-bottom:10px">Quick Summary</div>
-        <div style="display:flex;align-items:center;gap:16px">
-          <!-- Donut -->
-          <div style="position:relative;flex-shrink:0;width:80px;height:80px">
-            <svg width="80" height="80" viewBox="0 0 72 72">
-              <!-- track -->
-              <circle cx="36" cy="36" r="28" fill="none" stroke="#e8edf5" stroke-width="10"/>
-              <!-- occupied (blue) — drawn first, from top -->
-              <circle cx="36" cy="36" r="28" fill="none" stroke="var(--ac)" stroke-width="10"
-                stroke-dasharray="${occDashV.toFixed(1)} ${circFull.toFixed(1)}"
-                stroke-dashoffset="${offset.toFixed(1)}"
-                stroke-linecap="butt"/>
-              <!-- available (green) — starts after occupied arc -->
-              <circle cx="36" cy="36" r="28" fill="none" stroke="var(--em)" stroke-width="10"
-                stroke-dasharray="${availDash.toFixed(1)} ${circFull.toFixed(1)}"
-                stroke-dashoffset="${(offset - occDashV).toFixed(1)}"
-                stroke-linecap="butt"/>
-            </svg>
-            <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center">
-              <div style="font-size:15px;font-weight:800;color:var(--tx);line-height:1;font-family:var(--fd)">${totalSeats}</div>
-              <div style="font-size:8px;color:var(--tx3);font-weight:600;margin-top:2px;font-family:var(--fm)">Total Seats</div>
+      return `<div style="grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px">
+        <div style="display:flex;flex-direction:column;gap:14px">
+          <div class="sc" style="--ca:var(--gd);padding:0;overflow:hidden;display:flex;transition:box-shadow .2s,transform .2s" onmouseenter="this.style.transform='translateY(-2px)';this.style.boxShadow='var(--sh2)'" onmouseleave="this.style.transform='';this.style.boxShadow=''">
+            <div style="background:#92400e;width:46px;display:flex;align-items:center;justify-content:center;flex-shrink:0"><div style="width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,0.13);display:flex;align-items:center;justify-content:center"><span class="mi" style="color:#fde68a;font-size:16px">payments</span></div></div>
+            <div style="padding:10px 12px;display:flex;flex-direction:column;gap:3px;flex:1;align-items:flex-end">
+              <div style="font-size:19px;font-weight:700;color:var(--tx);line-height:1">${fmt(activeStudentRev)}</div>
+              <div style="width:100%;height:1px;background:var(--br)"></div>
+              <div style="font-size:10px;color:var(--tx3);font-weight:500">Revenue Collected</div>
+              <div style="display:flex;flex-direction:column;gap:2px;align-items:flex-end;margin-top:2px">
+                <span style="display:inline-flex;align-items:center;gap:4px;font-size:9px;font-weight:600;color:#166534"><span style="width:5px;height:5px;border-radius:50%;background:#16a34a;flex-shrink:0"></span>₹${revLivePaid.toLocaleString('en-IN')} live · fully paid</span>
+                ${revLivePartial>0?`<span style="display:inline-flex;align-items:center;gap:4px;font-size:9px;font-weight:600;color:#92400e"><span style="width:5px;height:5px;border-radius:50%;background:#d97706;flex-shrink:0"></span>₹${revLivePartial.toLocaleString('en-IN')} live · partial</span>`:''}
+                ${revFromDeleted>0?`<span style="display:inline-flex;align-items:center;gap:4px;font-size:9px;font-weight:600;color:#9f1239;opacity:.75"><span style="width:5px;height:5px;border-radius:50%;background:#e11d48;flex-shrink:0"></span>₹${revFromDeleted.toLocaleString('en-IN')} deleted students</span>`:''}
+              </div>
             </div>
           </div>
-          <!-- Legend -->
-          <div style="display:flex;flex-direction:column;gap:7px;flex:1;min-width:0">
-            <div style="display:flex;align-items:center;gap:6px;font-size:11px;font-weight:700">
-              <span style="width:8px;height:8px;border-radius:50%;background:var(--em);flex-shrink:0"></span>
-              <span style="color:var(--tx2);flex:1">Available</span>
-              <span style="color:var(--em)">${avail} <span style="font-size:9px;color:var(--tx3);font-weight:500">(${availPct}%)</span></span>
+          <div class="sc" style="--ca:var(--em);padding:12px 14px;min-width:0">
+            <div style="font-size:10px;font-weight:700;color:var(--tx3);letter-spacing:.8px;text-transform:uppercase;font-family:var(--fm);margin-bottom:10px">Quick Summary</div>
+            <div style="display:flex;align-items:center;gap:12px">
+              <div style="position:relative;flex-shrink:0;width:64px;height:64px">
+                <svg width="64" height="64" viewBox="0 0 72 72">
+                  <circle cx="36" cy="36" r="28" fill="none" stroke="#e8edf5" stroke-width="10"/>
+                  <circle cx="36" cy="36" r="28" fill="none" stroke="var(--ac)" stroke-width="10"
+                    stroke-dasharray="${occDashV.toFixed(1)} ${circFull.toFixed(1)}"
+                    stroke-dashoffset="${offset.toFixed(1)}"
+                    stroke-linecap="butt"/>
+                  <circle cx="36" cy="36" r="28" fill="none" stroke="var(--em)" stroke-width="10"
+                    stroke-dasharray="${availDash.toFixed(1)} ${circFull.toFixed(1)}"
+                    stroke-dashoffset="${(offset - occDashV).toFixed(1)}"
+                    stroke-linecap="butt"/>
+                </svg>
+                <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center">
+                  <div style="font-size:13px;font-weight:800;color:var(--tx);line-height:1;font-family:var(--fd)">${totalSeats}</div>
+                  <div style="font-size:7px;color:var(--tx3);font-weight:600;margin-top:1px;font-family:var(--fm)">Total Seats</div>
+                </div>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:6px;flex:1;min-width:0">
+                <div style="display:flex;align-items:center;gap:5px;font-size:10px;font-weight:700">
+                  <span style="width:7px;height:7px;border-radius:50%;background:var(--em);flex-shrink:0"></span>
+                  <span style="color:var(--tx2);flex:1">Available</span>
+                  <span style="color:var(--em)">${avail} <span style="font-size:8px;color:var(--tx3);font-weight:500">(${availPct}%)</span></span>
+                </div>
+                <div style="display:flex;align-items:center;gap:5px;font-size:10px;font-weight:700">
+                  <span style="width:7px;height:7px;border-radius:50%;background:var(--ac);flex-shrink:0"></span>
+                  <span style="color:var(--tx2);flex:1">Occupied</span>
+                  <span style="color:var(--ac)">${occSeats} <span style="font-size:8px;color:var(--tx3);font-weight:500">(${occPctDisp}%)</span></span>
+                </div>
+                <div style="display:flex;align-items:center;gap:5px;font-size:10px;font-weight:700">
+                  <span style="width:7px;height:7px;border-radius:50%;background:var(--gd);flex-shrink:0"></span>
+                  <span style="color:var(--tx2);flex:1">Reserved</span>
+                  <span style="color:var(--gd)">0 <span style="font-size:8px;color:var(--tx3);font-weight:500">(0%)</span></span>
+                </div>
+              </div>
             </div>
-            <div style="display:flex;align-items:center;gap:6px;font-size:11px;font-weight:700">
-              <span style="width:8px;height:8px;border-radius:50%;background:var(--ac);flex-shrink:0"></span>
-              <span style="color:var(--tx2);flex:1">Occupied</span>
-              <span style="color:var(--ac)">${occSeats} <span style="font-size:9px;color:var(--tx3);font-weight:500">(${occPctDisp}%)</span></span>
-            </div>
-            <div style="display:flex;align-items:center;gap:6px;font-size:11px;font-weight:700">
-              <span style="width:8px;height:8px;border-radius:50%;background:var(--gd);flex-shrink:0"></span>
-              <span style="color:var(--tx2);flex:1">Reserved</span>
-              <span style="color:var(--gd)">0 <span style="font-size:9px;color:var(--tx3);font-weight:500">(0%)</span></span>
-            </div>
+          </div>
+        </div>
+        <div class="sc" style="--ca:var(--ac);padding:14px 16px;min-width:0">
+          <div style="font-size:10px;font-weight:700;color:var(--tx3);letter-spacing:.8px;text-transform:uppercase;font-family:var(--fm);margin-bottom:10px">Batch-wise Occupancy</div>
+          <div style="position:relative;width:100%;height:185px">
+            <canvas id="batchOccChart" role="img" aria-label="Horizontal bar chart of seat occupancy per batch"></canvas>
+          </div>
+        </div>
+        <div class="sc" style="--ca:var(--vi);padding:14px 16px;min-width:0">
+          <div style="font-size:10px;font-weight:700;color:var(--tx3);letter-spacing:.8px;text-transform:uppercase;font-family:var(--fm);margin-bottom:10px">Fee Collection Trend — 6 Months</div>
+          <div style="position:relative;width:100%;height:185px">
+            <canvas id="feeTrendChart" role="img" aria-label="Stacked bar chart of monthly fee collection trend"></canvas>
           </div>
         </div>
       </div>`;
     })()}`;
+        renderDashCharts();
 
         // ── BATCH SEAT AVAILABILITY WITH FEE STATUS ──
         // Build seat→student map
@@ -2999,83 +3164,223 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
 
 
     // ═══ SEATS (with fee status highlight) ═══
+    // ── SEAT MAP STATE ──
+    let seatActiveBatch=null, seatSelectedCell=null;
+
     function renderSeats(){
         const total=DB.batches.reduce((a,b)=>a+b.total,0);
         const occ=DB.batches.reduce((a,b)=>a+b.occupied,0);
+        const issues=DB.students.filter(s=>s.feeStatus==='overdue'||s.feeStatus==='pending'||s.feeStatus==='partial').length;
         document.getElementById('st-total').textContent=total;
         document.getElementById('st-vacant').textContent=total-occ;
         document.getElementById('st-occupied').textContent=occ;
-        document.getElementById('batchGrid').innerHTML=DB.batches.map((b,i)=>{
-            const pct=Math.round(b.occupied/b.total*100);
-            const fc=pct>=100?'sf-r':pct>=70?'sf-y':'sf-g';
-            const sc=pct>=100?'bst-f':pct>=70?'bst-n':'bst-o';
-            const scLbl=pct>=100?'Full':pct>=70?'Filling':'Open';
-            const bStudents=DB.students.filter(x=>x.batchId===b.id);
-            const seatStudentMap={};bStudents.forEach(st=>{if(st.seat)seatStudentMap[st.seat]=st;});
-            // Improvement 6: count per status for summary chips
-            let cntVac=0,cntPaid=0,cntDue=0,cntOD=0;
-            let cells='';
-            for(let s=1;s<=b.total;s++){
-                const sn=seatLbl(b.name,s);
-                const stu=seatStudentMap[sn];
-                // Improvement 2: student initials; Improvement 3: color fix
-                let cls='seat-vac',ttText='Vacant — click to assign',initials='+';
-                if(stu){
-                    initials=(stu.fname[0]+(stu.lname?stu.lname[0]:'')).toUpperCase();
-                    if(stu.feeStatus==='overdue'){
-                        cls='seat-overdue';cntOD++;
-                        ttText=`🚨 ${stu.fname} ${stu.lname||''} · Overdue ₹${stu.netFee-stu.paidAmt}`;
-                    } else if(stu.feeStatus==='pending'){
-                        cls='seat-due';cntDue++;
-                        ttText=`⏳ ${stu.fname} ${stu.lname||''} · Pending ₹${stu.netFee}`;
-                    } else if(stu.feeStatus==='partial'){
-                        cls='seat-due';cntDue++;
-                        ttText=`🟠 ${stu.fname} ${stu.lname||''} · Partial ₹${stu.netFee-stu.paidAmt} due`;
-                    } else {
-                        cls='seat-occ';cntPaid++;
-                        ttText=`✓ ${stu.fname} ${stu.lname||''} · Paid · Click to view`;
-                    }
-                } else { cntVac++; }
-                const clickFn=stu?`openStudentProfile('${stu.id}')`:`openAllocSeatPrefilled('${b.id}','${sn}')`;
-                // Improvement 1: bigger cell with seat-num + seat-init divs
-                cells+=`<div class="seat-cell ${cls}" onclick="${clickFn}"><div class="seat-tooltip">${ttText}</div><div class="seat-num">${sn}</div><div class="seat-init">${initials}</div></div>`;
+        const issEl=document.getElementById('st-issues');if(issEl)issEl.textContent=issues;
+
+        // Populate batch filter select
+        const bfSel=document.getElementById('seatBatchFilter');
+        if(bfSel&&bfSel.options.length<=1){
+            DB.batches.forEach(b=>{const o=document.createElement('option');o.value=b.id;o.textContent=b.name;bfSel.appendChild(o);});
+        }
+
+        // Build batch tabs
+        const tabsEl=document.getElementById('seatBatchTabs');
+        if(tabsEl){
+            if(!seatActiveBatch&&DB.batches.length>0)seatActiveBatch=DB.batches[0].id;
+            tabsEl.innerHTML=DB.batches.map(b=>`<button class="batch-tab${b.id===seatActiveBatch?' active':''}" onclick="switchSeatBatch('${b.id}')">${b.name}<span style="font-size:10px;margin-left:5px;opacity:.65;font-family:var(--fm)">${fmtT(b.startTime)}–${fmtT(b.endTime)}</span></button>`).join('');
+        }
+
+        renderSeatGrid();
+    }
+
+    function switchSeatBatch(bId){
+        seatActiveBatch=bId;
+        seatSelectedCell=null;
+        renderSeatGrid();
+        // update tab active state
+        document.querySelectorAll('.batch-tab').forEach(t=>{
+            t.classList.toggle('active',t.onclick.toString().includes(`'${bId}'`));
+        });
+        // reset detail panel
+        seatDetailEmpty();
+    }
+
+    function renderSeatGrid(){
+        const b=DB.batches.find(x=>x.id===seatActiveBatch);
+        if(!b){document.getElementById('seatGridMain').innerHTML='<div style="color:var(--tx3);font-size:12px;padding:20px">No batch selected</div>';return;}
+        const statusF=document.getElementById('seatStatusFilter');
+        const sf=statusF?statusF.value:'all';
+
+        const bStudents=DB.students.filter(x=>x.batchId===b.id);
+        const seatStudentMap={};bStudents.forEach(st=>{if(st.seat)seatStudentMap[st.seat]=st;});
+
+        // Update title
+        const titleEl=document.getElementById('seatMapTitle');
+        if(titleEl)titleEl.textContent=`${b.name} — Seat Map`;
+
+        // Update progress
+        const pct=b.total>0?Math.round(b.occupied/b.total*100):0;
+        const progLbl=document.getElementById('seatProgLabel');
+        const progPct=document.getElementById('seatProgPct');
+        const progBar=document.getElementById('seatProgBar');
+        if(progLbl)progLbl.textContent=`${b.occupied} / ${b.total} occupied`;
+        if(progPct)progPct.textContent=pct+'%';
+        if(progBar){progBar.style.width=pct+'%';progBar.className='sfill '+(pct>=100?'sf-r':pct>=70?'sf-y':'sf-g');}
+
+        let html='';
+        for(let s=1;s<=b.total;s++){
+            const sn=seatLbl(b.name,s);
+            const stu=seatStudentMap[sn];
+            let cls='seat-vac',ttText='Vacant — click to assign',initials='',icon='event_seat',stuStatus='vacant';
+            if(stu){
+                initials=(stu.fname[0]+(stu.lname?stu.lname[0]:'')).toUpperCase();
+                if(stu.feeStatus==='overdue'){cls='seat-overdue';icon='warning';stuStatus='overdue';ttText=`${stu.fname} ${stu.lname||''} · Overdue`;}
+                else if(stu.feeStatus==='pending'||stu.feeStatus==='partial'){cls='seat-due';icon='schedule';stuStatus='due';ttText=`${stu.fname} ${stu.lname||''} · Fee Pending`;}
+                else{cls='seat-occ';icon='person';stuStatus='paid';ttText=`${stu.fname} ${stu.lname||''} · Paid`;}
             }
-            // summary chips — modern pill with Material Icon + dot + count
-            const chips=[
-                cntVac>0  ?`<span class="ss-chip ss-vac"><span class="ss-dot"></span><span class="ss-ic">event_seat</span><span class="ss-cnt">${cntVac}</span><span class="ss-lbl">Vacant</span></span>`:'',
-                cntPaid>0 ?`<span class="ss-chip ss-occ"><span class="ss-dot"></span><span class="ss-ic">check_circle</span><span class="ss-cnt">${cntPaid}</span><span class="ss-lbl">Paid</span></span>`:'',
-                cntDue>0  ?`<span class="ss-chip ss-due"><span class="ss-dot"></span><span class="ss-ic">schedule</span><span class="ss-cnt">${cntDue}</span><span class="ss-lbl">Pending</span></span>`:'',
-                cntOD>0   ?`<span class="ss-chip ss-od"><span class="ss-dot"></span><span class="ss-ic">warning</span><span class="ss-cnt">${cntOD}</span><span class="ss-lbl">Overdue</span></span>`:'',
-            ].filter(Boolean).join('');
-            const vacCount=b.total-b.occupied;
-            // Improvement 5: better batch header with icon card
-            return `<div class="panel"><div class="ph">
-      <div style="display:flex;align-items:center;gap:12px">
-        <div style="width:42px;height:42px;background:var(--c-green);border:1.5px solid var(--cg);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">${batchEmoji(b.name)}</div>
-        <div>
-          <div style="font-weight:800;font-size:14px;color:var(--tx)">${b.name}</div>
-          <div style="font-size:11px;color:var(--tx3);font-family:var(--fm);margin-top:2px">${fmtT(b.startTime)}–${fmtT(b.endTime)} · ₹${b.baseFee}/mo · AC +₹${b.acExtra}</div>
+            // Apply status filter
+            if(sf!=='all'){
+                if(sf==='vacant'&&stuStatus!=='vacant')continue;
+                if(sf==='paid'&&stuStatus!=='paid')continue;
+                if(sf==='due'&&stuStatus!=='due')continue;
+                if(sf==='overdue'&&stuStatus!=='overdue')continue;
+            }
+            const isSelected=seatSelectedCell===sn;
+            html+=`<div class="seat-cell ${cls}${isSelected?' seat-selected':''}" onclick="onSeatClick('${b.id}','${sn}',this)">
+                <div class="seat-tooltip">${ttText}</div>
+                <div class="seat-num">${sn}</div>
+                <span class="mi" style="font-size:16px;line-height:1">${icon}</span>
+                ${initials?`<div class="seat-init">${initials}</div>`:''}
+            </div>`;
+        }
+        document.getElementById('seatGridMain').innerHTML=html||`<div style="color:var(--tx3);font-size:12px;padding:20px">No seats match the filter</div>`;
+    }
+
+    function onSeatClick(bId,sn,el){
+        // Deselect all, select clicked
+        document.querySelectorAll('.seat-cell').forEach(c=>c.classList.remove('seat-selected'));
+        el.classList.add('seat-selected');
+        seatSelectedCell=sn;
+        const b=DB.batches.find(x=>x.id===bId);
+        if(!b)return;
+        const bStudents=DB.students.filter(x=>x.batchId===bId);
+        const seatStudentMap={};bStudents.forEach(st=>{if(st.seat)seatStudentMap[st.seat]=st;});
+        const stu=seatStudentMap[sn];
+        renderSeatDetail(b,sn,stu);
+    }
+
+    function seatDetailEmpty(){
+        document.getElementById('seatDetailPanel').innerHTML=`
+        <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:10px;padding:30px 0;text-align:center">
+            <div style="width:56px;height:56px;background:var(--sf2);border-radius:14px;display:flex;align-items:center;justify-content:center;border:1px solid var(--br)">
+                <span class="mi" style="font-size:26px;color:var(--tx3)">event_seat</span>
+            </div>
+            <div style="font-weight:700;font-size:13px;color:var(--tx)">No seat selected</div>
+            <div style="font-size:11px;color:var(--tx3)">Click any seat on the map to view details</div>
+        </div>`;
+    }
+
+    function renderSeatDetail(b,sn,stu){
+        const panel=document.getElementById('seatDetailPanel');
+        if(!stu){
+            // Vacant seat
+            panel.innerHTML=`
+            <div>
+                <div style="font-size:30px;font-weight:700;color:var(--tx);font-family:var(--fd);line-height:1">${sn}</div>
+                <div style="font-size:11px;color:var(--tx3);margin-top:4px">${b.name} · ${fmtT(b.startTime)}–${fmtT(b.endTime)}</div>
+            </div>
+            <div style="display:inline-flex;align-items:center;gap:6px;background:var(--c-green);border:1px solid var(--cg);border-radius:20px;padding:4px 12px;font-size:11px;font-weight:700;color:#166534">
+                <span class="mi sm">check_circle</span> Vacant
+            </div>
+            <div style="background:var(--sf2);border-radius:var(--r);padding:14px;border:1px solid var(--br);display:flex;flex-direction:column;gap:8px">
+                <div style="font-size:11px;font-weight:700;color:var(--tx3);text-transform:uppercase;letter-spacing:.7px;font-family:var(--fm)">Batch Info</div>
+                <div style="font-size:12px;color:var(--tx2)">Base fee: <strong style="color:var(--tx)">₹${b.baseFee}/mo</strong></div>
+                <div style="font-size:12px;color:var(--tx2)">AC extra: <strong style="color:var(--tx)">₹${b.acExtra}</strong></div>
+                <div style="font-size:12px;color:var(--tx2)">Capacity: <strong style="color:var(--tx)">${b.total} seats</strong></div>
+            </div>
+            <button class="btn bp" style="width:100%;justify-content:center;padding:10px" onclick="openAllocSeatPrefilled('${b.id}','${sn}')"><span class="mi sm">person_add</span> Assign Student</button>`;
+            return;
+        }
+
+        // Occupied seat
+        const initials=(stu.fname[0]+(stu.lname?stu.lname[0]:'')).toUpperCase();
+        let statusBadge='',statusColor='var(--em)',statusBg='var(--c-green)',statusBorder='var(--cg)';
+        if(stu.feeStatus==='overdue'){statusBadge='Fee Overdue';statusColor='#9f1239';statusBg='var(--c-rose)';statusBorder='var(--cr)';}
+        else if(stu.feeStatus==='pending'){statusBadge='Fee Pending';statusColor='#92400e';statusBg='var(--c-amber)';statusBorder='var(--ca2)';}
+        else if(stu.feeStatus==='partial'){statusBadge='Partial Paid';statusColor='#075985';statusBg='var(--c-sky)';statusBorder='var(--cs)';}
+        else{statusBadge='Paid';}
+        const balance=stu.netFee-stu.paidAmt;
+        const admDate=stu.admDate||stu.enrollDate||'—';
+        const expDate=stu.expDate||stu.renewalDate||'—';
+
+        panel.innerHTML=`
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px">
+            <div>
+                <div style="font-size:30px;font-weight:700;color:var(--tx);font-family:var(--fd);line-height:1">${sn}</div>
+                <div style="font-size:11px;color:var(--tx3);margin-top:4px">${b.name} · ${fmtT(b.startTime)}–${fmtT(b.endTime)}</div>
+            </div>
+            <span style="display:inline-flex;align-items:center;gap:5px;background:${statusBg};border:1px solid ${statusBorder};border-radius:20px;padding:4px 10px;font-size:10px;font-weight:700;color:${statusColor};white-space:nowrap">
+                <span class="mi" style="font-size:13px">${stu.feeStatus==='overdue'?'error':stu.feeStatus==='pending'||stu.feeStatus==='partial'?'schedule':'check_circle'}</span>${statusBadge}
+            </span>
         </div>
-      </div>
-      <div style="display:flex;gap:7px;align-items:center">
-        <div class="bst ${sc}">${scLbl}</div>
-        ${cntOD>0?`<span style="font-size:10px;background:var(--c-rose);border:1.5px solid var(--cr);color:#9f1239;padding:4px 9px;border-radius:8px;font-weight:700;animation:pulseDue 1s infinite">🚨 ${cntOD} Overdue</span>`:''}
-        ${cntDue>0?`<span style="font-size:10px;background:var(--c-amber);border:1.5px solid var(--ca2);color:#92400e;padding:4px 9px;border-radius:8px;font-weight:700">⏳ ${cntDue} Due</span>`:''}
-        <button class="btn bg" style="font-size:11px;padding:5px 10px" onclick="editBatch(${i})">✏ Edit</button>
-        <button class="btn bd" style="font-size:11px;padding:5px 8px" onclick="delBatch(${i})"><span class="mi sm">close</span></button>
-      </div>
-    </div>
-    <div class="pb">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
-        <span style="font-size:12px;font-weight:700;color:var(--em)">${vacCount} Vacant</span>
-        <span style="font-size:12px;font-weight:700;color:var(--ac)">${b.occupied} Occupied</span>
-        <span style="font-size:12px;font-weight:700;color:var(--tx3)">${b.total} Total</span>
-      </div>
-      <div class="sbar"><div class="sfill ${fc}" style="width:${pct}%"></div></div>
-      <div class="seat-visual">${cells}</div>
-      ${chips?`<div class="seat-summary">${chips}</div>`:''}
-    </div></div>`;
-        }).join('');
+
+        <!-- Student Card -->
+        <div style="background:var(--sf2);border-radius:var(--r);padding:14px;border:1px solid var(--br)">
+            <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
+                <div style="width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,var(--ac),var(--vi));display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;color:#fff;flex-shrink:0;border:2px solid #fff;box-shadow:0 1px 6px rgba(61,111,240,.25)">${initials}</div>
+                <div>
+                    <div style="font-size:14px;font-weight:700;color:var(--tx)">${stu.fname} ${stu.lname||''}</div>
+                    <div style="font-size:11px;color:var(--tx3);font-family:var(--fm)">ID: ${stu.id}</div>
+                </div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+                <div>
+                    <div style="font-size:10px;color:var(--tx3);text-transform:uppercase;letter-spacing:.7px;font-family:var(--fm);font-weight:600">Seat Type</div>
+                    <div style="font-size:12px;font-weight:600;color:var(--tx);margin-top:2px">${stu.seatType==='ac'?'❄ AC Premium':'Standard'}</div>
+                </div>
+                <div>
+                    <div style="font-size:10px;color:var(--tx3);text-transform:uppercase;letter-spacing:.7px;font-family:var(--fm);font-weight:600">Course</div>
+                    <div style="font-size:12px;font-weight:600;color:var(--tx);margin-top:2px">${stu.course||'—'}</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dates -->
+        <div style="border:1px solid var(--br);border-radius:var(--r);overflow:hidden">
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--br)">
+                <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--tx2)"><span class="mi sm" style="color:var(--tx3)">calendar_today</span>Admission Date</div>
+                <div style="font-size:12px;font-weight:700;color:var(--tx)">${admDate}</div>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;${stu.feeStatus==='overdue'?'background:var(--c-rose)':''}">
+                <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:${stu.feeStatus==='overdue'?'var(--ro)':'var(--tx2)'}"><span class="mi sm" style="color:${stu.feeStatus==='overdue'?'var(--ro)':'var(--tx3)'}">timer</span>Expiry Date</div>
+                <div style="font-size:12px;font-weight:700;color:${stu.feeStatus==='overdue'?'var(--ro)':'var(--tx)'}">${expDate}</div>
+            </div>
+        </div>
+
+        ${balance>0?`<div style="background:${stu.feeStatus==='overdue'?'var(--c-rose)':'var(--c-amber)'};border:1px solid ${stu.feeStatus==='overdue'?'var(--cr)':'var(--ca2)'};border-radius:var(--r);padding:10px 14px;display:flex;justify-content:space-between;align-items:center">
+            <span style="font-size:12px;font-weight:600;color:${stu.feeStatus==='overdue'?'#9f1239':'#92400e'}">Balance Due</span>
+            <span style="font-size:14px;font-weight:800;color:${stu.feeStatus==='overdue'?'var(--ro)':'var(--gd)'}">₹${balance}</span>
+        </div>`:''}
+
+        <!-- Action Buttons -->
+        <div style="display:flex;flex-direction:column;gap:8px">
+            <button class="btn bp" style="width:100%;justify-content:center;padding:10px" onclick="openStudentProfile('${stu.id}')"><span class="mi sm">swap_horiz</span> Change Seat</button>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+                <button class="btn bg" style="justify-content:center;padding:9px" onclick="openStudentProfile('${stu.id}')"><span class="mi sm">person</span> Profile</button>
+                <button class="btn bd" style="justify-content:center;padding:9px" onclick="if(confirm('Release seat ${sn}?'))deallocSeat('${stu.id}')"><span class="mi sm">no_accounts</span> Release</button>
+            </div>
+            <button class="btn bg" style="width:100%;justify-content:center;padding:9px;color:var(--ac);border-color:var(--ac)" onclick="openStudentProfile('${stu.id}')"><span class="mi sm">autorenew</span> Extend Admission</button>
+        </div>`;
+    }
+
+    function deallocSeat(stuId){
+        const stu=DB.students.find(s=>s.id===stuId);
+        if(!stu)return;
+        const b=DB.batches.find(x=>x.id===stu.batchId);
+        if(b&&b.occupied>0)b.occupied--;
+        stu.seat='';stu.batchId='';
+        saveDB();toast('Seat released','ok');
+        seatSelectedCell=null;
+        renderSeats();seatDetailEmpty();
     }
 
     function seatLbl(n,i){const p={'Early Morning':'E','Morning':'A','Afternoon':'B','Evening':'C','Night':'D','Late Night':'F'};return`${p[n]||'X'}-${String(i).padStart(2,'0')}`;}
@@ -3279,6 +3584,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
     // ═══ ATTENDANCE ═══
     // Stores today's biometric check-in/out per student_id
     const _bioToday = {};
+    let attPage=1, attPerPage=10;
 
     function renderAtt(){
         const today=new Date().toLocaleDateString('en-IN',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
@@ -3290,7 +3596,10 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         document.getElementById('at-a').textContent=list.length-prs;
         document.getElementById('at-r').textContent=list.length?Math.round(prs/list.length*100)+'%':'0%';
         document.getElementById('at-t').textContent=list.length;
-        document.getElementById('attTable').innerHTML=list.map(s=>{
+        const attTotal=list.length, attPages=Math.ceil(attTotal/attPerPage)||1;
+        attPage=Math.min(attPage,attPages);
+        const attSl=list.slice((attPage-1)*attPerPage,attPage*attPerPage);
+        document.getElementById('attTable').innerHTML=attSl.map(s=>{
             const st=DB.attendance[s.id]||'absent';
             const bio=_bioToday[s.id]||{};
             const checkIn=bio.in||'—';
@@ -3316,6 +3625,9 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
             <td><button class="btn ${st==='present'?'bd':'bp'}" style="font-size:10.5px;padding:4px 10px" onclick="togAtt('${s.id}')">${st==='present'?'Absent':'Present'}</button></td>
             </tr>`;
         }).join('')||'<tr><td colspan="9"><div class="empty"><div class="ei">📋</div><div class="et">No students</div></div></td></tr>';
+        document.getElementById('attPagI').textContent=`${attSl.length} of ${attTotal}`;
+        let attPb='';for(let i=1;i<=attPages;i++) attPb+=`<div class="pb2 ${i===attPage?'active':''}" onclick="attPage=${i};renderAtt()">${i}</div>`;
+        document.getElementById('attPagB').innerHTML=attPb;
         // Load QR feed (biometric loaded separately by loadAttBiometric)
         loadQRScans();
     }
@@ -3323,13 +3635,13 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
     function markAll(p){DB.students.forEach(s=>{DB.attendance[s.id]=p?'present':'absent';});renderAtt();toast(p?'All present':'All absent',p?'ok':'wn');}
 
     // ═══ BOOKS ═══
-    let bkPage=1,bkSearch='';
+    let bkPage=1,bkSearch='',bkPerPage=10;
     function renderBooks(){
         const cf=document.getElementById('bkCatF')?.value||'all';
         let list=DB.books.filter(b=>(cf==='all'||b.category===cf)&&(!bkSearch||`${b.title} ${b.author}`.toLowerCase().includes(bkSearch.toLowerCase())));
         document.getElementById('bkCount').textContent=`${list.length} books`;
-        const pp=7,total=list.length,pages=Math.ceil(total/pp)||1;
-        bkPage=Math.min(bkPage,pages);const sl=list.slice((bkPage-1)*pp,bkPage*pp);
+        const total=list.length,pages=Math.ceil(total/bkPerPage)||1;
+        bkPage=Math.min(bkPage,pages);const sl=list.slice((bkPage-1)*bkPerPage,bkPage*bkPerPage);
         document.getElementById('bkTable').innerHTML=sl.map(b=>{const av=b.available>0;
             return `<tr><td><div style="display:flex;align-items:center;gap:7px"><span style="font-size:17px">${b.emoji}</span><div><div style="font-weight:600;font-size:12.5px">${b.title}</div><div style="font-size:10px;color:var(--tx3);font-family:var(--fm)">${b.id}</div></div></div></td>
     <td>${b.author}</td><td><span class="tag tac" style="font-size:9px">${b.category}</span></td>
@@ -3355,11 +3667,15 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
     }
 
     // ═══ TRANSACTIONS ═══
+    let txPage=1, txPerPage=10;
     function renderTx(){
         const iss=DB.transactions.filter(t=>t.status!=='returned');const od=DB.transactions.filter(t=>t.status==='overdue');const rt=DB.transactions.filter(t=>t.status==='returned');const fine=DB.transactions.reduce((a,t)=>a+(t.fine||0),0);
         document.getElementById('tx-is').textContent=iss.length;document.getElementById('tx-od').textContent=od.length;document.getElementById('tx-rt').textContent=rt.length;document.getElementById('tx-fn').textContent=fmt(fine);
         document.getElementById('b-overdue').textContent=od.length;document.getElementById('txCount').textContent=`${DB.transactions.length} transactions`;
-        document.getElementById('txTable').innerHTML=DB.transactions.map(t=>{
+        const txTotal=DB.transactions.length, txPages=Math.ceil(txTotal/txPerPage)||1;
+        txPage=Math.min(txPage,txPages);
+        const txSl=DB.transactions.slice((txPage-1)*txPerPage,txPage*txPerPage);
+        document.getElementById('txTable').innerHTML=txSl.map(t=>{
             const s=DB.students.find(x=>x.id===t.studentId);const b=DB.books.find(x=>x.id===t.bookId);if(!s||!b)return'';
             return `<tr><td><div class="si"><div class="sav" style="background:${s.color}">${(s.fname?.[0]||'')+(s.lname?.[0]||'')}</div><span style="font-size:12.5px;font-weight:600">${s.fname} ${s.lname}</span></div></td>
     <td>${b.emoji} ${b.title}</td>
@@ -3370,6 +3686,9 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
     <td><span class="tag ${t.status==='returned'?'trt':t.status==='overdue'?'tod':'tis'}">${t.status==='returned'?'✓ Returned':t.status==='overdue'?'⚠ Overdue':'📤 Issued'}</span></td>
     <td>${t.status!=='returned'?`<div style="display:flex;gap:4px"><button class="btn bg" style="font-size:10px;padding:3px 7px" onclick="qReturn('${t.id}')">Return</button><button class="btn bwa" style="font-size:10px;padding:3px 7px" onclick="waQuick('${t.studentId}','book_overdue')"><span class="mi sm">chat</span></button></div>`:''}</td></tr>`;
         }).join('')||'<tr><td colspan="8"><div class="empty"><div class="ei">🔄</div><div class="et">No transactions</div></div></td></tr>';
+        document.getElementById('txPagI').textContent=`${txSl.length} of ${txTotal}`;
+        let txPb='';for(let i=1;i<=txPages;i++) txPb+=`<div class="pb2 ${i===txPage?'active':''}" onclick="txPage=${i};renderTx()">${i}</div>`;
+        document.getElementById('txPagB').innerHTML=txPb;
     }
     function qReturn(txId){populateReturnModal();setTimeout(()=>{document.getElementById('rb-tx').value=txId;calcFine();},50);openM('mReturnBook');}
     function populateIssueModal(bkId){
@@ -3413,6 +3732,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
 
     // ═══ FEES ═══
     let feeFiltVal='all',feeSrchVal='';
+    let feePage=1, feePerPage=10;
     function renderFees(){
         const s=DB.students;
         const paid=s.filter(x=>x.feeStatus==='paid');const partial=s.filter(x=>x.feeStatus==='partial');
@@ -3423,7 +3743,10 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         document.getElementById('fc-o').textContent=fmt(od.reduce((a,x)=>a+x.netFee,0));document.getElementById('fc-om').textContent=`${od.length} students (>7 days)`;
         document.getElementById('b-fee').textContent=pend.length+od.length+partial.length;
         let list=s.filter(x=>(feeFiltVal==='all'||x.feeStatus===feeFiltVal)&&(!feeSrchVal||`${x.fname} ${x.lname} ${x.id}`.toLowerCase().includes(feeSrchVal.toLowerCase())));
-        document.getElementById('feeTable').innerHTML=list.map(x=>{
+        const feeTotal=list.length, feePages=Math.ceil(feeTotal/feePerPage)||1;
+        feePage=Math.min(feePage,feePages);
+        const feeSl=list.slice((feePage-1)*feePerPage,feePage*feePerPage);
+        document.getElementById('feeTable').innerHTML=feeSl.map(x=>{
             // ── Renewal data ──
             const stuRenewals=DB.invoices.filter(i=>i.studentId===x.id&&i.type&&i.type.startsWith('Renewal'));
             const renewCount=stuRenewals.length;
@@ -3481,10 +3804,12 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
       </div></td>
     </tr>${renewRow}`;
         }).join('')||'<tr><td colspan="11"><div class="empty"><div class="ei">💰</div><div class="et">No records</div></div></td></tr>';
-        document.getElementById('feePagI').textContent=`${list.length} records`;
+        document.getElementById('feePagI').textContent=`${feeSl.length} of ${feeTotal}`;
+        let feePb='';for(let i=1;i<=feePages;i++) feePb+=`<div class="pb2 ${i===feePage?'active':''}" onclick="feePage=${i};renderFees()">${i}</div>`;
+        document.getElementById('feePagB').innerHTML=feePb;
     }
-    function feeFilt(f,el){feeFiltVal=f;document.querySelectorAll('#feeTabs .tab').forEach(t=>t.classList.remove('active'));el.classList.add('active');renderFees();}
-    function feeSrch(v){feeSrchVal=v;renderFees();}
+    function feeFilt(f,el){feeFiltVal=f;feePage=1;document.querySelectorAll('#feeTabs .tab').forEach(t=>t.classList.remove('active'));el.classList.add('active');renderFees();}
+    function feeSrch(v){feeSrchVal=v;feePage=1;renderFees();}
     function sendReminders(){const od=DB.students.filter(x=>x.feeStatus!=='paid');od.forEach(s=>addActivity('📣','rgba(196,125,43,.14)',`Reminder → <strong>${s.fname}</strong>`));toast(`Reminders sent to ${od.length}`,'ok');}
     function waBulkFee(){bulkSend('pending');navTo('whatsapp');}
 
@@ -3494,7 +3819,10 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         setTimeout(()=>{const s=DB.students.find(x=>x.id===stuId);if(s){document.getElementById('cf-stu').value=stuId;cfLoadStudent();}},50);
     }
     function populateModal_cf(){
-        document.getElementById('cf-stu').innerHTML='<option value="">-- Select --</option>'+DB.students.filter(s=>s.feeStatus!=='paid').map(s=>`<option value="${s.id}">${s.fname} ${s.lname} — Net ₹${s.netFee} (${s.feeStatus})</option>`).join('');
+        document.getElementById('cf-stu').innerHTML='<option value="">-- Select --</option>'+DB.students.filter(s=>s.feeStatus!=='paid').map(s=>{
+            const bName=DB.batches.find(b=>b.id===s.batchId)?.name||'';
+            return `<option value="${s.id}">${s.fname} ${s.lname}${bName?' · '+bName:''} — ₹${s.netFee} (${s.feeStatus})</option>`;
+        }).join('');
         document.getElementById('cf-stu').onchange=cfLoadStudent;
         // Pre-fill paid date with today; reset discount
         const pdEl = document.getElementById('cf-paid-date'); if (pdEl && !pdEl.value) pdEl.value = new Date().toISOString().slice(0,10);
@@ -3527,9 +3855,20 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         document.getElementById('cf-amt').value='';
         const bal=s.netFee-s.paidAmt;
         const info=document.getElementById('cf-status-info');
+
+        // ── Multi-shift alert ─────────────────────────────────────────────
+        // If same phone exists in other student records, warn staff to collect
+        // each shift's fee separately — they are independent records.
+        const otherShifts=s.phone?DB.students.filter(x=>x.phone===s.phone&&x.id!==s.id):[];
+        const multiNote=otherShifts.length>0
+            ?`<div style="padding:7px 11px;border-radius:var(--r2);border:1px solid rgba(124,58,237,.3);background:rgba(124,58,237,.06);margin-bottom:8px">
+                <div style="font-size:11.5px;font-weight:600;color:var(--vi)">📋 Multi-Shift Student</div>
+                <div style="font-size:11px;color:var(--tx2);margin-top:3px">Also enrolled in: ${otherShifts.map(x=>{const b=DB.batches.find(b=>b.id===x.batchId)?.name||'';return`<strong>${b||x.id}</strong> (${x.feeStatus})`;}).join(', ')}. Collect each shift's fee separately using the correct record.</div>
+              </div>`
+            :'';
         if(s.feeStatus==='partial'){
             info.style.display='block';
-            info.innerHTML=`<div style="padding:10px 13px;border-radius:var(--r2);border:1px solid rgba(58,122,176,.3);background:rgba(58,122,176,.06)">
+            info.innerHTML=multiNote+`<div style="padding:10px 13px;border-radius:var(--r2);border:1px solid rgba(58,122,176,.3);background:rgba(58,122,176,.06)">
       <div style="font-size:12px;font-weight:600;margin-bottom:4px;color:var(--sk)">◑ Partial Payment on Record</div>
       <div style="font-size:11.5px;color:var(--tx2)">Net Fee: <strong>₹${s.netFee}</strong> | Paid: <strong style="color:var(--em)">₹${s.paidAmt}</strong> | <strong style="color:var(--ro)">Balance: ₹${bal}</strong></div>
       <div style="height:6px;background:var(--sf2);border-radius:3px;overflow:hidden;margin:6px 0"><div style="width:${Math.round(s.paidAmt/s.netFee*100)}%;height:100%;background:linear-gradient(90deg,var(--em),#4ead82);border-radius:3px"></div></div>
@@ -3538,24 +3877,32 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
             document.getElementById('cf-amt').value=bal;
         } else if(s.feeStatus==='overdue'){
             info.style.display='block';
-            info.innerHTML=`<div style="padding:8px 12px;border-radius:var(--r2);border:1px solid rgba(192,68,79,.3);background:rgba(192,68,79,.06)"><div style="font-size:12px;font-weight:600;color:var(--ro)">🚨 Fee Overdue since ${fmtDate(s.dueDate)}</div><div style="font-size:11px;color:var(--tx2)">Amount due: ₹${s.netFee}</div></div>`;
+            info.innerHTML=multiNote+`<div style="padding:8px 12px;border-radius:var(--r2);border:1px solid rgba(192,68,79,.3);background:rgba(192,68,79,.06)"><div style="font-size:12px;font-weight:600;color:var(--ro)">🚨 Fee Overdue since ${fmtDate(s.dueDate)}</div><div style="font-size:11px;color:var(--tx2)">Amount due: ₹${s.netFee}</div></div>`;
             document.getElementById('cf-amt').value=s.netFee;
         } else if(s.baseFee>s.netFee){
             info.style.display='block';
-            info.innerHTML=`<div style="padding:8px 12px;border-radius:var(--r2);border:1px solid rgba(230,126,34,.3);background:rgba(230,126,34,.06)"><div style="font-size:12px;font-weight:600;color:var(--or)">🎁 Discount Applied: ₹${s.baseFee-s.netFee}</div><div style="font-size:11px;color:var(--tx2)">Full fee: ₹${s.baseFee} → Net: ₹${s.netFee} (${s.discount?.reason||''})</div></div>`;
+            info.innerHTML=multiNote+`<div style="padding:8px 12px;border-radius:var(--r2);border:1px solid rgba(230,126,34,.3);background:rgba(230,126,34,.06)"><div style="font-size:12px;font-weight:600;color:var(--or)">🎁 Discount Applied: ₹${s.baseFee-s.netFee}</div><div style="font-size:11px;color:var(--tx2)">Full fee: ₹${s.baseFee} → Net: ₹${s.netFee} (${s.discount?.reason||''})</div></div>`;
             document.getElementById('cf-amt').value=s.netFee;
         } else {
-            info.style.display='none';
+            info.style.display=multiNote?'block':'none';
+            info.innerHTML=multiNote;
             document.getElementById('cf-amt').value=s.netFee;
         }
         document.getElementById('cf-balance-note').style.display='none';
     }
     function cfCalcBalance(){
         const s=DB.students.find(x=>x.id===gv('cf-stu'));if(!s)return;
-        const tot=s.netFee;const now=+gv('cf-amt')||0;const totalPaid=s.paidAmt+now;const bal=tot-totalPaid;
+        const tot=s.netFee;const now=+gv('cf-amt')||0;const remaining=tot-s.paidAmt;const totalPaid=s.paidAmt+now;const bal=tot-totalPaid;
         const note=document.getElementById('cf-balance-note');
-        if(now>0&&bal>0){note.style.display='block';note.innerHTML=`<div style="font-size:12px;font-weight:600;color:var(--or);margin-bottom:4px">⚡ Partial Payment</div><div style="font-size:11.5px">Net Fee: ₹${tot} | Paying now: ₹${now} | <strong style="color:var(--ro)">Balance: ₹${bal}</strong></div><div style="font-size:10.5px;color:var(--tx3);margin-top:3px">Status: <strong>Partial</strong></div>`;}
-        else note.style.display='none';
+        if(now>remaining&&remaining>0){
+            note.style.display='block';
+            note.innerHTML=`<div style="font-size:12px;font-weight:600;color:var(--ro);margin-bottom:4px">⚠️ Overpayment Warning</div><div style="font-size:11.5px">Remaining balance is only <strong style="color:var(--ro)">₹${remaining}</strong>. Entering ₹${now} will collect ₹${remaining} and discard ₹${now-remaining}.<br><span style="color:var(--tx3);font-size:10.5px">If this student is enrolled in multiple shifts, collect the second shift fee separately by selecting that student record.</span></div>`;
+        } else if(now>0&&bal>0){
+            note.style.display='block';
+            note.innerHTML=`<div style="font-size:12px;font-weight:600;color:var(--or);margin-bottom:4px">⚡ Partial Payment</div><div style="font-size:11.5px">Net Fee: ₹${tot} | Paying now: ₹${now} | <strong style="color:var(--ro)">Balance: ₹${bal}</strong></div><div style="font-size:10.5px;color:var(--tx3);margin-top:3px">Status: <strong>Partial</strong></div>`;
+        } else {
+            note.style.display='none';
+        }
     }
     function toggleSplit(){
         const m=gv('cf-mode');
@@ -3574,6 +3921,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         document.getElementById('splitNote').textContent=`Total: ₹${tot} | Mode 1: ₹${a1} | Mode 2: ₹${rem}`;
     }
     // ═══ INVOICES ═══
+    let invPage=1, invPerPage=10;
     function renderInv(){
         document.getElementById('invCount').textContent=`${DB.invoices.length} invoice(s)`;
         document.getElementById('gi-stu').innerHTML='<option value="">-- Select --</option>'+DB.students.map(s=>`<option value="${s.id}">${s.fname} ${s.lname}</option>`).join('');
@@ -3627,7 +3975,10 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
           </div>`:''}
 
         </div>`;
-        document.getElementById('invTable').innerHTML=DB.invoices.length?DB.invoices.map(inv=>{
+        const invTotal=DB.invoices.length, invPages=Math.ceil(invTotal/invPerPage)||1;
+        invPage=Math.min(invPage,invPages);
+        const invSl=DB.invoices.slice((invPage-1)*invPerPage,invPage*invPerPage);
+        document.getElementById('invTable').innerHTML=invSl.length?invSl.map(inv=>{
             const s=DB.students.find(x=>x.id===inv.studentId);
             const deleted=!s;
             const balCell=inv.balance>0
@@ -3647,6 +3998,9 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
     <td><span class="tag ${inv.status==='paid'?'tpd':'tpart'}">${inv.status==='paid'?'● Paid':'◑ Partial'}</span></td>
     <td><button class="btn bg" style="font-size:10px;padding:3px 7px" onclick="printInv('${inv.id}')"><span class="mi sm">print</span>Print</button></td></tr>`;
         }).join(''):'<tr><td colspan="11"><div class="empty"><div class="ei">🧾</div><div class="et">No invoices yet</div></div></td></tr>';
+        document.getElementById('invPagI').textContent=`${invSl.length} of ${invTotal}`;
+        let invPb='';for(let i=1;i<=invPages;i++) invPb+=`<div class="pb2 ${i===invPage?'active':''}" onclick="invPage=${i};renderInv()">${i}</div>`;
+        document.getElementById('invPagB').innerHTML=invPb;
     }
     function autoFillInv(){const s=DB.students.find(x=>x.id===gv('gi-stu'));if(s)document.getElementById('gi-am').value=s.netFee;}
     function printInv(invId){
@@ -3766,9 +4120,10 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         show('flt-status-wrap', ['fee','outstanding','student'].includes(type));
         show('flt-batch-wrap',  ['fee','outstanding','attendance','student','batch'].includes(type));
         show('flt-cat-wrap',    type==='expense');
+        show('flt-roster-wrap', type==='student');
     }
 
-    function applyRptFilters() {
+    async function applyRptFilters() {
         if (!_rptType) return;
         const month  = document.getElementById('flt-month')?.value  || '';
         const status = document.getElementById('flt-status')?.value || '';
@@ -4028,28 +4383,48 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         }
 
         else if (_rptType === 'student') {
-            let students = DB.students;
+            const roster = document.getElementById('flt-roster')?.value || 'active';
+            let students;
+            if (roster === 'archived') {
+                let archRes = {};
+                try { archRes = await apiGet('get_archived_students'); } catch(e) { archRes = {}; }
+                students = (archRes.students || []).map(s => ({
+                    id: s.id, fname: s.fname, lname: s.lname, phone: s.phone,
+                    batchId: s.batch_id, seatType: s.seat_type, seat: s.seat,
+                    netFee: +s.net_fee, paidAmt: +s.paid_amt, feeStatus: s.fee_status,
+                    course: s.course, joinDate: s.join_date,
+                    leaveDate: s.leave_date || s.archived_at || null, leaveReason: s.leave_reason || '',
+                }));
+            } else {
+                students = DB.students;
+            }
             if (batch)  students = students.filter(s => s.batchId == batch);
             if (status) students = students.filter(s => s.feeStatus === status);
             const fmtD = d => d ? new Date(d).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}) : '—';
+            const rosterStatus = s => {
+                if (roster === 'archived') return s.leaveReason ? 'Left' : 'Archived';
+                return 'Active';
+            };
             _rptData = students.map(s => [
-                s.id, `${s.fname} ${s.lname}`, s.phone, s.email||'',
-                batchName(s.batchId), s.seat||'—', s.seatType.toUpperCase(),
-                s.course, s.feeStatus, s.joinDate||'—', s.leaveDate||'—', s.leaveReason||''
+                s.id, `${s.fname} ${s.lname}`, s.phone,
+                batchName(s.batchId), s.seat||'—', (s.seatType||'').toUpperCase(),
+                s.course, s.feeStatus, rosterStatus(s), s.joinDate||'—', s.leaveDate||'—', s.leaveReason||''
             ]);
             html = tbl(
-                ['ID','Name','Phone','Email','Batch','Seat','Type','Course','Fee Status','Join Date','Leave Date','Leave Reason'],
+                ['ID','Name','Phone','Batch','Seat','Type','Course','Fee Status','Status','Join Date','Left/Archived On','Leave Reason'],
                 students.map(s => [
-                    s.id, `${s.fname} ${s.lname}`, s.phone, s.email||'—',
-                    batchName(s.batchId), s.seat||'—', s.seatType.toUpperCase(), s.course,
-                    feeTag(s.feeStatus), fmtD(s.joinDate),
+                    s.id, `${s.fname} ${s.lname}`, s.phone,
+                    batchName(s.batchId), s.seat||'—', (s.seatType||'').toUpperCase(), s.course,
+                    feeTag(s.feeStatus),
                     s.leaveDate
-                        ? `<span style="color:var(--ro);font-weight:600">${fmtD(s.leaveDate)}</span>`
+                        ? `<span style="color:var(--ro);font-weight:600">${rosterStatus(s)}</span>`
                         : '<span style="color:var(--ac);font-size:10px">Active</span>',
+                    fmtD(s.joinDate),
+                    s.leaveDate ? fmtD(s.leaveDate) : '—',
                     s.leaveReason || '—'
                 ])
             );
-            metaTxt = `${students.length} students`;
+            metaTxt = `${students.length} students (${roster === 'archived' ? 'Archived' : 'Active'})`;
         }
 
         document.getElementById('rptMeta').textContent = metaTxt;
@@ -4455,7 +4830,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
             books: ['Title','Author','Category','ISBN','Shelf','Available','Total'],
             attendance: ['Student','Batch','Status'],
             expense: ['Name','Category','Amount','Date','Notes'],
-            student: ['ID','Name','Phone','Email','Batch','Seat','Type','Course','Fee Status','Join Date','Leave Date','Leave Reason']
+            student: ['ID','Name','Phone','Batch','Seat','Type','Course','Fee Status','Status','Join Date','Left/Archived On','Leave Reason']
         };
         const stripHtml = v => String(v).replace(/<[^>]+>/g,'').replace(/₹/g,'Rs ');
         const rows = [headers[_rptType], ..._rptData.map(r=>r.map(stripHtml))];
@@ -4619,9 +4994,14 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
       accountant:  {enroll_student:false,delete_student:false,alloc_seat:false,collect_fee:true,apply_discount:true,generate_invoice:true,issue_book:false,return_book:false,add_book:false,add_expense:true,send_whatsapp:false,add_staff:false,add_batch:false,reset_data:false},
       receptionist:{enroll_student:true,delete_student:false,alloc_seat:true,collect_fee:true,apply_discount:false,generate_invoice:false,issue_book:false,return_book:false,add_book:false,add_expense:false,send_whatsapp:true,add_staff:false,add_batch:false,reset_data:false},
     };
+    let staffPage=1, staffPerPage=10;
     function renderStaff(){
         document.getElementById('staffCount').textContent=`${DB.staff.length} staff`;
-        document.getElementById('staffTable').innerHTML=DB.staff.map((sf,i)=>{const pc=Object.values(sf.perms).filter(Boolean).length;
+        const staffTotal=DB.staff.length, staffPages=Math.ceil(staffTotal/staffPerPage)||1;
+        staffPage=Math.min(staffPage,staffPages);
+        const staffOffset=(staffPage-1)*staffPerPage;
+        const staffSl=DB.staff.slice(staffOffset,staffOffset+staffPerPage);
+        document.getElementById('staffTable').innerHTML=staffSl.map((sf,si)=>{const i=staffOffset+si;const pc=Object.values(sf.perms).filter(Boolean).length;
             return `<tr><td><div class="si"><div class="sav" style="background:linear-gradient(135deg,var(--ac),var(--vi))">${(sf.name||"?").split(' ').filter(Boolean).map(n=>n[0]).join('').slice(0,2).toUpperCase()||"?"}</div><div><div style="font-weight:600;font-size:12.5px">${sf.name||""}</div><div style="font-size:10px;color:var(--tx3);font-family:var(--fm)">${sf.id}</div></div></div></td>
     <td><span class="tag tac" style="text-transform:capitalize">${sf.role}</span></td><td>${sf.email}</td><td>${sf.phone}</td>
     <td><div style="display:flex;flex-direction:column;gap:4px">
@@ -4630,6 +5010,9 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
     </div></td><td><span class="tag ${sf.status==='active'?'tpd':'tod'}">${sf.status==='active'?'Active':'Inactive'}</span></td>
     <td><div style="display:flex;gap:4px"><button class="btn bg" style="font-size:10px;padding:3px 7px" onclick="editStaff(${i})">✏</button>${i>0?`<button class="btn bd" style="font-size:10px;padding:3px 6px" onclick="delStaff(${i})"><span class="mi sm">close</span></button>`:''}</div></td></tr>`;
         }).join('')||'<tr><td colspan="7"><div class="empty"><div class="ei">👥</div><div class="et">No staff</div></div></td></tr>';
+        document.getElementById('staffPagI').textContent=`${staffSl.length} of ${staffTotal}`;
+        let staffPb='';for(let i=1;i<=staffPages;i++) staffPb+=`<div class="pb2 ${i===staffPage?'active':''}" onclick="staffPage=${i};renderStaff()">${i}</div>`;
+        document.getElementById('staffPagB').innerHTML=staffPb;
     }
     function buildPermList(){
       const role=gv('sf-rl')||'librarian';
@@ -4943,6 +5326,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         }
     }
 
+    let archPage=1, archPerPage=10;
     function renderArchived(srch) {
         const list = srch ? _archivedList.filter(s =>
             `${s.fname} ${s.lname} ${s.phone} ${s.course||''}`.toLowerCase().includes(srch.toLowerCase())
@@ -4961,10 +5345,16 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
 
         if (!list.length) {
             document.getElementById('archTable').innerHTML = `<tr><td colspan="9" style="text-align:center;padding:32px;color:var(--tx3)">${srch ? 'No matches found.' : '🎉 No archived students.'}</td></tr>`;
+            document.getElementById('archPagI').textContent='';
+            document.getElementById('archPagB').innerHTML='';
             return;
         }
 
-        document.getElementById('archTable').innerHTML = list.map(s => {
+        const archTotal=list.length, archPages=Math.ceil(archTotal/archPerPage)||1;
+        archPage=Math.min(archPage,archPages);
+        const archSl=list.slice((archPage-1)*archPerPage,archPage*archPerPage);
+
+        document.getElementById('archTable').innerHTML = archSl.map(s => {
             const bal = +s.net_fee - +s.paid_amt;
             const archivedOn = s.archived_at ? new Date(s.archived_at).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}) : '—';
             const initials = ((s.fname||'?')[0] + (s.lname||'')[0]).toUpperCase();
@@ -4990,6 +5380,9 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
                 </td>
             </tr>`;
         }).join('');
+        document.getElementById('archPagI').textContent=`${archSl.length} of ${archTotal}`;
+        let archPb='';for(let i=1;i<=archPages;i++) archPb+=`<div class="pb2 ${i===archPage?'active':''}" onclick="archPage=${i};renderArchived(document.getElementById('archSrch').value||'')">${i}</div>`;
+        document.getElementById('archPagB').innerHTML=archPb;
     }
 
     async function restoreStudent(id, name) {
@@ -5994,20 +6387,18 @@ Thank you! 📚
         const total   = (DB.auditLog || []).length;
         const curType = document.getElementById('auditFilter')?.value || 'all';
         const allOn   = curType === 'all';
-        let chips = `<div class="audit-stat-chip ${allOn ? 'asc-on' : ''}" style="--asc-cl:var(--tx);--asc-bg:var(--sf2)" onclick="document.getElementById('auditFilter').value='all';_auditPage=1;renderAudit()">
-            <div class="asc-icon" style="color:var(--tx3)">◎</div>
-            <div class="asc-count" style="color:var(--tx)">${total}</div>
-            <div class="asc-label">Total</div>
-        </div>`;
+        let chips = `<span class="audit-stat-chip ${allOn?'asc-on':''}" style="--asc-cl:var(--tx);--asc-bg:var(--sf2)" onclick="document.getElementById('auditFilter').value='all';_auditPage=1;renderAudit()">
+            All <span class="asc-count">${total}</span>
+        </span>`;
         Object.entries(_AUDIT_TYPE_CFG).forEach(([t, c]) => {
             const cnt = (DB.auditLog || []).filter(a => a.type === t).length;
             if (!cnt) return;
             const on = curType === t;
-            chips += `<div class="audit-stat-chip ${on ? 'asc-on' : ''}" style="--asc-cl:${c.ac};--asc-bg:${c.bg}" onclick="document.getElementById('auditFilter').value='${t}';_auditPage=1;renderAudit()">
-                <div class="asc-icon" style="color:${c.ac}">${c.icon}</div>
-                <div class="asc-count">${cnt}</div>
-                <div class="asc-label">${c.label}</div>
-            </div>`;
+            chips += `<span class="audit-stat-chip ${on?'asc-on':''}" style="--asc-cl:${c.ac};--asc-bg:${c.bg}" onclick="document.getElementById('auditFilter').value='${t}';_auditPage=1;renderAudit()">
+                <span class="asc-icon">${c.icon}</span>
+                <span class="asc-label">${c.label}</span>
+                <span class="asc-count">${cnt}</span>
+            </span>`;
         });
         if (statsEl) statsEl.innerHTML = chips;
 
@@ -6036,7 +6427,6 @@ Thank you! 📚
             return;
         }
 
-        // Group by date
         let html = '';
         let lastDate = null;
         slice.forEach(a => {
@@ -6045,26 +6435,24 @@ Thank you! 📚
                 html += `<div class="audit-date-sep">${dateLabel}</div>`;
                 lastDate = dateLabel;
             }
-            const c = _AUDIT_TYPE_CFG[a.type] || _AUDIT_TYPE_CFG.other;
-            html += `<div class="audit-log-entry">
-                <div class="ale-timeline">
-                    <div class="ale-dot" style="background:${c.bg};color:${c.ac}">${c.icon}</div>
-                    <div class="ale-line"></div>
-                </div>
+            const c    = _AUDIT_TYPE_CFG[a.type] || _AUDIT_TYPE_CFG.other;
+            const time = (a.time || '').split(',').slice(1).join(',').trim() || a.time || '';
+            html += `<div class="audit-log-entry" style="--ale-cl:${c.ac}">
+                <div class="ale-accent"></div>
                 <div class="ale-body">
                     <div class="ale-top">
                         <span class="ale-who">${a.who || 'System'}</span>
+                        <span class="ale-who-sep">·</span>
                         <span class="ale-tag" style="background:${c.bg};color:${c.ac};border-color:${c.border}">${c.label}</span>
                     </div>
                     <div class="ale-text">${a.text || ''}</div>
-                    <div class="ale-time">
-                        <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><circle cx="5" cy="5" r="4" stroke="currentColor" stroke-width="1"/><path d="M5 3v2l1.5 1.5" stroke="currentColor" stroke-width="1" stroke-linecap="round"/></svg>
-                        ${a.time || ''}
-                    </div>
                 </div>
-                <button class="ale-del" title="Remove entry" onclick="auditDeleteEntry(${a.id})">
-                    <svg width="11" height="11" viewBox="0 0 11 11" fill="none"><path d="M1.5 2.5h8M4 2.5V1.5h3v1M3.5 2.5L4 9.5h3l.5-7" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                </button>
+                <div class="ale-right">
+                    <span class="ale-ts">${time}</span>
+                    <button class="ale-del" title="Remove entry" onclick="auditDeleteEntry(${a.id})">
+                        <svg width="11" height="11" viewBox="0 0 11 11" fill="none"><path d="M1.5 2.5h8M4 2.5V1.5h3v1M3.5 2.5L4 9.5h3l.5-7" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </button>
+                </div>
             </div>`;
         });
         listEl.innerHTML = html;
