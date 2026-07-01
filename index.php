@@ -68,35 +68,17 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         *{margin:0;padding:0;box-sizing:border-box}
         body{font-family:var(--fb);font-size:16px;background:var(--bg);color:var(--tx);min-height:100vh;overflow-x:hidden;line-height:1.6}
 
-        .sb{position:fixed;left:0;top:0;bottom:0;width:240px;background:var(--sf);border-right:1px solid var(--br);display:flex;flex-direction:column;z-index:200;box-shadow:var(--sh)}
-        .sb-logo{padding:18px 16px 14px;border-bottom:1px solid var(--br)}
-        .logo-row{display:flex;align-items:center;gap:10px}
-        .logo-ic{width:36px;height:36px;background:linear-gradient(135deg,var(--ac),var(--vi));border-radius:10px;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(61,111,240,.3)}
-        .logo-tx{font-family:var(--fd);font-size:16px;color:var(--tx)}.logo-sb{font-size:9px;color:var(--tx3);font-family:var(--fm);letter-spacing:1.5px;text-transform:uppercase}
-        .sb-nav{flex:1;padding:10px 8px;overflow-y:auto}
-        .nl{font-size:9px;color:var(--tx3);letter-spacing:1.8px;text-transform:uppercase;padding:0 8px;margin-bottom:4px;font-family:var(--fm);font-weight:600}
-        .ni{display:flex;align-items:center;gap:9px;padding:7px 9px;border-radius:var(--r2);cursor:pointer;transition:all .18s;color:var(--tx2);font-size:12.5px;font-weight:500;position:relative;white-space:nowrap}
-        .ni:hover{background:var(--sf2);color:var(--tx)}
-        .ni.active{background:rgba(61,111,240,.09);color:var(--ac);font-weight:600}
-        .ni.active::before{content:'';position:absolute;left:0;top:6px;bottom:6px;width:3px;background:var(--ac);border-radius:0 3px 3px 0}
-        .ni-ic{font-size:18px;width:20px;text-align:center;display:flex;align-items:center;justify-content:center;color:inherit}
-        .nbadge{margin-left:auto;background:var(--ro);color:#fff;font-size:9px;font-weight:700;padding:1px 6px;border-radius:20px;min-width:17px;text-align:center}
+        /* ── Sidebar/Topbar — now Tailwind. Only keeping JS-driven active state + badge colors ── */
+        .ni.active{background:rgba(37,99,235,.10);color:#004ac6;font-weight:600}
+        .ni.active::before{content:'';position:absolute;left:0;top:6px;bottom:6px;width:3px;background:#004ac6;border-radius:0 3px 3px 0}
+        .ni:hover{background:rgba(231,238,255,.7);color:#111c2d}
+        .nbadge{background:var(--ro);color:#fff;font-size:9px;font-weight:700;padding:1px 6px;border-radius:20px;min-width:17px;text-align:center;flex-shrink:0}
         .nbadge.g{background:var(--em)}.nbadge.y{background:var(--gd)}.nbadge.wa{background:var(--wa)}.nbadge.or{background:var(--or)}
-        .ns{margin-bottom:14px}
-        .sb-foot{padding:12px;border-top:1px solid var(--br)}
-        .u-card{display:flex;align-items:center;gap:8px;padding:9px 10px;background:var(--sf2);border-radius:var(--r2);border:1px solid var(--br)}
-        .u-av{width:30px;height:30px;background:linear-gradient(135deg,var(--ac),var(--vi));border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff}
-        .u-nm{font-size:12px;font-weight:600;color:var(--tx)}.u-rl{font-size:10px;color:var(--tx3)}
-
+        /* Structural helpers still needed by JS / page layout */
+        .sb{width:240px} /* keeps .main offset correct */
         .main{margin-left:240px;min-height:100vh;display:flex;flex-direction:column}
-        .topbar{position:sticky;top:0;z-index:100;background:rgba(255,255,255,.95);backdrop-filter:blur(16px);border-bottom:1px solid var(--br);padding:0 24px;height:58px;display:flex;align-items:center;gap:12px}
-        .pg-title{font-family:var(--fd);font-size:19px;flex:1;color:var(--tx)}
-        .srch{display:flex;align-items:center;gap:7px;background:var(--sf2);border:1px solid var(--br);border-radius:var(--r2);padding:6px 11px;width:200px;transition:all .2s}
-        .srch:focus-within{border-color:var(--ac);background:#fff}
-        .srch input{background:none;border:none;outline:none;color:var(--tx);font-size:12px;width:100%;font-family:var(--fb)}
-        .srch input::placeholder{color:var(--tx3)}
-        .id-badge{display:inline-flex;align-items:center;gap:6px;padding:5px 13px 5px 9px;background:#eff6ff;border:1.5px solid #93c5fd;border-radius:7px;font-family:var(--fm);font-size:16px;font-weight:700;color:#1d4ed8;letter-spacing:.3px;white-space:nowrap;box-shadow:0 1px 4px rgba(59,130,246,.10)}
-        .id-badge .id-dot{width:7px;height:7px;border-radius:50%;background:#3b82f6;flex-shrink:0;box-shadow:0 0 0 2px rgba(59,130,246,.25)}
+        .content{padding:20px 24px;flex:1}
+        .transition-soft{transition:all 0.2s cubic-bezier(0.4,0,0.2,1)}
 
         .btn{display:inline-flex;align-items:center;gap:5px;padding:7px 13px;border-radius:var(--r2);font-size:12px;font-weight:600;cursor:pointer;border:none;transition:all .18s;font-family:var(--fb)}
         .bp{background:var(--ac);color:#fff;box-shadow:0 2px 6px rgba(61,111,240,.3)}.bp:hover{background:var(--ac2);transform:translateY(-1px)}
@@ -303,12 +285,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         .si{display:flex;align-items:center;gap:8px}
         .sav{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;flex-shrink:0}
 
-        .chip{display:inline-flex;align-items:center;gap:3px;padding:3px 9px;border-radius:20px;font-size:10px;font-weight:600;border:1px solid}
-        .chip-tl{border-color:var(--cb);color:var(--ac);background:var(--c-blue)}
-
-        .nb-btn{position:relative;cursor:pointer;display:flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:var(--r2);background:var(--sf2);border:1px solid var(--br);transition:all .18s;color:var(--tx2)}
-        .nb-btn:hover{background:var(--sf3);color:var(--tx)}
-        .nd{position:absolute;top:5px;right:5px;width:7px;height:7px;border-radius:50%;background:var(--ro);border:1.5px solid #fff}
+        /* chip, nb-btn, nd — now Tailwind inline in topbar */
 
         .fee-bal-badge{display:inline-flex;align-items:center;padding:2px 7px;background:var(--c-rose);color:#9f1239;border:1px solid var(--cr);border-radius:5px;font-size:10px;font-weight:700;font-family:var(--fm)}
         .fee-partial-wrap{margin-top:4px}.fee-partial-bar{height:4px;background:var(--sf2);border-radius:2px;overflow:hidden;margin-bottom:2px;border:1px solid var(--br)}
@@ -583,67 +560,141 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+
+    <!-- ══ TAILWIND (Option B rebuild — preflight disabled so it never touches existing pages) ══ -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script id="tailwind-config">
+      tailwind.config = {
+        corePlugins: { preflight: false },
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "secondary-fixed-dim":"#b7c8e1","inverse-on-surface":"#ecf1ff","background":"#f9f9ff",
+              "surface-tint":"#0053db","surface-dim":"#cfdaf2","outline":"#737686",
+              "on-secondary-container":"#54647a","on-background":"#111c2d",
+              "surface-container-highest":"#d8e3fb","on-tertiary":"#ffffff",
+              "on-error-container":"#93000a","primary-container":"#2563eb",
+              "on-primary-fixed-variant":"#003ea8","on-error":"#ffffff",
+              "tertiary-fixed":"#7ffc97","surface-container-high":"#dee8ff",
+              "surface-container-lowest":"#ffffff","on-primary":"#ffffff",
+              "error":"#ba1a1a","primary":"#004ac6","tertiary":"#006329",
+              "error-container":"#ffdad6","tertiary-fixed-dim":"#62df7d",
+              "on-secondary-fixed-variant":"#38485d","surface":"#f9f9ff",
+              "on-secondary-fixed":"#0b1c30","inverse-surface":"#263143",
+              "tertiary-container":"#007f36","outline-variant":"#c3c6d7",
+              "secondary-container":"#d0e1fb","on-tertiary-fixed-variant":"#005320",
+              "on-secondary":"#ffffff","primary-fixed-dim":"#b4c5ff",
+              "on-primary-container":"#eeefff","on-tertiary-fixed":"#002109",
+              "on-surface-variant":"#434655","on-surface":"#111c2d",
+              "primary-fixed":"#dbe1ff","secondary":"#505f76",
+              "surface-container-low":"#f0f3ff","surface-bright":"#f9f9ff",
+              "secondary-fixed":"#d3e4fe","on-primary-fixed":"#00174b",
+              "on-tertiary-container":"#c7ffca","surface-variant":"#d8e3fb",
+              "surface-container":"#e7eeff","inverse-primary":"#b4c5ff"
+            },
+            borderRadius: { "DEFAULT":"0.25rem","lg":"0.5rem","xl":"0.75rem","full":"9999px" },
+            spacing: {
+              "container-margin":"24px","sm":"12px","xs":"8px","md":"16px",
+              "lg":"24px","xxs":"4px","xl":"32px","base":"8px","gutter":"16px"
+            },
+            fontFamily: {
+              "headline-lg-mobile":["Inter"],"body-md":["Inter"],"display":["Inter"],
+              "body-lg":["Inter"],"headline-md":["Inter"],"headline-lg":["Inter"],
+              "label-sm":["Inter"],"label-md":["Inter"]
+            },
+            fontSize: {
+              "headline-lg-mobile":["20px",{"lineHeight":"28px","letterSpacing":"-0.01em","fontWeight":"600"}],
+              "body-md":["14px",{"lineHeight":"20px","letterSpacing":"0em","fontWeight":"400"}],
+              "display":["36px",{"lineHeight":"44px","letterSpacing":"-0.02em","fontWeight":"700"}],
+              "body-lg":["16px",{"lineHeight":"24px","letterSpacing":"-0.01em","fontWeight":"400"}],
+              "headline-md":["18px",{"lineHeight":"24px","letterSpacing":"-0.01em","fontWeight":"600"}],
+              "headline-lg":["24px",{"lineHeight":"32px","letterSpacing":"-0.015em","fontWeight":"600"}],
+              "label-sm":["11px",{"lineHeight":"14px","letterSpacing":"0.03em","fontWeight":"600"}],
+              "label-md":["12px",{"lineHeight":"16px","letterSpacing":"0.01em","fontWeight":"500"}]
+            }
+          }
+        }
+      }
+    </script>
 </head>
 <body>
-<!-- SIDEBAR -->
-<div class="sb">
-    <div class="sb-logo"><div class="logo-row"><div class="logo-ic" id="sidebar-logo-wrap"><span class="mi" style="color:#fff;font-size:20px" id="sidebar-logo-icon">auto_stories</span><img id="sidebar-logo-img" src="" alt="" style="display:none;width:36px;height:36px;object-fit:contain;border-radius:8px"></div><div><div class="logo-tx" id="sidebar-lib-name">OPTMS Tech</div><div class="logo-sb">ERP v6.0</div></div></div></div>
-    <nav class="sb-nav">
-        <div class="ns"><div class="nl">Students</div>
-            <div class="ni active" data-page="dashboard"><span class="ni-ic mi">dashboard</span> Dashboard</div>
-            <div class="ni" data-page="analytics"><span class="ni-ic mi">insights</span> Analytics</div>
+<!-- SIDEBAR (Tailwind rebuild) -->
+<div class="sb fixed left-0 top-0 h-full w-64 bg-surface-container-low border-r border-outline-variant flex flex-col z-[200] shadow-sm">
+    <div class="px-md py-md border-b border-outline-variant">
+        <div class="flex items-center gap-md">
+            <div class="logo-row w-9 h-9 rounded-lg bg-primary-container flex items-center justify-center flex-shrink-0 shadow-sm" id="sidebar-logo-wrap">
+                <span class="mi" style="color:#fff;font-size:20px" id="sidebar-logo-icon">auto_stories</span>
+                <img id="sidebar-logo-img" src="" alt="" style="display:none;width:36px;height:36px;object-fit:contain;border-radius:8px">
+            </div>
+            <div>
+                <div class="font-headline-md text-headline-md font-bold text-on-surface leading-tight" id="sidebar-lib-name">OPTMS Tech</div>
+                <div class="font-label-sm text-label-sm text-outline tracking-widest uppercase">ERP v6.0</div>
+            </div>
         </div>
-        <div class="ns"><div class="nl">Students</div>
-            <div class="ni" data-page="students"><span class="ni-ic mi">school</span> All Students</div>
-            <div class="ni" data-page="enroll" id="ni-enroll"><span class="ni-ic mi">person_add</span> Enroll Student</div>
-            <div class="ni" data-page="archived"><span class="ni-ic mi">archive</span> Archived <span class="nbadge y" id="b-archived" style="display:none">0</span></div>
-            <div class="ni" data-page="seats"><span class="ni-ic mi">event_seat</span> Seat Allocation</div>
-            <div class="ni" data-page="attendance"><span class="ni-ic mi">fact_check</span> Attendance <span class="nbadge" id="b-absent">0</span></div>
+    </div>
+    <nav class="sb-nav flex-1 overflow-y-auto px-xs py-sm">
+        <div class="ns mb-md"><div class="nl font-label-sm text-label-sm text-outline uppercase tracking-widest px-xs pb-xxs">Students</div>
+            <div class="ni flex items-center gap-md px-sm py-xs rounded-lg cursor-pointer transition-soft text-on-surface-variant hover:bg-surface-container-high font-label-md text-label-md font-medium active" data-page="dashboard"><span class="ni-ic mi text-[18px]">dashboard</span> Dashboard</div>
+            <div class="ni flex items-center gap-md px-sm py-xs rounded-lg cursor-pointer transition-soft text-on-surface-variant hover:bg-surface-container-high font-label-md text-label-md font-medium" data-page="analytics"><span class="ni-ic mi text-[18px]">insights</span> Analytics</div>
         </div>
-        <div class="ns"><div class="nl">Books</div>
-            <div class="ni" data-page="books"><span class="ni-ic mi">menu_book</span> Books Catalog</div>
-            <div class="ni" data-page="transactions"><span class="ni-ic mi">sync_alt</span> Issue / Returns <span class="nbadge" id="b-overdue">0</span></div>
+        <div class="ns mb-md"><div class="nl font-label-sm text-label-sm text-outline uppercase tracking-widest px-xs pb-xxs">Students</div>
+            <div class="ni flex items-center gap-md px-sm py-xs rounded-lg cursor-pointer transition-soft text-on-surface-variant hover:bg-surface-container-high font-label-md text-label-md font-medium" data-page="students"><span class="ni-ic mi text-[18px]">school</span> All Students</div>
+            <div class="ni flex items-center gap-md px-sm py-xs rounded-lg cursor-pointer transition-soft text-on-surface-variant hover:bg-surface-container-high font-label-md text-label-md font-medium" data-page="enroll" id="ni-enroll"><span class="ni-ic mi text-[18px]">person_add</span> Enroll Student</div>
+            <div class="ni flex items-center gap-md px-sm py-xs rounded-lg cursor-pointer transition-soft text-on-surface-variant hover:bg-surface-container-high font-label-md text-label-md font-medium" data-page="archived"><span class="ni-ic mi text-[18px]">archive</span> Archived <span class="nbadge y ml-auto" id="b-archived" style="display:none">0</span></div>
+            <div class="ni flex items-center gap-md px-sm py-xs rounded-lg cursor-pointer transition-soft text-on-surface-variant hover:bg-surface-container-high font-label-md text-label-md font-medium" data-page="seats"><span class="ni-ic mi text-[18px]">event_seat</span> Seat Allocation</div>
+            <div class="ni flex items-center gap-md px-sm py-xs rounded-lg cursor-pointer transition-soft text-on-surface-variant hover:bg-surface-container-high font-label-md text-label-md font-medium" data-page="attendance"><span class="ni-ic mi text-[18px]">fact_check</span> Attendance <span class="nbadge ml-auto" id="b-absent">0</span></div>
         </div>
-        <div class="ns"><div class="nl">Finance</div>
-            <div class="ni" data-page="fees"><span class="ni-ic mi">payments</span> Fee Management <span class="nbadge" id="b-fee">0</span></div>
-            <div class="ni" data-page="invoices"><span class="ni-ic mi">receipt_long</span> Invoices</div>
-            <div class="ni" data-page="expenses"><span class="ni-ic mi">account_balance_wallet</span> Expenses</div>
-            <div class="ni" data-page="reports"><span class="ni-ic mi">bar_chart</span> Reports</div>
+        <div class="ns mb-md"><div class="nl font-label-sm text-label-sm text-outline uppercase tracking-widest px-xs pb-xxs">Books</div>
+            <div class="ni flex items-center gap-md px-sm py-xs rounded-lg cursor-pointer transition-soft text-on-surface-variant hover:bg-surface-container-high font-label-md text-label-md font-medium" data-page="books"><span class="ni-ic mi text-[18px]">menu_book</span> Books Catalog</div>
+            <div class="ni flex items-center gap-md px-sm py-xs rounded-lg cursor-pointer transition-soft text-on-surface-variant hover:bg-surface-container-high font-label-md text-label-md font-medium" data-page="transactions"><span class="ni-ic mi text-[18px]">sync_alt</span> Issue / Returns <span class="nbadge ml-auto" id="b-overdue">0</span></div>
         </div>
-        <div class="ns"><div class="nl">Communication</div>
-            <div class="ni" data-page="whatsapp" data-action-page="send_whatsapp"><span class="ni-ic mi">chat</span> WhatsApp <span class="nbadge wa">New</span></div>
+        <div class="ns mb-md"><div class="nl font-label-sm text-label-sm text-outline uppercase tracking-widest px-xs pb-xxs">Finance</div>
+            <div class="ni flex items-center gap-md px-sm py-xs rounded-lg cursor-pointer transition-soft text-on-surface-variant hover:bg-surface-container-high font-label-md text-label-md font-medium" data-page="fees"><span class="ni-ic mi text-[18px]">payments</span> Fee Management <span class="nbadge ml-auto" id="b-fee">0</span></div>
+            <div class="ni flex items-center gap-md px-sm py-xs rounded-lg cursor-pointer transition-soft text-on-surface-variant hover:bg-surface-container-high font-label-md text-label-md font-medium" data-page="invoices"><span class="ni-ic mi text-[18px]">receipt_long</span> Invoices</div>
+            <div class="ni flex items-center gap-md px-sm py-xs rounded-lg cursor-pointer transition-soft text-on-surface-variant hover:bg-surface-container-high font-label-md text-label-md font-medium" data-page="expenses"><span class="ni-ic mi text-[18px]">account_balance_wallet</span> Expenses</div>
+            <div class="ni flex items-center gap-md px-sm py-xs rounded-lg cursor-pointer transition-soft text-on-surface-variant hover:bg-surface-container-high font-label-md text-label-md font-medium" data-page="reports"><span class="ni-ic mi text-[18px]">bar_chart</span> Reports</div>
         </div>
-        <div class="ns"><div class="nl">Admin</div>
-            <div class="ni" data-page="staff"><span class="ni-ic mi">manage_accounts</span> Staff & Users</div>
-            <div class="ni" data-page="staff_attendance"><span class="ni-ic mi">co_present</span> Staff Attendance</div>
-            <div class="ni" data-page="renewal"><span class="ni-ic mi">autorenew</span> Renewals <span class="nbadge y" id="b-renewal">0</span></div>
-            <div class="ni" data-page="audit"><span class="ni-ic mi">history</span> Audit Log</div>
-            <div class="ni" data-page="biometric"><span class="ni-ic mi">fingerprint</span> Biometric <span class="nbadge g" id="b-bio" style="display:none">●</span></div>
-            <div class="ni" data-page="notifications"><span class="ni-ic mi">notifications</span> Notifications <span class="nbadge g" id="b-notif">0</span></div>
-            <div class="ni" data-page="settings"><span class="ni-ic mi">settings</span> Settings</div>
+        <div class="ns mb-md"><div class="nl font-label-sm text-label-sm text-outline uppercase tracking-widest px-xs pb-xxs">Communication</div>
+            <div class="ni flex items-center gap-md px-sm py-xs rounded-lg cursor-pointer transition-soft text-on-surface-variant hover:bg-surface-container-high font-label-md text-label-md font-medium" data-page="whatsapp" data-action-page="send_whatsapp"><span class="ni-ic mi text-[18px]">chat</span> WhatsApp <span class="nbadge wa ml-auto">New</span></div>
+        </div>
+        <div class="ns mb-md"><div class="nl font-label-sm text-label-sm text-outline uppercase tracking-widest px-xs pb-xxs">Admin</div>
+            <div class="ni flex items-center gap-md px-sm py-xs rounded-lg cursor-pointer transition-soft text-on-surface-variant hover:bg-surface-container-high font-label-md text-label-md font-medium" data-page="staff"><span class="ni-ic mi text-[18px]">manage_accounts</span> Staff &amp; Users</div>
+            <div class="ni flex items-center gap-md px-sm py-xs rounded-lg cursor-pointer transition-soft text-on-surface-variant hover:bg-surface-container-high font-label-md text-label-md font-medium" data-page="staff_attendance"><span class="ni-ic mi text-[18px]">co_present</span> Staff Attendance</div>
+            <div class="ni flex items-center gap-md px-sm py-xs rounded-lg cursor-pointer transition-soft text-on-surface-variant hover:bg-surface-container-high font-label-md text-label-md font-medium" data-page="renewal"><span class="ni-ic mi text-[18px]">autorenew</span> Renewals <span class="nbadge y ml-auto" id="b-renewal">0</span></div>
+            <div class="ni flex items-center gap-md px-sm py-xs rounded-lg cursor-pointer transition-soft text-on-surface-variant hover:bg-surface-container-high font-label-md text-label-md font-medium" data-page="audit"><span class="ni-ic mi text-[18px]">history</span> Audit Log</div>
+            <div class="ni flex items-center gap-md px-sm py-xs rounded-lg cursor-pointer transition-soft text-on-surface-variant hover:bg-surface-container-high font-label-md text-label-md font-medium" data-page="biometric"><span class="ni-ic mi text-[18px]">fingerprint</span> Biometric <span class="nbadge g ml-auto" id="b-bio" style="display:none">●</span></div>
+            <div class="ni flex items-center gap-md px-sm py-xs rounded-lg cursor-pointer transition-soft text-on-surface-variant hover:bg-surface-container-high font-label-md text-label-md font-medium" data-page="notifications"><span class="ni-ic mi text-[18px]">notifications</span> Notifications <span class="nbadge g ml-auto" id="b-notif">0</span></div>
+            <div class="ni flex items-center gap-md px-sm py-xs rounded-lg cursor-pointer transition-soft text-on-surface-variant hover:bg-surface-container-high font-label-md text-label-md font-medium" data-page="settings"><span class="ni-ic mi text-[18px]">settings</span> Settings</div>
         </div>
     </nav>
-    <div class="sb-foot">
-        <div class="u-card">
-            <div class="u-av" id="sidebarAv"><?= $staffInitials ?></div>
-            <div style="flex:1"><div class="u-nm"><?= $staffName ?></div><div class="u-rl"><?= $staffRole ?></div></div>
-            <span style="color:var(--tx3);cursor:pointer;font-size:13px" title="Change Password" onclick="openM('mChangePw')"><span class="mi sm">lock_reset</span></span>
-            <button onclick="logoutToast()" title="Logout" style="background:none;border:none;padding:0;cursor:pointer;margin-left:4px;display:flex;align-items:center"><span class="mi sm" style="color:var(--ro)">power_settings_new</span></button>
+    <div class="sb-foot p-sm border-t border-outline-variant">
+        <div class="u-card flex items-center gap-xs p-xs bg-surface-container rounded-lg border border-outline-variant">
+            <div class="u-av w-8 h-8 rounded-full bg-gradient-to-br from-primary to-tertiary flex items-center justify-center text-[11px] font-bold text-white flex-shrink-0" id="sidebarAv"><?= $staffInitials ?></div>
+            <div style="flex:1;min-width:0">
+                <div class="u-nm font-label-md text-label-md font-semibold text-on-surface truncate"><?= $staffName ?></div>
+                <div class="u-rl font-label-sm text-label-sm text-outline truncate"><?= $staffRole ?></div>
+            </div>
+            <span class="text-outline cursor-pointer text-[13px]" title="Change Password" onclick="openM('mChangePw')"><span class="mi sm">lock_reset</span></span>
+            <button onclick="logoutToast()" title="Logout" class="bg-transparent border-none p-0 cursor-pointer ml-1 flex items-center"><span class="mi sm text-error">power_settings_new</span></button>
         </div>
     </div>
 </div>
 
 <!-- MAIN -->
 <div class="main">
-    <div class="topbar">
-        <div class="pg-title" id="topTitle">Dashboard</div>
-        <div class="id-badge" title="Your Staff ID"><div class="id-dot"></div><?= htmlspecialchars($_SESSION['staff_id'] ?? 'N/A') ?></div>
-        <div class="srch"><span class="mi sm" style="color:var(--tx3)">search</span><input id="gSearch" placeholder="Search students, books…" oninput="globalSearch(this.value)"></div>
-        <div style="display:flex;align-items:center;gap:9px">
-            <div class="chip chip-tl"><span class="mi sm">calendar_today</span> <span id="todayChip"></span></div>
+    <div class="topbar sticky top-0 z-[100] bg-surface/95 backdrop-blur-md border-b border-outline-variant px-lg h-16 flex items-center gap-md">
+        <div class="pg-title font-headline-md text-headline-md font-bold text-on-surface flex-1" id="topTitle">Dashboard</div>
+        <div class="id-badge inline-flex items-center gap-xs px-sm py-1.5 bg-primary-container/10 border border-primary-container/30 rounded-lg font-mono text-[15px] font-bold text-primary whitespace-nowrap" title="Your Staff ID"><div class="id-dot w-[7px] h-[7px] rounded-full bg-primary flex-shrink-0"></div><?= htmlspecialchars($_SESSION['staff_id'] ?? 'N/A') ?></div>
+        <div class="srch flex items-center gap-xs bg-surface-container-low border border-outline-variant rounded-lg px-sm py-1.5 w-[200px] transition-soft focus-within:border-primary focus-within:bg-surface-container-lowest">
+            <span class="mi sm text-outline">search</span>
+            <input id="gSearch" placeholder="Search students, books…" oninput="globalSearch(this.value)" class="bg-transparent border-none outline-none text-on-surface text-[12px] w-full font-body-md placeholder:text-outline">
+        </div>
+        <div class="flex items-center gap-sm">
+            <div class="chip chip-tl inline-flex items-center gap-1 px-sm py-1 rounded-full text-[10px] font-semibold border border-primary-container/30 text-primary bg-primary-container/10"><span class="mi sm">calendar_today</span> <span id="todayChip"></span></div>
             <button class="btn bwa" onclick="navTo('whatsapp')" style="gap:5px;font-size:11px"><span class="mi sm">chat</span>WhatsApp</button>
             <button class="btn bg" onclick="openM('mWaQR')" style="font-size:11px;padding:6px 9px" title="Connect WhatsApp QR"><span class="mi sm">qr_code_scanner</span></button>
-            <div class="nb-btn" onclick="navTo('notifications')"><span class="mi sm">notifications</span><div class="nd" id="notifDot" style="display:none"></div></div>
+            <div class="nb-btn relative cursor-pointer flex items-center justify-center w-[34px] h-[34px] rounded-lg bg-surface-container-low border border-outline-variant transition-soft hover:bg-surface-container text-on-surface-variant" onclick="navTo('notifications')"><span class="mi sm">notifications</span><div class="nd absolute top-[5px] right-[5px] w-[7px] h-[7px] rounded-full bg-error border-2 border-white" id="notifDot" style="display:none"></div></div>
             <button class="btn bp" data-action="enroll_student" onclick="openM('mEnroll')"><span class="mi sm">person_add</span> Enroll</button>
         </div>
     </div>
