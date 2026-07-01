@@ -90,6 +90,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         .content{padding:20px 24px;flex:1}
         .page{display:none}.page.active{display:block}
 
+        /* stats-grid — used on fees/attendance/books/reports pages (dashboard uses Tailwind grid-cols-4) */
         .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
         .sc{background:var(--sf);border:0.5px solid var(--br);border-left:3px solid var(--ca,var(--ac));border-radius:var(--r);padding:12px 14px;position:relative;overflow:hidden;transition:all .22s;box-shadow:var(--sh)}
         .sc:hover{transform:translateY(-2px);box-shadow:var(--sh2)}
@@ -264,16 +265,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         .empty{text-align:center;padding:12px 16px;color:var(--tx3)}
         .empty .ei{font-size:38px;margin-bottom:8px}.empty .et{font-size:12.5px}
 
-        .qa-gr{display:grid;grid-template-columns:repeat(8,1fr);gap:10px;margin-bottom:20px}
-        .qa-b{display:flex;flex-direction:column;align-items:center;gap:7px;padding:14px 8px;background:var(--sf);border:1px solid var(--br);border-radius:var(--r);cursor:pointer;transition:all .2s;text-align:center;box-shadow:var(--sh)}
-        .qa-b:hover{border-color:var(--ac);box-shadow:0 4px 16px rgba(61,111,240,.15);transform:translateY(-2px)}
-        .qa-ic{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center}
-        .qa-lb{font-size:14px;font-weight:600;color:var(--tx2);line-height:1.3}
-
-        .al-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:20px}
-        .al-card{padding:12px 14px;border-radius:var(--r);border:1px solid;display:flex;align-items:flex-start;gap:10px;box-shadow:var(--sh)}
-        .al-w{background:var(--c-amber);border-color:var(--ca2)}.al-d{background:var(--c-rose);border-color:var(--cr)}.al-i{background:var(--c-blue);border-color:var(--cb)}
-        .al-t{font-size:12px;font-weight:700;margin-bottom:2px}.al-b{font-size:11px;color:var(--tx2);line-height:1.4}
+        /* stats-grid, qa-gr, al-row, al-card → now Tailwind on dashboard */
 
         .fi{display:flex;align-items:center;gap:10px;padding:10px 13px;background:var(--sf2);border-radius:var(--r2);margin-bottom:7px;border:1px solid var(--br)}
         .fd2{width:8px;height:8px;border-radius:50%;flex-shrink:0}.fn2{flex:1;font-size:12.5px;font-weight:500}.fsb{font-size:10px;color:var(--tx3)}.fa{font-size:13px;font-weight:700;font-family:var(--fm)}
@@ -513,8 +505,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         .pwa-banner.show{display:flex}
 
         @media(max-width:1100px){
-            .stats-grid,.qa-gr{grid-template-columns:repeat(2,1fr)}
-            .gm,.g2,.g3,.g4,.al-row{grid-template-columns:1fr}
+            .gm,.g2,.g3,.g4{grid-template-columns:1fr}
             #dashBatchCards{grid-template-columns:repeat(2,1fr) !important}
             #dashRowA{grid-template-columns:1fr 1fr !important}
         }
@@ -701,25 +692,50 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
     <div class="content">
         <!-- DASHBOARD -->
         <div class="page active" id="page-dashboard">
-            <div class="al-row" id="dashAlerts"></div>
-            <div class="stats-grid" id="dashStats"></div>
+            <!-- Alert Cards Row (dynamically filled by renderDash) -->
+            <div class="grid grid-cols-3 gap-gutter mb-gutter" id="dashAlerts"></div>
+
+            <!-- Stat Cards (dynamically filled by renderDash) -->
+            <div class="grid grid-cols-4 gap-gutter mb-gutter" id="dashStats" style="grid-template-columns:repeat(4,1fr)"></div>
 
             <!-- Quick Actions -->
-            <div class="qa-gr">
-                <div class="qa-b" data-action="enroll_student" onclick="openM('mEnroll')"><div class="qa-ic" style="background:var(--c-blue)"><span class="mi lg" style="color:var(--ac)">person_add</span></div><div class="qa-lb">New<br>Enroll</div></div>
-                <div class="qa-b" data-action="collect_fee" onclick="openM('mCollectFee')"><div class="qa-ic" style="background:var(--c-green)"><span class="mi lg" style="color:var(--em)">payments</span></div><div class="qa-lb">Collect<br>Fee</div></div>
-                <div class="qa-b" data-action="issue_book" onclick="openM('mIssueBook')"><div class="qa-ic" style="background:var(--c-amber)"><span class="mi lg" style="color:var(--gd)">upload</span></div><div class="qa-lb">Issue<br>Book</div></div>
-                <div class="qa-b" data-action="return_book" onclick="openM('mReturnBook')"><div class="qa-ic" style="background:var(--c-purple)"><span class="mi lg" style="color:var(--vi)">download</span></div><div class="qa-lb">Return<br>Book</div></div>
-                <div class="qa-b" onclick="navTo('seats')"><div class="qa-ic" style="background:var(--c-rose)"><span class="mi lg" style="color:var(--ro)">event_seat</span></div><div class="qa-lb">Seat<br>Booking</div></div>
-                <div class="qa-b" onclick="navTo('attendance')"><div class="qa-ic" style="background:var(--c-sky)"><span class="mi lg" style="color:var(--sk)">fact_check</span></div><div class="qa-lb">Mark<br>Attend.</div></div>
-                <div class="qa-b" data-action="add_expense" onclick="openM('mExpense')"><div class="qa-ic" style="background:var(--c-orange)"><span class="mi lg" style="color:var(--or)">account_balance_wallet</span></div><div class="qa-lb">Add<br>Expense</div></div>
-                <div class="qa-b" onclick="navTo('whatsapp')"><div class="qa-ic" style="background:var(--c-teal)"><span class="mi lg" style="color:var(--wa2)">chat</span></div><div class="qa-lb">WhatsApp</div></div>
+            <div class="grid grid-cols-8 gap-xs mb-gutter">
+                <div class="flex flex-col items-center gap-xs p-md bg-surface border border-outline-variant rounded-xl cursor-pointer transition-soft hover:border-primary hover:shadow-md hover:-translate-y-0.5 text-center shadow-sm" data-action="enroll_student" onclick="openM('mEnroll')">
+                    <div class="w-[38px] h-[38px] rounded-lg bg-primary-container/10 flex items-center justify-center"><span class="mi lg" style="color:var(--ac)">person_add</span></div>
+                    <div class="font-label-md text-label-md font-semibold text-on-surface-variant leading-tight">New<br>Enroll</div>
+                </div>
+                <div class="flex flex-col items-center gap-xs p-md bg-surface border border-outline-variant rounded-xl cursor-pointer transition-soft hover:border-primary hover:shadow-md hover:-translate-y-0.5 text-center shadow-sm" data-action="collect_fee" onclick="openM('mCollectFee')">
+                    <div class="w-[38px] h-[38px] rounded-lg bg-tertiary/10 flex items-center justify-center"><span class="mi lg" style="color:var(--em)">payments</span></div>
+                    <div class="font-label-md text-label-md font-semibold text-on-surface-variant leading-tight">Collect<br>Fee</div>
+                </div>
+                <div class="flex flex-col items-center gap-xs p-md bg-surface border border-outline-variant rounded-xl cursor-pointer transition-soft hover:border-primary hover:shadow-md hover:-translate-y-0.5 text-center shadow-sm" data-action="issue_book" onclick="openM('mIssueBook')">
+                    <div class="w-[38px] h-[38px] rounded-lg bg-[#fffbeb] flex items-center justify-center"><span class="mi lg" style="color:var(--gd)">upload</span></div>
+                    <div class="font-label-md text-label-md font-semibold text-on-surface-variant leading-tight">Issue<br>Book</div>
+                </div>
+                <div class="flex flex-col items-center gap-xs p-md bg-surface border border-outline-variant rounded-xl cursor-pointer transition-soft hover:border-primary hover:shadow-md hover:-translate-y-0.5 text-center shadow-sm" data-action="return_book" onclick="openM('mReturnBook')">
+                    <div class="w-[38px] h-[38px] rounded-lg bg-[#faf5ff] flex items-center justify-center"><span class="mi lg" style="color:var(--vi)">download</span></div>
+                    <div class="font-label-md text-label-md font-semibold text-on-surface-variant leading-tight">Return<br>Book</div>
+                </div>
+                <div class="flex flex-col items-center gap-xs p-md bg-surface border border-outline-variant rounded-xl cursor-pointer transition-soft hover:border-primary hover:shadow-md hover:-translate-y-0.5 text-center shadow-sm" onclick="navTo('seats')">
+                    <div class="w-[38px] h-[38px] rounded-lg bg-error-container/30 flex items-center justify-center"><span class="mi lg" style="color:var(--ro)">event_seat</span></div>
+                    <div class="font-label-md text-label-md font-semibold text-on-surface-variant leading-tight">Seat<br>Booking</div>
+                </div>
+                <div class="flex flex-col items-center gap-xs p-md bg-surface border border-outline-variant rounded-xl cursor-pointer transition-soft hover:border-primary hover:shadow-md hover:-translate-y-0.5 text-center shadow-sm" onclick="navTo('attendance')">
+                    <div class="w-[38px] h-[38px] rounded-lg bg-[#f0f9ff] flex items-center justify-center"><span class="mi lg" style="color:var(--sk)">fact_check</span></div>
+                    <div class="font-label-md text-label-md font-semibold text-on-surface-variant leading-tight">Mark<br>Attend.</div>
+                </div>
+                <div class="flex flex-col items-center gap-xs p-md bg-surface border border-outline-variant rounded-xl cursor-pointer transition-soft hover:border-primary hover:shadow-md hover:-translate-y-0.5 text-center shadow-sm" data-action="add_expense" onclick="openM('mExpense')">
+                    <div class="w-[38px] h-[38px] rounded-lg bg-[#fff7ed] flex items-center justify-center"><span class="mi lg" style="color:var(--or)">account_balance_wallet</span></div>
+                    <div class="font-label-md text-label-md font-semibold text-on-surface-variant leading-tight">Add<br>Expense</div>
+                </div>
+                <div class="flex flex-col items-center gap-xs p-md bg-surface border border-outline-variant rounded-xl cursor-pointer transition-soft hover:border-primary hover:shadow-md hover:-translate-y-0.5 text-center shadow-sm" onclick="navTo('whatsapp')">
+                    <div class="w-[38px] h-[38px] rounded-lg bg-[#f0fdfa] flex items-center justify-center"><span class="mi lg" style="color:var(--wa2)">chat</span></div>
+                    <div class="font-label-md text-label-md font-semibold text-on-surface-variant leading-tight">WhatsApp</div>
+                </div>
             </div>
 
-            <!-- ROW A: Live Activity + Revenue Split + Calendar — 3 columns horizontal -->
-            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:16px" id="dashRowA">
-
-                <!-- Live Activity Feed -->
+            <!-- ROW A: Live Activity + Revenue Split + Calendar -->
+            <div class="grid grid-cols-3 gap-gutter mb-gutter" id="dashRowA">
                 <div class="panel" style="margin-bottom:0;display:flex;flex-direction:column">
                     <div class="ph" style="padding:11px 16px">
                         <div class="pt" style="display:flex;align-items:center;gap:7px">
@@ -731,7 +747,6 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
                     <div id="dashLiveAct" style="flex:1;overflow-y:auto;max-height:280px;padding:6px 0"></div>
                 </div>
 
-                <!-- Revenue Split — donut + weekly bars -->
                 <div class="panel" style="margin-bottom:0">
                     <div class="ph" style="padding:11px 16px"><div class="pt">Revenue Split</div><span style="font-size:9.5px;color:var(--tx3);font-family:var(--fm)">This Month</span></div>
                     <div class="dn-wrap" style="padding:14px 16px 10px">
@@ -758,7 +773,6 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
                     </div>
                 </div>
 
-                <!-- Calendar -->
                 <div class="panel" style="margin-bottom:0">
                     <div class="ph" style="padding:11px 16px">
                         <div class="pt"><span class="mi sm" style="vertical-align:middle;margin-right:4px">calendar_month</span><span id="calTitle"></span></div>
@@ -769,25 +783,20 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
                     </div>
                     <div class="pb" style="padding:12px 14px">
                         <div class="mcal" id="miniCal"></div>
-                        <!-- Due date legend -->
                         <div style="margin-top:10px;display:flex;flex-direction:column;gap:5px" id="calDueLegend"></div>
                     </div>
                 </div>
             </div>
 
-            <!-- ROW B: Batch Seat Availability + Fee Overview — horizontal -->
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px">
-
-                <!-- Batch-wise Seat Availability -->
+            <!-- ROW B: Batch Seat Availability + Fee Overview -->
+            <div class="grid grid-cols-2 gap-gutter mb-gutter">
                 <div>
                     <div class="sec-hd" style="margin-bottom:10px">
                         <div><div class="sec-t">Batch Seat Availability</div><div class="sec-s">Live occupancy per batch</div></div>
                         <button class="btn bg" onclick="navTo('seats')" style="font-size:11px"><span class="mi sm">event_seat</span>Manage</button>
                     </div>
-                    <div id="dashBatchCards" style="display:grid;grid-template-columns:1fr 1fr;gap:10px"></div>
+                    <div id="dashBatchCards" class="grid grid-cols-2 gap-xs"></div>
                 </div>
-
-                <!-- Fee Overview -->
                 <div>
                     <div class="sec-hd" style="margin-bottom:10px">
                         <div><div class="sec-t">Fee Overview</div><div class="sec-s">Current month collection status</div></div>
@@ -797,8 +806,8 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
                 </div>
             </div>
 
-            <!-- ROW C: Recent Students Table — full width -->
-            <div style="margin-bottom:16px">
+            <!-- ROW C: Recent Students Table -->
+            <div class="mb-gutter">
                 <div class="sec-hd" style="margin-bottom:10px">
                     <div><div class="sec-t">Recent Students & Fee Status</div></div>
                     <button class="btn bg" onclick="navTo('students')" style="font-size:11px">All →</button>
@@ -811,7 +820,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
                 </div>
             </div>
 
-            <!-- ROW D: Expense Tracker — full width -->
+            <!-- ROW D: Expense Tracker -->
             <div>
                 <div class="sec-hd" style="margin-bottom:10px">
                     <div><div class="sec-t">Expense Tracker</div><div class="sec-s">Monthly outflows by category</div></div>
@@ -823,30 +832,51 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         </div>
         <!-- STUDENTS -->
         <div class="page" id="page-students">
-            <div class="sec-hd">
-                <div><div class="sec-t">All Students</div><div class="sec-s" id="stuCount2"></div></div>
-                <div style="display:flex;gap:7px;align-items:center;flex-wrap:wrap">
-                    <input placeholder="Search…" style="width:130px;font-size:11.5px" oninput="stuSrch(this.value)" id="stuSrchInp">
-                    <div class="tabs" id="stuTabs"><div class="tab active" onclick="stuFilt('all',this)">All</div><div class="tab" onclick="stuFilt('paid',this)">Paid</div><div class="tab" onclick="stuFilt('partial',this)">Partial</div><div class="tab" onclick="stuFilt('pending',this)">Pending</div><div class="tab" onclick="stuFilt('overdue',this)">Overdue</div></div>
+            <!-- Header -->
+            <div class="flex items-center justify-between flex-wrap gap-xs mb-gutter">
+                <div>
+                    <h2 class="font-headline-md text-headline-md font-bold text-on-surface">All Students</h2>
+                    <p class="font-label-md text-label-md text-on-surface-variant mt-xxs" id="stuCount2"></p>
+                </div>
+                <div class="flex items-center gap-xs flex-wrap">
+                    <div class="flex items-center gap-xs bg-surface-container-low border border-outline-variant rounded-lg px-sm py-[6px] focus-within:border-primary transition-soft">
+                        <span class="mi sm text-outline">search</span>
+                        <input placeholder="Search…" class="bg-transparent border-none outline-none text-on-surface font-body-md text-body-md w-[130px] placeholder:text-outline" oninput="stuSrch(this.value)" id="stuSrchInp">
+                    </div>
+                    <div class="tabs" id="stuTabs">
+                        <div class="tab active" onclick="stuFilt('all',this)">All</div>
+                        <div class="tab" onclick="stuFilt('paid',this)">Paid</div>
+                        <div class="tab" onclick="stuFilt('partial',this)">Partial</div>
+                        <div class="tab" onclick="stuFilt('pending',this)">Pending</div>
+                        <div class="tab" onclick="stuFilt('overdue',this)">Overdue</div>
+                    </div>
                     <button class="btn bp" data-action="enroll_student" onclick="openM('mEnroll')"><span class="mi sm">person_add</span> Enroll</button>
-                    <button class="btn bwa" onclick="navTo('whatsapp')" style="font-size:11px"><span class="mi sm">chat</span>Bulk Msg</button>
+                    <button class="btn bwa" onclick="navTo('whatsapp')" style="font-size:11px"><span class="mi sm">chat</span> Bulk Msg</button>
                 </div>
             </div>
-            <div class="panel"><div class="tw"><table>
-                        <thead><tr><th>Student</th><th>Batch</th><th>Seat</th><th>Type</th><th>Full Fee</th><th>Discount</th><th>Net Fee</th><th>Paid</th><th>Balance</th><th>Status</th><th>Due</th><th>Action</th></tr></thead>
-                        <tbody id="stuTable"></tbody>
-                    </table></div>
+
+            <!-- Table -->
+            <div class="bg-surface border border-outline-variant rounded-xl shadow-sm overflow-hidden">
+                <div class="tw"><table>
+                    <thead><tr>
+                        <th>Student</th><th>Batch</th><th>Seat</th><th>Type</th>
+                        <th>Full Fee</th><th>Discount</th><th>Net Fee</th><th>Paid</th>
+                        <th>Balance</th><th>Status</th><th>Due</th><th>Action</th>
+                    </tr></thead>
+                    <tbody id="stuTable"></tbody>
+                </table></div>
                 <div class="pag">
                     <span class="pag-i" id="stuPagI"></span>
                     <div class="pag-b" id="stuPagB"></div>
-                    <select id="stuPerPageSel" onchange="stuPerPage=+this.value;stuPage=1;renderStudents()" style="font-size:11px;padding:3px 8px;border:1px solid var(--br);border-radius:var(--r2);background:var(--sf2);color:var(--tx);cursor:pointer;width:auto;flex-shrink:0">
+                    <select id="stuPerPageSel" onchange="stuPerPage=+this.value;stuPage=1;renderStudents()" class="font-label-sm text-label-sm bg-surface-container-low border border-outline-variant rounded-lg px-xs py-xxs text-on-surface cursor-pointer">
                         <option value="10" selected>10 / page</option>
                         <option value="15">15 / page</option>
                         <option value="25">25 / page</option>
                         <option value="50">50 / page</option>
                         <option value="9999">All</option>
                     </select>
-                </div></div>
+                </div>
+            </div>
         </div>
 
         <!-- SEATS -->
@@ -861,73 +891,73 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
             </div>
 
             <!-- Stat Cards -->
-            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:14px">
-                <div style="background:var(--sf);border:1px solid var(--br);border-radius:var(--r);padding:14px 16px;display:flex;align-items:center;gap:14px;box-shadow:var(--sh);position:relative;overflow:hidden">
-                    <div style="position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--ac);border-radius:3px 0 0 3px"></div>
-                    <div style="width:42px;height:42px;border-radius:11px;background:var(--c-blue);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-left:4px">
+            <div class="grid grid-cols-3 gap-gutter mb-gutter">
+                <div class="bg-surface border border-outline-variant rounded-xl shadow-sm flex items-center gap-md p-lg relative overflow-hidden">
+                    <div class="absolute left-0 top-0 bottom-0 w-[3px] bg-primary rounded-l-xl"></div>
+                    <div class="w-11 h-11 rounded-[11px] bg-primary-container/10 flex items-center justify-center flex-shrink-0 ml-1">
                         <span class="mi" style="color:var(--ac);font-size:20px">event_seat</span>
                     </div>
                     <div>
-                        <div style="font-size:10px;color:var(--tx3);text-transform:uppercase;letter-spacing:.7px;font-family:var(--fm);font-weight:600">Total Seats</div>
-                        <div style="font-size:26px;font-weight:700;color:var(--tx);line-height:1.1" id="st-total">0</div>
-                        <div style="font-size:10.5px;color:var(--tx3);margin-top:2px" id="st-batches">Across 0 batches</div>
+                        <div class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Total Seats</div>
+                        <div class="font-headline-lg text-headline-lg font-bold text-on-surface" id="st-total">0</div>
+                        <div class="font-label-sm text-label-sm text-on-surface-variant mt-xxs" id="st-batches">Across 0 batches</div>
                     </div>
                 </div>
-                <div style="background:var(--sf);border:1px solid var(--br);border-radius:var(--r);padding:14px 16px;display:flex;align-items:center;gap:14px;box-shadow:var(--sh);position:relative;overflow:hidden">
-                    <div style="position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--em);border-radius:3px 0 0 3px"></div>
-                    <div style="width:42px;height:42px;border-radius:11px;background:var(--c-green);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-left:4px">
+                <div class="bg-surface border border-outline-variant rounded-xl shadow-sm flex items-center gap-md p-lg relative overflow-hidden">
+                    <div class="absolute left-0 top-0 bottom-0 w-[3px] bg-tertiary rounded-l-xl"></div>
+                    <div class="w-11 h-11 rounded-[11px] bg-tertiary/10 flex items-center justify-center flex-shrink-0 ml-1">
                         <span class="mi fill" style="color:var(--em);font-size:20px">chair</span>
                     </div>
                     <div>
-                        <div style="font-size:10px;color:var(--tx3);text-transform:uppercase;letter-spacing:.7px;font-family:var(--fm);font-weight:600">Vacant</div>
-                        <div style="font-size:26px;font-weight:700;color:var(--tx);line-height:1.1" id="st-vacant">0</div>
-                        <div style="font-size:10.5px;color:var(--em);margin-top:2px" id="st-vacant-pct">0% available</div>
+                        <div class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Vacant</div>
+                        <div class="font-headline-lg text-headline-lg font-bold text-on-surface" id="st-vacant">0</div>
+                        <div class="font-label-sm text-label-sm text-tertiary mt-xxs" id="st-vacant-pct">0% available</div>
                     </div>
                 </div>
-                <div style="background:var(--sf);border:1px solid var(--br);border-radius:var(--r);padding:14px 16px;display:flex;align-items:center;gap:14px;box-shadow:var(--sh);position:relative;overflow:hidden">
-                    <div style="position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--ro);border-radius:3px 0 0 3px"></div>
-                    <div style="width:42px;height:42px;border-radius:11px;background:var(--c-rose);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-left:4px">
+                <div class="bg-surface border border-outline-variant rounded-xl shadow-sm flex items-center gap-md p-lg relative overflow-hidden">
+                    <div class="absolute left-0 top-0 bottom-0 w-[3px] bg-error rounded-l-xl"></div>
+                    <div class="w-11 h-11 rounded-[11px] bg-error-container/30 flex items-center justify-center flex-shrink-0 ml-1">
                         <span class="mi fill" style="color:var(--ro);font-size:20px">person</span>
                     </div>
                     <div>
-                        <div style="font-size:10px;color:var(--tx3);text-transform:uppercase;letter-spacing:.7px;font-family:var(--fm);font-weight:600">Occupied</div>
-                        <div style="font-size:26px;font-weight:700;color:var(--tx);line-height:1.1" id="st-occupied">0</div>
-                        <div style="font-size:10.5px;color:var(--tx3);margin-top:2px" id="st-occ-pct">0% occupancy</div>
+                        <div class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Occupied</div>
+                        <div class="font-headline-lg text-headline-lg font-bold text-on-surface" id="st-occupied">0</div>
+                        <div class="font-label-sm text-label-sm text-on-surface-variant mt-xxs" id="st-occ-pct">0% occupancy</div>
                     </div>
                 </div>
             </div>
 
             <!-- Legend bar -->
-            <div style="background:var(--sf);border:1px solid var(--br);border-radius:var(--r);padding:9px 16px;margin-bottom:14px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;box-shadow:var(--sh)">
-                <span style="font-size:10px;color:var(--tx3);text-transform:uppercase;letter-spacing:1.5px;font-family:var(--fm);font-weight:600">Legend</span>
-                <div style="width:1px;height:16px;background:var(--br)"></div>
-                <div style="display:flex;align-items:center;gap:6px"><span class="mi fill" style="font-size:15px;color:#94a3b8">chair</span><span style="font-size:11.5px;color:var(--tx2)">Vacant</span></div>
-                <div style="display:flex;align-items:center;gap:6px"><span class="mi fill" style="font-size:15px;color:#6366f1">person</span><span style="font-size:11.5px;color:var(--tx2)">Paid &amp; Occupied</span></div>
-                <div style="display:flex;align-items:center;gap:6px"><span class="mi" style="font-size:15px;color:var(--gd)">schedule</span><span style="font-size:11.5px;color:var(--tx2)">Fee Pending / Partial</span></div>
-                <div style="display:flex;align-items:center;gap:6px"><span class="mi" style="font-size:15px;color:var(--ro)">warning</span><span style="font-size:11.5px;color:var(--tx2)">Fee Overdue</span></div>
-                <div style="margin-left:auto"><span style="font-size:11.5px;color:var(--tx3)" id="seatSearchStatus"></span></div>
+            <div class="bg-surface border border-outline-variant rounded-xl shadow-sm px-lg py-sm flex flex-wrap items-center gap-lg mb-gutter">
+                <span class="font-label-sm text-label-sm text-outline uppercase tracking-widest">Legend</span>
+                <div class="w-px h-4 bg-outline-variant"></div>
+                <div class="flex items-center gap-xs"><span class="mi fill text-[15px]" style="color:#94a3b8">chair</span><span class="font-label-md text-label-md text-on-surface-variant">Vacant</span></div>
+                <div class="flex items-center gap-xs"><span class="mi fill text-[15px]" style="color:#6366f1">person</span><span class="font-label-md text-label-md text-on-surface-variant">Paid &amp; Occupied</span></div>
+                <div class="flex items-center gap-xs"><span class="mi text-[15px]" style="color:var(--gd)">schedule</span><span class="font-label-md text-label-md text-on-surface-variant">Fee Pending / Partial</span></div>
+                <div class="flex items-center gap-xs"><span class="mi text-[15px]" style="color:var(--ro)">warning</span><span class="font-label-md text-label-md text-on-surface-variant">Fee Overdue</span></div>
+                <div class="ml-auto"><span class="font-label-md text-label-md text-outline" id="seatSearchStatus"></span></div>
             </div>
 
             <!-- Two-column layout -->
-            <div style="display:grid;grid-template-columns:1fr 300px;gap:14px;align-items:start">
+            <div class="grid gap-gutter items-start" style="grid-template-columns:1fr 300px">
 
                 <!-- LEFT: Shift tabs + active batch seat grid -->
                 <div>
-                    <div id="seatBatchTabs" style="display:flex;gap:4px;margin-bottom:12px;flex-wrap:wrap;background:var(--sf);border:1px solid var(--br);border-radius:var(--r);padding:5px;box-shadow:var(--sh)"></div>
+                    <div id="seatBatchTabs" class="flex flex-wrap gap-xxs mb-gutter bg-surface border border-outline-variant rounded-xl p-xxs shadow-sm"></div>
                     <div id="seatBatchGrid"></div>
                 </div>
 
                 <!-- RIGHT: Detail Panel (sticky) -->
-                <div style="background:var(--sf);border:1px solid var(--br);border-radius:var(--r);box-shadow:var(--sh);position:sticky;top:70px;overflow:hidden">
-                    <div style="padding:12px 16px;border-bottom:1px solid var(--br);display:flex;align-items:center;justify-content:space-between;background:var(--sf2)">
-                        <span style="font-size:14px;font-weight:700;color:var(--tx)">Seat Details</span>
-                        <span class="mi sm" style="color:var(--tx3)">info</span>
+                <div class="bg-surface border border-outline-variant rounded-xl shadow-sm sticky top-[74px] overflow-hidden" id="detailPanel">
+                    <div class="px-lg py-sm border-b border-outline-variant flex items-center justify-between bg-surface-container-low">
+                        <span class="font-headline-md text-headline-md font-bold text-on-surface">Seat Details</span>
+                        <span class="mi sm text-outline">info</span>
                     </div>
                     <div id="seatDetailPanel" style="max-height:calc(100vh - 170px);overflow-y:auto">
-                        <div style="padding:40px 20px;text-align:center">
-                            <span class="mi fill" style="font-size:46px;color:var(--br);display:block;margin-bottom:10px">chair</span>
-                            <div style="font-size:12.5px;color:var(--tx2);font-weight:500">Click any seat to view details</div>
-                            <div style="font-size:11px;color:var(--tx3);margin-top:6px;line-height:1.6">Vacant → assign a student<br/>Occupied → full profile &amp; actions</div>
+                        <div class="p-xl text-center">
+                            <span class="mi fill text-outline text-[46px] block mb-md" style="opacity:.3">chair</span>
+                            <div class="font-body-md text-body-md font-semibold text-on-surface-variant">Click any seat to view details</div>
+                            <div class="font-label-md text-label-md text-outline mt-xs leading-relaxed">Vacant → assign a student<br/>Occupied → full profile &amp; actions</div>
                         </div>
                     </div>
                 </div>
@@ -2522,9 +2552,9 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         const allDue=[...pending,...overdue,...partial].reduce((a,x)=>a+(x.netFee-x.paidAmt),0);
 
         document.getElementById('dashAlerts').innerHTML=`
-    <div class="al-card al-w"><span style="font-size:17px">⚠️</span><div><div class="al-t">Pending & Partial Payments</div><div class="al-b">${[...pending,...partial].length} students — ₹${[...pending,...partial].reduce((a,x)=>a+(x.netFee-x.paidAmt),0).toLocaleString()} outstanding</div></div></div>
-    <div class="al-card al-d"><span style="font-size:17px">🚨</span><div><div class="al-t">Fee Overdue Alert</div><div class="al-b">${overdue.length} students overdue — seats highlighted in red 🔴</div></div></div>
-    <div class="al-card al-i"><span style="font-size:17px">🎁</span><div><div class="al-t">Discounts Applied</div><div class="al-b">${s.filter(x=>x.baseFee>x.netFee).length} students with discounts — ₹${totalDiscount.toLocaleString()} waived</div></div></div>`;
+    <div class="flex items-start gap-md p-md rounded-xl border border-[#fde68a] bg-[#fffbeb] shadow-sm"><span style="font-size:17px">⚠️</span><div><div class="font-label-md text-label-md font-bold text-on-surface mb-xxs">Pending & Partial Payments</div><div class="font-label-sm text-label-sm text-on-surface-variant leading-relaxed">${[...pending,...partial].length} students — ₹${[...pending,...partial].reduce((a,x)=>a+(x.netFee-x.paidAmt),0).toLocaleString()} outstanding</div></div></div>
+    <div class="flex items-start gap-md p-md rounded-xl border border-[#fecdd3] bg-[#fff1f2] shadow-sm"><span style="font-size:17px">🚨</span><div><div class="font-label-md text-label-md font-bold text-on-surface mb-xxs">Fee Overdue Alert</div><div class="font-label-sm text-label-sm text-on-surface-variant leading-relaxed">${overdue.length} students overdue — seats highlighted in red 🔴</div></div></div>
+    <div class="flex items-start gap-md p-md rounded-xl border border-[#bfcffd] bg-[#eff6ff] shadow-sm"><span style="font-size:17px">🎁</span><div><div class="font-label-md text-label-md font-bold text-on-surface mb-xxs">Discounts Applied</div><div class="font-label-sm text-label-sm text-on-surface-variant leading-relaxed">${s.filter(x=>x.baseFee>x.netFee).length} students with discounts — ₹${totalDiscount.toLocaleString()} waived</div></div></div>`;
 
         document.getElementById('dashStats').innerHTML=`
     <div class="sc" style="--ca:var(--ac);padding:0;overflow:hidden;display:flex;transition:box-shadow .2s,transform .2s" onmouseenter="this.style.transform='translateY(-2px)';this.style.boxShadow='var(--sh2)'" onmouseleave="this.style.transform='';this.style.boxShadow=''"><div style="background:#185FA5;width:58px;display:flex;align-items:center;justify-content:center;flex-shrink:0"><div style="width:42px;height:42px;border-radius:50%;background:rgba(255,255,255,0.13);display:flex;align-items:center;justify-content:center"><span class="mi" style="color:#E6F1FB;font-size:22px">school</span></div></div><div style="padding:10px 12px;display:flex;flex-direction:column;gap:3px;flex:1;align-items:flex-end"><div style="font-size:24px;font-weight:700;color:var(--tx);line-height:1">${s.length}</div><div style="width:100%;height:1px;background:var(--br)"></div><div style="font-size:11px;color:var(--tx3);font-weight:500">Total Students</div><div style="display:flex;align-items:center;gap:4px"><span class="mi" style="font-size:12px;color:var(--em)">arrow_upward</span><span style="font-size:11px;color:var(--em);font-weight:600">12%</span><span style="font-size:11px;color:var(--tx3)">this month</span></div></div></div>
