@@ -1766,53 +1766,114 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
     </div></div>
 
 <div class="mo" id="mCollectFee"><div class="md wide">
-        <div class="mh"><div class="mt"><span class="mi sm" style="vertical-align:middle;margin-right:6px">payments</span>Collect Fee</div><button class="mc" onclick="closeM('mCollectFee')"><span class="mi sm">close</span></button></div>
-        <div class="mb">
-            <!-- Student & Month Section -->
-            <div style="background:#f5f8ff;border:1.5px solid #dde5f7;border-radius:var(--r2);padding:14px;margin-bottom:12px">
-                <div style="font-size:9.5px;font-weight:700;color:var(--tx3);text-transform:uppercase;letter-spacing:1px;font-family:var(--fm);margin-bottom:10px">Student Details</div>
-                <div class="fg">
-                    <div class="fgi full"><label>Student *</label><select id="cf-stu" onchange="cfLoadStudent()"><option value="">-- Select --</option></select></div>
-                    <div class="fgi"><label>Month</label><input id="cf-mo" value="March 2026"></div>
-                    <div class="fgi"><label>Net Fee (₹)</label><input id="cf-tot" type="number" readonly style="background:#eef2ff;font-weight:700;border-color:#c7d4f8"></div>
+    <div class="mh">
+        <div class="mt flex items-center gap-xs"><span class="mi sm fill text-tertiary">payments</span><span>Collect Fee</span></div>
+        <button class="mc" onclick="closeM('mCollectFee')"><span class="mi sm">close</span></button>
+    </div>
+    <div class="mb">
+
+        <!-- Student & Month -->
+        <div class="bg-primary-container/5 border border-primary-container/20 rounded-xl p-md mb-md">
+            <div class="font-label-sm text-label-sm font-bold text-on-surface-variant uppercase tracking-widest mb-sm">Student Details</div>
+            <div class="grid grid-cols-2 gap-md">
+                <div class="flex flex-col gap-xxs col-span-2">
+                    <label class="font-label-sm text-label-sm font-semibold text-on-surface-variant uppercase tracking-wider">Student <span class="text-error">*</span></label>
+                    <select id="cf-stu" onchange="cfLoadStudent()" class="bg-surface border border-outline-variant rounded-lg px-sm py-[8px] font-body-md text-body-md text-on-surface outline-none focus:border-primary transition-soft cursor-pointer"><option value="">-- Select --</option></select>
                 </div>
-            </div>
-            <div id="cf-status-info" style="margin-bottom:10px;display:none"></div>
-            <!-- Payment Section -->
-            <div style="background:#f5fdf7;border:1.5px solid #c6e9d4;border-radius:var(--r2);padding:14px;margin-bottom:12px">
-                <div style="font-size:9.5px;font-weight:700;color:var(--tx3);text-transform:uppercase;letter-spacing:1px;font-family:var(--fm);margin-bottom:10px">Payment Details</div>
-                <div class="fg">
-                    <div class="fgi full"><label>Payment Mode</label>
-                        <select id="cf-mode" onchange="toggleSplit()">
-                            <option value="cash">💵 Cash</option><option value="upi">📱 UPI</option><option value="neft">🏦 NEFT</option><option value="cheque">📄 Cheque</option><option value="split">✂ Split (UPI + Cash)</option><option value="split2">✂ Split (2 Custom)</option>
-                        </select>
-                    </div>
+                <div class="flex flex-col gap-xxs">
+                    <label class="font-label-sm text-label-sm font-semibold text-on-surface-variant uppercase tracking-wider">Month</label>
+                    <input id="cf-mo" class="bg-surface border border-outline-variant rounded-lg px-sm py-[8px] font-body-md text-body-md text-on-surface outline-none focus:border-primary transition-soft">
                 </div>
-                <div id="payNormal" class="fg" style="margin-top:10px">
-                    <div class="fgi"><label>Amount Paying (₹)</label><input id="cf-amt" type="number" placeholder="0" oninput="cfCalcBalance()"></div>
-                    <div class="fgi"><label>Transaction Ref</label><input id="cf-ref" placeholder="Auto-generated"></div>
-                    <div class="fgi" id="cf-disc-wrap"><label>One-time Discount (₹) <span style="font-size:9px;color:var(--tx3);font-weight:400">optional</span></label><input id="cf-disc" type="number" placeholder="0" min="0" oninput="cfCalcBalance()"></div>
-                    <div class="fgi"><label>Payment Date</label><input id="cf-paid-date" type="date"></div>
+                <div class="flex flex-col gap-xxs">
+                    <label class="font-label-sm text-label-sm font-semibold text-on-surface-variant uppercase tracking-wider">Net Fee (₹)</label>
+                    <input id="cf-tot" type="number" readonly class="bg-primary-container/10 border border-primary-container/30 rounded-lg px-sm py-[8px] font-body-md text-body-md font-bold text-primary outline-none cursor-default">
                 </div>
-                <div id="paySplit" style="display:none;margin-top:10px">
-                    <div class="fg">
-                        <div class="fgi"><label>Mode 1</label><select id="cf-m1"><option>Cash</option><option>UPI</option><option>NEFT</option></select></div>
-                        <div class="fgi"><label>Amount 1 (₹)</label><input id="cf-a1" type="number" placeholder="0" oninput="calcSplitRem()"></div>
-                        <div class="fgi"><label>Mode 2</label><select id="cf-m2"><option>UPI</option><option>Cash</option><option>NEFT</option></select></div>
-                        <div class="fgi"><label>Amount 2 (₹)</label><input id="cf-a2" type="number" placeholder="0" readonly style="background:var(--sf3)"></div>
-                    </div>
-                    <div id="splitNote" style="margin-top:6px;font-size:11px;color:var(--tx3);padding:6px 10px;background:rgba(61,111,240,.06);border-radius:var(--r2);border:1px solid rgba(61,111,240,.15)"></div>
-                </div>
-            </div>
-            <div id="cf-balance-note" style="display:none;margin-bottom:12px;padding:10px 13px;border-radius:var(--r2);border:1px solid rgba(196,125,43,.3);background:rgba(196,125,43,.07)"></div>
-            <!-- Remarks & WA Section -->
-            <div style="background:#fafafa;border:1.5px solid var(--br);border-radius:var(--r2);padding:14px">
-                <div class="fg" style="margin-bottom:10px"><div class="fgi full"><label>Remarks</label><input id="cf-rem" placeholder="Optional…"></div></div>
-                <label style="display:flex;align-items:center;gap:8px;cursor:pointer"><input type="checkbox" id="cf-wa" checked style="width:auto"> <span style="font-size:12px;color:var(--tx2)">💬 Send payment receipt via WhatsApp</span></label>
             </div>
         </div>
-        <div class="mf"><button class="btn bg" onclick="closeM('mCollectFee')">Cancel</button><button class="btn bp" onclick="collectFee()">💳 Collect</button></div>
-    </div></div>
+
+        <!-- Status info (multi-shift / partial alert — injected by cfLoadStudent) -->
+        <div id="cf-status-info" class="hidden mb-md"></div>
+
+        <!-- Payment Details -->
+        <div class="bg-tertiary/5 border border-tertiary/20 rounded-xl p-md mb-md">
+            <div class="font-label-sm text-label-sm font-bold text-on-surface-variant uppercase tracking-widest mb-sm">Payment Details</div>
+            <div class="flex flex-col gap-xxs mb-md">
+                <label class="font-label-sm text-label-sm font-semibold text-on-surface-variant uppercase tracking-wider">Payment Mode</label>
+                <select id="cf-mode" onchange="toggleSplit()" class="bg-surface border border-outline-variant rounded-lg px-sm py-[8px] font-body-md text-body-md text-on-surface outline-none focus:border-primary transition-soft cursor-pointer">
+                    <option value="cash">💵 Cash</option>
+                    <option value="upi">📱 UPI</option>
+                    <option value="neft">🏦 NEFT</option>
+                    <option value="cheque">📄 Cheque</option>
+                    <option value="split">✂ Split (UPI + Cash)</option>
+                    <option value="split2">✂ Split (2 Custom)</option>
+                </select>
+            </div>
+
+            <!-- Normal payment -->
+            <div id="payNormal" class="grid grid-cols-2 gap-md">
+                <div class="flex flex-col gap-xxs">
+                    <label class="font-label-sm text-label-sm font-semibold text-on-surface-variant uppercase tracking-wider">Amount Paying (₹)</label>
+                    <input id="cf-amt" type="number" placeholder="0" oninput="cfCalcBalance()" class="bg-surface border border-outline-variant rounded-lg px-sm py-[8px] font-body-md text-body-md text-on-surface outline-none focus:border-primary transition-soft placeholder:text-outline">
+                </div>
+                <div class="flex flex-col gap-xxs">
+                    <label class="font-label-sm text-label-sm font-semibold text-on-surface-variant uppercase tracking-wider">Transaction Ref</label>
+                    <input id="cf-ref" placeholder="Auto-generated" class="bg-surface border border-outline-variant rounded-lg px-sm py-[8px] font-body-md text-body-md text-on-surface outline-none focus:border-primary transition-soft placeholder:text-outline">
+                </div>
+                <div class="flex flex-col gap-xxs" id="cf-disc-wrap">
+                    <label class="font-label-sm text-label-sm font-semibold text-on-surface-variant uppercase tracking-wider">One-time Discount (₹) <span class="font-label-sm text-label-sm text-outline normal-case tracking-normal">optional</span></label>
+                    <input id="cf-disc" type="number" placeholder="0" min="0" oninput="cfCalcBalance()" class="bg-surface border border-outline-variant rounded-lg px-sm py-[8px] font-body-md text-body-md text-on-surface outline-none focus:border-primary transition-soft placeholder:text-outline">
+                </div>
+                <div class="flex flex-col gap-xxs">
+                    <label class="font-label-sm text-label-sm font-semibold text-on-surface-variant uppercase tracking-wider">Payment Date</label>
+                    <input id="cf-paid-date" type="date" class="bg-surface border border-outline-variant rounded-lg px-sm py-[8px] font-body-md text-body-md text-on-surface outline-none focus:border-primary transition-soft">
+                </div>
+            </div>
+
+            <!-- Split payment -->
+            <div id="paySplit" class="hidden">
+                <div class="grid grid-cols-2 gap-md">
+                    <div class="flex flex-col gap-xxs">
+                        <label class="font-label-sm text-label-sm font-semibold text-on-surface-variant uppercase tracking-wider">Mode 1</label>
+                        <select id="cf-m1" class="bg-surface border border-outline-variant rounded-lg px-sm py-[8px] font-body-md text-body-md text-on-surface outline-none focus:border-primary transition-soft cursor-pointer"><option>Cash</option><option>UPI</option><option>NEFT</option></select>
+                    </div>
+                    <div class="flex flex-col gap-xxs">
+                        <label class="font-label-sm text-label-sm font-semibold text-on-surface-variant uppercase tracking-wider">Amount 1 (₹)</label>
+                        <input id="cf-a1" type="number" placeholder="0" oninput="calcSplitRem()" class="bg-surface border border-outline-variant rounded-lg px-sm py-[8px] font-body-md text-body-md text-on-surface outline-none focus:border-primary transition-soft placeholder:text-outline">
+                    </div>
+                    <div class="flex flex-col gap-xxs">
+                        <label class="font-label-sm text-label-sm font-semibold text-on-surface-variant uppercase tracking-wider">Mode 2</label>
+                        <select id="cf-m2" class="bg-surface border border-outline-variant rounded-lg px-sm py-[8px] font-body-md text-body-md text-on-surface outline-none focus:border-primary transition-soft cursor-pointer"><option>UPI</option><option>Cash</option><option>NEFT</option></select>
+                    </div>
+                    <div class="flex flex-col gap-xxs">
+                        <label class="font-label-sm text-label-sm font-semibold text-on-surface-variant uppercase tracking-wider">Amount 2 (₹)</label>
+                        <input id="cf-a2" type="number" placeholder="0" readonly class="bg-surface-container rounded-lg px-sm py-[8px] font-body-md text-body-md text-on-surface border border-outline-variant outline-none cursor-default">
+                    </div>
+                </div>
+                <div id="splitNote" class="mt-xs font-label-md text-label-md text-on-surface-variant px-md py-sm bg-primary-container/5 border border-primary-container/20 rounded-lg"></div>
+            </div>
+        </div>
+
+        <!-- Balance note (injected by cfCalcBalance) -->
+        <div id="cf-balance-note" class="hidden mb-md"></div>
+
+        <!-- Remarks & WhatsApp -->
+        <div class="bg-surface-container-low border border-outline-variant rounded-xl p-md">
+            <div class="flex flex-col gap-xxs mb-sm">
+                <label class="font-label-sm text-label-sm font-semibold text-on-surface-variant uppercase tracking-wider">Remarks</label>
+                <input id="cf-rem" placeholder="Optional…" class="bg-surface border border-outline-variant rounded-lg px-sm py-[8px] font-body-md text-body-md text-on-surface outline-none focus:border-primary transition-soft placeholder:text-outline">
+            </div>
+            <label class="flex items-center gap-md px-md py-sm rounded-lg border border-[#dcfce7] bg-[#f0fdf4] cursor-pointer hover:border-tertiary transition-soft">
+                <input type="checkbox" id="cf-wa" checked class="w-4 h-4 rounded accent-[#16a34a] cursor-pointer">
+                <span class="font-label-md text-label-md text-on-surface">💬 Send payment receipt via WhatsApp</span>
+            </label>
+        </div>
+    </div>
+    <div class="mf">
+        <button class="btn bg" onclick="closeM('mCollectFee')">Cancel</button>
+        <button class="btn bp" onclick="collectFee()"><span class="mi sm">payments</span> Collect</button>
+    </div>
+</div></div>
+
 
 <div class="mo" id="mAddBatch"><div class="md">
         <div class="mh"><div class="mt" id="mAddBatchTitle">Add New Batch</div><button class="mc" onclick="closeM('mAddBatch')"><span class="mi sm">close</span></button></div>
@@ -4087,7 +4148,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
               </div>`
             :'';
         if(s.feeStatus==='partial'){
-            info.style.display='block';
+            info.classList.remove('hidden');
             info.innerHTML=multiNote+`<div style="padding:10px 13px;border-radius:var(--r2);border:1px solid rgba(58,122,176,.3);background:rgba(58,122,176,.06)">
       <div style="font-size:12px;font-weight:600;margin-bottom:4px;color:var(--sk)">◑ Partial Payment on Record</div>
       <div style="font-size:11.5px;color:var(--tx2)">Net Fee: <strong>₹${s.netFee}</strong> | Paid: <strong style="color:var(--em)">₹${s.paidAmt}</strong> | <strong style="color:var(--ro)">Balance: ₹${bal}</strong></div>
@@ -4096,32 +4157,32 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
     </div>`;
             document.getElementById('cf-amt').value=bal;
         } else if(s.feeStatus==='overdue'){
-            info.style.display='block';
+            info.classList.remove('hidden');
             info.innerHTML=multiNote+`<div style="padding:8px 12px;border-radius:var(--r2);border:1px solid rgba(192,68,79,.3);background:rgba(192,68,79,.06)"><div style="font-size:12px;font-weight:600;color:var(--ro)">🚨 Fee Overdue since ${fmtDate(s.dueDate)}</div><div style="font-size:11px;color:var(--tx2)">Amount due: ₹${s.netFee}</div></div>`;
             document.getElementById('cf-amt').value=s.netFee;
         } else if(s.baseFee>s.netFee){
-            info.style.display='block';
+            info.classList.remove('hidden');
             info.innerHTML=multiNote+`<div style="padding:8px 12px;border-radius:var(--r2);border:1px solid rgba(230,126,34,.3);background:rgba(230,126,34,.06)"><div style="font-size:12px;font-weight:600;color:var(--or)">🎁 Discount Applied: ₹${s.baseFee-s.netFee}</div><div style="font-size:11px;color:var(--tx2)">Full fee: ₹${s.baseFee} → Net: ₹${s.netFee} (${s.discount?.reason||''})</div></div>`;
             document.getElementById('cf-amt').value=s.netFee;
         } else {
-            info.style.display=multiNote?'block':'none';
+            info.classList.toggle('hidden', !multiNote);
             info.innerHTML=multiNote;
             document.getElementById('cf-amt').value=s.netFee;
         }
-        document.getElementById('cf-balance-note').style.display='none';
+        document.getElementById('cf-balance-note').classList.add('hidden');
     }
     function cfCalcBalance(){
         const s=DB.students.find(x=>x.id===gv('cf-stu'));if(!s)return;
         const tot=s.netFee;const now=+gv('cf-amt')||0;const remaining=tot-s.paidAmt;const totalPaid=s.paidAmt+now;const bal=tot-totalPaid;
         const note=document.getElementById('cf-balance-note');
         if(now>remaining&&remaining>0){
-            note.style.display='block';
+            note.classList.remove('hidden');
             note.innerHTML=`<div style="font-size:12px;font-weight:600;color:var(--ro);margin-bottom:4px">⚠️ Overpayment Warning</div><div style="font-size:11.5px">Remaining balance is only <strong style="color:var(--ro)">₹${remaining}</strong>. Entering ₹${now} will collect ₹${remaining} and discard ₹${now-remaining}.<br><span style="color:var(--tx3);font-size:10.5px">If this student is enrolled in multiple shifts, collect the second shift fee separately by selecting that student record.</span></div>`;
         } else if(now>0&&bal>0){
-            note.style.display='block';
+            note.classList.remove('hidden');
             note.innerHTML=`<div style="font-size:12px;font-weight:600;color:var(--or);margin-bottom:4px">⚡ Partial Payment</div><div style="font-size:11.5px">Net Fee: ₹${tot} | Paying now: ₹${now} | <strong style="color:var(--ro)">Balance: ₹${bal}</strong></div><div style="font-size:10.5px;color:var(--tx3);margin-top:3px">Status: <strong>Partial</strong></div>`;
         } else {
-            note.style.display='none';
+            note.classList.add('hidden');
         }
     }
     function toggleSplit(){
@@ -4129,9 +4190,9 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
         const isSplit=m==='split'||m==='split2';
         // Always keep cf-amt (Amount Paying) visible — partial students need to adjust it
         const refRow=document.getElementById('cf-ref');
-        if(refRow) refRow.closest('.fgi').style.display=isSplit?'none':'flex';
-        document.getElementById('payNormal').style.display='grid';
-        document.getElementById('paySplit').style.display=isSplit?'block':'none';
+        if(refRow) refRow.closest('div.flex-col').style.display=isSplit?'none':'flex';
+        document.getElementById('payNormal').style.display = isSplit ? 'none' : 'grid';
+        document.getElementById('paySplit').classList.toggle('hidden', !isSplit);
         if(isSplit)calcSplitRem();
     }
     function calcSplitRem(){
