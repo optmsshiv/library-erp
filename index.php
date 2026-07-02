@@ -251,8 +251,29 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
 
         .pag{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-top:1px solid var(--br);gap:8px}
         .pag-i{font-size:11px;color:var(--tx3);white-space:nowrap;flex-shrink:0}.pag-b{display:flex;gap:3px;flex:1;justify-content:center}
-        .pb2{padding:3px 9px;border-radius:6px;font-size:11px;cursor:pointer;border:1px solid var(--br);background:var(--sf);color:var(--tx2);transition:all .18s}
-        .pb2:hover,.pb2.active{background:var(--ac);color:#fff;border-color:var(--ac)}
+        .pb2{padding:3px 9px;border-radius:8px;font-size:11px;font-weight:600;cursor:pointer;border:1px solid var(--br);background:var(--sf);color:var(--tx2);transition:all .18s;font-family:var(--fb)}
+        .pb2:hover{background:var(--sf2);color:var(--tx)}
+        .pb2.active{background:var(--ac);color:#fff;border-color:var(--ac);box-shadow:0 2px 6px rgba(61,111,240,.3)}
+        .pg-nav{width:26px;height:26px;border-radius:8px;border:1px solid var(--br);background:var(--sf);color:var(--tx2);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .18s;flex-shrink:0}
+        .pg-nav:hover:not(:disabled){background:var(--sf2);color:var(--tx)}
+        .pg-nav:disabled{opacity:.4;cursor:not-allowed}
+        .pg-dots{width:22px;text-align:center;color:var(--tx3);font-size:11px;flex-shrink:0}
+
+        /* ── Row action dropdown menu (icon + text, portal-based so it escapes table scroll) ── */
+        .act-btn{width:28px;height:28px;border-radius:8px;border:1px solid var(--br);background:var(--sf);color:var(--tx3);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .15s}
+        .act-btn:hover,.act-btn.active{background:var(--sf2);color:var(--tx);border-color:var(--br2)}
+        .act-btn.active{background:var(--ac);color:#fff;border-color:var(--ac)}
+        .act-menu{position:fixed;display:none;flex-direction:column;gap:1px;min-width:190px;background:var(--sf);border:1px solid var(--br);border-radius:12px;box-shadow:var(--sh2);padding:5px;z-index:500}
+        .act-menu.open{display:flex}
+        .act-item{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:8px;border:none;background:none;font-size:12px;font-weight:500;color:var(--tx2);cursor:pointer;text-align:left;width:100%;font-family:var(--fb);transition:all .12s}
+        .act-item:hover{background:var(--sf3);color:var(--tx)}
+        .act-item .mi{font-size:16px;color:var(--tx3);flex-shrink:0}
+        .act-item:hover .mi{color:var(--ac)}
+        .act-item.danger{color:var(--ro)}
+        .act-item.danger:hover{background:var(--c-rose);color:var(--ro)}
+        .act-item.danger .mi{color:var(--ro)}
+        .act-item:disabled{opacity:.4;cursor:not-allowed;pointer-events:none}
+        .act-sep{height:1px;background:var(--br);margin:4px 3px}
 
         .prg{height:6px;background:var(--sf2);border-radius:3px;overflow:hidden;border:1px solid var(--br)}
         .prf{height:100%;border-radius:3px}
@@ -865,9 +886,13 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
                     </tr></thead>
                     <tbody id="stuTable"></tbody>
                 </table></div>
-                <div class="pag">
-                    <span class="pag-i" id="stuPagI"></span>
-                    <div class="pag-b" id="stuPagB"></div>
+                <div class="flex items-center justify-between gap-sm px-md py-sm border-t border-outline-variant bg-surface-container-lowest flex-wrap">
+                    <span class="font-label-sm text-label-sm text-on-surface-variant whitespace-nowrap" id="stuPagI"></span>
+                    <div class="flex items-center gap-xxs">
+                        <button class="pg-nav" id="stuPagPrev" onclick="stuPgStep(-1)" aria-label="Previous page"><span class="mi sm">chevron_left</span></button>
+                        <div class="pag-b" id="stuPagB"></div>
+                        <button class="pg-nav" id="stuPagNext" onclick="stuPgStep(1)" aria-label="Next page"><span class="mi sm">chevron_right</span></button>
+                    </div>
                     <select id="stuPerPageSel" onchange="stuPerPage=+this.value;stuPage=1;renderStudents()" class="font-label-sm text-label-sm bg-surface-container-low border border-outline-variant rounded-lg px-xs py-xxs text-on-surface cursor-pointer">
                         <option value="10" selected>10 / page</option>
                         <option value="15">15 / page</option>
@@ -2244,6 +2269,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
 </div>
 
 <div class="toast-wrap" id="toastWrap"></div>
+<div class="act-menu" id="actMenuPortal"></div>
 <script>
     // ═══ API CONFIG ═══
     const API = 'api/index.php';
@@ -2954,20 +2980,81 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
       <td>${bal>0?`<span class="fee-bal-badge">₹${bal}</span>`:''}</td>
       <td><span class="tag ${x.feeStatus==='paid'?'tpd':x.feeStatus==='partial'?'tpart':x.feeStatus==='pending'?'tpn':'tod'}">${x.feeStatus==='paid'?'✓ Paid':x.feeStatus==='partial'?'◑ Partial':x.feeStatus==='pending'?'⏳ Pending':'🚨 Overdue'}</span></td>
       <td><span style="font-size:10.5px;font-family:var(--fm);color:${x.feeStatus==='overdue'?'var(--ro)':x.feeStatus==='pending'?'var(--gd)':'var(--tx3)'}">${fmtDate(x.dueDate)}</span></td>
-      <td><div style="display:flex;gap:4px">
+      <td><div style="display:flex;align-items:center;gap:4px">
         ${x.feeStatus!=='paid'&&canDo('collect_fee')?`<button class="btn bp" data-action="collect_fee" style="font-size:10px;padding:3px 7px" onclick="qCollect('${x.id}')">Collect</button>`:''}
-        <button class="btn bg" style="font-size:10px;padding:3px 7px" onclick="openStudentProfile('${x.id}')">👤</button>
-        <button class="btn bg" style="font-size:10px;padding:3px 7px" onclick="showStudentQR('${x.id}')" title="Student QR Code"><span class="mi sm">qr_code</span></button>
-        <button class="btn bwa" style="font-size:10px;padding:3px 7px" onclick="waQuick('${x.id}','${x.feeStatus==='paid'?'fee_receipt':x.feeStatus==='partial'?'partial_payment':x.feeStatus==='overdue'?'fee_overdue':'fee_due'}')">💬</button>
-        ${x.feeStatus!=='paid'?`<button class="btn bg" style="font-size:10px;padding:3px 7px;color:var(--ac);border-color:var(--ac)" onclick="sendUpiLink('${x.id}')">📱 UPI</button>`:''}
-        ${canDo('delete_student')?`<button class="btn bd" data-action="delete_student" style="font-size:10px;padding:3px 6px" onclick="delStu('${x.id}')"><span class="mi sm">close</span></button>`:''}
+        <button class="act-btn" onclick="toggleActMenu(event,'${x.id}',this)" aria-label="More actions" title="More actions"><span class="mi sm">more_vert</span></button>
       </div></td>
     </tr>`;
         }).join('')||'<tr><td colspan="12"><div class="empty"><div class="ei">👨‍🎓</div><div class="et">No students</div></div></td></tr>';
         document.getElementById('stuPagI').textContent=`${sl.length} of ${total}`;
-        let pb='';for(let i=1;i<=pages;i++) pb+=`<div class="pb2 ${i===stuPage?'active':''}" onclick="stuPage=${i};renderStudents()">${i}</div>`;
-        document.getElementById('stuPagB').innerHTML=pb;
+        document.getElementById('stuPagB').innerHTML=pagerNumbersHtml(stuPage,pages,'stuPage','renderStudents');
+        document.getElementById('stuPagPrev').disabled = stuPage<=1;
+        document.getElementById('stuPagNext').disabled = stuPage>=pages;
     }
+    function stuPgStep(d){ stuPage+=d; renderStudents(); }
+
+    // ═══ Shared smart pager number strip (page 1 … n-1 n n+1 … last) ═══
+    function pagerNumbersHtml(current,pages,varName,renderFn){
+        const nums=[];
+        if(pages<=7){ for(let i=1;i<=pages;i++) nums.push(i); }
+        else{
+            nums.push(1);
+            if(current>3) nums.push('…');
+            for(let i=Math.max(2,current-1); i<=Math.min(pages-1,current+1); i++) nums.push(i);
+            if(current<pages-2) nums.push('…');
+            nums.push(pages);
+        }
+        return nums.map(n=> n==='…'
+            ? `<span class="pg-dots">…</span>`
+            : `<button class="pb2 ${n===current?'active':''}" onclick="${varName}=${n};${renderFn}()">${n}</button>`
+        ).join('');
+    }
+
+    // ═══ Row action dropdown menu (icon + text, portal-based) ═══
+    function toggleActMenu(ev,id,btnEl){
+        ev.stopPropagation();
+        const portal=document.getElementById('actMenuPortal');
+        const wasOpenForThis = portal.classList.contains('open') && portal.dataset.forId===id;
+        closeActMenu();
+        if(wasOpenForThis) return;
+        const x=DB.students.find(s=>s.id===id);
+        if(!x) return;
+        const waType=x.feeStatus==='paid'?'fee_receipt':x.feeStatus==='partial'?'partial_payment':x.feeStatus==='overdue'?'fee_overdue':'fee_due';
+        let items='';
+        items+=`<button class="act-item" onclick="closeActMenu();openStudentProfile('${id}')"><span class="mi sm">person</span>View Profile</button>`;
+        items+=`<button class="act-item" onclick="closeActMenu();showStudentQR('${id}')"><span class="mi sm">qr_code</span>Student QR Code</button>`;
+        items+=`<button class="act-item" onclick="closeActMenu();waQuick('${id}','${waType}')"><span class="mi sm">chat</span>Send WhatsApp</button>`;
+        if(x.feeStatus!=='paid'){
+            items+=`<button class="act-item" onclick="closeActMenu();sendUpiLink('${id}')"><span class="mi sm">qr_code_2</span>Send UPI Link</button>`;
+        }
+        if(canDo('delete_student')){
+            items+=`<div class="act-sep"></div><button class="act-item danger" onclick="closeActMenu();delStu('${id}')"><span class="mi sm">delete</span>Remove Student</button>`;
+        }
+        portal.innerHTML=items;
+        portal.dataset.forId=id;
+        portal.style.display='flex';
+        const r=btnEl.getBoundingClientRect();
+        const mh=portal.offsetHeight, mw=portal.offsetWidth;
+        let top=r.bottom+4;
+        if(top+mh>window.innerHeight-8) top=Math.max(8,r.top-mh-4);
+        let left=r.right-mw;
+        if(left<8) left=8;
+        portal.style.top=top+'px';
+        portal.style.left=left+'px';
+        portal.classList.add('open');
+        btnEl.classList.add('active');
+        window._actMenuBtn=btnEl;
+    }
+    function closeActMenu(){
+        const portal=document.getElementById('actMenuPortal');
+        portal.classList.remove('open');
+        portal.style.display='none';
+        delete portal.dataset.forId;
+        if(window._actMenuBtn){window._actMenuBtn.classList.remove('active');window._actMenuBtn=null;}
+    }
+    document.addEventListener('click',closeActMenu);
+    window.addEventListener('resize',closeActMenu);
+    document.addEventListener('scroll',closeActMenu,true);
     function stuSrch(v){stuSearchVal=v;stuPage=1;renderStudents();}
     function stuFilt(f,el){stuFilterVal=f;stuPage=1;document.querySelectorAll('#stuTabs .tab').forEach(t=>t.classList.remove('active'));el.classList.add('active');renderStudents();}
     function qCollect(id) {
