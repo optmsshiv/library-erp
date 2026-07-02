@@ -66,6 +66,11 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
             --sh2:0 8px 32px rgba(15,23,42,.12),0 2px 8px rgba(15,23,42,.06);
         }
         *{margin:0;padding:0;box-sizing:border-box}
+        /* Tailwind preflight is disabled (corePlugins.preflight:false) so border-* utilities,
+           which only set border-width, have no border-style to fall back on and stay invisible.
+           This restores just that piece of preflight without touching anything else. */
+        *,*::before,*::after{border-width:0;border-style:solid;border-color:currentColor}
+        table{background:#fff}
         body{font-family:var(--fb);font-size:16px;background:var(--bg);color:var(--tx);min-height:100vh;overflow-x:hidden;line-height:1.6}
 
         /* ── Sidebar/Topbar — now Tailwind. Only keeping JS-driven active state + badge colors ── */
@@ -893,7 +898,7 @@ $staffInitials = strtoupper(implode('', array_map(fn($p) => $p[0] ?? '', array_f
                         <div class="pag-b" id="stuPagB"></div>
                         <button class="pg-nav" id="stuPagNext" onclick="stuPgStep(1)" aria-label="Next page"><span class="mi sm">chevron_right</span></button>
                     </div>
-                    <select id="stuPerPageSel" onchange="stuPerPage=+this.value;stuPage=1;renderStudents()" class="font-label-sm text-label-sm bg-surface-container-low border border-outline-variant rounded-lg px-xs py-xxs text-on-surface cursor-pointer">
+                    <select id="stuPerPageSel" onchange="stuPerPage=+this.value;stuPage=1;renderStudents()" class="w-auto flex-shrink-0 font-label-sm text-label-sm bg-surface-container-low border border-outline-variant rounded-lg px-xs py-xxs text-on-surface cursor-pointer">
                         <option value="10" selected>10 / page</option>
                         <option value="15">15 / page</option>
                         <option value="25">25 / page</option>
